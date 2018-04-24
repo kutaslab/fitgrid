@@ -1,4 +1,5 @@
 import numpy as np
+import pdb
 
 class FitBucket(object):
     '''each bucket holds one regression fit plus diagnostics, etc.
@@ -55,6 +56,7 @@ class FitGrid(np.ndarray):
     
     """
     def __new__(cls, ntimes, nchans):
+        pdb.set_trace()
         cls._ntimes = ntimes
         cls._nchans = nchans
         return super(FitGrid, cls).__new__(cls,

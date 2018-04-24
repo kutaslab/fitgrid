@@ -9,14 +9,11 @@
 #    pip install .
 # 
 # http://python-packaging.readthedocs.io/en/latest/minimal.html
+
 from Cython.Distutils import build_ext
 from Cython.Build import cythonize
 from setuptools import  find_packages, setup, Extension
 import numpy as np
-
-# from Cython.Distutils import build_ext
-# import numpy as np
-# from setuptools import  find_packages, setup, Extension
 
 extensions =  [
     Extension("eegr._eegr",
