@@ -29,7 +29,7 @@
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
-*.py[cod]
+*.py[codx]
 *$py.class
 
 # C extensions

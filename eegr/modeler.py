@@ -5,21 +5,43 @@ class FitBucket(object):
     
     Parameters
     ----------
-    time : string
-        the time stamp from the Time column of an epochs DataFrame
-    chan : string
-        the channel name from the channel columns of an epochs DataFrame
+    time_idx : float
+        self-identify the time stamp from the Time column of an epochs
+        DataFrame
+    chan_jdx : uint
+        self-identify the channel name from the channel columns of an
+        epochs DataFrame
 
-    
     '''
-    def __init__(self,time_idx,chan_jdx):
+    def __init__(self,time_idx,chan_jdx, fit):
         self.time_idx=time_idx
         self.chan_jdx=chan_jdx
         
         self.time = None
         self.chan = None
-        self.reg_fit = {}
-        self.diagnostics = {}
+        self.reg_fit = {} # np.ndarray(shape=(0,),dtype=None) # TODO what dtype?
+        self.diagnostics = {} 
+
+        # fit and diagnostic data types from ldlio fit_bucket.ipynb
+        dt_fit_names = ['coef','se','ci_lower','ci_upper']
+        dt_diag_names = ['cooks_d','df_betas','ess_press','resid_press',
+                         'resid_std','resid_var','resid_studentized_internal']
+        dt_fit_formats = ['float32', 'float32', 'float32', 'float32']
+        dt_diag_formats = ['int16', 'float32', 'float32', 
+                           'float32', 'float32', 'float32', 'float32']
+
+        dt_fit = np.dtype({'names' : dt_fit_names,
+                           'formats' : dt_fit_formats})
+        dt_diag = np.dtype({'names' : dt_diag_names,
+                            'formats' : dt_diag_formats})
+
+        # ldlaios fit bucket data type
+        dt = np.dtype(([('fit', dt_fit), ('diag', dt_diag)]))
+
+        # TO DO: fill the bucket with results and diagnostics from fit
+        # NB: some measures are global to the fit
+        #     some measures are fit parameter specific ... b0, b1, ...
+
 
 class FitGrid(np.ndarray):
     """ numpy.ndarray container for FitBuckets: times x channels
@@ -95,12 +117,12 @@ class FitGrid(np.ndarray):
                   
     @property
     def reg_fit(self):
-        """return ndarray of regression fit dicts (dtype = object)""" 
+        """return regression fits dtype = object)""" 
         return self._get_arry('reg_fit', np.dtype(object))
     
     @property
     def diagnostics(self):
-        """return ndarray of diagnostic dicts (dtype = object)"""
+        """return diagnostics (dtype = object)"""
         return self._get_arry('diagnostics', np.dtype(object))
 
 
