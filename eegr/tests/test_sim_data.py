@@ -58,7 +58,7 @@ def test_df_dtype():
 def test_empty_epoch00():
     with pytest.raises(Exception):
         epoch_p = (0,0)
-        time_p = (0,0,1)
+        time_p = (0,1,1)
         cat_p = [(0,0)]
         cont_p = [(0,0)]
         noise = (0,0)
@@ -68,9 +68,31 @@ def test_empty_epoch00():
 def test_empty_time001():
     with pytest.raises(Exception):
         epoch_p = (0,1)
+        time_p = (0,1,0)
+        cat_p = [(0,0)]
+        cont_p = [(0,0)]
+        noise = (0,0)
+        df = sd.df_gen(epoch_p=epoch_p, time_p=time_p, 
+                   cat_p=cat_p, cont_p=cont_p, noise_p=noise)
+
+def test_time_same():
+    with pytest.raises(Exception):
+        epoch_p = (0,1)
         time_p = (0,0,0)
         cat_p = [(0,0)]
         cont_p = [(0,0)]
         noise = (0,0)
         df = sd.df_gen(epoch_p=epoch_p, time_p=time_p, 
                    cat_p=cat_p, cont_p=cont_p, noise_p=noise)
+
+def test_time_stop_small():
+    with pytest.raises(Exception):
+        epoch_p = (0,1)
+        time_p = (6,0,0)
+        cat_p = [(0,0)]
+        cont_p = [(0,0)]
+        noise = (0,0)
+        df = sd.df_gen(epoch_p=epoch_p, time_p=time_p, 
+                   cat_p=cat_p, cont_p=cont_p, noise_p=noise)
+        
+      

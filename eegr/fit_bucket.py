@@ -37,7 +37,7 @@ dt_diag = np.dtype({'names' : dt_diag_names,
 
 dt = np.dtype(([('fit', dt_fit), ('diag', dt_diag)]))
 
-def make_fit_table(data,RHS):
+def make_fit_table(data, LHS, RHS):
     '''Make a fit table with fit_grids for all subjects
        each element is a fit object with mixed data types
     '''
@@ -46,23 +46,20 @@ def make_fit_table(data,RHS):
     times = data.index.levels[data.index.names.index('Time')]
     subids = data.index.levels[data.index.names.index('data_group')]
     
-    # slice some interesting electrodes
-    chans = ['MiPf', 'MiCe', 'MiPa','MiOc']
-    
     # creating empty fit_grids 
     fit_grids = []
 
     # every subject has a fit_grid
     for subid in subids:
         print('subid: ' + subid)
-        fit_grid = np.zeros((len(times),len(chans)),dtype=dt)
+        fit_grid = np.zeros((len(times),len(LHS)),dtype=dt)
         subid_slice = None
         subid_slice = data.loc[slicer[:,:, subid,:],:]
         subid_slice = subid_slice.sort_index()
         for it, time in enumerate(times):
             time_slice = None
             time_slice = subid_slice.loc[slicer[:,:,:,time],:]
-            for ic, chan in enumerate(chans):
+            for ic, chan in enumerate(LHS):
                 this_fit = None
                 formula = chan + " ~ " + RHS
                 this_fit = ols(formula, data = time_slice).fit()

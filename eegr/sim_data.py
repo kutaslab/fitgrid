@@ -11,7 +11,7 @@ def df_gen(epoch_p, time_p, cat_p, cont_p, noise_p=(0,0)):
         time_p: tuple,int
             (start,stop,step) time point range
         cat_p: list(s) of tuples [(b0,b1),...,(b0,b1)]
-            categorical variables
+            categorical variables (ints)
             cat_p[i] gives time dependent of i-th level of categorical data
         cont_p: list(s) of tuples [(start,stop),...,(start,stop)]
             continuous variables (floats)
@@ -22,7 +22,11 @@ def df_gen(epoch_p, time_p, cat_p, cont_p, noise_p=(0,0)):
     # parsing out the information from given
     e_start,e_stop = epoch_p 
     num_epoch = e_stop-e_start
+    
     t_start,t_stop,t_step = time_p
+    if t_stop < t_start or t_stop == t_start:
+        raise ValueError('stop time must be greater than start time!')
+
     mean,sd = noise_p
     cat_length = len(cat_p)
     
@@ -39,10 +43,12 @@ def df_gen(epoch_p, time_p, cat_p, cont_p, noise_p=(0,0)):
     epoch_idx = np.asarray([np.tile(x,time_length*cat_length) 
                             for x in range(num_epoch)])
     epoch_idx = np.concatenate(epoch_idx)
-    df['epoch_idx'] = epoch_idx
+    df['Epoch_idx'] = epoch_idx
     
     # generating id index
     df['Index'] = np.tile('id_10001',num_epoch*time_length*cat_length)
+    # generating data group index
+    df['data_group'] = np.tile('testing1',num_epoch*time_length*cat_length)
     
     # generating cat_index
     cat = None
@@ -69,7 +75,8 @@ def df_gen(epoch_p, time_p, cat_p, cont_p, noise_p=(0,0)):
                                                                start=cont[0],
                                                                stop=cont[1])
         df[col_name] = cont_vals
-
-    df.set_index(['Index','Time'], inplace=True)
+    
+    df.set_index(['Index', 'Epoch_idx', 'data_group','Time'], inplace=True)
+    df.sort_index(inplace=True)
     df['data'] = data
     return df
