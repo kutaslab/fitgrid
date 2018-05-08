@@ -5,7 +5,7 @@ from random import randint
 def fit_grid_gen():
     rand = randint(1,9)
     epoch_p = (0,6)
-    time_p = (0,randint(1, 9),1)
+    time_p = (0,rand,1)
     cat_p = [(0,2)]
     cont_p = [(0,1)]
     noise = (0,0)
@@ -19,7 +19,7 @@ def fit_grid_gen():
 
 def test_coef_shape():
     rand, fit_grids = fit_grid_gen()
-    assert fit_grids[0]['fit']['coef'].shape == rand
+    assert fit_grids[0]['fit']['coef'].shape[0] == rand
 
 def test_ci_val():
     rand, fit_grids = fit_grid_gen()
