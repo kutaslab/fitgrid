@@ -15,28 +15,6 @@ import copy
 
 slicer = pd.IndexSlice
 
-# fit and diagnostic data types
-dt_fit_names = ['coef','se','ci']
-dt_diag_names = ['cooks_d','ess_press','resid_press',
-                 'resid_std','resid_var','resid_studentized_internal']
-
-n = 1
-k = 1
-
-dt_fit_formats = [('float32',n), ('float32',n), ('float32',(n,2))]
-dt_diag_formats = [('int16',1),
-                   ('float32',k), 
-                   ('float32',k), 
-                   ('float32',k), 
-                   ('float32',k), 
-                   ('float32',k)]
-dt_fit = np.dtype({'names' : dt_fit_names,
-                   'formats' : dt_fit_formats})
-dt_diag = np.dtype({'names' : dt_diag_names,
-                   'formats' : dt_diag_formats})
-
-dt = np.dtype(([('fit', dt_fit), ('diag', dt_diag)]))
-
 def make_fit_table(data, LHS, RHS):
     '''Make a fit table with fit_grids for all subjects
        each element is a fit object with mixed data types
@@ -52,7 +30,7 @@ def make_fit_table(data, LHS, RHS):
     # every subject has a fit_grid
     for subid in subids:
         print('subid: ' + subid)
-        fit_grid = np.zeros((len(times),len(LHS)),dtype=dt)
+        fit_grid = np.empty((len(times),len(LHS)),dtype=object)
         subid_slice = None
         subid_slice = data.loc[slicer[:,:, subid,:],:]
         subid_slice = subid_slice.sort_index()
@@ -77,6 +55,11 @@ def get_fit(fit_obj):
     n = len(fit_obj.params)
     k = len(infl.resid_press)
 
+    # fit and diagnostic data types
+    dt_fit_names = ['coef','se','ci']
+    dt_diag_names = ['cooks_d','ess_press','resid_press',
+                     'resid_std','resid_var','resid_studentized_internal']
+    
     dt_fit_formats = [('float32',n), ('float32',n), ('float32',(n,2))]
     dt_diag_formats = [('int16',1),
                        ('float32',k), 
@@ -84,6 +67,7 @@ def get_fit(fit_obj):
                        ('float32',k), 
                        ('float32',k), 
                        ('float32',k)]
+    
     dt_fit = np.dtype({'names' : dt_fit_names,
                        'formats' : dt_fit_formats})
     dt_diag = np.dtype({'names' : dt_diag_names,

@@ -76,7 +76,7 @@ def df_gen(epoch_p, time_p, cat_p, cont_p, noise_p=(0,0)):
                                                                stop=cont[1])
         df[col_name] = cont_vals
     
+    df['data'] = data
     df.set_index(['Index', 'Epoch_idx', 'data_group','Time'], inplace=True)
     df.sort_index(inplace=True)
-    df['data'] = data
     return df
