@@ -71,7 +71,7 @@ def df_gen(epoch_p, time_p, cat_p, cont_p, noise_p=(0,0)):
     
     for i, cont in enumerate(cont_p):
         cont_vals = np.random.uniform(low=cont[0], high=cont[1], size=df_size)
-        col_name = 'cont_{counter}_range{start},{stop}'.format(counter=i+1,
+        col_name = 'cont_{counter}_range{start}_{stop}'.format(counter=i+1,
                                                                start=cont[0],
                                                                stop=cont[1])
         df[col_name] = cont_vals
