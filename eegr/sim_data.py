@@ -5,7 +5,7 @@
 import numpy as np
 import pandas as pd
 
-def data_frame_gen(epoch_p, time_p, cat_p, cont_p, noise_p=(0, 0)):
+def df_gen(epoch_p, time_p, cat_p, cont_p, noise_p=(0, 0)):
     ''' Parameters:
         epoch_p: tuple,int
             (start,stop) epoch index range
