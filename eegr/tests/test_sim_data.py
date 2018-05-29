@@ -131,8 +131,9 @@ def test_cont_p():
     for i,range_set in enumerate(cont_p):
         start = range_set[0]
         end = range_set[1]
-        col_label = 'cont_' + str(i+1) + '_range' + str(start) + ',' + str(end)
-        assert ((epochs[col_label].values > start) & (epochs[col_label].values < end)).all
+        col_label = 'cont_' + str(i+1) + '_range' + str(start) + '_' + str(end)
+        assert (((epochs[col_label].values > start) | (epochs[col_label].values == start))
+                & (epochs[col_label].values < end | (epochs[col_label].values == end))).all
 
 # test if data matches cat_p range
 def test_cat_p_match_data():
