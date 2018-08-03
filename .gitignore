@@ -7,5 +7,5 @@ __pycache__/
 build/
 *.egg-info/
 
-# IPython Notebook
-.ipynb_checkpoints
+# Jupyter notebooks
+notebooks
