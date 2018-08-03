@@ -1,37 +1,22 @@
 # to install in development mode, from this directory run
 # 
-#     pip uninstall eegr
-#     python ./setup.py build_ext --inplace
-#     python ./setup.py develop -d ~/.local/lib/python3.6/site-packages/
+#     pip install -e .
 #
-#  to install stable package, as root run 
+# to install stable package, as root run
 #
-#    pip install .
+#     pip install .
 # 
 # http://python-packaging.readthedocs.io/en/latest/minimal.html
 
-from Cython.Distutils import build_ext
-from Cython.Build import cythonize
-from setuptools import  find_packages, setup, Extension
-import numpy as np
-
-extensions =  [
-    Extension("eegr._eegr",
-              ["eegr/_eegr.pyx"],
-              include_dirs=[np.get_include()],
-          )
-]
+from setuptools import find_packages, setup
 
 setup(
     name='eegr',
     version = '0.1',
     description='regression ERP',
-    author='Tom Urbach, Lauren Liao',
+    author='Tom Urbach, Lauren Liao, Andrey Portnoy',
     author_email='turbach@ucsd.edu',
     url='http://kutaslab.ucsd.edu/people/urbach',
-    packages=find_packages(), 
-    cmdclass = {'build_ext': build_ext},
-    ext_modules = cythonize(extensions)
-,
+    packages=find_packages()
 )
 
