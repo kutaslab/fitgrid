@@ -9,3 +9,4 @@ build/
 
 # Jupyter notebooks
 notebooks
+.ipynb_checkpoints
