@@ -1,8 +1,8 @@
 # to install in development mode, from this directory run
 # 
-#     pip install -e .
+#     pip install --user -e .
 #
-# to install stable package, as root run
+# to install stable package systemwide, as root run
 #
 #     pip install .
 # 
