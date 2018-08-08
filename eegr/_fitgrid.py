@@ -40,12 +40,31 @@ class FitGrid:
         is_str = isinstance(slicer, str)
         is_list_of_str = (isinstance(slicer, list) and
                           all(isinstance(item, str) for item in slicer))
-        if is_str or is_list_of_str:
-            indexer = self.channel_index.loc[slicer]
-            return self._grid[indexer]
-        else:
-            raise TypeError('Use channel names or lists'
-                            'of channel names for indexing.')
+
+        # single response variable
+        if is_str:
+            if slicer not in self.LHS:
+                raise KeyError(f'{slicer} not in the list of response '
+                                'variables: {self.LHS}')
+            else:
+                indexer = self.channel_index.loc[slicer]
+                return self._grid[indexer]
+
+        # a list of response variables
+        if is_list_of_str:
+            asked_for = set(slicer)
+            have = set(self.LHS)
+            if not asked_for.issubset(have):
+                missing = asked_for - have
+                raise KeyError(f'The following requested response variables '
+                                'were not in the model: {missing}')
+            else:
+                indexer = self.channel_index.loc[slicer]
+                return self._grid[indexer]
+
+        # the slicer is neither a string nor a list of strings
+        raise TypeError(f'Expected a channel name or a list of channel names '
+                         'got {type(slicer)} instead.')
 
     def info(self):
         channels = ', '.join(self.LHS)
