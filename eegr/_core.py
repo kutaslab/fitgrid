@@ -3,6 +3,11 @@ import patsy
 from statsmodels.formula.api import ols
 
 from ._fitgrid import FitGrid
+from .errors import EegrError
+
+# index variables in epoch table
+EPOCH_ID = 'epoch_id'
+TIME = 'time'
 
 
 def build_bucket_dt(n_betas, n_epochs):
@@ -63,6 +68,21 @@ def fill_bucket(fit_obj, bucket_dt):
     return bucket
 
 
+def _check_group_indices(group_by, index_level):
+    """Check groups have same index using transitivity."""
+
+    prev_group = None
+    for idx, cur_group in group_by:
+        if prev_group is not None:
+            prev_indices = prev_group.index.get_level_values(index_level)
+            cur_indices = cur_group.index.get_level_values(index_level)
+            if not prev_indices.equals(cur_indices):
+                return False, idx
+        prev_group = cur_group
+
+    return True, None
+
+
 def build_grid(epochs, LHS, RHS):
     """Given an epochs table, LHS, and RHS, build a grid with fit info.
 
@@ -89,14 +109,27 @@ def build_grid(epochs, LHS, RHS):
         - every epoch has same time index
     """
 
-    EPOCH_ID = 'epoch_id'
-    TIME = 'time'
-
+    # these index columns are required for groupby's
     assert TIME in epochs.index.names and EPOCH_ID in epochs.index.names
+
+    group_by_epoch = epochs.groupby(EPOCH_ID)
+    group_by_time = epochs.groupby(TIME)
+
+    # verify all epochs have same time index
+    same_time_index, epoch_idx = _check_group_indices(group_by_epoch, TIME)
+    if not same_time_index:
+        raise EegrError(f'Epoch {epoch_idx} differs from previous epoch '
+                        'in {TIME} index.')
+
+    # check snapshots are across same epochs
+    same_epoch_index, snap_idx = _check_group_indices(group_by_time, EPOCH_ID)
+    if not same_epoch_index:
+        raise EegrError(f'Snapshot {snap_idx} differs from previous '
+                        'snapshot in {EPOCH_ID} index.')
 
     # build bucket datatype
     n_betas = len(patsy.ModelDesc.from_formula(RHS).rhs_termlist)
-    n_epochs = len(epochs.index.unique(EPOCH_ID))
+    n_epochs = len(epochs.index.get_level_values(EPOCH_ID).unique())
     bucket_dt = build_bucket_dt(n_betas, n_epochs)
 
     # run regressions
@@ -104,7 +137,7 @@ def build_grid(epochs, LHS, RHS):
     fits = (
         ols(formula, snapshot).fit()
         for formula in formulas
-        for _, snapshot in epochs.groupby(TIME)
+        for _, snapshot in group_by_time
     )
 
     # fill buckets with results
@@ -115,8 +148,8 @@ def build_grid(epochs, LHS, RHS):
 
     # build grid
     n_channels = len(LHS)
-    n_samples = len(epochs.groupby(TIME))
+    n_samples = len(group_by_time)
     grid = np.array(buckets, bucket_dt).reshape(n_channels, n_samples)
 
-    epoch_index = epochs.groupby(TIME).first().index
+    epoch_index = group_by_epoch.get_group(0).index
     return FitGrid(grid, LHS, epoch_index)
