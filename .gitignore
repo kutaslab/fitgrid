@@ -10,3 +10,6 @@ build/
 # Jupyter notebooks
 notebooks
 .ipynb_checkpoints
+
+# Pytest cache
+.cache
