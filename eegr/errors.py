@@ -1,0 +1,2 @@
+class EegrError(Exception):
+    pass
