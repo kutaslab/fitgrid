@@ -22,13 +22,25 @@ def test__shapes():
                          LHS=['channel0', 'channel12', 'channel23'],
                          RHS='continuous + categorical')
 
-    # shape of betas should be (# samples per epoch, # predictors)
+    # shape of betas should be (# samples per epoch, # predictors) in this case
     # the intercept is implicit in patsy formulas, so 2 + 1 = 3, quick mafs
     assert fitgrid['channel0']['fit']['betas'].shape == (len(epoch), 3)
 
     # shape of residuals should be (# samples per epoch, # epochs)
     assert fitgrid['channel0']['diag']['resid_press'].shape \
         == (len(epoch), len(snapshot))
+
+def test__many_categories():
+    """Test bucket datatype fits the betas.
+
+    Depending on the coding scheme, the number of betas might not be equal to
+    the number of predictors, so we cannot rely on the formula to determine the
+    shape of betas for the bucket datatype.
+    """
+    epochs_table = generate(n_categories=4)
+    fitgrid = build_grid(epochs_table,
+                         LHS=['channel0', 'channel12', 'channel23'],
+                         RHS='continuous + categorical')
 
 
 def test__raises_error_on_epoch_shape_mismatch():
