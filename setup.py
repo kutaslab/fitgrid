@@ -17,6 +17,12 @@ setup(
     author='Tom Urbach, Lauren Liao, Andrey Portnoy',
     author_email='turbach@ucsd.edu',
     url='http://kutaslab.ucsd.edu/people/urbach',
-    packages=find_packages()
+    packages=find_packages(),
+    install_requires=[
+        'numpy',
+        'pandas',
+        'patsy',
+        'statsmodels',
+    ]
 )
 
