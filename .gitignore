@@ -12,4 +12,5 @@ notebooks
 .ipynb_checkpoints
 
 # Pytest cache
+.pytest_cache
 .cache
