@@ -40,6 +40,8 @@ class FitGrid:
         is_str = isinstance(slicer, str)
         is_list_of_str = (isinstance(slicer, list) and
                           all(isinstance(item, str) for item in slicer))
+        is_slice = isinstance(slicer, slice)
+        is_wildcard_slice = (slicer == slice(None, None, None))
 
         # single response variable
         if is_str:
@@ -62,9 +64,16 @@ class FitGrid:
                 indexer = self.channel_index.loc[slicer]
                 return self._grid[indexer]
 
-        # the slicer is neither a string nor a list of strings
-        raise TypeError(f'Expected a channel name or a list of channel names '
-                         'got {type(slicer)} instead.')
+        if is_slice:
+            if is_wildcard_slice:
+                return self._grid
+            else:
+                raise EegrError('Only wildcard slicing is supported for colon '
+                                'slicing')
+
+        # the slicer is neither a string, list of strings nor a wildcard slice
+        raise EegrError(f'Expected a channel name, list of channel names or '
+                        f'a colon, got {slicer} of type {type(slicer)}.')
 
     def info(self):
         channels = ', '.join(self.LHS)
