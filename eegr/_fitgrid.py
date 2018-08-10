@@ -44,8 +44,8 @@ class FitGrid:
         # single response variable
         if is_str:
             if slicer not in self.LHS:
-                raise KeyError(f'{slicer} not in the list of response '
-                                'variables: {self.LHS}')
+                raise EegrError(f'{slicer} not in the list of response '
+                                f'variables: {self.LHS}')
             else:
                 indexer = self.channel_index.loc[slicer]
                 return self._grid[indexer]
@@ -56,8 +56,8 @@ class FitGrid:
             have = set(self.LHS)
             if not asked_for.issubset(have):
                 missing = asked_for - have
-                raise KeyError(f'The following requested response variables '
-                                'were not in the model: {missing}')
+                raise EegrError(f'The following requested response variables '
+                                f'were not in the model: {missing}')
             else:
                 indexer = self.channel_index.loc[slicer]
                 return self._grid[indexer]

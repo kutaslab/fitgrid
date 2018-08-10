@@ -119,13 +119,13 @@ def build_grid(epochs, LHS, RHS):
     same_time_index, epoch_idx = _check_group_indices(group_by_epoch, TIME)
     if not same_time_index:
         raise EegrError(f'Epoch {epoch_idx} differs from previous epoch '
-                        'in {TIME} index.')
+                        f'in {TIME} index.')
 
     # check snapshots are across same epochs
     same_epoch_index, snap_idx = _check_group_indices(group_by_time, EPOCH_ID)
     if not same_epoch_index:
         raise EegrError(f'Snapshot {snap_idx} differs from previous '
-                        'snapshot in {EPOCH_ID} index.')
+                        f'snapshot in {EPOCH_ID} index.')
 
     # build bucket datatype
     n_betas = len(patsy.ModelDesc.from_formula(RHS).rhs_termlist)
