@@ -3,7 +3,7 @@ import numpy as np
 import random
 
 from eegr import generate, build_grid
-from eegr.errors import EegrError
+from eegr._errors import EegrError
 from eegr._core import EPOCH_ID, TIME
 
 

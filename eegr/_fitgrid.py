@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from eegr.errors import EegrError
+from eegr._errors import EegrError
 
 
 class FitGrid:

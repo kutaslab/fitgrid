@@ -3,7 +3,7 @@ import patsy
 from statsmodels.formula.api import ols
 
 from ._fitgrid import FitGrid
-from .errors import EegrError
+from ._errors import EegrError
 
 # index variables in epoch table
 EPOCH_ID = 'epoch_id'
