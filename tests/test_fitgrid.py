@@ -39,10 +39,12 @@ def test__raises_error_on_epoch_shape_mismatch():
     row_to_drop = random.choice(epochs_table.index)
     epochs_table.drop(row_to_drop, inplace=True)
 
-    with pytest.raises(EegrError):
+    with pytest.raises(EegrError) as error:
         build_grid(epochs_table,
                    LHS=['channel0', 'channel1'],
                    RHS='continuous + categorical')
+
+    assert 'differs from previous epoch' in str(error.value)
 
 
 def test__raises_error_on_epoch_index_mismatch():
@@ -72,8 +74,10 @@ def test__raises_error_on_bad_slicer_type():
     fitgrid = build_grid(epochs_table,
                          LHS=['channel0', 'channel1'],
                          RHS='continuous + categorical')
-    with pytest.raises(TypeError):
+    with pytest.raises(EegrError) as bad_slicer_error:
         fitgrid[2]
+
+    assert 'Expected a channel name' in str(bad_slicer_error.value)
 
 
 def test__raises_error_on_missing_channel():
@@ -85,9 +89,56 @@ def test__raises_error_on_missing_channel():
                          RHS='continuous + categorical')
 
     # channel present in epochs_table, but not included in LHS
-    with pytest.raises(KeyError):
+    with pytest.raises(EegrError) as first_unknown_channel:
         fitgrid['channel2']
 
+    assert 'channel2 not in the list' in str(first_unknown_channel.value)
+
     # completely unknown channel
-    with pytest.raises(KeyError):
+    with pytest.raises(EegrError) as second_unknown_channel:
         fitgrid['channel_blah']
+
+    assert 'channel_blah not in the list' in str(second_unknown_channel.value)
+
+
+def test__colon_wildcard_slicer():
+    """Good: passing a colon slicer (fitgrid[:]) should return all channels."""
+
+    n_samples = 100
+    n_channels = 4
+    LHS_all_four = ['channel0', 'channel1', 'channel2', 'channel3']
+    RHS = 'continuous + categorical'
+
+    epochs_table = generate(n_samples=n_samples, n_channels=n_channels)
+    fitgrid_all_four = build_grid(epochs_table, LHS=LHS_all_four, RHS=RHS)
+
+    # generate and fit with 4 channels, so expect 4 by 100 fitgrid
+    assert fitgrid_all_four[:].shape == (4, 100)
+
+    LHS_only_two = ['channel0', 'channel1']
+    fitgrid_only_two = build_grid(epochs_table, LHS=LHS_only_two, RHS=RHS)
+
+    # fit with 2 channels, expect 2 by 100 fitgrid
+    assert fitgrid_only_two[:].shape == (2, 100)
+
+
+def test__colon_slicing_nonwildcard():
+    """Bad: nonwildcard indexing makes no sense, raise KeyError."""
+
+    epochs_table = generate()
+    fitgrid = build_grid(epochs_table,
+                         LHS=['channel0', 'channel1'],
+                         RHS='continuous + categorical')
+
+    with pytest.raises(EegrError) as bad_colon_1:
+        fitgrid[:1]
+    assert 'Only wildcard slicing is supported' in str(bad_colon_1.value)
+
+    with pytest.raises(EegrError) as bad_colon_2:
+        fitgrid[:'channel1']
+    assert 'Only wildcard slicing is supported' in str(bad_colon_2.value)
+
+    # meaningless right now, might change (all channels, all samples)
+    with pytest.raises(EegrError) as bad_colon_3:
+        fitgrid[:, :]
+    assert 'Expected a channel name' in str(bad_colon_3.value)

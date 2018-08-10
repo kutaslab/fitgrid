@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 
+from eegr.errors import EegrError
+
 
 class FitGrid:
     """Hold rERP fit and diagnostic data.
