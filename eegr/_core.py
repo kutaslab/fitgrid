@@ -128,8 +128,11 @@ def build_grid(epochs, LHS, RHS):
                         f'snapshot in {EPOCH_ID} index.')
 
     # build bucket datatype
-    n_betas = len(patsy.ModelDesc.from_formula(RHS).rhs_termlist)
-    n_epochs = len(epochs.index.get_level_values(EPOCH_ID).unique())
+    # we don't know in advance how many betas patsy will end up encoding, so we
+    # run a dmatrix builder on a single snapshot and note the number of columns
+    single_snapshot = group_by_time.get_group(0)
+    n_betas = len(patsy.dmatrix(RHS, single_snapshot).design_info.column_names)
+    n_epochs = len(single_snapshot)
     bucket_dt = build_bucket_dt(n_betas, n_epochs)
 
     # run regressions
