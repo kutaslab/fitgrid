@@ -78,12 +78,16 @@ class FitGrid:
                         f'a colon, got {slicer} of type {type(slicer)}.')
 
     def info(self):
-        channels = ', '.join(self.LHS)
-        fit_data = ', '.join(self._grid.dtype['fit'].names)
-        diagnostic_data = ', '.join(self._grid.dtype['diag'].names)
 
         message = ''
+
+        channels = ', '.join(self.LHS)
         message += f'Channels: {channels}\n'
+
+        fit_data = ', '.join(self._grid.dtype['fit'].names)
         message += f'Fit data: {fit_data}\n'
+
+        diagnostic_data = ', '.join(self._grid.dtype['diag'].names)
         message += f'Diagnostic data: {diagnostic_data}'
+
         print(message)
