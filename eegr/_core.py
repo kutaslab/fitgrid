@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import patsy
 from statsmodels.formula.api import ols
 
@@ -108,6 +109,13 @@ def build_grid(epochs, LHS, RHS):
         - every epoch has equal number of samples
         - every epoch has same time index
     """
+
+    if not isinstance(epochs, pd.DataFrame):
+        raise EegrError('epochs must be a Pandas DataFrame.')
+
+    if not (isinstance(LHS, list) and
+            all(isinstance(item, str) for item in LHS)):
+        raise EegrError('LHS must be a list of strings.')
 
     # these index columns are required for groupby's
     assert TIME in epochs.index.names and EPOCH_ID in epochs.index.names
