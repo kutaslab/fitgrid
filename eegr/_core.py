@@ -5,9 +5,7 @@ from tqdm import tqdm_notebook as tqdm
 from ._fitgrid import FitGrid
 from ._errors import EegrError
 
-# index variables in epoch table
-EPOCH_ID = 'epoch_id'
-TIME = 'time'
+from . import EPOCH_ID, TIME
 
 
 def _check_group_indices(group_by, index_level):
