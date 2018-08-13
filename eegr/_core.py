@@ -84,7 +84,7 @@ def build_grid(epochs, LHS, RHS):
     # run regressions
     results = {
         channel: group_by_time.apply(regression, channel + ' ~ ' + RHS)
-        for channel in tqdm(LHS)
+        for channel in tqdm(LHS, desc='Channels: ')
     }
 
     grid = pd.DataFrame(results)
