@@ -1,93 +1,94 @@
 import numpy as np
 import pandas as pd
+from functools import lru_cache
 
 from eegr._errors import EegrError
 
 
 class FitGrid:
-    """Hold rERP fit and diagnostic data.
+    """Hold rERP fit objects.
 
     Parameters
     ----------
 
-    LHS : list of str
-        list of response variables in same order as used for regression
-    sample_index : pandas Index
-        Index of a single epoch
-    grid : NumPy array
-        NumPy structured array of dtype bucket_dt with 2 dimensions
-
-    Notes
-    -----
-
-    The idea is to wrap the numpy grid and provide convenient slicing
-    along channels (LHS) and samples (epoch_index).
+    grid : Pandas DataFrame
+        Pandas DataFrame of fit objects
     """
-    def __init__(self, grid, LHS, epoch_index):
 
-        assert grid.ndim == 2
-        assert len(LHS) == grid.shape[0]
-        assert len(epoch_index) == grid.shape[1]
+    def __init__(self, grid):
 
-        self._grid = grid
-        self.LHS = LHS
-        self.channel_index = pd.Series(np.arange(len(LHS)), index=LHS)
+        self.grid = grid
+        self.tester = grid.iloc[0, 0]
 
-        # this is never used, can't get sample indexing to work so far
-        self.sample_index = pd.Series(np.arange(len(epoch_index)),
-                                      index=epoch_index)
+    @lru_cache()
+    def __getattr__(self, name):
 
-    # TODO get sample indexing to work
-    def __getitem__(self, slicer):
-        is_str = isinstance(slicer, str)
-        is_list_of_str = (isinstance(slicer, list) and
-                          all(isinstance(item, str) for item in slicer))
-        is_slice = isinstance(slicer, slice)
-        is_wildcard_slice = (slicer == slice(None, None, None))
+        # We only get here if no attribute found, so user is either asking for
+        # a grid attribute, or is mistaken.
+        #
+        # The strategy is as follows:
+        #
+        # First see whether our tester object has the attribute.
+        # If yes, then we see what shape the attribute is. If no, raise error.
+        #
+        # If the attribute is a scalar, we're golden, simply apply elementwise.
+        # If the attribute is a series/numpy array, we use multiindex.
+        # If the attribute is multidimensional (covariances), I have no clue.
+        # If the attribute is a method, e.g. get_influence, create a new
+        # grid.
+        #
+        # So for now, implement scalars, series/np.ndarray, and objects, as
+        # they cover most use cases.
 
-        # single response variable
-        if is_str:
-            if slicer not in self.LHS:
-                raise EegrError(f'{slicer} not in the list of response '
-                                f'variables: {self.LHS}')
-            else:
-                indexer = self.channel_index.loc[slicer]
-                return self._grid[indexer]
+        if not hasattr(self.tester, name):
+            raise EegrError(f'No such attribute: {name}.')
 
-        # a list of response variables
-        if is_list_of_str:
-            asked_for = set(slicer)
-            have = set(self.LHS)
-            if not asked_for.issubset(have):
-                missing = asked_for - have
-                raise EegrError(f'The following requested response variables '
-                                f'were not in the model: {missing}')
-            else:
-                indexer = self.channel_index.loc[slicer]
-                return self._grid[indexer]
+        # try with our tester
+        attr = getattr(self.tester, name)
 
-        if is_slice:
-            if is_wildcard_slice:
-                return self._grid
-            else:
-                raise EegrError('Only wildcard slicing is supported for colon '
-                                'slicing')
+        # TODO I don't know how to handle multidimensional data, maybe reshape
+        # and use MultiIndex
+        if hasattr(attr, 'ndim') and attr.ndim > 1:
+            raise NotImplementedError('Cannot use elements with dim > 1.')
 
-        # the slicer is neither a string, list of strings nor a wildcard slice
-        raise EegrError(f'Expected a channel name, list of channel names or '
-                        f'a colon, got {slicer} of type {type(slicer)}.')
+        # scalars, easy
+        if np.isscalar(attr):
+            temp = self.grid.applymap(lambda x: getattr(x, name))
+            return temp
+
+        if isinstance(attr, pd.Series) or isinstance(attr, np.ndarray):
+            if isinstance(attr, pd.Series) and attr.index.nlevels > 1:
+                raise NotImplementedError('Series index should have one level')
+
+            temp = self.grid.applymap(lambda x: getattr(x, name))
+            # temp has Series as values, need to unpack
+            # build dataframe for each channel, columns are Series indices
+            # we assume all Series have same index
+            dataframes = (
+                pd.DataFrame(temp[channel].tolist(), index=temp.index)
+                for channel in temp
+            )
+
+            # concatenate columns, channel names are top level columns indices
+            return pd.concat(dataframes, axis=1, keys=temp.columns)
+
+        # create a grid of callables, in case we are being called
+        if callable(attr):
+            temp = self.grid.applymap(lambda x: getattr(x, name))
+            return self.__class__(temp)
+
+        raise NotImplementedError(f'Type {type(attr)} not supported yet')
+
+    def __call__(self, *args, **kwargs):
+
+        # if we are not callable, we'll get an appropriate exception
+        return self.__class__(self.grid.applymap(lambda x: x(*args, **kwargs)))
 
     def info(self):
 
         message = ''
 
-        channels = ', '.join(self.LHS)
+        channels = ', '.join(self.grid.columns)
         message += f'Channels: {channels}\n'
-
-        fit_data = ', '.join(self._grid.dtype['fit'].names)
-        message += f'Fit data: {fit_data}\n'
-
-        diagnostic_data = ', '.join(self._grid.dtype['diag'].names)
-        message += f'Diagnostic data: {diagnostic_data}'
 
         print(message)

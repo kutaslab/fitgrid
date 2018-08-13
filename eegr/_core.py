@@ -1,7 +1,6 @@
-import numpy as np
 import pandas as pd
-import patsy
 from statsmodels.formula.api import ols
+from tqdm import tqdm_notebook as tqdm
 
 from ._fitgrid import FitGrid
 from ._errors import EegrError
@@ -9,64 +8,6 @@ from ._errors import EegrError
 # index variables in epoch table
 EPOCH_ID = 'epoch_id'
 TIME = 'time'
-
-
-def build_bucket_dt(n_betas, n_epochs):
-    """Build bucket dtype combining fit and diagnostic data.
-
-    TODO: select diagnostic parameters carefully.
-    """
-
-    fit_dt = np.dtype([
-        ('betas', np.float64, n_betas),
-        ('se', np.float64, n_betas),
-        ('ci', np.float64, (n_betas, 2))
-    ])
-
-    diag_dt = np.dtype([
-        ('cooks_d', np.float64,  (2, n_epochs)),
-        ('ess_press', np.float64),  # np.dot(resid_press, resid_press).sum()
-        ('resid_press', np.float64, n_epochs),
-        ('resid_std', np.float64, n_epochs),
-        ('resid_var', np.float64, n_epochs),
-        ('resid_studentized_internal', np.float64, n_epochs)
-    ])
-
-    bucket_dt = np.dtype([
-        ('fit', fit_dt),
-        ('diag', diag_dt)
-    ])
-
-    return bucket_dt
-
-
-def fill_bucket(fit_obj, bucket_dt):
-    """Given bucket dtype and fit object, fill bucket."""
-
-    influence = fit_obj.get_influence()
-
-    fit = np.array((
-        fit_obj.params,
-        fit_obj.bse,
-        fit_obj.conf_int()
-        ),
-        bucket_dt['fit']
-    )
-
-    diag = np.array((
-        np.array(influence.cooks_distance),  # have to wrap tuple of two arrays
-        influence.ess_press,
-        influence.resid_press,
-        influence.resid_std,
-        influence.resid_var,
-        influence.resid_studentized_internal
-        ),
-        bucket_dt['diag']
-    )
-
-    bucket = np.array((fit, diag), bucket_dt)
-
-    return bucket
 
 
 def _check_group_indices(group_by, index_level):
@@ -135,32 +76,19 @@ def build_grid(epochs, LHS, RHS):
         raise EegrError(f'Snapshot {snap_idx} differs from previous '
                         f'snapshot in {EPOCH_ID} index.')
 
-    # build bucket datatype
-    # we don't know in advance how many betas patsy will end up encoding, so we
-    # run a dmatrix builder on a single snapshot and note the number of columns
-    single_snapshot = group_by_time.get_group(0)
-    n_betas = len(patsy.dmatrix(RHS, single_snapshot).design_info.column_names)
-    n_epochs = len(single_snapshot)
-    bucket_dt = build_bucket_dt(n_betas, n_epochs)
+    def regression(data, formula):
+        # NOTE time is the groupby variable, we're dropping it here since
+        # otherwise we get two index columns in statsmodels results, which
+        # interferes with the creation of a dataframe in FitGrid
+        data.reset_index(level=TIME, drop=True, inplace=True)
+        return ols(formula, data).fit()
 
     # run regressions
-    formulas = (channel + ' ~ ' + RHS for channel in LHS)
-    fits = (
-        ols(formula, snapshot).fit()
-        for formula in formulas
-        for _, snapshot in group_by_time
-    )
+    results = {
+        channel: group_by_time.apply(regression, channel + ' ~ ' + RHS)
+        for channel in tqdm(LHS)
+    }
 
-    # fill buckets with results
-    buckets = [
-        fill_bucket(fit, bucket_dt)
-        for fit in fits
-    ]
+    grid = pd.DataFrame(results)
 
-    # build grid
-    n_channels = len(LHS)
-    n_samples = len(group_by_time)
-    grid = np.array(buckets, bucket_dt).reshape(n_channels, n_samples)
-
-    epoch_index = group_by_epoch.get_group(0).index
-    return FitGrid(grid, LHS, epoch_index)
+    return FitGrid(grid)
