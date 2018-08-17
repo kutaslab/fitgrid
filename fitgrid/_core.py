@@ -1,11 +1,22 @@
+import numpy as np
 import pandas as pd
 from statsmodels.formula.api import ols
 from tqdm import tqdm_notebook as tqdm
+import patsy
 
 from ._fitgrid import FitGrid
 from ._errors import EegrError
-
 from . import EPOCH_ID, TIME
+
+
+class Scout:
+
+    def __init__(self):
+        self.columns = set()
+
+    def __getitem__(self, name):
+        self.columns.add(name)
+        return np.empty(0)
 
 
 def _check_group_indices(group_by, index_level):
@@ -74,19 +85,29 @@ def build(epochs, LHS, RHS):
         raise EegrError(f'Snapshot {snap_idx} differs from previous '
                         f'snapshot in {EPOCH_ID} index.')
 
+    scout = Scout()
+
+    # see dmatrix docs for explanation of eval_env
+    patsy.dmatrix(RHS, scout, eval_env=1)
+
+    parcels = [
+        (
+            epochs[list(scout.columns | set([channel]))],
+            channel + ' ~ ' + RHS
+        )
+        for channel in LHS
+    ]
+
     def regression(data, formula):
-        # NOTE time is the groupby variable, we're dropping it here since
-        # otherwise we get two index columns in statsmodels results, which
-        # interferes with the creation of a dataframe in FitGrid
-        data.reset_index(level=TIME, drop=True, inplace=True)
         return ols(formula, data).fit()
 
-    # run regressions
-    results = {
-        channel: group_by_time.apply(regression, channel + ' ~ ' + RHS)
-        for channel in tqdm(LHS, desc='Channels: ')
-    }
+    def processor(parcel):
+        data, formula = parcel
+        return data.groupby(TIME).apply(regression, formula)
 
-    grid = pd.DataFrame(results)
+    # this here could be replaced by multiprocessing
+    results = list(map(processor, tqdm(parcels)))
+
+    grid = pd.concat(results, axis=1, keys=LHS)
 
     return FitGrid(grid)
