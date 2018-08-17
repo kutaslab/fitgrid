@@ -70,14 +70,7 @@ def build(epochs, LHS, RHS):
     # these index columns are required for groupby's
     assert TIME in epochs.index.names and EPOCH_ID in epochs.index.names
 
-    group_by_epoch = epochs.groupby(EPOCH_ID)
     group_by_time = epochs.groupby(TIME)
-
-    # verify all epochs have same time index
-    same_time_index, epoch_idx = _check_group_indices(group_by_epoch, TIME)
-    if not same_time_index:
-        raise EegrError(f'Epoch {epoch_idx} differs from previous epoch '
-                        f'in {TIME} index.')
 
     # check snapshots are across same epochs
     same_epoch_index, snap_idx = _check_group_indices(group_by_time, EPOCH_ID)
@@ -85,29 +78,12 @@ def build(epochs, LHS, RHS):
         raise EegrError(f'Snapshot {snap_idx} differs from previous '
                         f'snapshot in {EPOCH_ID} index.')
 
-    scout = Scout()
-
-    # see dmatrix docs for explanation of eval_env
-    patsy.dmatrix(RHS, scout, eval_env=1)
-
-    parcels = [
-        (
-            epochs[list(scout.columns | set([channel]))],
-            channel + ' ~ ' + RHS
-        )
-        for channel in LHS
-    ]
-
     def regression(data, formula):
         return ols(formula, data).fit()
 
-    def processor(parcel):
-        data, formula = parcel
-        return data.groupby(TIME).apply(regression, formula)
-
-    # this here could be replaced by multiprocessing
-    results = list(map(processor, tqdm(parcels)))
-
-    grid = pd.concat(results, axis=1, keys=LHS)
+    grid = pd.DataFrame({
+        channel: group_by_time.apply(regression, channel + ' ~ ' + RHS)
+        for channel in tqdm(LHS, desc='Channels: ')
+    })
 
     return FitGrid(grid)
