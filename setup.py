@@ -11,7 +11,7 @@
 from setuptools import find_packages, setup
 
 setup(
-    name='eegr',
+    name='fitgrid',
     version='0.1',
     description='regression ERP',
     author='Tom Urbach, Lauren Liao, Andrey Portnoy',

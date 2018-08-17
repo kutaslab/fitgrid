@@ -23,7 +23,7 @@ def _check_group_indices(group_by, index_level):
     return True, None
 
 
-def build_grid(epochs, LHS, RHS):
+def build(epochs, LHS, RHS):
     """Given an epochs table, LHS, and RHS, build a grid with fit info.
 
     Parameters

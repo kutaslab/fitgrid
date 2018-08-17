@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from functools import lru_cache
 
-from eegr._errors import EegrError
+from ._errors import EegrError
 
 
 class FitGrid:

@@ -2,5 +2,5 @@
 EPOCH_ID = 'Epoch_idx'
 TIME = 'Time'
 
-from eegr._demo_data import generate
-from eegr._core import build_grid
+from ._demo_data import generate
+from ._core import build
