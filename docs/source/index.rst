@@ -1,10 +1,10 @@
-.. eegr documentation master file, created by
-   sphinx-quickstart on Thu Oct 19 09:02:09 2017.
+.. fitgrid documentation master file, created by
+   sphinx-quickstart on Fri Aug 17 15:10:35 2018.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to eegr's documentation!
-================================
+Welcome to fitgrid's documentation!
+===================================
 
 .. toctree::
    :maxdepth: 2
