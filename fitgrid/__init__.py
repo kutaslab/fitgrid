@@ -3,4 +3,4 @@ EPOCH_ID = 'Epoch_idx'
 TIME = 'Time'
 
 from ._demo_data import generate
-from ._core import build
+from ._core import linear_regression, mixed_linear_model
