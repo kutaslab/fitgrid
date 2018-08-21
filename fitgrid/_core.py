@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from statsmodels.formula.api import ols
 from tqdm import tqdm_notebook as tqdm
-from multiprocessing import Pool
+from multiprocessing import Queue, Process
 import patsy
 
 from ._fitgrid import FitGrid
@@ -38,10 +38,12 @@ def _check_group_indices(group_by, index_level):
 def regression(data, formula):
     return ols(formula, data).fit()
 
+
 def processor(parcel):
     data, formula = parcel
     return data.groupby(TIME).apply(regression, formula)
-    
+
+
 def build(epochs, LHS, RHS):
     """Given an epochs table, LHS, and RHS, build a grid with fit info.
 
@@ -106,11 +108,42 @@ def build(epochs, LHS, RHS):
         for channel in LHS
     ]
 
+    def old_f(inputs, outputs):
+        while True:
+            print('about to request a parcel')
+            parcel = inputs.get()
+            if parcel == 'STOP':
+                break
+            print('processing a parcel')
+            outputs.put(processor(parcel))
+            print('done processing a parcel')
 
-    # this here could be replaced by multiprocessing
-    with Pool(32) as pool:
-        results = pool.map(processor, tqdm(parcels))
+    def f(x):
+        return x*x
 
-    grid = pd.concat(results, axis=1, keys=LHS)
+    inputs = Queue()
+    for i in range(32):
+        inputs.put(i)
+
+    outputs = Queue()
+    processes = [
+        Process(target=f, args=(inputs, outputs))
+        for i in range(32)
+    ]
+
+    for process in processes:
+        process.start()
+
+    for process in tqdm(processes):
+        process.join()
+
+    results = []
+    while True:
+        try:
+            results.append(outputs.get())
+        except:
+            break
+
+    grid = pd.concat(results)
 
     return FitGrid(grid)
