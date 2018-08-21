@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from statsmodels.formula.api import ols
 from tqdm import tqdm_notebook as tqdm
+from multiprocessing import Pool
 import patsy
 
 from ._fitgrid import FitGrid
@@ -34,6 +35,13 @@ def _check_group_indices(group_by, index_level):
     return True, None
 
 
+def regression(data, formula):
+    return ols(formula, data).fit()
+
+def processor(parcel):
+    data, formula = parcel
+    return data.groupby(TIME).apply(regression, formula)
+    
 def build(epochs, LHS, RHS):
     """Given an epochs table, LHS, and RHS, build a grid with fit info.
 
@@ -92,21 +100,16 @@ def build(epochs, LHS, RHS):
 
     parcels = [
         (
-            epochs[list(scout.columns | set([channel]))],
+            epochs[list(scout.columns | set([channel]))].copy(),
             channel + ' ~ ' + RHS
         )
         for channel in LHS
     ]
 
-    def regression(data, formula):
-        return ols(formula, data).fit()
-
-    def processor(parcel):
-        data, formula = parcel
-        return data.groupby(TIME).apply(regression, formula)
 
     # this here could be replaced by multiprocessing
-    results = list(map(processor, tqdm(parcels)))
+    with Pool(32) as pool:
+        results = pool.map(processor, tqdm(parcels))
 
     grid = pd.concat(results, axis=1, keys=LHS)
 
