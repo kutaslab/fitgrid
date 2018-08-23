@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 
 from . import EPOCH_ID, TIME
+from ._epochs import Epochs
 
 def generate(n_epochs=10, n_samples=100, n_categories=2, n_channels=32):
     """Generate fake EEG data."""
@@ -26,4 +27,4 @@ def generate(n_epochs=10, n_samples=100, n_categories=2, n_channels=32):
             .set_index([EPOCH_ID, TIME])
             .sort_index())
 
-    return df
+    return Epochs(df)

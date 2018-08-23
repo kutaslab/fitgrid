@@ -84,6 +84,10 @@ class FitGrid:
         # if we are not callable, we'll get an appropriate exception
         return self.__class__(self.grid.applymap(lambda x: x(*args, **kwargs)))
 
+    def __dir__(self):
+
+        return dir(self.tester)
+
     def info(self):
 
         message = ''
