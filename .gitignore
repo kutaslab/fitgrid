@@ -1,5 +1,5 @@
-# TODOs file
-todos.md
+# TODOs files
+*.todo
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
