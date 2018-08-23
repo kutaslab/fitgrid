@@ -17,41 +17,6 @@ class Scout:
         return np.empty(0)
 
 
-
-
-def linear_regression(epochs, LHS, RHS):
-    """Given an epochs table, LHS, and RHS, build a grid with fit info.
-
-    Parameters
-    ----------
-
-    epochs : pandas DataFrame
-        must have 'epoch_id' and 'time' index columns
-    LHS : list of str
-        list of channels to be modeled as response variables
-    RHS : str
-        patsy formula specification of predictors
-
-    Returns
-    -------
-
-    fitgrid : FitGrid object
-
-    Notes
-    -----
-
-    Assumptions:
-        - every epoch has equal number of samples
-        - every epoch has same time index
-    """
-
-
-
-
-
-    return FitGrid(grid)
-
-
 def mixed_linear_model(epochs, LHS, RHS, groups, re_formula=None):
     """Given an epochs table, LHS, and RHS, build a grid with fit info.
 

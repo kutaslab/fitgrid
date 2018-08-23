@@ -5,6 +5,29 @@ from functools import lru_cache
 from ._errors import EegrError
 
 
+def values_are_series(temp):
+
+    columns = (
+        pd.DataFrame(temp[channel].tolist(), index=temp.index)
+        for channel in temp
+    )
+    # concatenate columns, channel names are top level columns indices
+    return pd.concat(columns, axis=1, keys=temp.columns)
+
+
+def values_are_dataframes(temp):
+
+    # temp has DataFrames as values, need to unpack
+    # build dataframe for each channel
+    # we assume all Series have same index
+    columns = (
+        pd.concat(temp[channel].tolist(), keys=temp.index)
+        for channel in temp
+    )
+    # concatenate columns, channel names are top level columns indices
+    return pd.concat(columns, axis=1, keys=temp.columns)
+
+
 class FitGrid:
     """Hold rERP fit objects.
 
@@ -46,36 +69,79 @@ class FitGrid:
         # try with our tester
         attr = getattr(self.tester, name)
 
-        # TODO I don't know how to handle multidimensional data, maybe reshape
-        # and use MultiIndex
-        if hasattr(attr, 'ndim') and attr.ndim > 1:
-            raise NotImplementedError('Cannot use elements with dim > 1.')
+        #######################################################################
+        #                               REJECT                                #
+        #######################################################################
 
-        # scalars, easy
+        # can't handle 3D and up
+        if hasattr(attr, 'ndim') and attr.ndim > 2:
+            raise NotImplementedError('Cannot use elements with dim > 2.')
+
+        # want Series with single index level
+        # can get more if original DataFrame had a multiindex
+        if isinstance(attr, pd.Series) and attr.index.nlevels > 1:
+            raise NotImplementedError('Series index should have one level')
+
+        #######################################################################
+        #                           CONVERSION                                #
+        #######################################################################
+
+        if isinstance(attr, tuple) or isinstance(attr, list):
+            attr = np.array(attr)
+            if attr.ndim == 1:
+                tmp = self.grid.applymap(lambda x: pd.Series(getattr(x, name)))
+                return values_are_series(tmp)
+            elif attr.ndim == 2:
+                tmp = self.grid.applymap(
+                        lambda x: pd.DataFrame(np.array(getattr(x, name))))
+                return values_are_dataframes(tmp)
+            else:
+                raise NotImplementedError('Cannot use elements with dim > 2,'
+                                          f'element has ndim = {attr.ndim}.')
+
+        if isinstance(attr, np.ndarray):
+            if attr.ndim == 1:
+                temp = self.grid.applymap(lambda x: getattr(x, name))
+                return values_are_series(temp)
+            elif attr.ndim == 2:
+                temp = self.grid.applymap(lambda x: getattr(x, name))
+                return values_are_dataframes(temp)
+            else:
+                raise NotImplementedError('Cannot use elements with dim > 2,'
+                                          f'element has ndim = {attr.ndim}.')
+
+        #######################################################################
+        #                           VALID TYPES                               #
+        #######################################################################
+
+        # NOTE we don't run apply unless we are certain we can handle the type,
+        # otherwise running apply could be a waste of time if expensive but we
+
+        # SCALARS
         if np.isscalar(attr):
             temp = self.grid.applymap(lambda x: getattr(x, name))
             return temp
 
-        if isinstance(attr, pd.Series) or isinstance(attr, np.ndarray):
-            if isinstance(attr, pd.Series) and attr.index.nlevels > 1:
-                raise NotImplementedError('Series index should have one level')
+        # VECTORS
+        if isinstance(attr, pd.Series):
 
             temp = self.grid.applymap(lambda x: getattr(x, name))
-            # temp has Series as values, need to unpack
-            # build dataframe for each channel, columns are Series indices
-            # we assume all Series have same index
-            dataframes = (
-                pd.DataFrame(temp[channel].tolist(), index=temp.index)
-                for channel in temp
-            )
+            return values_are_series(temp)
 
-            # concatenate columns, channel names are top level columns indices
-            return pd.concat(dataframes, axis=1, keys=temp.columns)
+        # GRIDS
+        if isinstance(attr, pd.DataFrame):
+
+            temp = self.grid.applymap(lambda x: getattr(x, name))
+            return values_are_dataframes(temp)
 
         # create a grid of callables, in case we are being called
         if callable(attr):
             temp = self.grid.applymap(lambda x: getattr(x, name))
             return self.__class__(temp)
+
+        #######################################################################
+        #                           FALL THROUGH                              #
+        #######################################################################
 
         raise NotImplementedError(f'Type {type(attr)} not supported yet')
 
