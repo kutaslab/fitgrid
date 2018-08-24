@@ -21,6 +21,6 @@ setup(
         'patsy',
         'statsmodels',
         'tqdm',
-        'pytables'
+        'tables'
     ]
 )
