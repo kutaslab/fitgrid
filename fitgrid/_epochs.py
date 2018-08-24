@@ -77,7 +77,7 @@ class Epochs:
                 all(isinstance(item, str) for item in LHS)):
             raise EegrError('LHS must be a list of strings.')
 
-        # TODO check LHS subset of columns
+        assert set(LHS).issubset(set(self.epochs_table.columns))
 
         # validate RHS
         if RHS is None:
