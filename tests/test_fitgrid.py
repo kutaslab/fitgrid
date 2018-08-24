@@ -2,9 +2,9 @@ import pytest
 import numpy as np
 import random
 
-from eegr import generate, build_grid
-from eegr._errors import EegrError
-from eegr._core import TIME
+from fitgrid import generate, Epochs
+from fitgrid._errors import EegrError
+from fitgrid import TIME
 
 
 # TODO add tests on real data
@@ -15,21 +15,6 @@ def test__shapes():
     epochs_table = generate(n_epochs=10, n_samples=100,
                             n_categories=2, n_channels=32)
 
-    build_grid(epochs_table,
-               LHS=['channel0', 'channel12', 'channel23'],
-               RHS='continuous + categorical')
-
-    raise NotImplementedError
-
-
-def test__many_categories():
-    """Test bucket datatype fits the betas.
-
-    Depending on the coding scheme, the number of betas might not be equal to
-    the number of predictors, so we cannot rely on the formula to determine the
-    shape of betas for the bucket datatype.
-    """
-    epochs_table = generate(n_categories=4)
     build_grid(epochs_table,
                LHS=['channel0', 'channel12', 'channel23'],
                RHS='continuous + categorical')

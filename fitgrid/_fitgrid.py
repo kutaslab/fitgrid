@@ -86,6 +86,7 @@ class FitGrid:
         #                           CONVERSION                                #
         #######################################################################
 
+        # TODO this section is really hacky and ugly
         if isinstance(attr, tuple) or isinstance(attr, list):
             attr = np.array(attr)
             if attr.ndim == 1:

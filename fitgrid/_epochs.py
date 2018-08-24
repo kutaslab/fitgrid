@@ -56,6 +56,10 @@ class Epochs:
                                     f'{cur_indices}')
             prev_group = cur_group
 
+        if not prev_group.index.is_unique:
+            raise EegrError(f'Duplicate values in {EPOCH_ID} index not allowed'
+                            f'\n{prev_group.index}')
+
         # we're good, set instance variable
         self.snapshots = snapshots
 

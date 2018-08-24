@@ -27,4 +27,4 @@ def generate(n_epochs=10, n_samples=100, n_categories=2, n_channels=32):
             .set_index([EPOCH_ID, TIME])
             .sort_index())
 
-    return Epochs(df)
+    return df
