@@ -1,6 +1,6 @@
 import pandas as pd
 from statsmodels.formula.api import ols
-from tqdm import tqdm_notebook as tqdm
+from tqdm.autonotebook import tqdm
 
 from . import EPOCH_ID, TIME
 from ._errors import EegrError
@@ -88,10 +88,19 @@ class Epochs:
         def regression(data, formula):
             return ols(formula, data).fit()
 
-        grid = pd.DataFrame({
-            channel: self.snapshots.apply(regression, channel + ' ~ ' + RHS)
-            for channel in tqdm(LHS, desc='Channels: ')
-        })
+        results = {}
+        for channel in tqdm(LHS, desc='Channels: '):
+            tqdm.pandas(desc=channel)
+            results[channel] = self.snapshots.progress_apply(
+                    regression,
+                    formula=channel + ' ~ ' + RHS
+            )
+        grid = pd.DataFrame(results)
+
+        # grid = pd.DataFrame({
+        #     channel: self.snapshots.apply(regression, channel + ' ~ ' + RHS)
+        #     for channel in tqdm(LHS, desc='Channels: ')
+        # })
 
         return FitGrid(grid)
 
