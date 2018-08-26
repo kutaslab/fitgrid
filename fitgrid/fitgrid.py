@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from functools import lru_cache
 
-from ._errors import EegrError
+from .errors import FitGridError
 
 
 def values_are_series(temp):
@@ -64,7 +64,7 @@ class FitGrid:
         # they cover most use cases.
 
         if not hasattr(self.tester, name):
-            raise EegrError(f'No such attribute: {name}.')
+            raise FitGridError(f'No such attribute: {name}.')
 
         # try with our tester
         attr = getattr(self.tester, name)
@@ -154,12 +154,3 @@ class FitGrid:
     def __dir__(self):
 
         return dir(self.tester)
-
-    def info(self):
-
-        message = ''
-
-        channels = ', '.join(self.grid.columns)
-        message += f'Channels: {channels}\n'
-
-        print(message)

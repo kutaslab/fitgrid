@@ -1,10 +1,11 @@
 import pandas as pd
 from statsmodels.formula.api import ols
-from tqdm.autonotebook import tqdm
+from tqdm._tqdm_notebook import tqdm_notebook as tqdm
 
 from . import EPOCH_ID, TIME
-from ._errors import EegrError
-from ._fitgrid import FitGrid
+from .errors import FitGridError
+from .fitgrid import FitGrid
+from . import plots
 
 CHANNELS = [
     'lle', 'lhz', 'MiPf', 'LLPf', 'RLPf', 'LMPf', 'RMPf', 'LDFr',
@@ -32,7 +33,7 @@ class Epochs:
     def __init__(self, epochs_table):
 
         if not isinstance(epochs_table, pd.DataFrame):
-            raise EegrError('epochs_table must be a Pandas DataFrame.')
+            raise FitGridError('epochs_table must be a Pandas DataFrame.')
 
         # these index columns are required for groupby's
         assert (TIME in epochs_table.index.names
@@ -48,59 +49,51 @@ class Epochs:
                 prev_indices = prev_group.index.get_level_values(EPOCH_ID)
                 cur_indices = cur_group.index.get_level_values(EPOCH_ID)
                 if not prev_indices.equals(cur_indices):
-                    raise EegrError(f'Snapshot {idx} differs from '
-                                    f'previous snapshot in {EPOCH_ID} index:\n'
-                                    f'Current snapshot\'s indices:\n'
-                                    f'{prev_indices}\n'
-                                    f'Previous snapshot\'s indices:\n'
-                                    f'{cur_indices}')
+                    raise FitGridError(
+                        f'Snapshot {idx} differs from '
+                        f'previous snapshot in {EPOCH_ID} index:\n'
+                        f'Current snapshot\'s indices:\n'
+                        f'{prev_indices}\n'
+                        f'Previous snapshot\'s indices:\n'
+                        f'{cur_indices}'
+                    )
             prev_group = cur_group
 
         if not prev_group.index.is_unique:
-            raise EegrError(f'Duplicate values in {EPOCH_ID} index not allowed'
-                            f'\n{prev_group.index}')
+            raise FitGridError(
+                f'Duplicate values in {EPOCH_ID} index not allowed:'
+                f'\n{prev_group.index}'
+            )
 
         # we're good, set instance variable
         self.snapshots = snapshots
-
-    @classmethod
-    def from_hdf_file(cls, hdf_filename):
-        df = (pd.read_hdf(hdf_filename)
-                .set_index([EPOCH_ID, TIME])
-                .sort_index())
-        return cls(df)
 
     def lm(self, LHS=CHANNELS, RHS=None):
 
         # validate LHS
         if not (isinstance(LHS, list) and
                 all(isinstance(item, str) for item in LHS)):
-            raise EegrError('LHS must be a list of strings.')
+            raise FitGridError('LHS must be a list of strings.')
 
         assert set(LHS).issubset(set(self.epochs_table.columns))
 
         # validate RHS
         if RHS is None:
-            raise EegrError('Specify the RHS argument.')
+            raise FitGridError('Specify the RHS argument.')
         if not isinstance(RHS, str):
-            raise EegrError('RHS has to be a string.')
+            raise FitGridError('RHS has to be a string.')
 
         def regression(data, formula):
             return ols(formula, data).fit()
 
         results = {}
-        for channel in tqdm(LHS, desc='Channels: '):
+        for channel in tqdm(LHS, desc='Overall: '):
             tqdm.pandas(desc=channel)
             results[channel] = self.snapshots.progress_apply(
                     regression,
                     formula=channel + ' ~ ' + RHS
             )
         grid = pd.DataFrame(results)
-
-        # grid = pd.DataFrame({
-        #     channel: self.snapshots.apply(regression, channel + ' ~ ' + RHS)
-        #     for channel in tqdm(LHS, desc='Channels: ')
-        # })
 
         return FitGrid(grid)
 
@@ -109,3 +102,14 @@ class Epochs:
 
     def glm():
         pass
+
+    def plot_average(self, channels=None):
+        if channels is None:
+            if set(CHANNELS).issubset(set(self.epochs_table.columns)):
+                channels = CHANNELS
+            else:
+                raise FitGridError('Default channels missing in epochs table,'
+                                   ' please pass list of channels.')
+        else:
+            data = self.snapshots.mean()
+            plots.stripchart(data[channels])

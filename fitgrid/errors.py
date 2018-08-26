@@ -1,0 +1,2 @@
+class FitGridError(Exception):
+    pass

@@ -1,6 +1,14 @@
-# index variables in epoch table
+# package level constants, at the top to avoid circular imports
 EPOCH_ID = 'Epoch_idx'
 TIME = 'Time'
 
-from ._demo_data import generate
-from ._epochs import Epochs
+from .tools import generate
+from .io import epochs_from_hdf, epochs_from_dataframe
+
+
+def __dir__():
+    return [
+        'generate',
+        'epochs_from_hdf', 'epochs_from_dataframe',
+        'EPOCH_ID', 'TIME',
+    ]
