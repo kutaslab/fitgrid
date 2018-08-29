@@ -2,17 +2,10 @@ import pandas as pd
 from statsmodels.formula.api import ols
 from tqdm._tqdm_notebook import tqdm_notebook as tqdm
 
-from . import EPOCH_ID, TIME
+from . import EPOCH_ID, TIME, CHANNELS
 from .errors import FitGridError
 from .fitgrid import FitGrid
 from . import plots
-
-CHANNELS = [
-    'lle', 'lhz', 'MiPf', 'LLPf', 'RLPf', 'LMPf', 'RMPf', 'LDFr',
-    'RDFr', 'LLFr', 'RLFr', 'LMFr', 'RMFr', 'LMCe', 'RMCe', 'MiCe',
-    'MiPa', 'LDCe', 'RDCe', 'LDPa', 'RDPa', 'LMOc', 'RMOc', 'LLTe',
-    'RLTe', 'LLOc', 'RLOc', 'MiOc', 'A2', 'HEOG', 'rle', 'rhz'
-]
 
 
 def _check_group_indices(group_by, index_level):
