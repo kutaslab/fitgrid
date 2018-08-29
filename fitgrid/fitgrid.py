@@ -43,6 +43,28 @@ class FitGrid:
         self.grid = grid
         self.tester = grid.iloc[0, 0]
 
+    def __getitem__(self, slicer):
+
+        if isinstance(slicer, slice) or len(slicer) != 2:
+            raise ValueError('Must slice on time and channels.')
+
+        # now we can unpack
+        time, channels = slicer
+
+        def check_slicer_component(component):
+            if isinstance(component, slice) or isinstance(component, list):
+                return component
+            else:
+                # wrap in list to always get a DataFrame in return on slicing
+                # otherwise we might get a scalar or a pandas Series,
+                # which can't be used to create a FitGrid object
+                return [component]
+
+        time = check_slicer_component(time)
+        channels = check_slicer_component(channels)
+        subgrid = self.grid.loc[time, channels]
+        return self.__class__(subgrid)
+
     @lru_cache()
     def __getattr__(self, name):
 
