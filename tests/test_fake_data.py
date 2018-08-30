@@ -7,14 +7,12 @@ def test__generate():
     n_epochs = 10
     n_categories = 2
     n_channels = 32
-    epochs = fg.fake_data.generate(n_samples=n_samples,
+    table = fg.fake_data._generate(n_samples=n_samples,
                                    n_epochs=n_epochs,
                                    n_categories=n_categories,
                                    n_channels=n_channels)
 
-    table = epochs.epochs_table
-
-    # check columns
+    # check index columns
     assert fg.EPOCH_ID, fg.TIME == table.index.names
 
     # test general shape
