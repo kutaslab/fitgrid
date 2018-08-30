@@ -9,7 +9,7 @@ CHANNELS = [
 ]
 
 
-from .tools import generate
+from .fake_data import generate
 from .io import epochs_from_hdf, epochs_from_dataframe
 
 
