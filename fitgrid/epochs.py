@@ -1,17 +1,13 @@
 import pandas as pd
 from statsmodels.formula.api import ols
+# this ensures access to tqdm.pandas()
+# see tqdm.autonotebook for details
 from tqdm._tqdm_notebook import tqdm_notebook as tqdm
 
 from . import EPOCH_ID, TIME, CHANNELS
 from .errors import FitGridError
 from .fitgrid import FitGrid
 from . import plots
-
-
-def _check_group_indices(group_by, index_level):
-    """Check groups have same index using transitivity."""
-
-    return True, None
 
 
 class Epochs:
@@ -96,13 +92,12 @@ class Epochs:
     def glm():
         pass
 
-    def plot_average(self, channels=None):
+    def plot_averages(self, channels=None):
         if channels is None:
             if set(CHANNELS).issubset(set(self.epochs_table.columns)):
                 channels = CHANNELS
             else:
                 raise FitGridError('Default channels missing in epochs table,'
                                    ' please pass list of channels.')
-        else:
-            data = self.snapshots.mean()
-            plots.stripchart(data[channels])
+        data = self.snapshots.mean()
+        plots.stripchart(data[channels])

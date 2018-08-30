@@ -1,7 +1,7 @@
 import matplotlib.pyplot as plt
 
 
-def stripchart(data):
+def stripchart(data, negative_up=True):
 
     plt.rcParams.update({'font.size': 15})
 
@@ -13,4 +13,6 @@ def stripchart(data):
         ax.set(xlabel='')
 
     plt.tight_layout()
+    if negative_up:
+        plt.gca().invert_yaxis()
     plt.show()
