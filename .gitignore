@@ -17,3 +17,6 @@ notebooks
 # Pytest cache
 .pytest_cache
 .cache
+
+# Coverage files
+.coverage
