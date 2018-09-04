@@ -5,17 +5,20 @@ import fitgrid
 def test__method_returning_dataframe_expands_correctly():
 
     epochs = fitgrid.generate()
+    LHS = ['channel0', 'channel1', 'channel2']
     grid = epochs.lm(
-        LHS=['channel0', 'channel1', 'channel2'],
+        LHS=LHS,
         RHS='categorical + continuous',
     )
 
+    conf_int = grid.conf_int()
+    assert (conf_int.columns == LHS).all()
     assert (
-        grid.conf_int().index.levels[1]
+        conf_int.index.levels[1]
         == ['Intercept', 'categorical[T.cat1]', 'continuous']
     ).all()
-    assert (grid.conf_int().columns.levels[1] == [0, 1]).all()
-    assert (grid.conf_int().dtypes == float).all()
+    assert (conf_int.index.levels[2] == [0, 1]).all()
+    assert (conf_int.dtypes == float).all()
 
 
 def test__residuals_have_long_form_and_correct_index():

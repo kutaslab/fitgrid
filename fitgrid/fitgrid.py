@@ -15,7 +15,12 @@ def expand_series_or_df(temp):
         for channel in temp
     )
     # concatenate columns, channel names are top level columns indices
-    return pd.concat(columns, axis=1, keys=temp.columns)
+    result = pd.concat(columns, axis=1, keys=temp.columns)
+
+    # stack to achieve long form if columns have multiple levels
+    if isinstance(result.columns, pd.core.indexes.multi.MultiIndex):
+        return result.stack()
+    return result
 
 
 def _expand(temp):
