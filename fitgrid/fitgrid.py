@@ -134,6 +134,11 @@ class FitGrid:
 
         return dir(self.tester)
 
+    def __repr__(self):
+
+        samples, chans = self.grid.shape
+        return f'{samples} by {chans} FitGrid of type {type(self.tester)}.'
+
     def plot_betas(self, channel=None, beta_name=None):
 
         if (channel and beta_name) or (beta_name is None and channel is None):
