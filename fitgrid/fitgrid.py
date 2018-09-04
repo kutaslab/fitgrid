@@ -18,6 +18,59 @@ def expand_series_or_df(temp):
     return pd.concat(columns, axis=1, keys=temp.columns)
 
 
+def _expand(temp):
+    """Expand the values in the grid if possible, return frame or grid."""
+
+    tester = temp.iloc[0, 0]
+
+    # no processing needed
+    if np.isscalar(tester):
+        return temp
+
+    # familiar types, expand them
+    if isinstance(tester, pd.Series) or isinstance(tester, pd.DataFrame):
+        # want single index level
+        # can get more if original DataFrame had a multiindex
+        # in Epochs we ensure that only EPOCH_ID is in the index for groupby
+        if tester.index.nlevels > 1:
+            raise NotImplementedError(
+                f'index should have one level, have {tester.index.nlevels} '
+                f'instead: {tester.index.names}'
+            )
+        return expand_series_or_df(temp)
+
+    # array-like, try converting to array and then Series/DataFrame
+    if isinstance(tester, tuple) or isinstance(tester, list):
+        array_form = np.array(tester)
+        if array_form.ndim == 1:
+            temp = temp.applymap(lambda x: pd.Series(np.array(x)))
+            return expand_series_or_df(temp)
+        elif array_form.ndim == 2:
+            temp = temp.applymap(lambda x: pd.DataFrame(np.array(x)))
+            return expand_series_or_df(temp)
+        else:
+            raise NotImplementedError(
+                'Cannot use elements with dim > 2,'
+                f'element has ndim = {array_form.ndim}.'
+            )
+
+    # array, try converting to Series/DataFrame
+    if isinstance(tester, np.ndarray):
+        if tester.ndim == 1:
+            temp = temp.applymap(lambda x: pd.Series(x))
+            return expand_series_or_df(temp)
+        elif tester.ndim == 2:
+            temp = temp.applymap(lambda x: pd.DataFrame(x))
+            return expand_series_or_df(temp)
+        else:
+            raise NotImplementedError('Cannot use elements with dim > 2,'
+                                      f'element has ndim = {tester.ndim}.')
+
+    # catchall for all types we don't handle explicitly
+    # statsmodels objects, dicts, methods all go here
+    return FitGrid(temp)
+
+
 class FitGrid:
     """Hold rERP fit objects.
 
@@ -60,109 +113,17 @@ class FitGrid:
     @lru_cache()
     def __getattr__(self, name):
 
-        # We only get here if no attribute found, so user is either asking for
-        # a grid attribute, or is mistaken.
-        #
-        # The strategy is as follows:
-        #
-        # First see whether our tester object has the attribute.
-        # If yes, then we see what shape the attribute is. If no, raise error.
-        #
-        # If the attribute is a scalar, we're golden, simply apply elementwise.
-        # If the attribute is a series/numpy array, we use multiindex.
-        # If the attribute is multidimensional (covariances), I have no clue.
-        # If the attribute is a method, e.g. get_influence, create a new
-        # grid.
-        #
-        # So for now, implement scalars, series/np.ndarray, and objects, as
-        # they cover most use cases.
-
         if not hasattr(self.tester, name):
             raise FitGridError(f'No such attribute: {name}.')
 
-        # try with our tester
-        attr = getattr(self.tester, name)
-
-        #######################################################################
-        #                               REJECT                                #
-        #######################################################################
-
-        # can't handle 3D and up
-        if hasattr(attr, 'ndim') and attr.ndim > 2:
-            raise NotImplementedError('Cannot use elements with dim > 2.')
-
-        # want Series with single index level
-        # can get more if original DataFrame had a multiindex
-        if isinstance(attr, pd.Series) and attr.index.nlevels > 1:
-            raise NotImplementedError('Series index should have one level')
-
-        #######################################################################
-        #                           CONVERSION                                #
-        #######################################################################
-
-        # TODO this section is really hacky and ugly
-        if isinstance(attr, tuple) or isinstance(attr, list):
-            if attr.ndim == 1:
-                tmp = self.grid.applymap(
-                    lambda x: pd.Series(np.array(getattr(x, name)))
-                )
-                return expand_series_or_df(tmp)
-            elif attr.ndim == 2:
-                tmp = self.grid.applymap(
-                    lambda x: pd.DataFrame(np.array(getattr(x, name)))
-                )
-                return expand_series_or_df(tmp)
-            else:
-                raise NotImplementedError('Cannot use elements with dim > 2,'
-                                          f'element has ndim = {attr.ndim}.')
-
-        if isinstance(attr, np.ndarray):
-            if attr.ndim == 1:
-                temp = self.grid.applymap(
-                    lambda x: pd.Series(getattr(x, name))
-                )
-                return expand_series_or_df(temp)
-            elif attr.ndim == 2:
-                temp = self.grid.applymap(
-                    lambda x: pd.DataFrame(getattr(x, name))
-                )
-                return expand_series_or_df(temp)
-            else:
-                raise NotImplementedError('Cannot use elements with dim > 2,'
-                                          f'element has ndim = {attr.ndim}.')
-
-        #######################################################################
-        #                           VALID TYPES                               #
-        #######################################################################
-
-        # NOTE we don't run apply unless we are certain we can handle the type,
-        # otherwise running apply could be a waste of time if expensive but we
-
-        # SCALARS
-        if np.isscalar(attr):
-            temp = self.grid.applymap(lambda x: getattr(x, name))
-            return temp
-
-        # VECTORS
-        if isinstance(attr, pd.Series) or isinstance(attr, pd.DataFrame):
-            temp = self.grid.applymap(lambda x: getattr(x, name))
-            return expand_series_or_df(temp)
-
-        # create a grid of callables, in case we are being called
-        if callable(attr):
-            temp = self.grid.applymap(lambda x: getattr(x, name))
-            return self.__class__(temp)
-
-        #######################################################################
-        #                           FALL THROUGH                              #
-        #######################################################################
-
-        raise NotImplementedError(f'Type {type(attr)} not supported yet')
+        temp = self.grid.applymap(lambda x: getattr(x, name))
+        return _expand(temp)
 
     def __call__(self, *args, **kwargs):
 
         # if we are not callable, we'll get an appropriate exception
-        return self.__class__(self.grid.applymap(lambda x: x(*args, **kwargs)))
+        temp = self.grid.applymap(lambda x: x(*args, **kwargs))
+        return _expand(temp)
 
     def __dir__(self):
 
