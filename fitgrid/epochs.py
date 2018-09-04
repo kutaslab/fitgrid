@@ -33,7 +33,7 @@ class Epochs:
         # EPOCH_ID only
         levels_to_remove = set(epochs_table.index.names)
         levels_to_remove.discard(EPOCH_ID)
-        
+
         # so we remove all levels from index except EPOCH_ID
         epochs_table.reset_index(list(levels_to_remove), inplace=True)
         assert epochs_table.index.names == [EPOCH_ID]

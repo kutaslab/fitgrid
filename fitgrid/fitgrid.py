@@ -8,21 +8,8 @@ from .errors import FitGridError
 from . import plots
 
 
-def values_are_series(temp):
+def expand_series_or_df(temp):
 
-    columns = (
-        pd.DataFrame(temp[channel].tolist(), index=temp.index)
-        for channel in temp
-    )
-    # concatenate columns, channel names are top level columns indices
-    return pd.concat(columns, axis=1, keys=temp.columns)
-
-
-def values_are_dataframes(temp):
-
-    # temp has DataFrames as values, need to unpack
-    # build dataframe for each channel
-    # we assume all Series have same index
     columns = (
         pd.concat(temp[channel].tolist(), keys=temp.index)
         for channel in temp
@@ -115,25 +102,31 @@ class FitGrid:
 
         # TODO this section is really hacky and ugly
         if isinstance(attr, tuple) or isinstance(attr, list):
-            attr = np.array(attr)
             if attr.ndim == 1:
-                tmp = self.grid.applymap(lambda x: pd.Series(getattr(x, name)))
-                return values_are_series(tmp)
+                tmp = self.grid.applymap(
+                    lambda x: pd.Series(np.array(getattr(x, name)))
+                )
+                return expand_series_or_df(tmp)
             elif attr.ndim == 2:
                 tmp = self.grid.applymap(
-                        lambda x: pd.DataFrame(np.array(getattr(x, name))))
-                return values_are_dataframes(tmp)
+                    lambda x: pd.DataFrame(np.array(getattr(x, name)))
+                )
+                return expand_series_or_df(tmp)
             else:
                 raise NotImplementedError('Cannot use elements with dim > 2,'
                                           f'element has ndim = {attr.ndim}.')
 
         if isinstance(attr, np.ndarray):
             if attr.ndim == 1:
-                temp = self.grid.applymap(lambda x: getattr(x, name))
-                return values_are_series(temp)
+                temp = self.grid.applymap(
+                    lambda x: pd.Series(getattr(x, name))
+                )
+                return expand_series_or_df(temp)
             elif attr.ndim == 2:
-                temp = self.grid.applymap(lambda x: getattr(x, name))
-                return values_are_dataframes(temp)
+                temp = self.grid.applymap(
+                    lambda x: pd.DataFrame(getattr(x, name))
+                )
+                return expand_series_or_df(temp)
             else:
                 raise NotImplementedError('Cannot use elements with dim > 2,'
                                           f'element has ndim = {attr.ndim}.')
@@ -151,16 +144,9 @@ class FitGrid:
             return temp
 
         # VECTORS
-        if isinstance(attr, pd.Series):
-
+        if isinstance(attr, pd.Series) or isinstance(attr, pd.DataFrame):
             temp = self.grid.applymap(lambda x: getattr(x, name))
-            return values_are_series(temp)
-
-        # GRIDS
-        if isinstance(attr, pd.DataFrame):
-
-            temp = self.grid.applymap(lambda x: getattr(x, name))
-            return values_are_dataframes(temp)
+            return expand_series_or_df(temp)
 
         # create a grid of callables, in case we are being called
         if callable(attr):
