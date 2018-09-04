@@ -1,11 +1,12 @@
 import pandas as pd
 from .epochs import Epochs
 from .errors import FitGridError
-from . import EPOCH_ID, TIME
 
 
 def epochs_from_hdf(hdf_filename):
     """Construct Epochs object from an HDF5 file containing an epochs table."""
+
+    from . import EPOCH_ID, TIME
 
     df = pd.read_hdf(hdf_filename)
 
@@ -19,8 +20,7 @@ def epochs_from_hdf(hdf_filename):
         return Epochs(df)
 
     raise FitGridError(
-        f'Dataset has to contain {EPOCH_ID} and {TIME} as columns'
-        ' or indices.'
+        f'Dataset has to contain {EPOCH_ID} and {TIME} as columns or indices.'
     )
 
 

@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 
-from . import EPOCH_ID, TIME
 from .epochs import Epochs
 
 
@@ -44,6 +43,8 @@ def generate(n_epochs=10, n_samples=100, n_categories=2, n_channels=32):
 
 def _generate(n_epochs, n_samples, n_categories, n_channels):
     """Return Pandas DataFrame with fake EEG data."""
+
+    from . import EPOCH_ID, TIME
 
     total = n_epochs * n_samples * n_categories
 

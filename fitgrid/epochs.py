@@ -4,7 +4,6 @@ from statsmodels.formula.api import ols
 # see tqdm.autonotebook for details
 from tqdm._tqdm_notebook import tqdm_notebook as tqdm
 
-from . import EPOCH_ID, TIME, CHANNELS
 from .errors import FitGridError
 from .fitgrid import FitGrid
 from . import plots
@@ -20,6 +19,8 @@ class Epochs:
     """
 
     def __init__(self, epochs_table):
+
+        from . import EPOCH_ID, TIME
 
         if not isinstance(epochs_table, pd.DataFrame):
             raise FitGridError('epochs_table must be a Pandas DataFrame.')
@@ -65,7 +66,11 @@ class Epochs:
         # we're good, set instance variable
         self.snapshots = snapshots
 
-    def lm(self, LHS=CHANNELS, RHS=None):
+    def lm(self, LHS='default', RHS=None):
+
+        if LHS == 'default':
+            from . import CHANNELS
+            LHS = CHANNELS
 
         # validate LHS
         if not (isinstance(LHS, list) and
@@ -101,6 +106,8 @@ class Epochs:
         raise NotImplementedError
 
     def plot_averages(self, channels=None):
+
+        from . import CHANNELS
         if channels is None:
             if set(CHANNELS).issubset(set(self.table.columns)):
                 channels = CHANNELS
