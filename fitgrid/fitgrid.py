@@ -46,6 +46,7 @@ class FitGrid:
         self.grid = grid
         self.tester = grid.iloc[0, 0]
         # TODO the grid should be aware of the betas names
+        # TODO the grid should be aware of the channel names
 
     def __getitem__(self, slicer):
 

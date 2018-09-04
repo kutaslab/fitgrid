@@ -24,27 +24,35 @@ class Epochs:
         if not isinstance(epochs_table, pd.DataFrame):
             raise FitGridError('epochs_table must be a Pandas DataFrame.')
 
-        # these index columns are required for groupby's
+        # these index columns are required for consistency checks
         assert (TIME in epochs_table.index.names
                 and EPOCH_ID in epochs_table.index.names)
 
-        self.epochs_table = epochs_table
+        # now need to only keep EPOCH_ID in index
+        # this is done so that any series that we get from fits are indexed on
+        # EPOCH_ID only
+        levels_to_remove = set(epochs_table.index.names)
+        levels_to_remove.discard(EPOCH_ID)
+        
+        # so we remove all levels from index except EPOCH_ID
+        epochs_table.reset_index(list(levels_to_remove), inplace=True)
+        assert epochs_table.index.names == [EPOCH_ID]
+
+        self.table = epochs_table
         snapshots = epochs_table.groupby(TIME)
 
         # check that snapshots across epochs have equal index by transitivity
         prev_group = None
         for idx, cur_group in snapshots:
             if prev_group is not None:
-                prev_indices = prev_group.index.get_level_values(EPOCH_ID)
-                cur_indices = cur_group.index.get_level_values(EPOCH_ID)
-                if not prev_indices.equals(cur_indices):
+                if not prev_group.index.equals(cur_group.index):
                     raise FitGridError(
                         f'Snapshot {idx} differs from '
                         f'previous snapshot in {EPOCH_ID} index:\n'
                         f'Current snapshot\'s indices:\n'
-                        f'{prev_indices}\n'
+                        f'{cur_group.index}\n'
                         f'Previous snapshot\'s indices:\n'
-                        f'{cur_indices}'
+                        f'{prev_group.index}'
                     )
             prev_group = cur_group
 
@@ -64,7 +72,7 @@ class Epochs:
                 all(isinstance(item, str) for item in LHS)):
             raise FitGridError('LHS must be a list of strings.')
 
-        assert set(LHS).issubset(set(self.epochs_table.columns))
+        assert set(LHS).issubset(set(self.table.columns))
 
         # validate RHS
         if RHS is None:
@@ -87,14 +95,14 @@ class Epochs:
         return FitGrid(grid)
 
     def mlm():
-        pass
+        raise NotImplementedError
 
     def glm():
-        pass
+        raise NotImplementedError
 
     def plot_averages(self, channels=None):
         if channels is None:
-            if set(CHANNELS).issubset(set(self.epochs_table.columns)):
+            if set(CHANNELS).issubset(set(self.table.columns)):
                 channels = CHANNELS
             else:
                 raise FitGridError('Default channels missing in epochs table,'
