@@ -1,7 +1,7 @@
 # package level constants, at the top to avoid circular imports
 EPOCH_ID = 'Epoch_idx'
 TIME = 'Time'
-CHANNELS = [
+CHANNELS = [ #: Sphinx autodoc
     'lle', 'lhz', 'MiPf', 'LLPf', 'RLPf', 'LMPf', 'RMPf', 'LDFr',
     'RDFr', 'LLFr', 'RLFr', 'LMFr', 'RMFr', 'LMCe', 'RMCe', 'MiCe',
     'MiPa', 'LDCe', 'RDCe', 'LDPa', 'RDPa', 'LMOc', 'RMOc', 'LLTe',
