@@ -1,0 +1,23 @@
+language: python
+python:
+    - "3.6"
+cache: pip
+sudo: false
+install:
+    - pip install -r requirements.txt
+    - pip install sphinx sphinx_rtd_theme
+script:
+    - pytest tests
+after_success:
+    - cd docs
+    - make html
+    - touch build/html/.nojekyll
+deploy:
+    provider: pages
+    skip_cleanup: try
+    github_token: $GITHUB_TOKEN
+    keep-history: true
+    on:
+        branch: master
+    target_branch: gh-pages # that's the default anyway, just to be explicit
+    local_dir: docs/build/html

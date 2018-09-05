@@ -5,8 +5,8 @@ Quickstart
 The `fitgrid` workflow generally consists of 3 steps:
 
 0. :code:`import fitgrid`
-1. Read in an epochs table, which creates `Epochs`.
-2. Run a model using the `Epochs`, which creates a `FitGrid`.
+1. Read in an epochs table, which creates ``Epochs``.
+2. Run a model using the ``Epochs``, which creates a ``FitGrid``.
 3. Examine fit or diagnostic information.
 
 Here are the three steps in detail:
