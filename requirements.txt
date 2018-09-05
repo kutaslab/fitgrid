@@ -1,4 +1,4 @@
 statsmodels
-pytables
+tables
 patsy
 tqdm>=4.25.0
