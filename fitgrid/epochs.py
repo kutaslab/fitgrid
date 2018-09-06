@@ -1,9 +1,6 @@
 import pandas as pd
 from statsmodels.formula.api import ols
-
-# this ensures access to tqdm.pandas()
-# see tqdm.autonotebook for details
-from tqdm._tqdm_notebook import tqdm_notebook as tqdm
+from tqdm import tqdm_notebook as tqdm
 
 from .errors import FitGridError
 from .fitgrid import FitGrid
@@ -94,14 +91,14 @@ class Epochs:
         def regression(data, formula):
             return ols(formula, data).fit()
 
-        results = {}
-        for channel in tqdm(LHS, desc='Overall: '):
-            tqdm.pandas(desc=channel)
-            results[channel] = self.snapshots.progress_apply(
+        results = {
+            channel: self.snapshots.apply(
                 regression, formula=channel + ' ~ ' + RHS
             )
-        grid = pd.DataFrame(results)
+            for channel in tqdm(LHS, desc='Channels: ')
+        }
 
+        grid = pd.DataFrame(results)
         return FitGrid(grid)
 
     def mlm():
