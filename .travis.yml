@@ -1,22 +1,10 @@
 language: python
 python:
-    - '3.5'
-    - '3.6'
-    - '3.7'
+    - "3.6"
 cache: pip
 sudo: false
 install:
-    - deactivate
-    - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;
-    - bash miniconda.sh -b -p $HOME/miniconda
-    - export PATH="$HOME/miniconda/bin:$PATH"
-    - hash -r
-    - conda config --set always_yes yes --set changeps1 no
-    - conda update -q conda
-    - conda info -a
-    - conda create -q -n testenv python=$TRAVIS_PYTHON_VERSION statsmodels seaborn patsy tqdm pytables
-    - source activate test-environment
-    - python setup.py install
+    - pip install -r requirements.txt
 script:
     - pytest tests
 after_success:
