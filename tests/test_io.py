@@ -1,4 +1,4 @@
-import fitgrid
+from .context import fitgrid
 
 
 def test__epochs_from_hdf():

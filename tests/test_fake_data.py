@@ -1,4 +1,4 @@
-import fitgrid as fg
+from .context import fitgrid as fg
 
 
 def test__generate():

@@ -1,0 +1,9 @@
+# What is `context.py`?
+
+We need it to resolve `fitgrid` for the tests without having to install it to
+`site-packages`.
+
+# Why do we need `__init__.py`?
+
+To be able to do `from .context import fitgrid` without ambiguity as to where
+`context` is located.

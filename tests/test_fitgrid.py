@@ -1,5 +1,5 @@
 import numpy as np
-import fitgrid
+from .context import fitgrid
 
 
 def test__method_returning_dataframe_expands_correctly():

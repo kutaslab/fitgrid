@@ -1,6 +1,7 @@
 import pytest
 import numpy as np
 
+from .context import fitgrid
 from fitgrid import fake_data, epochs, errors, TIME
 
 
