@@ -5,10 +5,10 @@ cache: pip
 sudo: false
 install:
     - pip install -r requirements.txt
-    - pip install sphinx sphinx_rtd_theme
 script:
     - pytest tests
 after_success:
+    - pip install sphinx sphinx_rtd_theme
     - cd docs
     - make html
     - touch build/html/.nojekyll
