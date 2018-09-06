@@ -2,6 +2,7 @@ numpy
 scipy
 pandas
 matplotlib
+seaborn
 statsmodels
 tables
 patsy
