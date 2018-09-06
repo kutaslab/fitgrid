@@ -1,9 +1,7 @@
-dist: xenial
-sudo: required
+sudo: false
 language: python
 python:
     - '3.6'
-    - '3.7'
 cache: pip
 install:
     - pip install -r requirements.txt
