@@ -2,7 +2,7 @@ from .context import fitgrid
 
 
 def test__epochs_from_hdf():
-    TEST_FILE = 'data/fake_epochs.h5'
+    TEST_FILE = 'tests/data/fake_epochs.h5'
     fitgrid.epochs_from_hdf(TEST_FILE)
 
 

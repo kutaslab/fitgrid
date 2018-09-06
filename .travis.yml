@@ -5,13 +5,12 @@ python:
 cache: pip
 install:
     - pip install -r requirements.txt
-    - pip install black
+    - pip install -U black pytest pytest-cov
 script:
     - black --check --verbose -S --line-length=79 .
-    - cd tests
-    - pytest
-    - cd ..
+    - pytest --cov=fitgrid
 after_success:
+    - pip install codecov && codecov
     - pip install sphinx sphinx_rtd_theme
     - cd docs
     - make html
