@@ -17,10 +17,5 @@ setup(
     author='Thomas P. Urbach, Andrey Portnoy',
     author_email='turbach@ucsd.edu, aportnoy@ucsd.edu',
     packages=find_packages(),
-    install_requires=[
-        'patsy',
-        'statsmodels',
-        'tqdm',
-        'tables'
-    ]
+    install_requires=['patsy', 'statsmodels', 'tqdm', 'tables'],
 )

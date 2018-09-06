@@ -60,13 +60,13 @@ def _generate(n_epochs, n_samples, n_categories, n_channels):
         'continuous': np.random.uniform(size=total),
     }
 
-    eeg = {f'channel{i}': np.random.normal(loc=0, scale=30, size=total)
-           for i in range(n_channels)}
+    eeg = {
+        f'channel{i}': np.random.normal(loc=0, scale=30, size=total)
+        for i in range(n_channels)
+    }
 
     data = {**indices, **predictors, **eeg}
 
-    df = (pd.DataFrame(data)
-            .set_index([EPOCH_ID, TIME])
-            .sort_index())
+    df = pd.DataFrame(data).set_index([EPOCH_ID, TIME]).sort_index()
 
     return df

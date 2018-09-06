@@ -11,8 +11,7 @@ from . import plots
 def expand_series_or_df(temp):
 
     columns = (
-        pd.concat(temp[channel].tolist(), keys=temp.index)
-        for channel in temp
+        pd.concat(temp[channel].tolist(), keys=temp.index) for channel in temp
     )
     # concatenate columns, channel names are top level columns indices
     result = pd.concat(columns, axis=1, keys=temp.columns)
@@ -68,8 +67,10 @@ def _expand(temp):
             temp = temp.applymap(lambda x: pd.DataFrame(x))
             return expand_series_or_df(temp)
         else:
-            raise NotImplementedError('Cannot use elements with dim > 2,'
-                                      f'element has ndim = {tester.ndim}.')
+            raise NotImplementedError(
+                'Cannot use elements with dim > 2,'
+                f'element has ndim = {tester.ndim}.'
+            )
 
     # catchall for all types we don't handle explicitly
     # statsmodels objects, dicts, methods all go here
@@ -149,11 +150,11 @@ class FitGrid:
 
         if beta_name:
             assert beta_name in self.betas_names
-            data = (self.params.swaplevel(axis=1)
-                               .sort_index(axis=1, level=0)
-                               .reindex(axis=1,
-                                        level=1,
-                                        labels=self.grid.columns))
+            data = (
+                self.params.swaplevel(axis=1)
+                .sort_index(axis=1, level=0)
+                .reindex(axis=1, level=1, labels=self.grid.columns)
+            )
             plots.stripchart(data[beta_name])
 
     def plot_adj_rsquared(self, by=None):
@@ -171,20 +172,24 @@ class FitGrid:
         influence = self.get_influence()
 
         if within_channel is not None:
-            a = influence.cooks_distance[within_channel].drop(axis=0,
-                                                              index=1,
-                                                              level=1)
+            a = influence.cooks_distance[within_channel].drop(
+                axis=0, index=1, level=1
+            )
             a.index = a.index.droplevel(1)
-            result = (a.mean(axis=0)
-                       .sort_values(ascending=False)
-                       .to_frame(name='average_Cooks_D'))
+            result = (
+                a.mean(axis=0)
+                .sort_values(ascending=False)
+                .to_frame(name='average_Cooks_D')
+            )
         else:
             a = influence.cooks_distance.drop(axis=0, index=1, level=1)
             a.index = a.index.droplevel(1)
-            result = (a.mean(axis=1, level=1)
-                       .mean(axis=0)
-                       .sort_values(ascending=False)
-                       .to_frame(name='average_Cooks_D'))
+            result = (
+                a.mean(axis=1, level=1)
+                .mean(axis=0)
+                .sort_values(ascending=False)
+                .to_frame(name='average_Cooks_D')
+            )
 
         return result.iloc[:top]
 
@@ -199,18 +204,23 @@ class FitGrid:
         influence = self.get_influence()
 
         if within_channel is not None:
-            ar = (influence.resid_studentized_internal[within_channel]
-                           .mean(axis=0)
-                           .to_frame())
+            ar = (
+                influence.resid_studentized_internal[within_channel]
+                .mean(axis=0)
+                .to_frame()
+            )
         else:
-            ar = (influence.resid_studentized_internal.mean(axis=1, level=1)
-                                                      .mean(axis=0)
-                                                      .to_frame())
+            ar = (
+                influence.resid_studentized_internal.mean(axis=1, level=1)
+                .mean(axis=0)
+                .to_frame()
+            )
         plt.figure(figsize=(16, 8))
         sns.distplot(ar, bins=10)
 
-    def plot_averaged_absolute_standardized_residuals(self,
-                                                      within_channel=None):
+    def plot_averaged_absolute_standardized_residuals(
+        self, within_channel=None
+    ):
         """
         Parameters
         ----------
@@ -222,14 +232,18 @@ class FitGrid:
         influence = self.get_influence()
 
         if within_channel is not None:
-            ar = (influence.resid_studentized_internal[within_channel]
-                           .abs()
-                           .mean(axis=0)
-                           .to_frame())
+            ar = (
+                influence.resid_studentized_internal[within_channel]
+                .abs()
+                .mean(axis=0)
+                .to_frame()
+            )
         else:
-            ar = (influence.resid_studentized_internal
-                           .abs().mean(axis=1, level=1)
-                           .mean(axis=0)
-                           .to_frame())
+            ar = (
+                influence.resid_studentized_internal.abs()
+                .mean(axis=1, level=1)
+                .mean(axis=0)
+                .to_frame()
+            )
         plt.figure(figsize=(16, 8))
         sns.distplot(ar, bins=10)

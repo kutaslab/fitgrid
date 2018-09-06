@@ -1,5 +1,6 @@
 import pandas as pd
 from statsmodels.formula.api import ols
+
 # this ensures access to tqdm.pandas()
 # see tqdm.autonotebook for details
 from tqdm._tqdm_notebook import tqdm_notebook as tqdm
@@ -26,8 +27,10 @@ class Epochs:
             raise FitGridError('epochs_table must be a Pandas DataFrame.')
 
         # these index columns are required for consistency checks
-        assert (TIME in epochs_table.index.names
-                and EPOCH_ID in epochs_table.index.names)
+        assert (
+            TIME in epochs_table.index.names
+            and EPOCH_ID in epochs_table.index.names
+        )
 
         # now need to only keep EPOCH_ID in index
         # this is done so that any series that we get from fits are indexed on
@@ -70,11 +73,14 @@ class Epochs:
 
         if LHS == 'default':
             from . import CHANNELS
+
             LHS = CHANNELS
 
         # validate LHS
-        if not (isinstance(LHS, list) and
-                all(isinstance(item, str) for item in LHS)):
+        if not (
+            isinstance(LHS, list)
+            and all(isinstance(item, str) for item in LHS)
+        ):
             raise FitGridError('LHS must be a list of strings.')
 
         assert set(LHS).issubset(set(self.table.columns))
@@ -92,8 +98,7 @@ class Epochs:
         for channel in tqdm(LHS, desc='Overall: '):
             tqdm.pandas(desc=channel)
             results[channel] = self.snapshots.progress_apply(
-                    regression,
-                    formula=channel + ' ~ ' + RHS
+                regression, formula=channel + ' ~ ' + RHS
             )
         grid = pd.DataFrame(results)
 
@@ -108,11 +113,14 @@ class Epochs:
     def plot_averages(self, channels=None):
 
         from . import CHANNELS
+
         if channels is None:
             if set(CHANNELS).issubset(set(self.table.columns)):
                 channels = CHANNELS
             else:
-                raise FitGridError('Default channels missing in epochs table,'
-                                   ' please pass list of channels.')
+                raise FitGridError(
+                    'Default channels missing in epochs table,'
+                    ' please pass list of channels.'
+                )
         data = self.snapshots.mean()
         plots.stripchart(data[channels])

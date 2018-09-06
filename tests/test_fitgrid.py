@@ -6,10 +6,7 @@ def test__method_returning_dataframe_expands_correctly():
 
     epochs = fitgrid.generate()
     LHS = ['channel0', 'channel1', 'channel2']
-    grid = epochs.lm(
-        LHS=LHS,
-        RHS='categorical + continuous',
-    )
+    grid = epochs.lm(LHS=LHS, RHS='categorical + continuous')
 
     conf_int = grid.conf_int()
     assert (conf_int.columns == LHS).all()
