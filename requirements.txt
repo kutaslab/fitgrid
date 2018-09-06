@@ -6,4 +6,5 @@ seaborn
 statsmodels
 tables
 patsy
+ipywidgets
 tqdm>=4.25.0
