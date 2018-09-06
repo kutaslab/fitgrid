@@ -2,7 +2,7 @@ import pytest
 import numpy as np
 
 from .context import fitgrid
-from fitgrid import fake_data, epochs, errors, TIME
+from fitgrid import fake_data, epochs, errors
 
 
 def test_epochs_unequal_snapshots():
@@ -19,6 +19,8 @@ def test_epochs_unequal_snapshots():
 
 def test__raises_error_on_epoch_index_mismatch():
     """Bad: all epochs have the same shape, but indices differ."""
+
+    from fitgrid import TIME
 
     # strategy: generate epochs, but insert meaningless time index
     epochs_table = fake_data._generate(

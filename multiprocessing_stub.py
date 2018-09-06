@@ -1,14 +1,13 @@
 import numpy as np
 import pandas as pd
 from statsmodels.formula.api import ols
-from tqdm import tqdm_notebook as tqdm
 import patsy
 from multiprocessing import Pool
-from random import shuffle
 
 df = pd.read_hdf('../../arquant_raw_articles.h5')
 
 input('Finished reading epochs, press enter to continue\n')
+
 
 # name suggested by TPU
 class Scout:

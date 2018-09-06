@@ -1,4 +1,6 @@
-# package level constants, at the top to avoid circular imports
+from .fake_data import generate
+from .io import epochs_from_hdf, epochs_from_dataframe
+
 EPOCH_ID = 'Epoch_idx'
 TIME = 'Time'
 CHANNELS = [  #: Sphinx autodoc
@@ -37,16 +39,15 @@ CHANNELS = [  #: Sphinx autodoc
 ]
 
 
-from .fake_data import generate
-from .io import epochs_from_hdf, epochs_from_dataframe
+__all__ = [
+    'generate',
+    'epochs_from_hdf',
+    'epochs_from_dataframe',
+    'EPOCH_ID',
+    'TIME',
+    'CHANNELS',
+]
 
 
 def __dir__():
-    return [
-        'generate',
-        'epochs_from_hdf',
-        'epochs_from_dataframe',
-        'EPOCH_ID',
-        'TIME',
-        'CHANNELS',
-    ]
+    return __all__
