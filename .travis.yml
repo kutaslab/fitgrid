@@ -5,12 +5,12 @@ python:
 cache: pip
 install:
     - pip install -r requirements.txt
-    - pip install black flake8
+    - pip install black
 script:
+    - black --check --verbose -S --line-length=79 .
     - cd tests
     - pytest
     - cd ..
-    - black --check --verbose -S --line-length=79 .
 after_success:
     - pip install sphinx sphinx_rtd_theme
     - cd docs
