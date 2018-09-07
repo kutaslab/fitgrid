@@ -9,6 +9,7 @@ from . import plots
 
 
 def expand_series_or_df(temp):
+    """Expand a DataFrame that has Series or DataFrames for values."""
 
     columns = (
         pd.concat(temp[channel].tolist(), keys=temp.index) for channel in temp
@@ -80,21 +81,44 @@ def _expand(temp):
 class FitGrid:
     """Hold rERP fit objects.
 
+    FitGrid should not be created directly, the right way to build it is to
+    start with an Epochs object and call a method like `.lm`.
+
     Parameters
     ----------
-
-    grid : Pandas DataFrame
+    _grid : Pandas DataFrame
         Pandas DataFrame of fit objects
+
+    Returns
+    -------
+
+    grid: FitGrid
+        FitGrid object
     """
 
-    def __init__(self, grid):
+    def __init__(self, _grid):
 
-        self.grid = grid
-        self.tester = grid.iloc[0, 0]
+        self._grid = _grid
+        self.tester = _grid.iloc[0, 0]
         # TODO the grid should be aware of the betas names
         # TODO the grid should be aware of the channel names
 
     def __getitem__(self, slicer):
+        """Slice grid on time and channels, return new grid with that shape.
+
+        The intended way to slice a FitGrid is to always slice on both time and
+        channels, allowing wildcard colons:
+
+            `grid[:, ['channel1', 'channel2']]`
+
+        or
+
+            `grid[:, :]`
+
+        or
+
+            `grid[25:-25, 'channel2']
+        """
 
         if isinstance(slicer, slice) or len(slicer) != 2:
             raise ValueError('Must slice on time and channels.')
@@ -113,31 +137,49 @@ class FitGrid:
 
         time = check_slicer_component(time)
         channels = check_slicer_component(channels)
-        subgrid = self.grid.loc[time, channels]
+        subgrid = self._grid.loc[time, channels]
         return self.__class__(subgrid)
 
     @lru_cache()
     def __getattr__(self, name):
+        """Broadcast attribute extraction in the grid.
+
+        This is the method that gets called when an attribute is requested that
+        FitGrid does not have. We then go and check if the tester has it, and
+        broadcast if it does.
+        """
 
         if not hasattr(self.tester, name):
             raise FitGridError(f'No such attribute: {name}.')
 
-        temp = self.grid.applymap(lambda x: getattr(x, name))
+        temp = self._grid.applymap(lambda x: getattr(x, name))
         return _expand(temp)
 
     def __call__(self, *args, **kwargs):
+        """Broadcast method calling in the grid.
+
+        This is the method that gets called when the grid is called as if it
+        were a method.
+        """
+        if not callable(self.tester):
+            raise FitGridError(
+                f'This grid is not callable, '
+                f'current type is {type(self.tester)}'
+            )
 
         # if we are not callable, we'll get an appropriate exception
-        temp = self.grid.applymap(lambda x: x(*args, **kwargs))
+        temp = self._grid.applymap(lambda x: x(*args, **kwargs))
         return _expand(temp)
 
     def __dir__(self):
 
-        return dir(self.tester)
+        # this exposes the fit object method but hides dunder methods, since
+        # these likely overlap with the grid's own dunder methods
+        return [item for item in dir(self.tester) if not item.startswith('__')]
 
     def __repr__(self):
 
-        samples, chans = self.grid.shape
+        samples, chans = self._grid.shape
         return f'{samples} by {chans} FitGrid of type {type(self.tester)}.'
 
     def plot_betas(self, channel=None, beta_name=None):
@@ -153,7 +195,7 @@ class FitGrid:
             data = (
                 self.params.swaplevel(axis=1)
                 .sort_index(axis=1, level=0)
-                .reindex(axis=1, level=1, labels=self.grid.columns)
+                .reindex(axis=1, level=1, labels=self._grid.columns)
             )
             plots.stripchart(data[beta_name])
 

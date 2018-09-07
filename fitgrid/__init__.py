@@ -1,9 +1,14 @@
 from .fake_data import generate
 from .io import epochs_from_hdf, epochs_from_dataframe
 
+#: ``mkpy`` convention
 EPOCH_ID = 'Epoch_idx'
+
+#: ``mkpy`` convention
 TIME = 'Time'
-CHANNELS = [  #: Sphinx autodoc
+
+#: a reasonable default for Kutas Lab
+CHANNELS = [
     'lle',
     'lhz',
     'MiPf',
@@ -37,17 +42,3 @@ CHANNELS = [  #: Sphinx autodoc
     'rle',
     'rhz',
 ]
-
-
-__all__ = [
-    'generate',
-    'epochs_from_hdf',
-    'epochs_from_dataframe',
-    'EPOCH_ID',
-    'TIME',
-    'CHANNELS',
-]
-
-
-def __dir__():
-    return __all__

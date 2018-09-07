@@ -98,14 +98,7 @@ class Epochs:
             for channel in tqdm(LHS, desc='Channels: ')
         }
 
-        grid = pd.DataFrame(results)
-        return FitGrid(grid)
-
-    def mlm():
-        raise NotImplementedError
-
-    def glm():
-        raise NotImplementedError
+        return FitGrid(pd.DataFrame(results))
 
     def plot_averages(self, channels=None):
 
