@@ -1,35 +1,32 @@
-.. fitgrid documentation master file, created by
-   sphinx-quickstart on Fri Aug 17 15:10:35 2018.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
-
 #########
 `fitgrid`
 #########
 
+`fitgrid` is a Python library for running linear models on stacks of epochs.
 
-`fitgrid` attempts to be a convenient tool for running linear models on stacks
-of epochs. Here's a quick example:
+Here's a quick demo:
 
 1. Import `fitgrid` and read an epochs table from an HDF5 file::
 
     import fitgrid
     epochs = fitgrid.epochs_from_hdf('epochs_table.h5')
 
-2. Run a regression model, which creates a fitgrid::
+2. Run a regression model, which creates a ``FitGrid``::
 
-    grid = epochs.lm(RHS='noun_cloze + stimulus_type')
+    grid = epochs.lm(RHS='stimulus_magnitude + stimulus_type')
 
 3. Now all diagnostic and fit information is available as attributes. For
-   example, the betas of the model::
+   example, the betas::
 
     betas = grid.params
    
-   Or adjusted :math:`R^2`::
+   or adjusted :math:`R^2`::
 
     rsquared_adj = grid.rsquared_adj
 
 .. toctree::
-   :hidden:
+    :hidden:
 
-   quickstart
+    research_context
+    tutorial
+    reference

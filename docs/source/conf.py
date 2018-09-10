@@ -40,6 +40,8 @@ release = '0.1'
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.napoleon',
     'sphinx.ext.todo',
     'sphinx.ext.coverage',
     'sphinx.ext.mathjax',
@@ -85,6 +87,7 @@ html_theme = 'sphinx_rtd_theme'
 html_copy_source = False
 html_show_sourcelink = False
 html_show_sphinx = False
+html_show_copyright = False
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the

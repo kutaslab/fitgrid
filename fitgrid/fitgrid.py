@@ -183,6 +183,18 @@ class FitGrid:
         return f'{samples} by {chans} FitGrid of type {type(self.tester)}.'
 
     def plot_betas(self, channel=None, beta_name=None):
+        """Plot betas of the model. Pass either beta or channel name.
+
+        Parameters
+        ----------
+        channel : str
+            channel for which to plot the betas, if none passed, use all
+        beta_name : str
+            name of the beta parameter which should be plotted
+        """
+
+        if not hasattr(self.tester, 'params'):
+            raise FitGridError('This FitGrid does not contain fit results.')
 
         if (channel and beta_name) or (beta_name is None and channel is None):
             raise NotImplementedError('Pass either channel or beta name.')
@@ -200,6 +212,19 @@ class FitGrid:
             plots.stripchart(data[beta_name])
 
     def plot_adj_rsquared(self, by=None):
+        """Plot adjusted :math:`R^2` by channels or time.
+
+        Parameters
+        ----------
+        by : str, value is 'channels' or 'time'
+            optional string triggering plotting by channels or time
+
+        Notes
+        -----
+        If by is not set, a heatmap with time on the x-axis and channels on the
+        y-axis is show. If by='channels', a bar plot is shown. If by='time', a
+        single timeseries line plot is shown.
+        """
 
         if by is None:
             plt.figure(figsize=(16, 8))
@@ -210,6 +235,25 @@ class FitGrid:
             self.rsquared_adj.mean(axis=1).plot(figsize=(16, 8))
 
     def influential_epochs(self, top=20, within_channel=None):
+        """Return dataframe with top influential epochs ranked by Cook's-D.
+
+        Parameters
+        ----------
+        top : int
+            how many top epochs to return
+        within_channel : str
+            name of channel to which to restrict search
+
+        Returns
+        -------
+        top_epochs : pandas DataFrame
+            dataframe with EPOCH_ID as index and aggregated Cook's-D as values
+
+        Notes
+        -----
+        Cook's distance is aggregated by simple averaging within given scope.
+
+        """
 
         influence = self.get_influence()
 
@@ -235,12 +279,13 @@ class FitGrid:
 
         return result.iloc[:top]
 
-    def plot_averaged_studentized_residuals(self, within_channel=None):
-        """
+    def plot_residuals(self, within_channel=None):
+        """Plot averaged studentized residuals.
+
         Parameters
         ----------
 
-        within : str
+        within_channel : str
             channel name
         """
         influence = self.get_influence()
@@ -260,10 +305,9 @@ class FitGrid:
         plt.figure(figsize=(16, 8))
         sns.distplot(ar, bins=10)
 
-    def plot_averaged_absolute_standardized_residuals(
-        self, within_channel=None
-    ):
-        """
+    def plot_absolute_residuals(self, within_channel=None):
+        """Plot average absolute studentized residuals.
+
         Parameters
         ----------
 

@@ -1,13 +1,13 @@
 from .fake_data import generate
 from .io import epochs_from_hdf, epochs_from_dataframe
 
-#: ``mkpy`` convention
+#: default epoch identifier
 EPOCH_ID = 'Epoch_idx'
 
-#: ``mkpy`` convention
+#: default time identifier
 TIME = 'Time'
 
-#: a reasonable default for Kutas Lab
+#: default channel list
 CHANNELS = [
     'lle',
     'lhz',

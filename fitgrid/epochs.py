@@ -12,8 +12,14 @@ class Epochs:
 
     Parameters
     ----------
-
     epochs_table : pandas DataFrame
+        long form dataframe containing epochs with equal indices
+
+    Returns
+    -------
+    epochs : Epochs
+        epochs object
+        
     """
 
     def __init__(self, epochs_table):
@@ -67,6 +73,22 @@ class Epochs:
         self.snapshots = snapshots
 
     def lm(self, LHS='default', RHS=None):
+        """Run ordinary least squares linear regression on the epochs.
+
+        Parameters
+        ----------
+        LHS : list of str, optional
+            list of channels for the left hand side of the regression formula
+        RHS : str
+            right hand side of the regression formula
+
+        Returns
+        -------
+
+        grid : FitGrid
+            FitGrid object containing results of the regression
+
+        """
 
         if LHS == 'default':
             from . import CHANNELS
@@ -100,7 +122,8 @@ class Epochs:
 
         return FitGrid(pd.DataFrame(results))
 
-    def plot_averages(self, channels=None):
+    def plot_averages(self, channels=None, negative_up=True):
+        """Plot grand means for each channel, negative up by default."""
 
         from . import CHANNELS
 
