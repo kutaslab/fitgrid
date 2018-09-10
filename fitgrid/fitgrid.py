@@ -226,6 +226,7 @@ class FitGrid:
         """
 
         import seaborn as sns
+
         if by is None:
             plt.figure(figsize=(16, 8))
             sns.heatmap(self.rsquared_adj.T)
@@ -289,6 +290,7 @@ class FitGrid:
             channel name
         """
         import seaborn as sns
+
         influence = self.get_influence()
 
         if within_channel is not None:
@@ -317,6 +319,7 @@ class FitGrid:
         """
 
         import seaborn as sns
+
         influence = self.get_influence()
 
         if within_channel is not None:
