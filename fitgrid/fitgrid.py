@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 from functools import lru_cache
 import matplotlib.pyplot as plt
-import seaborn as sns
 
 from .errors import FitGridError
 from . import plots
@@ -226,6 +225,7 @@ class FitGrid:
         single timeseries line plot is shown.
         """
 
+        import seaborn as sns
         if by is None:
             plt.figure(figsize=(16, 8))
             sns.heatmap(self.rsquared_adj.T)
@@ -288,6 +288,7 @@ class FitGrid:
         within_channel : str
             channel name
         """
+        import seaborn as sns
         influence = self.get_influence()
 
         if within_channel is not None:
@@ -315,6 +316,7 @@ class FitGrid:
             possible values are `epochs`, `time`, `channels`
         """
 
+        import seaborn as sns
         influence = self.get_influence()
 
         if within_channel is not None:

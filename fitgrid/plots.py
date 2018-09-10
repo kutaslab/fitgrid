@@ -1,3 +1,4 @@
+import pandas as pd
 import matplotlib.pyplot as plt
 
 
@@ -5,6 +6,8 @@ def stripchart(data, negative_up=True):
 
     plt.rcParams.update({'font.size': 15})
 
+    if isinstance(data, pd.Series):
+        data = data.unstack()
     _, n = data.shape
     fig, axes = plt.subplots(nrows=n, figsize=(16, n * 3), sharey=True)
     data.plot(subplots=True, ax=axes)
