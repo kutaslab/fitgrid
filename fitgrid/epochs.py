@@ -19,7 +19,7 @@ class Epochs:
     -------
     epochs : Epochs
         epochs object
-        
+
     """
 
     def __init__(self, epochs_table):
@@ -132,8 +132,8 @@ class Epochs:
                 channels = CHANNELS
             else:
                 raise FitGridError(
-                    'Default channels missing in epochs table,'
-                    ' please pass list of channels.'
+                    f'Default channels {CHANNELS} missing in epochs table,'
+                    ' please pass list of channels or set CHANNELS.'
                 )
         data = self.snapshots.mean()
-        plots.stripchart(data[channels])
+        plots.stripchart(data[channels], negative_up=negative_up)
