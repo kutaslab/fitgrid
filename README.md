@@ -4,3 +4,11 @@
 [![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/kutaslab/fitgrid/master?filepath=Demo.ipynb)
 
 Click the Binder badge above to run a demo notebook.
+
+# Authors
+
+**Thomas P. Urbach** conceptualized the library and came up with the name.
+
+**Andrey Portnoy** designed and implemented the library.
+
+**Lauren Liao** contributed early implementations.
