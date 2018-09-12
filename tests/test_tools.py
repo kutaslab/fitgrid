@@ -7,11 +7,9 @@ from fitgrid import tools
 
 def test_duplicate_index_printer():
 
-    df = pd.DataFrame({
-        'a': [1, 2, 3, 4, 5],
-        'b': [1, 1, 2, 3, 2],
-        'c': [0, 1, 2, 3, 4]
-    })
+    df = pd.DataFrame(
+        {'a': [1, 2, 3, 4, 5], 'b': [1, 1, 2, 3, 2], 'c': [0, 1, 2, 3, 4]}
+    )
 
     single_level_df = df.set_index('b')
 
