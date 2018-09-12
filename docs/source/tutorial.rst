@@ -66,7 +66,8 @@ Input epochs tables are required to have at least two columns in the index:
 2. time identifier (assumed to be given by ``TIME``)
 
 In addition, it is assumed that each epoch has the same ``TIME`` indices, and
-thus for each timepoint we have measurements from the same epochs.
+thus for each timepoint we have measurements from the same epochs. Further, for
+each timepoint only unique ``EPOCH_ID`` values are allowed.
 
 
 ==============
