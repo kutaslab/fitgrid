@@ -4,7 +4,7 @@ from tqdm import tqdm_notebook as tqdm
 
 from .errors import FitGridError
 from .fitgrid import FitGrid
-from . import plots
+from . import plots, tools
 
 
 class Epochs:
@@ -65,8 +65,8 @@ class Epochs:
 
         if not prev_group.index.is_unique:
             raise FitGridError(
-                f'Duplicate values in {EPOCH_ID} index not allowed:'
-                f'\n{prev_group.index}'
+                f'Duplicate values in {EPOCH_ID} index not allowed:',
+                tools.get_index_duplicates_table(epochs_table, EPOCH_ID),
             )
 
         # we're good, set instance variable
