@@ -132,3 +132,21 @@ appropriate shape or another ``FitGrid`` object::
 If a dataframe is returned, it is always presented in long form with the same
 indices and columns on the outer side as a single epoch: channels as columns
 and time as indices.
+
+In addition, slicing on a ``grid`` can be performed to produce a smaller grid
+of the shape you want. Suppose you want to only look at a certain channel
+within a given timeframe. You can slice as follows::
+
+    smaller_grid = grid[25:75, 'MiPa']
+
+Or multiple channels::
+
+    smaller_grid = grid[25:75, ['MiPa', 'MiPf']]
+
+To include all timepoints or all channels, use a colon::
+
+    # all channels within certain timeframe
+    grid[25:75, :]
+
+    # all timepoints, two channels
+    grid[:, ['MiPa', 'MiPf']]
