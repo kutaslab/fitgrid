@@ -3,24 +3,37 @@ language: python
 python:
     - '3.6'
 cache: pip
-install:
+stages:
+    - name: before_script
+      if: branch != docs
+    - name: script
+      if: branch != docs
+    - name: after_success
+      if: branch != docs
+    - name: before_deploy
+      if: branch = docs
+    - name: deploy
+      if: branch = docs
+install: # also needed for sphinx since it imports
     - pip install -r requirements.txt
+before_script:
     - pip install -U black pytest pytest-cov
 script:
     - black --check --verbose -S --line-length=79 .
     - pytest --cov=fitgrid
 after_success:
     - pip install codecov && codecov
+before_deploy:
     - pip install sphinx sphinx_rtd_theme
     - cd docs
     - make html
     - touch build/html/.nojekyll
 deploy:
     provider: pages
-    skip_cleanup: try
+    skip_cleanup: true
     github_token: $GITHUB_TOKEN
     keep-history: true
     on:
-        branch: master
+        branch: docs
     target_branch: gh-pages # that's the default anyway, just to be explicit
     local_dir: docs/build/html
