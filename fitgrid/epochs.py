@@ -4,7 +4,7 @@ from tqdm import tqdm
 
 from .errors import FitGridError
 from .fitgrid import FitGrid
-from . import plots, tools
+from . import tools
 
 
 class Epochs:
@@ -135,5 +135,8 @@ class Epochs:
                     f'Default channels {CHANNELS} missing in epochs table,'
                     ' please pass list of channels or set CHANNELS.'
                 )
+
+        from . import plots
+
         data = self.snapshots.mean()
         plots.stripchart(data[channels], negative_up=negative_up)

@@ -1,10 +1,8 @@
 import numpy as np
 import pandas as pd
 from functools import lru_cache
-import matplotlib.pyplot as plt
 
 from .errors import FitGridError
-from . import plots
 
 
 def expand_series_or_df(temp):
@@ -198,6 +196,8 @@ class FitGrid:
         if (channel and beta_name) or (beta_name is None and channel is None):
             raise NotImplementedError('Pass either channel or beta name.')
 
+        from . import plots
+
         if channel:
             plots.stripchart(self.params[channel])
 
@@ -225,6 +225,7 @@ class FitGrid:
         single timeseries line plot is shown.
         """
 
+        import matplotlib.pyplot as plt
         import seaborn as sns
 
         if by is None:
@@ -289,6 +290,8 @@ class FitGrid:
         within_channel : str
             channel name
         """
+
+        import matplotlib.pyplot as plt
         import seaborn as sns
 
         influence = self.get_influence()
@@ -318,6 +321,7 @@ class FitGrid:
             possible values are `epochs`, `time`, `channels`
         """
 
+        import matplotlib.pyplot as plt
         import seaborn as sns
 
         influence = self.get_influence()
