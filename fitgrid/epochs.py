@@ -1,6 +1,6 @@
 import pandas as pd
 from statsmodels.formula.api import ols
-from tqdm import tqdm_notebook as tqdm
+from tqdm import tqdm
 
 from .errors import FitGridError
 from .fitgrid import FitGrid
