@@ -262,10 +262,8 @@ class FitGrid:
 
         Parameters
         ----------
-        top : int
+        top : int, optional
             how many top epochs to return
-        within_channel : str
-            name of channel to which to restrict search
 
         Returns
         -------
@@ -278,88 +276,16 @@ class FitGrid:
 
         """
 
-        influence = self.get_influence()
+        if not hasattr(self.tester, 'get_influence'):
+            raise FitGridError('This FitGrid does not contain influence data.')
 
-        if within_channel is not None:
-            a = influence.cooks_distance[within_channel].drop(
-                axis=0, index=1, level=1
-            )
-            a.index = a.index.droplevel(1)
-            result = (
-                a.mean(axis=0)
-                .sort_values(ascending=False)
-                .to_frame(name='average_Cooks_D')
-            )
-        else:
-            a = influence.cooks_distance.drop(axis=0, index=1, level=1)
-            a.index = a.index.droplevel(1)
-            result = (
-                a.mean(axis=1, level=1)
-                .mean(axis=0)
-                .sort_values(ascending=False)
-                .to_frame(name='average_Cooks_D')
-            )
-
-        return result.iloc[:top]
-
-    def plot_residuals(self, within_channel=None):
-        """Plot averaged studentized residuals.
-
-        Parameters
-        ----------
-
-        within_channel : str
-            channel name
-        """
-
-        import matplotlib.pyplot as plt
-        import seaborn as sns
-
-        influence = self.get_influence()
-
-        if within_channel is not None:
-            ar = (
-                influence.resid_studentized_internal[within_channel]
-                .mean(axis=0)
-                .to_frame()
-            )
-        else:
-            ar = (
-                influence.resid_studentized_internal.mean(axis=1, level=1)
-                .mean(axis=0)
-                .to_frame()
-            )
-        plt.figure(figsize=(16, 8))
-        sns.distplot(ar, bins=10)
-
-    def plot_absolute_residuals(self, within_channel=None):
-        """Plot average absolute studentized residuals.
-
-        Parameters
-        ----------
-
-        across : str
-            possible values are `epochs`, `time`, `channels`
-        """
-
-        import matplotlib.pyplot as plt
-        import seaborn as sns
-
-        influence = self.get_influence()
-
-        if within_channel is not None:
-            ar = (
-                influence.resid_studentized_internal[within_channel]
-                .abs()
-                .mean(axis=0)
-                .to_frame()
-            )
-        else:
-            ar = (
-                influence.resid_studentized_internal.abs()
-                .mean(axis=1, level=1)
-                .mean(axis=0)
-                .to_frame()
-            )
-        plt.figure(figsize=(16, 8))
-        sns.distplot(ar, bins=10)
+        return (
+            self.get_influence()
+            .cooks_distance.drop(axis=0, index=1, level=1)
+            .reset_index(level=1, drop=True)
+            .mean(axis=0, level=1)
+            .mean(axis=1)
+            .sort_values(ascending=False)
+            .to_frame(name='average_Cooks_D')
+            .iloc[:top]
+        )
