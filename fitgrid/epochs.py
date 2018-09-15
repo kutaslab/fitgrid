@@ -41,12 +41,13 @@ class Epochs:
         levels_to_remove = set(epochs_table.index.names)
         levels_to_remove.discard(EPOCH_ID)
 
-        # so we remove all levels from index except EPOCH_ID
-        epochs_table.reset_index(list(levels_to_remove), inplace=True)
-        assert epochs_table.index.names == [EPOCH_ID]
+        # copy since we are about to modify
+        self.table = epochs_table.copy()
+        # remove all levels from index except EPOCH_ID
+        self.table.reset_index(list(levels_to_remove), inplace=True)
+        assert self.table.index.names == [EPOCH_ID]
 
-        self.table = epochs_table
-        snapshots = epochs_table.groupby(TIME)
+        snapshots = self.table.groupby(TIME)
 
         # check that snapshots across epochs have equal index by transitivity
         prev_group = None
@@ -66,10 +67,13 @@ class Epochs:
         if not prev_group.index.is_unique:
             raise FitGridError(
                 f'Duplicate values in {EPOCH_ID} index not allowed:',
-                tools.get_index_duplicates_table(epochs_table, EPOCH_ID),
+                tools.get_index_duplicates_table(self.table, EPOCH_ID),
             )
 
-        # we're good, set instance variable
+        self.table.reset_index(inplace=True)
+        self.table.set_index([EPOCH_ID, TIME], inplace=True)
+        assert self.table.index.names == [EPOCH_ID, TIME]
+
         self.snapshots = snapshots
 
     def lm(self, LHS='default', RHS=None):

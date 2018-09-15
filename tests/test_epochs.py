@@ -2,7 +2,8 @@ import pytest
 import numpy as np
 
 from .context import fitgrid
-from fitgrid import fake_data, epochs, errors
+from fitgrid import fake_data, errors
+from fitgrid.epochs import Epochs
 
 
 def test_epochs_unequal_snapshots():
@@ -13,7 +14,7 @@ def test_epochs_unequal_snapshots():
 
     epochs_table.drop(epochs_table.index[42], inplace=True)
     with pytest.raises(errors.FitGridError) as error:
-        epochs.Epochs(epochs_table)
+        Epochs(epochs_table)
     assert 'differs from previous snapshot' in str(error.value)
 
 
@@ -34,6 +35,23 @@ def test__raises_error_on_epoch_index_mismatch():
 
     # now time index is equal to row number in the table overall
     with pytest.raises(errors.FitGridError) as error:
-        epochs.Epochs(epochs_table)
+        Epochs(epochs_table)
 
     assert 'differs from previous snapshot' in str(error.value)
+
+
+def test_multiple_indices_end_up_EPOCH_ID_and_TIME():
+
+    from fitgrid import EPOCH_ID, TIME
+
+    epochs_table = fake_data._generate(
+        n_epochs=10, n_samples=100, n_categories=2, n_channels=32
+    )
+    epochs_table.reset_index(inplace=True)
+    epochs_table.set_index([EPOCH_ID, TIME, 'categorical'], inplace=True)
+
+    epochs = Epochs(epochs_table)
+    # internal table has EPOCH_ID and TIME in index
+    assert epochs.table.index.names == [EPOCH_ID, TIME]
+    # input table is not altered
+    assert epochs_table.index.names == [EPOCH_ID, TIME, 'categorical']
