@@ -179,7 +179,7 @@ class FitGrid:
         samples, chans = self._grid.shape
         return f'{samples} by {chans} FitGrid of type {type(self.tester)}.'
 
-    def plot_betas(self, channel=None, beta_name=None):
+    def plot_betas(self):
         """Plot betas of the model. Pass either beta or channel name.
 
         Parameters
@@ -193,25 +193,33 @@ class FitGrid:
         if not hasattr(self.tester, 'params'):
             raise FitGridError('This FitGrid does not contain fit results.')
 
-        if (channel and beta_name) or (beta_name is None and channel is None):
-            raise NotImplementedError('Pass either channel or beta name.')
+        import matplotlib.pyplot as plt
 
-        from . import plots
+        with plt.rc_context({'font.size': 14}):
+            params = self.params.unstack()
+            channels, betas = params.columns.levels
+            figsize = (16, 4 * len(channels))
 
-        if channel:
-            plots.stripchart(self.params[channel])
-
-        if beta_name:
-            assert beta_name in self.betas_names
-            data = (
-                self.params.swaplevel(axis=1)
-                .sort_index(axis=1, level=0)
-                .reindex(axis=1, level=1, labels=self._grid.columns)
+            fig, axes = plt.subplots(
+                nrows=len(channels), figsize=figsize, sharey=True
             )
-            plots.stripchart(data[beta_name])
 
-    def plot_adj_rsquared(self, by=None):
-        """Plot adjusted :math:`R^2` by channels or time.
+            for ax, chan in zip(axes, channels):
+                for beta in params[chan]:
+                    ax.plot(params[chan][beta], label=beta)
+                ax.set(ylabel=chan, xlabel=params.index.name)
+                ax.legend(
+                    loc='upper center',
+                    ncol=len(params[chan]),
+                    bbox_to_anchor=(0.5, 1.2),
+                    fancybox=True,
+                    shadow=False,
+                )
+
+            fig.tight_layout()
+
+    def plot_adj_rsquared(self):
+        """Plot adjusted :math:`R^2`.
 
         Parameters
         ----------
