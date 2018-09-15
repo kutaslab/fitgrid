@@ -234,17 +234,30 @@ class FitGrid:
         """
 
         import matplotlib.pyplot as plt
-        import seaborn as sns
 
-        if by is None:
-            plt.figure(figsize=(16, 8))
-            sns.heatmap(self.rsquared_adj.T)
-        elif by == 'channels':
-            self.rsquared_adj.mean(axis=0).plot(kind='bar', figsize=(16, 8))
-        elif by == 'time':
-            self.rsquared_adj.mean(axis=1).plot(figsize=(16, 8))
+        if not hasattr(self.tester, 'rsquared_adj'):
+            raise FitGridError('This FitGrid does not contain fit results.')
 
-    def influential_epochs(self, top=20, within_channel=None):
+        rsq_adj = self.rsquared_adj
+
+        with plt.rc_context({'font.size': 14}):
+            plt.figure(figsize=(16, 12))
+            gs = plt.GridSpec(2, 2, width_ratios=[13, 3], height_ratios=[7, 2])
+
+            bar = plt.subplot(gs[1])
+            bar.barh(self._grid.columns, rsq_adj.mean(axis=0))
+
+            heatmap = plt.subplot(gs[0], sharey=bar)
+            heatmap.imshow(rsq_adj.T, aspect='auto')
+            heatmap.get_xaxis().set_visible(False)
+
+            line = plt.subplot(gs[2])
+            line.plot(rsq_adj.mean(axis=1))
+
+            plt.tight_layout()
+            plt.margins(x=0)
+
+    def influential_epochs(self, top=None):
         """Return dataframe with top influential epochs ranked by Cook's-D.
 
         Parameters
