@@ -123,7 +123,15 @@ class Epochs:
         return FitGrid(pd.DataFrame(results))
 
     def plot_averages(self, channels=None, negative_up=True):
-        """Plot grand means for each channel, negative up by default."""
+        """Plot grand mean averages for each channel, negative up by default.
+        
+        Parameters
+        ----------
+        channels : list of str, optional, default CHANNELS
+            list of channel names to plot the averages
+        negative_up : bool, optional, default True
+            by convention, ERPs are plotted negative voltage up
+        """
 
         from . import CHANNELS
 

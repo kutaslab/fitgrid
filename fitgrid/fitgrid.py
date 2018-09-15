@@ -180,14 +180,7 @@ class FitGrid:
         return f'{samples} by {chans} FitGrid of type {type(self.tester)}.'
 
     def plot_betas(self):
-        """Plot betas of the model. Pass either beta or channel name.
-
-        Parameters
-        ----------
-        channel : str
-            channel for which to plot the betas, if none passed, use all
-        beta_name : str
-            name of the beta parameter which should be plotted
+        """Plot betas of the model, one plot per channel, overplotting betas.
         """
 
         if not hasattr(self.tester, 'params'):
@@ -219,18 +212,7 @@ class FitGrid:
             fig.tight_layout()
 
     def plot_adj_rsquared(self):
-        """Plot adjusted :math:`R^2`.
-
-        Parameters
-        ----------
-        by : str, value is 'channels' or 'time'
-            optional string triggering plotting by channels or time
-
-        Notes
-        -----
-        If by is not set, a heatmap with time on the x-axis and channels on the
-        y-axis is show. If by='channels', a bar plot is shown. If by='time', a
-        single timeseries line plot is shown.
+        """Plot adjusted :math:`R^2` as a heatmap with marginal bar and line.
         """
 
         import matplotlib.pyplot as plt
@@ -262,8 +244,8 @@ class FitGrid:
 
         Parameters
         ----------
-        top : int, optional
-            how many top epochs to return
+        top : int, optional, default None
+            how many top epochs to return, all epochs by default
 
         Returns
         -------
@@ -272,8 +254,8 @@ class FitGrid:
 
         Notes
         -----
-        Cook's distance is aggregated by simple averaging within given scope.
-
+        Cook's distance is aggregated by simple averaging across time and
+        channels.
         """
 
         if not hasattr(self.tester, 'get_influence'):
