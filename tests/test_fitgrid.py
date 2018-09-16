@@ -41,3 +41,33 @@ def test__residuals_have_long_form_and_correct_index():
 
     single_epoch = epochs.snapshots.get_group(0)
     assert single_epoch.index.equals(grid.resid.index.levels[1])
+
+
+def test__smoke_influential_epochs():
+
+    epochs = fitgrid.generate()
+    grid = epochs.lm(
+        LHS=['channel0', 'channel1', 'channel2'],
+        RHS='categorical + continuous',
+    )
+    grid.influential_epochs()
+
+
+def test__smoke_plot_betas():
+
+    epochs = fitgrid.generate()
+    grid = epochs.lm(
+        LHS=['channel0', 'channel1', 'channel2'],
+        RHS='categorical + continuous',
+    )
+    grid.plot_betas()
+
+
+def test__smoke_plot_adj_rsquared():
+
+    epochs = fitgrid.generate()
+    grid = epochs.lm(
+        LHS=['channel0', 'channel1', 'channel2'],
+        RHS='categorical + continuous',
+    )
+    grid.plot_adj_rsquared()

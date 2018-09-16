@@ -55,3 +55,9 @@ def test_multiple_indices_end_up_EPOCH_ID():
     assert epochs.table.index.names == [EPOCH_ID]
     # input table is not altered
     assert epochs_table.index.names == [EPOCH_ID, TIME, 'categorical']
+
+
+def test_smoke_plot_averages():
+
+    epochs = fake_data.generate()
+    epochs.plot_averages(channels=['channel0', 'channel1'])
