@@ -128,7 +128,7 @@ class Epochs:
 
     def plot_averages(self, channels=None, negative_up=True):
         """Plot grand mean averages for each channel, negative up by default.
-        
+
         Parameters
         ----------
         channels : list of str, optional, default CHANNELS
