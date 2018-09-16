@@ -40,7 +40,7 @@ def test__raises_error_on_epoch_index_mismatch():
     assert 'differs from previous snapshot' in str(error.value)
 
 
-def test_multiple_indices_end_up_EPOCH_ID_and_TIME():
+def test_multiple_indices_end_up_EPOCH_ID():
 
     from fitgrid import EPOCH_ID, TIME
 
@@ -51,7 +51,7 @@ def test_multiple_indices_end_up_EPOCH_ID_and_TIME():
     epochs_table.set_index([EPOCH_ID, TIME, 'categorical'], inplace=True)
 
     epochs = Epochs(epochs_table)
-    # internal table has EPOCH_ID and TIME in index
-    assert epochs.table.index.names == [EPOCH_ID, TIME]
+    # internal table has EPOCH_ID in index
+    assert epochs.table.index.names == [EPOCH_ID]
     # input table is not altered
     assert epochs_table.index.names == [EPOCH_ID, TIME, 'categorical']

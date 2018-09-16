@@ -35,16 +35,7 @@ class Epochs:
             and EPOCH_ID in epochs_table.index.names
         )
 
-        # now need to only keep EPOCH_ID in index
-        # this is done so that any series that we get from fits are indexed on
-        # EPOCH_ID only
-        levels_to_remove = set(epochs_table.index.names)
-        levels_to_remove.discard(EPOCH_ID)
-
-        # copy since we are about to modify
-        self.table = epochs_table.copy()
-        # remove all levels from index except EPOCH_ID
-        self.table.reset_index(list(levels_to_remove), inplace=True)
+        self.table = epochs_table.copy().reset_index().set_index(EPOCH_ID)
         assert self.table.index.names == [EPOCH_ID]
 
         snapshots = self.table.groupby(TIME)
@@ -69,10 +60,6 @@ class Epochs:
                 f'Duplicate values in {EPOCH_ID} index not allowed:',
                 tools.get_index_duplicates_table(self.table, EPOCH_ID),
             )
-
-        self.table.reset_index(inplace=True)
-        self.table.set_index([EPOCH_ID, TIME], inplace=True)
-        assert self.table.index.names == [EPOCH_ID, TIME]
 
         self.snapshots = snapshots
 
