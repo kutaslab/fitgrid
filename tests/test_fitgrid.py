@@ -1,5 +1,8 @@
 import numpy as np
 from .context import fitgrid
+import matplotlib
+
+matplotlib.use('Agg')
 
 
 def test__method_returning_dataframe_expands_correctly():

@@ -1,5 +1,9 @@
 import pytest
 import numpy as np
+import matplotlib
+
+matplotlib.use('Agg')
+
 
 from .context import fitgrid
 from fitgrid import fake_data, errors
