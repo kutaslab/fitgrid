@@ -5,6 +5,35 @@ from functools import lru_cache
 from .errors import FitGridError
 
 
+def try_to_resolve_epoch_index(temp, epoch_index):
+    """We assume that temp is in long form, the columns are channels, and the
+    first index level is TIME."""
+
+    from . import TIME
+
+    # first index level must be TIME
+    assert temp.index.names[0] == TIME
+
+    # temp should be long form, columns have single level (channels hopefully)
+    assert not isinstance(temp.columns, pd.core.index.MultiIndex)
+
+    # we can only handle 2- or 3-dimensional
+    assert temp.index.nlevels in (2, 3)
+
+    for i in range(1, temp.index.nlevels):
+        level = temp.index.levels[i]
+        if (
+            isinstance(level, pd.RangeIndex)
+            and len(level) == len(epoch_index)
+            and level._start == 0
+            and level._step == 1
+            and level._stop == len(epoch_index) - 1
+        ):
+            temp.index.set_levels(epoch_index, level=i, inplace=True)
+
+    return temp
+
+
 def expand_series_or_df(temp):
     """Expand a DataFrame that has Series or DataFrames for values."""
 
