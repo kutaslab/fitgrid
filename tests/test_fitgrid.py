@@ -46,6 +46,48 @@ def test__residuals_have_long_form_and_correct_index():
     assert single_epoch.index.equals(grid.resid.index.levels[1])
 
 
+def test__epoch_id_substitution():
+    """When we get a numpy array/tuple/list, we try to use EPOCH_ID index.
+    See github.com/kutaslab/fitgrid/issues/25.
+    """
+
+    from fitgrid import EPOCH_ID
+
+    # create data with unusual index (shifted by 5)
+    data = fitgrid.fake_data._generate(10, 100, 2, 32)
+    unusual_index = np.arange(20) + 5
+    data.index.set_levels(unusual_index, level=EPOCH_ID, inplace=True)
+    epochs = fitgrid.epochs_from_dataframe(data)
+
+    # remember epoch_index
+    epoch_index = epochs.snapshots.get_group(0).index
+    assert (epoch_index == unusual_index).all()
+
+    LHS = ['channel0', 'channel1']
+    grid = epochs.lm(LHS=LHS, RHS='categorical + continuous')
+
+    # one additional level
+    resid_pearson = grid.resid_pearson
+    assert resid_pearson.index.levels[1].equals(epoch_index)
+    assert (resid_pearson.index.levels[1] == epoch_index).all()
+    assert resid_pearson.index.names[1] == EPOCH_ID
+
+    # now we retrieve cooks_d and expect that EPOCH_ID is correct and named
+    influence = grid.get_influence()
+
+    # two additional levels
+    cooks_d = influence.cooks_distance
+    assert cooks_d.index.levels[2].equals(epoch_index)
+    assert (cooks_d.index.levels[2] == epoch_index).all()
+    assert cooks_d.index.names[2] == EPOCH_ID
+
+    # one additional level
+    cov_ratio = influence.cov_ratio
+    assert cov_ratio.index.levels[1].equals(epoch_index)
+    assert (cov_ratio.index.levels[1] == epoch_index).all()
+    assert cov_ratio.index.names[1] == EPOCH_ID
+
+
 def test__smoke_influential_epochs():
 
     epochs = fitgrid.generate()
