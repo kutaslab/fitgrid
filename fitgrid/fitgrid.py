@@ -167,8 +167,8 @@ class FitGrid:
 
         time = check_slicer_component(time)
         channels = check_slicer_component(channels)
-        subgrid = self._grid.loc[time, channels]
-        return self.__class__(subgrid)
+        subgrid = self._grid.loc[time, channels].copy()
+        return self.__class__(subgrid, self.epoch_index)
 
     @lru_cache()
     def __getattr__(self, name):

@@ -88,6 +88,25 @@ def test__epoch_id_substitution():
     assert cov_ratio.index.names[1] == EPOCH_ID
 
 
+def test__slicing():
+
+    epochs = fitgrid.generate()
+    grid = epochs.lm(
+        LHS=['channel0', 'channel1', 'channel2'],
+        RHS='categorical + continuous',
+    )
+
+    subgrid = grid[25:75, ['channel0', 'channel2']]
+    assert (subgrid._grid.columns == ['channel0', 'channel2']).all()
+    assert (subgrid._grid.index == list(range(25, 76))).all()
+    assert subgrid._grid is not grid._grid
+
+    subgrid = grid[:, :]
+    assert (subgrid._grid.columns == grid._grid.columns).all()
+    assert (subgrid._grid.index == grid._grid.index).all()
+    assert subgrid._grid is not grid._grid
+
+
 def test__smoke_influential_epochs():
 
     epochs = fitgrid.generate()
