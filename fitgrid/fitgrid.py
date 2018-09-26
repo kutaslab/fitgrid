@@ -101,7 +101,7 @@ def _expand(temp):
 
     # catchall for all types we don't handle explicitly
     # statsmodels objects, dicts, methods all go here
-    return FitGrid(temp)
+    return FitGrid(temp, epoch_index)
 
 
 class FitGrid:
@@ -122,9 +122,10 @@ class FitGrid:
         FitGrid object
     """
 
-    def __init__(self, _grid):
+    def __init__(self, _grid, epoch_index):
 
         self._grid = _grid
+        self.epoch_index = epoch_index
         self.tester = _grid.iloc[0, 0]
         # TODO the grid should be aware of the betas names
         # TODO the grid should be aware of the channel names
