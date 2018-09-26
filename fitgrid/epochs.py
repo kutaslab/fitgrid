@@ -62,6 +62,7 @@ class Epochs:
             )
 
         self.snapshots = snapshots
+        self.epoch_index = snapshots.get_group(0).index.copy()
 
     def lm(self, LHS='default', RHS=None):
         """Run ordinary least squares linear regression on the epochs.
@@ -111,7 +112,7 @@ class Epochs:
             for channel in tqdm(LHS, desc='Channels: ')
         }
 
-        return FitGrid(pd.DataFrame(results))
+        return FitGrid(pd.DataFrame(results), self.epoch_index)
 
     def plot_averages(self, channels=None, negative_up=True):
         """Plot grand mean averages for each channel, negative up by default.
