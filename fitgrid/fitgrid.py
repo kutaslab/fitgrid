@@ -5,7 +5,7 @@ from functools import lru_cache
 from .errors import FitGridError
 
 
-def try_to_resolve_epoch_index(temp, epoch_index):
+def add_epoch_index(temp, epoch_index):
     """We assume that temp is in long form, the columns are channels, and the
     first index level is TIME."""
 
@@ -49,7 +49,7 @@ def expand_series_or_df(temp):
     return result
 
 
-def _expand(temp):
+def _expand(temp, epoch_index):
     """Expand the values in the grid if possible, return frame or grid."""
 
     tester = temp.iloc[0, 0]
@@ -75,29 +75,31 @@ def _expand(temp):
         array_form = np.array(tester)
         if array_form.ndim == 1:
             temp = temp.applymap(lambda x: pd.Series(np.array(x)))
-            return expand_series_or_df(temp)
         elif array_form.ndim == 2:
             temp = temp.applymap(lambda x: pd.DataFrame(np.array(x)))
-            return expand_series_or_df(temp)
         else:
             raise NotImplementedError(
                 'Cannot use elements with dim > 2,'
                 f'element has ndim = {array_form.ndim}.'
             )
+        temp_expanded = expand_series_or_df(temp)
+        temp_epoch_index = add_epoch_index(temp_expanded, epoch_index)
+        return temp_epoch_index
 
     # array, try converting to Series/DataFrame
     if isinstance(tester, np.ndarray):
         if tester.ndim == 1:
             temp = temp.applymap(lambda x: pd.Series(x))
-            return expand_series_or_df(temp)
         elif tester.ndim == 2:
             temp = temp.applymap(lambda x: pd.DataFrame(x))
-            return expand_series_or_df(temp)
         else:
             raise NotImplementedError(
                 'Cannot use elements with dim > 2,'
                 f'element has ndim = {tester.ndim}.'
             )
+        temp_expanded = expand_series_or_df(temp)
+        temp_epoch_index = add_epoch_index(temp_expanded, epoch_index)
+        return temp_epoch_index
 
     # catchall for all types we don't handle explicitly
     # statsmodels objects, dicts, methods all go here
@@ -180,7 +182,7 @@ class FitGrid:
             raise FitGridError(f'No such attribute: {name}.')
 
         temp = self._grid.applymap(lambda x: getattr(x, name))
-        return _expand(temp)
+        return _expand(temp, self.epoch_index)
 
     def __call__(self, *args, **kwargs):
         """Broadcast method calling in the grid.
@@ -196,7 +198,7 @@ class FitGrid:
 
         # if we are not callable, we'll get an appropriate exception
         temp = self._grid.applymap(lambda x: x(*args, **kwargs))
-        return _expand(temp)
+        return _expand(temp, self.epoch_index)
 
     def __dir__(self):
 
