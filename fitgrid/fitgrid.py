@@ -27,9 +27,10 @@ def add_epoch_index(temp, epoch_index):
             and len(level) == len(epoch_index)
             and level._start == 0
             and level._step == 1
-            and level._stop == len(epoch_index) - 1
+            and level._stop == len(epoch_index)
         ):
             temp.index.set_levels(epoch_index, level=i, inplace=True)
+            temp.index.rename(epoch_index.name, level=i, inplace=True)
 
     return temp
 
