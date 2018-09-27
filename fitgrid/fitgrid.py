@@ -150,8 +150,12 @@ class FitGrid:
             `grid[25:-25, 'channel2']
         """
 
-        if isinstance(slicer, slice) or len(slicer) != 2:
-            raise ValueError('Must slice on time and channels.')
+        if (
+            not isinstance(slicer, tuple)
+            or not hasattr(slicer, '__len__')
+            or len(slicer) != 2
+        ):
+            raise FitGridError('Must slice on time and channels.')
 
         # now we can unpack
         time, channels = slicer

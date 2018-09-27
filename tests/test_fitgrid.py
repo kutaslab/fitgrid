@@ -1,5 +1,7 @@
+import pytest
 import numpy as np
 from .context import fitgrid
+from fitgrid.errors import FitGridError
 import matplotlib
 
 matplotlib.use('Agg')
@@ -96,6 +98,16 @@ def test__slicing():
         RHS='categorical + continuous',
     )
 
+    subgrid = grid[25, 'channel0']
+    assert (subgrid._grid.columns == ['channel0']).all()
+    assert (subgrid._grid.index == [25]).all()
+    assert subgrid._grid is not grid._grid
+
+    subgrid = grid[25:75, 'channel0']
+    assert (subgrid._grid.columns == ['channel0']).all()
+    assert (subgrid._grid.index == list(range(25, 76))).all()
+    assert subgrid._grid is not grid._grid
+
     subgrid = grid[25:75, ['channel0', 'channel2']]
     assert (subgrid._grid.columns == ['channel0', 'channel2']).all()
     assert (subgrid._grid.index == list(range(25, 76))).all()
@@ -105,6 +117,18 @@ def test__slicing():
     assert (subgrid._grid.columns == grid._grid.columns).all()
     assert (subgrid._grid.index == grid._grid.index).all()
     assert subgrid._grid is not grid._grid
+
+    with pytest.raises(FitGridError):
+        grid[25]
+
+    with pytest.raises(FitGridError):
+        grid[25:75]
+
+    with pytest.raises(FitGridError):
+        grid['channel0']
+
+    with pytest.raises(FitGridError):
+        grid[['channel0', 'channel1']]
 
 
 def test__smoke_influential_epochs():
