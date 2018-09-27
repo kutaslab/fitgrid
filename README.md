@@ -23,6 +23,8 @@ change directory and `pip install`:
 This will also install `fitgrid`'s dependencies (for a list, see
 `requirements.txt`).
 
+# Tests
+
 To run the tests you can install `pytest`:
 
     pip install pytest
