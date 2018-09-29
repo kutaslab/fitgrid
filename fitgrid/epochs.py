@@ -22,23 +22,42 @@ class Epochs:
 
     """
 
-    def __init__(self, epochs_table):
+    def __init__(self, epochs_table, channels='default'):
 
-        from . import EPOCH_ID, TIME
+        from . import EPOCH_ID, TIME, CHANNELS
+
+        if channels == 'default':
+            channels = CHANNELS
+
+        # channels must be a list of strings
+        if not isinstance(channels, list) or not all(
+            isinstance(item, str) for item in channels
+        ):
+            raise FitGridError('channels should be a list of strings.')
+
+        # all channels must be present as epochs table columns
+        missing_channels = set(channels) - set(epochs_table.columns)
+        if missing_channels:
+            raise FitGridError(
+                'channels should all be present in the epochs table, '
+                f'the following are missing: {missing_channels}'
+            )
 
         if not isinstance(epochs_table, pd.DataFrame):
             raise FitGridError('epochs_table must be a Pandas DataFrame.')
 
         # these index columns are required for consistency checks
-        assert (
-            TIME in epochs_table.index.names
-            and EPOCH_ID in epochs_table.index.names
-        )
+        for item in (EPOCH_ID, TIME):
+            if item not in epochs_table.index.names:
+                raise FitGridError(
+                    f'{item} must be a column in the epochs table index.'
+                )
 
-        self.table = epochs_table.copy().reset_index().set_index(EPOCH_ID)
-        assert self.table.index.names == [EPOCH_ID]
+        # make our own copy so we are immune to modification to original table
+        table = epochs_table.copy().reset_index().set_index(EPOCH_ID)
+        assert table.index.names == [EPOCH_ID]
 
-        snapshots = self.table.groupby(TIME)
+        snapshots = table.groupby(TIME)
 
         # check that snapshots across epochs have equal index by transitivity
         prev_group = None
@@ -58,13 +77,16 @@ class Epochs:
         if not prev_group.index.is_unique:
             raise FitGridError(
                 f'Duplicate values in {EPOCH_ID} index not allowed:',
-                tools.get_index_duplicates_table(self.table, EPOCH_ID),
+                tools.get_index_duplicates_table(table, EPOCH_ID),
             )
 
+        # checks passed, set instance variables
+        self.channels = channels
+        self.table = table
         self.snapshots = snapshots
         self.epoch_index = snapshots.get_group(0).index.copy()
 
-    def lm(self, LHS='default', RHS=None):
+    def lm(self, LHS=None, RHS=None):
         """Run ordinary least squares linear regression on the epochs.
 
         Parameters
@@ -82,10 +104,8 @@ class Epochs:
 
         """
 
-        if LHS == 'default':
-            from . import CHANNELS
-
-            LHS = CHANNELS
+        if LHS is None:
+            LHS = self.channels
 
         # validate LHS
         if not (
@@ -94,7 +114,13 @@ class Epochs:
         ):
             raise FitGridError('LHS must be a list of strings.')
 
-        assert set(LHS).issubset(set(self.table.columns))
+        # all LHS items must be present in the epochs_table
+        missing = set(LHS) - set(self.table.columns)
+        if missing:
+            raise FitGridError(
+                'Items in LHS should all be present in the epochs table, '
+                f'the following are missing: {missing}'
+            )
 
         # validate RHS
         if RHS is None:
@@ -128,13 +154,7 @@ class Epochs:
         from . import CHANNELS
 
         if channels is None:
-            if set(CHANNELS).issubset(set(self.table.columns)):
-                channels = CHANNELS
-            else:
-                raise FitGridError(
-                    f'Default channels {CHANNELS} missing in epochs table,'
-                    ' please pass list of channels or set CHANNELS.'
-                )
+            channels = self.channels
 
         from . import plots
 
