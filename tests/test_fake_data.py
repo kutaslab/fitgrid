@@ -7,7 +7,7 @@ def test__generate():
     n_epochs = 10
     n_categories = 2
     n_channels = 32
-    table = fg.fake_data._generate(
+    table, channels = fg.fake_data._generate(
         n_samples=n_samples,
         n_epochs=n_epochs,
         n_categories=n_categories,
@@ -37,4 +37,5 @@ def test__generate():
         assert len(category.index.unique(fg.EPOCH_ID)) == n_epochs
 
     # test number of columns (2 predictors + n_channels)
+    assert len(channels) == n_channels
     assert len(table.columns) == 2 + n_channels

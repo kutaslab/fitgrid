@@ -130,7 +130,7 @@ class FitGrid:
         self._grid = _grid
         self.epoch_index = epoch_index
         self.tester = _grid.iloc[0, 0]
-        # TODO the grid should be aware of the channel names
+        self.channels = list(_grid.columns)
 
     def __getitem__(self, slicer):
         """Slice grid on time and channels, return new grid with that shape.

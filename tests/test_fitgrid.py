@@ -7,6 +7,13 @@ import matplotlib
 matplotlib.use('Agg')
 
 
+def test__correct_channels_in_fitgrid():
+    epochs = fitgrid.generate()
+    LHS = ['channel0', 'channel1', 'channel2']
+    grid = epochs.lm(LHS=LHS, RHS='categorical + continuous')
+    assert grid.channels == LHS
+
+
 def test__method_returning_dataframe_expands_correctly():
 
     epochs = fitgrid.generate()
@@ -56,16 +63,17 @@ def test__epoch_id_substitution():
     from fitgrid import EPOCH_ID
 
     # create data with unusual index (shifted by 5)
-    data = fitgrid.fake_data._generate(10, 100, 2, 32)
+    data, channels = fitgrid.fake_data._generate(10, 100, 2, 32)
     unusual_index = np.arange(20) + 5
     data.index.set_levels(unusual_index, level=EPOCH_ID, inplace=True)
-    epochs = fitgrid.epochs_from_dataframe(data)
+    epochs = fitgrid.epochs_from_dataframe(data, channels)
 
     # remember epoch_index
     epoch_index = epochs.snapshots.get_group(0).index
     assert (epoch_index == unusual_index).all()
 
-    LHS = ['channel0', 'channel1']
+    # take just two channels for speed
+    LHS = channels[:2]
     grid = epochs.lm(LHS=LHS, RHS='categorical + continuous')
 
     # one additional level
