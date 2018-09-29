@@ -11,26 +11,14 @@ Available [here](https://kutaslab.github.io/fitgrid).
 
 # Installation
 
-To install, clone this repository:
-
-    git clone https://github.com/kutaslab/fitgrid
-
-change directory and `pip install`:
-
-    cd fitgrid
-    pip install .
-
-This will also install `fitgrid`'s dependencies (for a list, see
-`requirements.txt`).
+    pip3 install fitgrid
 
 # Tests
 
-To run the tests you can install `pytest`:
+To run the tests, install `pytest`:
 
-    pip install pytest
+    pip3 install pytest
 
 and inside the `fitgrid` directory run:
 
     pytest
-
-In the future, `fitgrid` will be available on PyPi.
