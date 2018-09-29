@@ -88,6 +88,47 @@ class Epochs:
         self.snapshots = snapshots
         self.epoch_index = snapshots.get_group(0).index.copy()
 
+    def run_model(self, function, channels):
+        """Run an arbitrary model on the epochs.
+
+        Parameters
+        ----------
+        function : Python function
+            function that runs a model, see Notes below for details
+        channels : list of str
+            list of channels to serve as dependent variables
+
+        Returns
+        -------
+        grid : FitGrid
+            a FitGrid object containing the results
+
+        Notes
+        -----
+        The function should take two parameters, ``data`` and ``channel``, run
+        some model on the data, and return an object containing the results.
+        ``data`` will be a snapshot across epochs at a single timepoint,
+        containing all channels of interest. ``channel`` is the name of the
+        target variable that the function runs the model against (uses it as
+        the dependent variable).
+
+        Examples
+        --------
+        Here's an example of a function that can be passed to ``run_model``::
+
+            def regression(data, channel):
+                formula = channel + ' ~ continuous + categorical'
+                return ols(formula, data).fit()
+
+        """
+
+        results = {
+            channel: self.snapshots.apply(function, channel=channel)
+            for channel in tqdm(channels, desc='Channels: ')
+        }
+
+        return FitGrid(pd.DataFrame(results), self.epoch_index)
+
     def lm(self, LHS=None, RHS=None):
         """Run ordinary least squares linear regression on the epochs.
 
@@ -130,17 +171,11 @@ class Epochs:
         if not isinstance(RHS, str):
             raise FitGridError('RHS has to be a string.')
 
-        def regression(data, formula):
+        def regression(data, channel):
+            formula = channel + ' ~ ' + RHS
             return ols(formula, data).fit()
 
-        results = {
-            channel: self.snapshots.apply(
-                regression, formula=channel + ' ~ ' + RHS
-            )
-            for channel in tqdm(LHS, desc='Channels: ')
-        }
-
-        return FitGrid(pd.DataFrame(results), self.epoch_index)
+        return self.run_model(regression, LHS)
 
     def plot_averages(self, channels=None, negative_up=True):
         """Plot grand mean averages for each channel, negative up by default.
@@ -152,8 +187,6 @@ class Epochs:
         negative_up : bool, optional, default True
             by convention, ERPs are plotted negative voltage up
         """
-
-        from . import CHANNELS
 
         if channels is None:
             channels = self.channels

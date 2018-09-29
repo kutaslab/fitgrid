@@ -31,6 +31,8 @@ Functions that read epochs tables and create ``Epochs``.
 
 Models and plotting.
 
+.. autofunction:: fitgrid.epochs.Epochs.run_model
+
 .. autofunction:: fitgrid.epochs.Epochs.lm
 
 .. autofunction:: fitgrid.epochs.Epochs.plot_averages
