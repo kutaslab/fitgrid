@@ -15,6 +15,8 @@ def epochs_from_hdf(hdf_filename, channels='default'):
     ----------
     hdf_filename : str
         HDF5 file name
+    channels : list of str, optional, defaults to CHANNELS
+        list of string channel names
 
     Returns
     -------

@@ -14,6 +14,8 @@ class Epochs:
     ----------
     epochs_table : pandas DataFrame
         long form dataframe containing epochs with equal indices
+    channels : list of str
+        list of channel names to serve as dependent variables
 
     Returns
     -------
@@ -91,7 +93,7 @@ class Epochs:
 
         Parameters
         ----------
-        LHS : list of str, optional
+        LHS : list of str, optional, defaults to all channels
             list of channels for the left hand side of the regression formula
         RHS : str
             right hand side of the regression formula

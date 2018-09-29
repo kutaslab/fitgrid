@@ -117,6 +117,8 @@ class FitGrid:
     ----------
     _grid : Pandas DataFrame
         Pandas DataFrame of fit objects
+    epochs_index : pandas Index
+        index containing epoch ids
 
     Returns
     -------
