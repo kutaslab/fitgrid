@@ -28,13 +28,13 @@ def generate(n_epochs=10, n_samples=100, n_categories=2, n_channels=32):
     Notes
     -----
 
-    `n_epochs` and `n_categories` interact in the sense that `n_epochs` epochs
-    are generated for each level of the categorical variable. In other words,
-    the true number of epochs in the generated data is equal to `n_epochs` *
-    `n_categories`.
+    ``n_epochs`` and ``n_categories`` interact in the sense that ``n_epochs``
+    epochs are generated for each level of the categorical variable. In other
+    words, the true number of epochs in the generated data is equal to
+    ``n_epochs`` * ``n_categories``.
 
-    For example, the default `n_epochs = 10` and `n_categories
-    = 2` produces 20 epochs, 10 per category.
+    For example, the default ``n_epochs = 10`` and ``n_categories
+    = 2`` produces 20 epochs, 10 per category.
     """
 
     df, channels = _generate(n_epochs, n_samples, n_categories, n_channels)
