@@ -35,6 +35,8 @@ Models and plotting.
 
 .. autofunction:: fitgrid.epochs.Epochs.lm
 
+.. autofunction:: fitgrid.epochs.Epochs.mlm
+
 .. autofunction:: fitgrid.epochs.Epochs.plot_averages
 
 ===================

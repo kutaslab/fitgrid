@@ -187,6 +187,39 @@ class Epochs:
     def mlm(
         self, LHS=None, RHS=None, re_formula=None, vc_formula=None, groups=None
     ):
+        """Run a linear mixed effects model on the epochs.
+
+        Parameters
+        ----------
+        LHS : list of str, optional, defaults to all channels
+            list of channels for the left hand side of the formula
+        RHS : str
+            fixed effects part of the mixed effect model formula
+        re_formula : str
+            A one-sided formula defining the variance structure of the model.
+            The default gives a random intercept for each group.
+        vc_formula : dict
+            Formulas describing variance components.  ``vc_formula[vc]`` is the
+            formula for the component with variance parameter named vc. The
+            formula is processed into a matrix, and the columns of this matrix
+            are linearly combined with independent random coefficients having
+            mean zero and a common variance.
+        groups : str
+            name of the grouper column
+
+        Returns
+        -------
+        grid : FitGrid
+            FitGrid object containing results of the mixed effect model fitting
+
+        Notes
+        -----
+        Note that ``statsmodels`` (and thus ``fitgrid``) does not support
+        arbitrary crossed models. For more information see `Statsmodels
+        documentation on mixed models
+        <http://www.statsmodels.org/stable/mixed_linear.html>`_.
+
+        """
 
         if LHS is None:
             LHS = self.channels
