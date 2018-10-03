@@ -1,5 +1,5 @@
 import pandas as pd
-from statsmodels.formula.api import ols
+from statsmodels.formula.api import ols, mixedlm
 from tqdm import tqdm
 
 from .errors import FitGridError
@@ -183,6 +183,28 @@ class Epochs:
             return ols(formula, data).fit()
 
         return self.run_model(regression, LHS)
+
+    def mlm(
+        self, LHS=None, RHS=None, re_formula=None, vc_formula=None, groups=None
+    ):
+
+        if LHS is None:
+            LHS = self.channels
+
+        self._validate_LHS(LHS)
+        self._validate_RHS(RHS)
+
+        def mixed_linear_model(data, channel):
+            formula = channel + ' ~ ' + RHS
+            return mixedlm(
+                formula,
+                data,
+                re_formula=re_formula,
+                vc_formula=vc_formula,
+                groups=groups,
+            )
+
+        return self.run_model(mixed_linear_model, LHS)
 
     def plot_averages(self, channels=None, negative_up=True):
         """Plot grand mean averages for each channel, negative up by default.
