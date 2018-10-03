@@ -88,6 +88,31 @@ class Epochs:
         self.snapshots = snapshots
         self.epoch_index = snapshots.get_group(0).index.copy()
 
+    def _validate_LHS(self, LHS):
+
+        # must be a list of strings
+        if not (
+            isinstance(LHS, list)
+            and all(isinstance(item, str) for item in LHS)
+        ):
+            raise FitGridError('LHS must be a list of strings.')
+
+        # all LHS items must be present in the epochs_table
+        missing = set(LHS) - set(self.table.columns)
+        if missing:
+            raise FitGridError(
+                'Items in LHS should all be present in the epochs table, '
+                f'the following are missing: {missing}'
+            )
+
+    def _validate_RHS(self, RHS):
+
+        # validate RHS
+        if RHS is None:
+            raise FitGridError('Specify the RHS argument.')
+        if not isinstance(RHS, str):
+            raise FitGridError('RHS has to be a string.')
+
     def run_model(self, function, channels):
         """Run an arbitrary model on the epochs.
 
@@ -150,26 +175,8 @@ class Epochs:
         if LHS is None:
             LHS = self.channels
 
-        # validate LHS
-        if not (
-            isinstance(LHS, list)
-            and all(isinstance(item, str) for item in LHS)
-        ):
-            raise FitGridError('LHS must be a list of strings.')
-
-        # all LHS items must be present in the epochs_table
-        missing = set(LHS) - set(self.table.columns)
-        if missing:
-            raise FitGridError(
-                'Items in LHS should all be present in the epochs table, '
-                f'the following are missing: {missing}'
-            )
-
-        # validate RHS
-        if RHS is None:
-            raise FitGridError('Specify the RHS argument.')
-        if not isinstance(RHS, str):
-            raise FitGridError('RHS has to be a string.')
+        self._validate_LHS(LHS)
+        self._validate_RHS(RHS)
 
         def regression(data, channel):
             formula = channel + ' ~ ' + RHS
