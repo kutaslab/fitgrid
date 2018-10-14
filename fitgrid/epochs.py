@@ -86,8 +86,8 @@ class Epochs:
         # checks passed, set instance variables
         self.channels = channels
         self.table = table
-        self.snapshots = snapshots
-        self.epoch_index = snapshots.get_group(0).index.copy()
+        self._snapshots = snapshots
+        self._epoch_index = snapshots.get_group(0).index.copy()
 
     def _validate_LHS(self, LHS):
 
@@ -149,7 +149,7 @@ class Epochs:
         # first n_samples is axis 1, then n_channels, leaving epochs
         distances_arr = l2_norm(l2_norm(diff))
         distances_arr_scaled = distances_arr / distances_arr.max()
-        distances = pd.Series(distances_arr_scaled, index=self.epoch_index)
+        distances = pd.Series(distances_arr_scaled, index=self._epoch_index)
 
         return distances
 
@@ -188,11 +188,11 @@ class Epochs:
         """
 
         results = {
-            channel: self.snapshots.apply(function, channel=channel)
+            channel: self._snapshots.apply(function, channel=channel)
             for channel in tqdm(channels, desc='Channels: ')
         }
 
-        return FitGrid(pd.DataFrame(results), self.epoch_index)
+        return FitGrid(pd.DataFrame(results), self._epoch_index)
 
     def lm(self, LHS=None, RHS=None):
         """Run ordinary least squares linear regression on the epochs.
@@ -295,5 +295,5 @@ class Epochs:
 
         from . import plots
 
-        data = self.snapshots.mean()
+        data = self._snapshots.mean()
         plots.stripchart(data[channels], negative_up=negative_up)

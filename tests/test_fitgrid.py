@@ -51,7 +51,7 @@ def test__residuals_have_long_form_and_correct_index():
         RHS='categorical + continuous',
     )
 
-    single_epoch = epochs.snapshots.get_group(0)
+    single_epoch = epochs._snapshots.get_group(0)
     assert single_epoch.index.equals(grid.resid.index.levels[1])
 
 
@@ -69,7 +69,7 @@ def test__epoch_id_substitution():
     epochs = fitgrid.epochs_from_dataframe(data, channels)
 
     # remember epoch_index
-    epoch_index = epochs.snapshots.get_group(0).index
+    epoch_index = epochs._snapshots.get_group(0).index
     assert (epoch_index == unusual_index).all()
 
     # take just two channels for speed
