@@ -71,3 +71,9 @@ def test_smoke_plot_averages():
 
     epochs = fake_data.generate()
     epochs.plot_averages(channels=['channel0', 'channel1'])
+
+
+def test_smoke_epochs_distances():
+
+    epochs = fake_data.generate()
+    epochs.distances()

@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 from statsmodels.formula.api import ols, mixedlm
 from tqdm import tqdm
@@ -112,6 +113,45 @@ class Epochs:
             raise FitGridError('Specify the RHS argument.')
         if not isinstance(RHS, str):
             raise FitGridError('RHS has to be a string.')
+
+    def distances(self):
+        """Return scaled Euclidean distances of epochs from the "mean" epoch.
+
+        Returns
+        -------
+        distances : pandas Series or DataFrame
+            Series or DataFrame with epoch distances
+
+        Notes
+        -----
+        Distances are scaled by dividing by the max.
+        """
+
+        from . import EPOCH_ID, TIME
+
+        table = self.table.reset_index().set_index([EPOCH_ID, TIME])[
+            self.channels
+        ]
+
+        n_channels = len(table.columns)
+        n_epochs = len(table.index.unique(level=EPOCH_ID))
+        n_samples = len(table.index.unique(level=TIME))
+
+        assert table.values.size == n_channels * n_epochs * n_samples
+        values = table.values.reshape(n_epochs, n_samples, n_channels)
+
+        mean = values.mean(axis=0)
+        diff = values - mean
+
+        def l2_norm(data, axis=1):
+            return np.sqrt((data * data).sum(axis=axis))
+
+        # first n_samples is axis 1, then n_channels, leaving epochs
+        distances_arr = l2_norm(l2_norm(diff))
+        distances_arr_scaled = distances_arr / distances_arr.max()
+        distances = pd.Series(distances_arr_scaled, index=self.epoch_index)
+
+        return distances
 
     def run_model(self, function, channels):
         """Run an arbitrary model on the epochs.
