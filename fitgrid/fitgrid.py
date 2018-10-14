@@ -22,6 +22,8 @@ def add_epoch_index(temp, epoch_index):
 
     for i in range(1, temp.index.nlevels):
         level = temp.index.levels[i]
+        # if a level looks like it was automatically created by Pandas,
+        # we replace it with the epoch_index
         if (
             isinstance(level, pd.RangeIndex)
             and len(level) == len(epoch_index)
