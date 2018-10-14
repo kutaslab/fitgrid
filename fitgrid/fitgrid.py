@@ -132,7 +132,7 @@ class FitGrid:
     def __init__(self, _grid, epoch_index):
 
         self._grid = _grid
-        self.epoch_index = epoch_index
+        self._epoch_index = epoch_index
         self.tester = _grid.iloc[0, 0]
         self.channels = list(_grid.columns)
 
@@ -175,7 +175,7 @@ class FitGrid:
         time = check_slicer_component(time)
         channels = check_slicer_component(channels)
         subgrid = self._grid.loc[time, channels].copy()
-        return self.__class__(subgrid, self.epoch_index)
+        return self.__class__(subgrid, self._epoch_index)
 
     @lru_cache()
     def __getattr__(self, name):
@@ -190,7 +190,7 @@ class FitGrid:
             raise FitGridError(f'No such attribute: {name}.')
 
         temp = self._grid.applymap(lambda x: getattr(x, name))
-        return _expand(temp, self.epoch_index)
+        return _expand(temp, self._epoch_index)
 
     def __call__(self, *args, **kwargs):
         """Broadcast method calling in the grid.
@@ -206,7 +206,7 @@ class FitGrid:
 
         # if we are not callable, we'll get an appropriate exception
         temp = self._grid.applymap(lambda x: x(*args, **kwargs))
-        return _expand(temp, self.epoch_index)
+        return _expand(temp, self._epoch_index)
 
     def __dir__(self):
 
