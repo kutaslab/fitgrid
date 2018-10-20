@@ -25,3 +25,10 @@ def get_index_duplicates_table(df, level):
         msg += '{0:<20} {1}\n'.format(value, ', '.join(locations))
 
     return msg
+
+
+def get_first_group(groupby):
+
+    first_group_name = list(groupby.groups)[0]
+    first_group = groupby.get_group(first_group_name)
+    return first_group

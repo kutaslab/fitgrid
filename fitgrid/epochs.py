@@ -87,7 +87,7 @@ class Epochs:
         self.channels = channels
         self.table = table
         self._snapshots = snapshots
-        self._epoch_index = snapshots.get_group(0).index.copy()
+        self._epoch_index = tools.get_first_group(snapshots).index.copy()
 
     def _validate_LHS(self, LHS):
 
