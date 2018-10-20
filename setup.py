@@ -12,7 +12,7 @@ from setuptools import find_packages, setup
 
 setup(
     name='fitgrid',
-    version='0.1.1',
+    version='0.1.2',
     description='Mass multiple regression manager',
     author='Thomas P. Urbach, Andrey Portnoy',
     author_email='turbach@ucsd.edu, aportnoy@ucsd.edu',
