@@ -2,6 +2,7 @@ import pytest
 import numpy as np
 from .context import fitgrid
 from fitgrid.errors import FitGridError
+from fitgrid import tools
 import matplotlib
 
 matplotlib.use('Agg')
@@ -51,7 +52,8 @@ def test__residuals_have_long_form_and_correct_index():
         RHS='categorical + continuous',
     )
 
-    single_epoch = epochs._snapshots.get_group(0)
+    single_epoch = tools.get_first_group(epochs._snapshots)
+
     assert single_epoch.index.equals(grid.resid.index.levels[1])
 
 
@@ -69,7 +71,7 @@ def test__epoch_id_substitution():
     epochs = fitgrid.epochs_from_dataframe(data, channels)
 
     # remember epoch_index
-    epoch_index = epochs._snapshots.get_group(0).index
+    epoch_index = tools.get_first_group(epochs._snapshots).index
     assert (epoch_index == unusual_index).all()
 
     # take just two channels for speed
