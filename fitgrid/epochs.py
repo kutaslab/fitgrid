@@ -153,7 +153,7 @@ class Epochs:
 
         return distances
 
-    def run_model(self, function, channels):
+    def run_model(self, function, channels=None):
         """Run an arbitrary model on the epochs.
 
         Parameters
@@ -186,6 +186,11 @@ class Epochs:
                 return ols(formula, data).fit()
 
         """
+
+        if channels is None:
+            channels = self.channels
+
+        self._validate_LHS(channels)
 
         results = {
             channel: self._snapshots.apply(function, channel=channel)
