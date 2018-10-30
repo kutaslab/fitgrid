@@ -146,16 +146,13 @@ def get_blas(numpy_module):
     """Return BLAS object or None if neither MKL nor OpenBLAS is found."""
 
     if sys.platform.startswith('linux'):
-        blas = get_blas_linux(numpy_module)
+        return get_blas_linux(numpy_module)
     elif sys.platform == 'darwin':
-        blas = get_blas_mac(numpy_module)
-    else:
-        warnings.warn(
-            f'Searching for BLAS libraries on {sys.platform} is not supported.'
-        )
-        blas = None
+        return get_blas_mac(numpy_module)
 
-    return blas
+    warnings.warn(
+        f'Searching for BLAS libraries on {sys.platform} is not supported.'
+    )
 
 
 class single_threaded:
