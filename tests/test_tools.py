@@ -22,11 +22,9 @@ def test_duplicate_index_printer():
 
 def test_blas_getter():
 
-    assert sys.platform.startswith('linux')
-
     import numpy
 
-    blas = tools.get_blas_library(numpy)
+    blas = tools.get_blas(numpy)
 
     blas.set_n_threads(4)
     assert blas.get_n_threads() == 4

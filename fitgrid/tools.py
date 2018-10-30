@@ -3,8 +3,10 @@ from collections import defaultdict
 import subprocess
 import re
 import ctypes
+import sys
 import os
 import glob
+import warnings
 
 MKL = 'mkl'
 OPENBLAS = 'openblas'
@@ -68,16 +70,53 @@ class BLAS:
         return f'{kind} implementation of BLAS'
 
 
-def get_blas_library(numpy_module):
+def get_blas_mac(numpy_module):
 
-    LDD = 'ldd'
-    LDD_PATTERN = r'^\t(?P<lib>.*{}.*) => (?P<path>.*) \(0x.*$'
+    COMMAND = 'otool'
+    FLAGS = '-L'
+    PATTERN = r'^\t@loader_path/(?P<path>.*{}.*) \(.*\)$'
+
+    NUMPY_PATH = os.path.join(numpy_module.__path__[0], 'core')
+    MULTIARRAY_PATH = glob.glob(os.path.join(NUMPY_PATH, 'multiarray*.so'))[0]
+
+    otool_result = subprocess.run(
+        args=[COMMAND, FLAGS, MULTIARRAY_PATH],
+        check=True,
+        stdout=subprocess.PIPE,
+        universal_newlines=True,
+    )
+
+    output = otool_result.stdout
+
+    if MKL in output:
+        kind = MKL
+    elif OPENBLAS in output:
+        kind = OPENBLAS
+    else:
+        return None
+
+    pattern = PATTERN.format(kind)
+    match = re.search(pattern, output, flags=re.MULTILINE)
+
+    if match:
+        rel_path = match.groupdict()['path']
+        abs_path = os.path.join(NUMPY_PATH, rel_path)
+        cdll = ctypes.CDLL(abs_path)
+        return BLAS(cdll, kind)
+    else:
+        return None
+
+
+def get_blas_linux(numpy_module):
+
+    COMMAND = 'ldd'
+    PATTERN = r'^\t.*{}.* => (?P<path>.*) \(0x.*$'
 
     NUMPY_PATH = os.path.join(numpy_module.__path__[0], 'core')
     MULTIARRAY_PATH = glob.glob(os.path.join(NUMPY_PATH, 'multiarray*.so'))[0]
 
     ldd_result = subprocess.run(
-        args=[LDD, MULTIARRAY_PATH],
+        args=[COMMAND, MULTIARRAY_PATH],
         check=True,
         stdout=subprocess.PIPE,
         universal_newlines=True,
@@ -90,13 +129,30 @@ def get_blas_library(numpy_module):
     elif OPENBLAS in output:
         kind = OPENBLAS
     else:
-        raise RuntimeError('Failed to detect MKL/OpenBLAS.')
+        return None
 
-    pattern = LDD_PATTERN.format(kind)
+    pattern = PATTERN.format(kind)
     match = re.search(pattern, output, flags=re.MULTILINE)
 
     if match:
-        lib = ctypes.CDLL(match.group(2))
-        return BLAS(lib, kind)
+        path = match.groupdict()['path']
+        cdll = ctypes.CDLL(path)
+        return BLAS(cdll, kind)
     else:
-        raise RuntimeError('Failed to detect MKL/OpenBLAS.')
+        return None
+
+
+def get_blas(numpy_module):
+    """Return BLAS object or None if neither MKL nor OpenBLAS is found."""
+
+    if sys.platform.startswith('linux'):
+        blas = get_blas_linux(numpy_module)
+    elif sys.platform == 'darwin':
+        blas = get_blas_mac(numpy_module)
+    else:
+        warnings.warn(
+            f'Searching for BLAS libraries on {sys.platform} is not supported.'
+        )
+        blas = None
+
+    return blas
