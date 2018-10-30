@@ -67,7 +67,8 @@ class BLAS:
             kind = 'MKL'
         if self.kind == OPENBLAS:
             kind = 'OpenBLAS'
-        return f'{kind} implementation of BLAS'
+        n_threads = self.get_n_threads()
+        return f'{kind} @ {n_threads} threads'
 
 
 def get_blas_mac(numpy_module):
