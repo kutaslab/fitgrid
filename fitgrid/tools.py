@@ -156,3 +156,27 @@ def get_blas(numpy_module):
         blas = None
 
     return blas
+
+
+class single_threaded:
+    def __init__(self, numpy_module):
+        self.blas = get_blas(numpy_module)
+
+    def __enter__(self):
+        if self.blas is not None:
+            self.old_n_threads = self.blas.get_n_threads()
+            self.blas.set_n_threads(1)
+        else:
+            warnings.warn(
+                'No MKL/OpenBLAS found, assuming NumPy is single-threaded.'
+            )
+
+    def __exit__(self, *args):
+        if self.blas is not None:
+            self.blas.set_n_threads(self.old_n_threads)
+            if self.blas.get_n_threads() != self.old_n_threads:
+                message = (
+                    f'Failed to reset {self.blas.kind} '
+                    f'to {self.old_n_threads} threads (previous value).'
+                )
+                raise RuntimeError(message)
