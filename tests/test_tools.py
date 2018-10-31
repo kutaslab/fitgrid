@@ -31,3 +31,41 @@ def test_blas_getter():
 
     blas.set_n_threads(2)
     assert blas.get_n_threads() == 2
+
+def test_single_threaded_no_change():
+
+    import numpy
+
+    blas = tools.get_blas(numpy)
+    old_n_threads = blas.get_n_threads()
+
+    with tools.single_threaded(numpy):
+        assert blas.get_n_threads() == 1
+
+    assert blas.get_n_threads() == old_n_threads
+
+def test_single_threaded_change_before():
+
+    import numpy
+
+    blas = tools.get_blas(numpy)
+
+    BEFORE = 2
+    blas.set_n_threads(BEFORE)
+
+    assert blas.get_n_threads() == BEFORE
+
+    with tools.single_threaded(numpy):
+        assert blas.get_n_threads() == 1
+
+    assert blas.get_n_threads() == BEFORE
+
+    BEFORE = 3
+    blas.set_n_threads(BEFORE)
+
+    assert blas.get_n_threads() == BEFORE
+
+    with tools.single_threaded(numpy):
+        assert blas.get_n_threads() == 1
+
+    assert blas.get_n_threads() == BEFORE
