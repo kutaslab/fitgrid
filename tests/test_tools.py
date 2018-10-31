@@ -1,6 +1,5 @@
 import pandas as pd
 import re
-import sys
 
 from .context import fitgrid
 from fitgrid import tools
@@ -32,6 +31,7 @@ def test_blas_getter():
     blas.set_n_threads(2)
     assert blas.get_n_threads() == 2
 
+
 def test_single_threaded_no_change():
 
     import numpy
@@ -43,6 +43,7 @@ def test_single_threaded_no_change():
         assert blas.get_n_threads() == 1
 
     assert blas.get_n_threads() == old_n_threads
+
 
 def test_single_threaded_change_before():
 
