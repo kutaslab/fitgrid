@@ -78,7 +78,7 @@ def get_blas_mac(numpy_module):
     PATTERN = r'^\t@loader_path/(?P<path>.*{}.*) \(.*\)$'
 
     NUMPY_PATH = os.path.join(numpy_module.__path__[0], 'core')
-    MULTIARRAY_PATH = glob.glob(os.path.join(NUMPY_PATH, 'multiarray*.so'))[0]
+    MULTIARRAY_PATH = glob.glob(os.path.join(NUMPY_PATH, 'multiarray.*so'))[0]
 
     otool_result = subprocess.run(
         args=[COMMAND, FLAGS, MULTIARRAY_PATH],
@@ -114,7 +114,7 @@ def get_blas_linux(numpy_module):
     PATTERN = r'^\t.*{}.* => (?P<path>.*) \(0x.*$'
 
     NUMPY_PATH = os.path.join(numpy_module.__path__[0], 'core')
-    MULTIARRAY_PATH = glob.glob(os.path.join(NUMPY_PATH, 'multiarray*.so'))[0]
+    MULTIARRAY_PATH = glob.glob(os.path.join(NUMPY_PATH, 'multiarray.*so'))[0]
 
     ldd_result = subprocess.run(
         args=[COMMAND, MULTIARRAY_PATH],
