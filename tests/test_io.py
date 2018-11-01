@@ -4,7 +4,7 @@ from .context import fitgrid
 def test__epochs_from_hdf():
     TEST_FILE = 'tests/data/fake_epochs.h5'
     channels = [f'channel{i}' for i in range(32)]
-    fitgrid.epochs_from_hdf(TEST_FILE, channels)
+    fitgrid.epochs_from_hdf(TEST_FILE, channels=channels)
 
 
 def test__epochs_from_dataframe_good_data():
