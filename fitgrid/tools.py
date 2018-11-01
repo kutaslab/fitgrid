@@ -7,7 +7,7 @@ import sys
 import os
 import glob
 import warnings
-from pymer4.models import Lmer
+from contextlib import contextmanager
 
 MKL = 'mkl'
 OPENBLAS = 'openblas'
@@ -179,3 +179,14 @@ class single_threaded:
                     f'to {self.old_n_threads} threads (previous value).'
                 )
                 raise RuntimeError(message)
+
+
+@contextmanager
+def suppress_stdout():
+    with open(os.devnull, "w") as devnull:
+        old_stdout = sys.stdout
+        sys.stdout = devnull
+        try:
+            yield
+        finally:
+            sys.stdout = old_stdout

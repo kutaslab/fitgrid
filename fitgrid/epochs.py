@@ -4,7 +4,6 @@ from statsmodels.formula.api import ols, mixedlm
 from tqdm import tqdm
 from multiprocessing import Pool
 from functools import partial
-from pymer4 import Lmer
 
 from .errors import FitGridError
 from .fitgrid import FitGrid
@@ -227,7 +226,7 @@ class Epochs:
         if parallel:
             with tools.single_threaded(np):
                 with Pool(n_cores) as pool:
-                    results = pool.map(process_key_and_group, tqdm(gb))
+                    results = list(pool.imap(process_key_and_group, tqdm(gb)))
         else:
             results = map(process_key_and_group, tqdm(gb))
         return FitGrid(pd.concat(results, axis=1).T, self._epoch_index)
@@ -263,6 +262,8 @@ class Epochs:
         return self.run_model(regression, LHS)
 
     def _lmer(self, data, channel, RHS):
+        from pymer4 import Lmer
+
         model = Lmer(channel + ' ~ ' + RHS, data=data)
         model.fit(summarize=False)
         return model
@@ -277,7 +278,10 @@ class Epochs:
 
         self._validate_LHS(LHS)
         lmer_runner = partial(self._lmer, RHS=RHS)
-        return self.run_model2(lmer_runner, parallel=parallel, n_cores=n_cores)
+        with tools.suppress_stdout():
+            return self.run_model2(
+                lmer_runner, parallel=parallel, n_cores=n_cores
+            )
 
     def mlm(
         self, LHS=None, RHS=None, re_formula=None, vc_formula=None, groups=None
