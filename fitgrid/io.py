@@ -3,7 +3,7 @@ from .epochs import Epochs
 from .errors import FitGridError
 
 
-def epochs_from_hdf(hdf_filename, channels='default'):
+def epochs_from_hdf(hdf_filename, key=None, channels='default'):
     """Construct Epochs object from an HDF5 file containing an epochs table.
 
     The HDF5 file should contain columns with names defined by EPOCH_ID and
@@ -15,6 +15,8 @@ def epochs_from_hdf(hdf_filename, channels='default'):
     ----------
     hdf_filename : str
         HDF5 file name
+    key : str
+        group identifier for the dataset when HDF5 file contains more than one
     channels : list of str, optional, defaults to CHANNELS
         list of string channel names
 
@@ -26,7 +28,7 @@ def epochs_from_hdf(hdf_filename, channels='default'):
 
     from . import EPOCH_ID, TIME
 
-    df = pd.read_hdf(hdf_filename)
+    df = pd.read_hdf(hdf_filename, key=key)
 
     # time and epoch id already present in index
     if EPOCH_ID in df.index.names and TIME in df.index.names:
