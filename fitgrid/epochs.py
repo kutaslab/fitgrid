@@ -2,6 +2,9 @@ import numpy as np
 import pandas as pd
 from statsmodels.formula.api import ols, mixedlm
 from tqdm import tqdm
+from multiprocessing import Pool
+from functools import partial
+from pymer4 import Lmer
 
 from .errors import FitGridError
 from .fitgrid import FitGrid
@@ -199,6 +202,36 @@ class Epochs:
 
         return FitGrid(pd.DataFrame(results), self._epoch_index)
 
+    def process_key_and_group(self, key_and_group, function, channels):
+        key, group = key_and_group
+        results = {channel: function(group, channel) for channel in channels}
+        return pd.Series(results, name=key)
+
+    def run_model2(self, function, channels=None, parallel=False, n_cores=4):
+
+        from . import TIME
+
+        if channels is None:
+            channels = self.channels
+
+        self._validate_LHS(channels)
+
+        gb = self.table.groupby(TIME)
+
+        process_key_and_group = partial(
+            self.process_key_and_group,
+            function=function,
+            channels=self.channels,
+        )
+
+        if parallel:
+            with tools.single_threaded(np):
+                with Pool(n_cores) as pool:
+                    results = pool.map(process_key_and_group, tqdm(gb))
+        else:
+            results = map(process_key_and_group, tqdm(gb))
+        return FitGrid(pd.concat(results, axis=1).T, self._epoch_index)
+
     def lm(self, LHS=None, RHS=None):
         """Run ordinary least squares linear regression on the epochs.
 
@@ -228,6 +261,23 @@ class Epochs:
             return ols(formula, data).fit()
 
         return self.run_model(regression, LHS)
+
+    def _lmer(self, data, channel, RHS):
+        model = Lmer(channel + ' ~ ' + RHS, data=data)
+        model.fit(summarize=False)
+        return model
+
+    def lmer(self, LHS=None, RHS=None, parallel=False, n_cores=4):
+
+        if LHS is None:
+            LHS = self.channels
+
+        if RHS is None or not isinstance(RHS, str):
+            raise ValueError('Please enter a valid lmer RHS as a string.')
+
+        self._validate_LHS(LHS)
+        lmer_runner = partial(self._lmer, RHS=RHS)
+        return self.run_model2(lmer_runner, parallel=parallel, n_cores=n_cores)
 
     def mlm(
         self, LHS=None, RHS=None, re_formula=None, vc_formula=None, groups=None

@@ -7,6 +7,7 @@ import sys
 import os
 import glob
 import warnings
+from pymer4.models import Lmer
 
 MKL = 'mkl'
 OPENBLAS = 'openblas'

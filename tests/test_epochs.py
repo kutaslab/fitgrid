@@ -3,6 +3,7 @@ import numpy as np
 from .context import fitgrid
 from fitgrid import fake_data, errors
 from fitgrid.epochs import Epochs
+from statsmodels.formula.api import ols
 
 import matplotlib
 
@@ -77,3 +78,19 @@ def test_smoke_epochs_distances():
 
     epochs = fake_data.generate()
     epochs.distances()
+
+
+def test_run_model2():
+
+    epochs = fake_data.generate(n_samples=10, n_channels=5)
+
+    RHS = 'continuous + categorical'
+
+    def regression(data, channel):
+        formula = channel + ' ~ ' + RHS
+        return ols(formula, data).fit()
+
+    grid = epochs.run_model(regression)
+    grid2 = epochs.run_model2(regression)
+
+    assert grid.rsquared.equals(grid2.rsquared)
