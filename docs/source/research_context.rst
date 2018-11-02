@@ -13,7 +13,35 @@ Smith and Kutas I
 
 .. todo::
 
-    Finish this section.
+Interest in regression modelling of EEG time-series data is growing
+rapidly. 
+
+However, every authority on regression modelling emphasizes
+the iterative nature of sound modelling practice: diagnostic
+examination for pathological data points; model fitting; testing data
+for outliers and influential data points with respect to the fitted
+model, examination of residuals for signs of violated assumptions;
+evaluation of model parameters for signs of over-fitting,
+multicollinearity. Evaluate, remediate data, refit, adjust parameters,
+refit. Repeat as necessary.
+
+This is for a single model. Regression analyses that model EEG time
+series point by point, channel by channel, multiply these iterations
+by the number of points x the number of channels in a combinatorial
+explosion. 
+
+Nothing can prevent the explosion.
+
+FitGrid is a tool for managing it.
+
+FitGrid runs ordinary least squares and linear mixed-effects models
+using familiar formula languages in statsmodels (Python) and
+lme4::lmer and lmerTest::lmer (in R via the pymer/rpy2
+interface). With one function call, FitGrid runs all the sample x
+channel models (in parallel if supported by hardware) and collects the
+fits. When the fitting is complete the results of the fitting and
+diagnostic measures can be queried in a format ready for
+visualization.
 
 ==========================
 Doing statistics in Python

@@ -16,13 +16,15 @@ import os
 import sys
 
 sys.path.insert(0, os.path.abspath('../..'))
+#sys.path.insert(0, os.path.abspath('.'))
 
 
 # -- Project information -----------------------------------------------------
 
 project = 'fitgrid'
 copyright = '2018, Andrey Portnoy'
-author = 'Andrey Portnoy'
+author = 'Andrey Portnoy, Thomas P. Urbach'
+today = 'October 1, 2018'
 
 # The short X.Y version
 version = ''
@@ -141,7 +143,7 @@ latex_documents = [
         master_doc,
         'fitgrid.tex',
         'fitgrid Documentation',
-        'Andrey Portnoy',
+        'Andrey Portnoy and Thomas P. Urbach',
         'manual',
     )
 ]
