@@ -11,8 +11,6 @@ Smith and Kutas I
 
 ``fitgrid`` is an implementation of the rERP framework proposed in `Smith and Kutas I <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5308234/>`_.
 
-.. todo::
-
 Interest in regression modelling of EEG time-series data is growing
 rapidly. 
 
