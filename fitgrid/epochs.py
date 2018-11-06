@@ -231,7 +231,7 @@ class Epochs:
             results = map(process_key_and_group, tqdm(gb))
         return FitGrid(pd.concat(results, axis=1).T, self._epoch_index)
 
-    def lm(self, LHS=None, RHS=None):
+    def lm(self, LHS=None, RHS=None, parallel=False, n_cores=4):
         """Run ordinary least squares linear regression on the epochs.
 
         Parameters
@@ -259,7 +259,10 @@ class Epochs:
             formula = channel + ' ~ ' + RHS
             return ols(formula, data).fit()
 
-        return self.run_model(regression, LHS)
+        if parallel:
+            return self.run_model2(regression, LHS, parallel=parallel, n_cores=n_cores)
+        else:
+            return self.run_model(regression, LHS)
 
     def _lmer(self, data, channel, RHS):
         from pymer4 import Lmer
