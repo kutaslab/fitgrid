@@ -231,6 +231,10 @@ class Epochs:
             results = map(process_key_and_group, tqdm(gb))
         return FitGrid(pd.concat(results, axis=1).T, self._epoch_index)
 
+    def regression(data, channel, RHS):
+        formula = channel + ' ~ ' + RHS
+        return ols(formula, data).fit()
+
     def lm(self, LHS=None, RHS=None, parallel=False, n_cores=4):
         """Run ordinary least squares linear regression on the epochs.
 
@@ -255,12 +259,12 @@ class Epochs:
         self._validate_LHS(LHS)
         self._validate_RHS(RHS)
 
-        def regression(data, channel):
-            formula = channel + ' ~ ' + RHS
-            return ols(formula, data).fit()
+        regression = partial(self.regression, RHS=RHS)
 
         if parallel:
-            return self.run_model2(regression, LHS, parallel=parallel, n_cores=n_cores)
+            return self.run_model2(
+                regression, LHS, parallel=parallel, n_cores=n_cores
+            )
         else:
             return self.run_model(regression, LHS)
 
