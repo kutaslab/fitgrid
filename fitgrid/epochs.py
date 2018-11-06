@@ -78,9 +78,9 @@ class Epochs:
             prev_group = cur_group
 
         if not prev_group.index.is_unique:
+            dupes = tools.get_index_duplicates_table(table, EPOCH_ID)
             raise FitGridError(
-                f'Duplicate values in {EPOCH_ID} index not allowed:',
-                tools.get_index_duplicates_table(table, EPOCH_ID),
+                f'Duplicate values in {EPOCH_ID} index not allowed:\n{dupes}'
             )
 
         # checks passed, set instance variables
