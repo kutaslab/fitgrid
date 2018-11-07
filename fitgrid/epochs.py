@@ -231,7 +231,7 @@ class Epochs:
             results = map(process_key_and_group, tqdm(gb))
         return FitGrid(pd.concat(results, axis=1).T, self._epoch_index)
 
-    def regression(data, channel, RHS):
+    def regression(self, data, channel, RHS):
         formula = channel + ' ~ ' + RHS
         return ols(formula, data).fit()
 
