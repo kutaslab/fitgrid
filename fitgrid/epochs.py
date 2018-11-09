@@ -2,6 +2,8 @@ import numpy as np
 import pandas as pd
 from statsmodels.formula.api import ols
 from tqdm import tqdm
+from multiprocessing import Pool
+from functools import partial
 
 from .errors import FitGridError
 from .fitgrid import FitGrid
@@ -153,7 +155,12 @@ class Epochs:
 
         return distances
 
-    def run_model(self, function, channels=None):
+    def process_key_and_group(self, key_and_group, function, channels):
+        key, group = key_and_group
+        results = {channel: function(group, channel) for channel in channels}
+        return pd.Series(results, name=key)
+
+    def run_model(self, function, channels=None, parallel=False, n_cores=4):
         """Run an arbitrary model on the epochs.
 
         Parameters
@@ -162,6 +169,10 @@ class Epochs:
             function that runs a model, see Notes below for details
         channels : list of str
             list of channels to serve as dependent variables
+        parallel : bool, defaults to False
+            set to True in order to run in parallel
+        n_cores : int, defaults to 4
+            number of processes to run in parallel
 
         Returns
         -------
@@ -187,19 +198,35 @@ class Epochs:
 
         """
 
+        from . import TIME
+
         if channels is None:
             channels = self.channels
 
         self._validate_LHS(channels)
 
-        results = {
-            channel: self._snapshots.apply(function, channel=channel)
-            for channel in tqdm(channels, desc='Channels: ')
-        }
+        gb = self.table.groupby(TIME)
 
-        return FitGrid(pd.DataFrame(results), self._epoch_index)
+        process_key_and_group = partial(
+            self.process_key_and_group, function=function, channels=channels
+        )
 
-    def lm(self, LHS=None, RHS=None):
+        if parallel:
+            with tools.single_threaded(np):
+                with Pool(n_cores) as pool:
+                    results = list(pool.imap(process_key_and_group, tqdm(gb)))
+        else:
+            results = map(process_key_and_group, tqdm(gb))
+
+        grid = pd.concat(results, axis=1).T
+        grid.index.name = TIME
+        return FitGrid(grid, self._epoch_index)
+
+    def _lm(self, data, channel, RHS):
+        formula = channel + ' ~ ' + RHS
+        return ols(formula, data).fit()
+
+    def lm(self, LHS=None, RHS=None, parallel=False, n_cores=4):
         """Run ordinary least squares linear regression on the epochs.
 
         Parameters
@@ -223,11 +250,31 @@ class Epochs:
         self._validate_LHS(LHS)
         self._validate_RHS(RHS)
 
-        def regression(data, channel):
-            formula = channel + ' ~ ' + RHS
-            return ols(formula, data).fit()
+        _lm = partial(self._lm, RHS=RHS)
 
-        return self.run_model(regression, LHS)
+        return self.run_model(_lm, LHS, parallel=parallel, n_cores=n_cores)
+
+    def _lmer(self, data, channel, RHS):
+        from pymer4 import Lmer
+
+        model = Lmer(channel + ' ~ ' + RHS, data=data)
+        model.fit(summarize=False)
+        return model
+
+    def lmer(self, LHS=None, RHS=None, parallel=False, n_cores=4):
+
+        if LHS is None:
+            LHS = self.channels
+
+        if RHS is None or not isinstance(RHS, str):
+            raise ValueError('Please enter a valid lmer RHS as a string.')
+
+        self._validate_LHS(LHS)
+        lmer_runner = partial(self._lmer, RHS=RHS)
+        with tools.suppress_stdout():
+            return self.run_model(
+                lmer_runner, parallel=parallel, n_cores=n_cores
+            )
 
     def plot_averages(self, channels=None, negative_up=True):
         """Plot grand mean averages for each channel, negative up by default.
