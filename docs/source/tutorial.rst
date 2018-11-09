@@ -74,14 +74,19 @@ each timepoint only unique ``EPOCH_ID`` values are allowed.
 2. Run a model
 ==============
 
-As of now, only linear regression is available. To run linear regression on the
-epochs, use the :code:`lm` method::
+As of now, linear regression (via ``statsmodels``' ``ols``) and linear mixed
+models (via ``lme4``'s ``lmer``) are available. For example, to run linear
+regression on the epochs, use the :code:`lm` method::
 
     grid = epochs.lm(RHS='continuous + categorical')
 
 :code:`epochs.lm` runs linear regression for each channel, with the channel
 data as the left hand side, and the right hand side given by the Patsy/R style
 formula passed in using the :code:`RHS` parameter.
+
+Similarly, to run `lmer`, use the :code:`lmer` method::
+
+    grid = epochs.lmer(RHS='continuous + (continuous | categorical)')
 
 .. note::
 
@@ -98,7 +103,7 @@ formula passed in using the :code:`RHS` parameter.
 
 Running a model on the epochs creates a `FitGrid` object, containing fit
 information, such as the betas, and diagnostic information,
-such as :math:`R^2`.
+such as :math:`R^2` in case of linear regression.
 
 ==================
 3. Examine results

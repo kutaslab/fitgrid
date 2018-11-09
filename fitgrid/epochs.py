@@ -235,6 +235,10 @@ class Epochs:
             list of channels for the left hand side of the regression formula
         RHS : str
             right hand side of the regression formula
+        parallel : bool, defaults to False
+            change to True to run in parallel
+        n_cores : int, defaults to 4
+            number of processes to use for computation
 
         Returns
         -------
@@ -262,6 +266,25 @@ class Epochs:
         return model
 
     def lmer(self, LHS=None, RHS=None, parallel=False, n_cores=4):
+        """Fit lme4 linear mixed model by interfacing with R.
+
+        Parameters
+        ----------
+        LHS : list of str, optional, defaults to all channels
+            list of channels for the left hand side of the lmer formula
+        RHS : str
+            right hand side of the lmer formula
+        parallel : bool, defaults to False
+            change to True to run in parallel
+        n_cores : int, defaults to 4
+            number of processes to use for computation
+
+        Returns
+        -------
+
+        grid : FitGrid
+            FitGrid object containing results of lmer fitting
+        """
 
         if LHS is None:
             LHS = self.channels
