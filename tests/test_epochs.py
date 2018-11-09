@@ -80,17 +80,25 @@ def test_smoke_epochs_distances():
     epochs.distances()
 
 
-def test_run_model2():
+def test_lm():
+    """Probe grid to check that correct results are in the right cells."""
 
-    epochs = fake_data.generate(n_samples=10, n_channels=5)
+    epochs = fitgrid.generate(n_samples=20)
 
     RHS = 'continuous + categorical'
+    grid = epochs.lm(RHS=RHS)
 
-    def regression(data, channel):
-        formula = channel + ' ~ ' + RHS
-        return ols(formula, data).fit()
+    timepoints = [3, 14, 15]
+    channels = ['channel1', 'channel2', 'channel4']
 
-    grid = epochs.run_model(regression)
-    grid2 = epochs.run_model2(regression)
+    rsquared = grid.rsquared
+    params = grid.params
 
-    assert grid.rsquared.equals(grid2.rsquared)
+    table = epochs.table.reset_index().set_index('Time')
+
+    for timepoint in timepoints:
+        for channel in channels:
+            data = table.loc[timepoint]
+            fit = ols(channel + ' ~ ' + RHS, data).fit()
+            assert fit.params.equals(params.loc[timepoint, channel])
+            assert fit.rsquared == rsquared.loc[timepoint, channel]
