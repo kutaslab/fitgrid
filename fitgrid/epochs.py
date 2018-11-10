@@ -4,6 +4,8 @@ from statsmodels.formula.api import ols
 from tqdm import tqdm
 from multiprocessing import Pool
 from functools import partial
+from contextlib import redirect_stdout
+from io import StringIO
 
 from .errors import FitGridError
 from .fitgrid import FitGrid
@@ -262,7 +264,17 @@ class Epochs:
         from pymer4 import Lmer
 
         model = Lmer(channel + ' ~ ' + RHS, data=data)
-        model.fit(summarize=False)
+        with redirect_stdout(StringIO()) as captured_stdout:
+            model.fit(summarize=False)
+
+        # lmer prints warnings, capture them and attach to the model object
+        warning = captured_stdout.getvalue()
+
+        model.has_warning = True if warning else False
+        model.warning = warning
+
+        captured_stdout.close()
+
         return model
 
     def lmer(self, LHS=None, RHS=None, parallel=False, n_cores=4):
@@ -294,10 +306,7 @@ class Epochs:
 
         self._validate_LHS(LHS)
         lmer_runner = partial(self._lmer, RHS=RHS)
-        with tools.suppress_stdout():
-            return self.run_model(
-                lmer_runner, parallel=parallel, n_cores=n_cores
-            )
+        return self.run_model(lmer_runner, parallel=parallel, n_cores=n_cores)
 
     def plot_averages(self, channels=None, negative_up=True):
         """Plot grand mean averages for each channel, negative up by default.

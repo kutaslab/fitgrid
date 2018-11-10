@@ -102,3 +102,14 @@ def test_lm():
             fit = ols(channel + ' ~ ' + RHS, data).fit()
             assert fit.params.equals(params.loc[timepoint, channel])
             assert fit.rsquared == rsquared.loc[timepoint, channel]
+
+
+def test_smoke_lmer():
+
+    epochs = fitgrid.generate(n_samples=2, n_channels=2)
+    grid = epochs.lmer(RHS='(continuous | categorical)')
+
+    assert grid.has_warning.dtypes.all() == bool
+    assert grid.warning.dtypes.all() == object
+
+    grid.coefs
