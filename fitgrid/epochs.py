@@ -6,6 +6,7 @@ from multiprocessing import Pool
 from functools import partial
 from contextlib import redirect_stdout
 from io import StringIO
+from math import ceil
 
 from .errors import FitGridError
 from .fitgrid import FitGrid
@@ -214,9 +215,12 @@ class Epochs:
         )
 
         if parallel:
+            chunksize = ceil(len(gb) / n_cores)
             with tools.single_threaded(np):
                 with Pool(n_cores) as pool:
-                    results = list(pool.imap(process_key_and_group, tqdm(gb)))
+                    results = pool.map(
+                        process_key_and_group, tqdm(gb), chunksize=chunksize
+                    )
         else:
             results = map(process_key_and_group, tqdm(gb))
 

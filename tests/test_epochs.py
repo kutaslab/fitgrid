@@ -105,6 +105,30 @@ def test_lm():
             assert fit.rsquared == rsquared.loc[timepoint, channel]
 
 
+def test_lm_parallel():
+    """Probe grid to check that correct results are in the right cells."""
+
+    epochs = fitgrid.generate(n_samples=20)
+
+    RHS = 'continuous + categorical'
+    grid = epochs.lm(RHS=RHS, parallel=True, n_cores=2)
+
+    timepoints = [3, 14, 15]
+    channels = ['channel1', 'channel2', 'channel4']
+
+    rsquared = grid.rsquared
+    params = grid.params
+
+    table = epochs.table.reset_index().set_index('Time')
+
+    for timepoint in timepoints:
+        for channel in channels:
+            data = table.loc[timepoint]
+            fit = ols(channel + ' ~ ' + RHS, data).fit()
+            assert fit.params.equals(params.loc[timepoint, channel])
+            assert fit.rsquared == rsquared.loc[timepoint, channel]
+
+
 def test_smoke_lmer():
 
     if not shutil.which('R'):
