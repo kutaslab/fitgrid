@@ -88,6 +88,16 @@ Similarly, to run `lmer`, use the :code:`lmer` method::
 
     grid = epochs.lmer(RHS='continuous + (continuous | categorical)')
 
+With lmer especially, it might be useful to run your model with multiple
+processes to speed it up. This can be achieved by setting ``parallel`` to
+``True`` and ``n_cores`` to the desired value (defaults to 4) as follows::
+
+    grid = epochs.lmer(RHS='continuous + (continuous | categorical)', parallel=True)
+
+or::
+
+    grid = epochs.lm(RHS='continuous + categorical', parallel=True, n_cores=8)
+
 .. note::
 
     `FitGrid` assumes that the epochs table contains the channels given by
