@@ -4,6 +4,7 @@ from .context import fitgrid
 from fitgrid import fake_data, errors
 from fitgrid.epochs import Epochs
 from statsmodels.formula.api import ols
+import shutil
 
 import matplotlib
 
@@ -105,6 +106,9 @@ def test_lm():
 
 
 def test_smoke_lmer():
+
+    if not shutil.which('R'):
+        pytest.skip('R not installed.')
 
     epochs = fitgrid.generate(n_samples=2, n_channels=2)
     grid = epochs.lmer(RHS='(continuous | categorical)')
