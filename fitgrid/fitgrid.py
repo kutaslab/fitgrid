@@ -237,6 +237,10 @@ class FitGrid:
                 nrows=len(channels), figsize=figsize, sharey=True
             )
 
+            # wrap in list to allow for zipping later
+            if not isinstance(axes, np.ndarray):
+                axes = [axes]
+
             for ax, chan in zip(axes, channels):
                 for beta in params[chan]:
                     ax.plot(params[chan][beta], label=beta)
