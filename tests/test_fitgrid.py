@@ -123,6 +123,16 @@ def test__slicing():
     assert (subgrid._grid.index == list(range(25, 76))).all()
     assert subgrid._grid is not grid._grid
 
+    with pytest.warns(UserWarning):
+        subgrid = grid[25:75, ['channel1', 'channel0', 'channel1', 'channel2']]
+    infl = subgrid.get_influence()
+    infl.cooks_distance
+    assert (
+        subgrid._grid.columns == ['channel1', 'channel0', 'channel2']
+    ).all()
+    assert (subgrid._grid.index == list(range(25, 76))).all()
+    assert subgrid._grid is not grid._grid
+
     subgrid = grid[:, :]
     assert (subgrid._grid.columns == grid._grid.columns).all()
     assert (subgrid._grid.index == grid._grid.index).all()

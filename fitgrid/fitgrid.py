@@ -1,6 +1,8 @@
 import numpy as np
 import pandas as pd
 from functools import lru_cache
+from collections import OrderedDict
+import warnings
 
 from .errors import FitGridError
 
@@ -124,9 +126,30 @@ class FitGrid:
 
     Returns
     -------
-
     grid: FitGrid
         FitGrid object
+
+    Notes
+    -----
+    Slicing FitGrids is a little different than slicing Pandas DataFrames. For
+    instance, we require that the keys in a list used to slice a FitGrid on
+    time or channels be unique. The following Pandas quirk is inherited by
+    FitGrids: slicing using a list where some keys are present but some
+    are missing from a grid succeeds silently and creates columns with the
+    missing keys as names. For example, if you have a grid with columns
+
+        'channel1', 'channel2'
+
+    and you slice:
+
+        grid[:, ['channel1', 'blah']]
+
+    this returns a new grid with columns
+
+        'channel1', 'blah'
+
+    where column 'blah' consists of NaN's. Since version 21.0 of Pandas this
+    throws a warning and should in future be replaced with a KeyError.
     """
 
     def __init__(self, _grid, epoch_index):
@@ -164,8 +187,16 @@ class FitGrid:
         time, channels = slicer
 
         def check_slicer_component(component):
-            if isinstance(component, slice) or isinstance(component, list):
+            if isinstance(component, slice):
                 return component
+            elif isinstance(component, list):
+                # deduplicate and warn if duplicates found
+                deduped_component = list(OrderedDict.fromkeys(component))
+                if deduped_component != component:
+                    msg = f'Slicer {component} contained duplicates, '
+                    msg += f'slicing instead on deduped: {deduped_component}.'
+                    warnings.warn(UserWarning(msg))
+                return deduped_component
             else:
                 # wrap in list to always get a DataFrame in return on slicing
                 # otherwise we might get a scalar or a pandas Series,
