@@ -161,6 +161,15 @@ def test__smoke_plot_betas():
     grid.plot_betas()
 
 
+# https://github.com/kutaslab/fitgrid/issues/51
+def test__plot_betas_single_channel():
+
+    epochs = fitgrid.generate(n_samples=2, n_channels=1)
+
+    grid = epochs.lm(RHS='categorical + continuous')
+    grid.plot_betas()
+
+
 def test__smoke_plot_adj_rsquared():
 
     epochs = fitgrid.generate()
