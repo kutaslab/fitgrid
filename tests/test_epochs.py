@@ -1,7 +1,9 @@
 import pytest
 import numpy as np
+import pandas as pd
 from .context import fitgrid
-from fitgrid import fake_data, errors
+from fitgrid import fake_data
+from fitgrid.errors import FitGridError
 from fitgrid.epochs import Epochs
 from statsmodels.formula.api import ols
 import shutil
@@ -14,7 +16,7 @@ matplotlib.use('Agg')
 def test_epochs_lm_bad_inputs():
 
     epochs = fake_data.generate()
-    with pytest.raises(errors.FitGridError):
+    with pytest.raises(FitGridError):
         epochs.lm(LHS=['bad_channel'], RHS='categorical')
 
 
@@ -25,9 +27,22 @@ def test_epochs_unequal_snapshots():
     )
 
     epochs_table.drop(epochs_table.index[42], inplace=True)
-    with pytest.raises(errors.FitGridError) as error:
+    with pytest.raises(FitGridError) as error:
         Epochs(epochs_table, channels)
     assert 'differs from previous snapshot' in str(error.value)
+
+
+def test_raises_error_on_duplicate_channels():
+
+    epochs_table, channels = fitgrid.fake_data._generate(10, 100, 2, 32)
+    dupe_channel = channels[0]
+    dupe_column = epochs_table[dupe_channel]
+    bad_epochs_table = pd.concat([epochs_table, dupe_column], axis=1)
+
+    with pytest.raises(FitGridError) as error:
+        fitgrid.epochs_from_dataframe(bad_epochs_table, channels)
+
+    assert "Duplicate column names" in str(error.value)
 
 
 def test__raises_error_on_epoch_index_mismatch():
@@ -46,7 +61,7 @@ def test__raises_error_on_epoch_index_mismatch():
     epochs_table.index.set_labels(labels=bad_index, level=TIME, inplace=True)
 
     # now time index is equal to row number in the table overall
-    with pytest.raises(errors.FitGridError) as error:
+    with pytest.raises(FitGridError) as error:
         Epochs(epochs_table, channels)
 
     assert 'differs from previous snapshot' in str(error.value)

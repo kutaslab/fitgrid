@@ -1,7 +1,9 @@
 import pytest
 import numpy as np
+import pandas as pd
 from .context import fitgrid
 from fitgrid.errors import FitGridError
+from fitgrid.fitgrid import FitGrid
 from fitgrid import tools
 import matplotlib
 
@@ -149,6 +151,22 @@ def test__slicing():
 
     with pytest.raises(FitGridError):
         grid[['channel0', 'channel1']]
+
+
+def test_grid_with_duplicate_channels():
+
+    epochs = fitgrid.generate()
+    grid = epochs.lm(
+        LHS=['channel0', 'channel1', 'channel2'],
+        RHS='categorical + continuous',
+    )
+    _grid_with_duplicate_channels = pd.concat(
+        [grid._grid, grid._grid['channel0']], axis=1
+    )
+    with pytest.raises(FitGridError) as error:
+        FitGrid(_grid_with_duplicate_channels, grid._epoch_index)
+
+    assert "Duplicate column names" in str(error.value)
 
 
 def test__smoke_influential_epochs():
