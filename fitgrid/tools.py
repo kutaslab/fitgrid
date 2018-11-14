@@ -1,5 +1,5 @@
 import numpy as np
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 import subprocess
 import re
 import ctypes
@@ -7,7 +7,6 @@ import sys
 import os
 import glob
 import warnings
-from contextlib import contextmanager
 
 MKL = 'mkl'
 OPENBLAS = 'openblas'
@@ -43,6 +42,10 @@ def get_first_group(groupby):
     first_group_name = list(groupby.groups)[0]
     first_group = groupby.get_group(first_group_name)
     return first_group
+
+
+def deduplicate_list(lst):
+    return list(OrderedDict.fromkeys(lst))
 
 
 class BLAS:

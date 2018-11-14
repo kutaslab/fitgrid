@@ -5,6 +5,7 @@ from collections import OrderedDict
 import warnings
 
 from .errors import FitGridError
+from . import tools
 
 
 def add_epoch_index(temp, epoch_index):
@@ -191,7 +192,7 @@ class FitGrid:
                 return component
             elif isinstance(component, list):
                 # deduplicate and warn if duplicates found
-                deduped_component = list(OrderedDict.fromkeys(component))
+                deduped_component = tools.deduplicate_list(component)
                 if deduped_component != component:
                     msg = f'Slicer {component} contained duplicates, '
                     msg += f'slicing instead on deduped: {deduped_component}.'

@@ -19,6 +19,13 @@ def test_duplicate_index_printer():
     assert re.search(r'2\s+2, 4\n', table) is not None
 
 
+def test_deduplicate_list():
+
+    # should remove duplicates and preserve order
+    l = [1, 1, 2, 3, 1, 2, 4]
+    assert tools.deduplicate_list(l) == [1, 2, 3, 4]
+
+
 def test_blas_getter():
 
     import numpy
