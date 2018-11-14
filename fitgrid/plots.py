@@ -17,3 +17,5 @@ def stripchart(data, negative_up=True):
         plt.tight_layout()
         if negative_up:
             plt.gca().invert_yaxis()
+
+    return fig, axes
