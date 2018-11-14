@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 from functools import lru_cache
-from collections import OrderedDict
 import warnings
 
 from .errors import FitGridError
@@ -258,6 +257,18 @@ class FitGrid:
 
     def plot_betas(self, legend_on_bottom=False):
         """Plot betas of the model, one plot per channel, overplotting betas.
+
+        Parameters
+        ----------
+        legend_on_bottom : bool, defaults to False
+            set to True to plot single legend below all channel plots
+
+        Returns
+        -------
+        fig : matplotlib.figure.Figure
+            figure containing plots
+        axes : numpy.ndarray of matplotlib.axes.Axes
+            axes objects
         """
 
         if not hasattr(self.tester, 'params'):
@@ -282,9 +293,11 @@ class FitGrid:
 
             if legend_on_bottom:
                 legend_ax = axes[-1]
-                axes = axes[:-1]
+                channel_axes = axes[:-1]
+            else:
+                channel_axes = axes
 
-            for ax, chan in zip(axes, channels):
+            for ax, chan in zip(channel_axes, channels):
                 for beta in params[chan]:
                     ax.plot(params[chan][beta], label=beta)
                 ax.set(ylabel=chan, xlabel=params.index.name)
@@ -304,8 +317,19 @@ class FitGrid:
 
             fig.tight_layout()
 
+            return fig, axes
+
     def plot_adj_rsquared(self):
         """Plot adjusted :math:`R^2` as a heatmap with marginal bar and line.
+
+        Returns
+        -------
+        fig : matplotlib.figure.Figure
+            figure containing plots
+        gs : matplotlib.gridspec.GridSpec
+            grid specification that determines locations and sizes of subplots
+        bar, heatmap, colorbar, line : matplotlib.axes._subplots.AxesSubplot
+            subplot objects
         """
 
         import matplotlib.pyplot as plt
@@ -316,21 +340,26 @@ class FitGrid:
         rsq_adj = self.rsquared_adj
 
         with plt.rc_context({'font.size': 14}):
-            plt.figure(figsize=(16, 12))
+            fig = plt.figure(figsize=(16, 12))
             gs = plt.GridSpec(2, 2, width_ratios=[13, 3], height_ratios=[7, 2])
 
             bar = plt.subplot(gs[1])
             bar.barh(self._grid.columns, rsq_adj.mean(axis=0))
 
             heatmap = plt.subplot(gs[0], sharey=bar)
-            heatmap.imshow(rsq_adj.T, aspect='auto')
+            heatmap_image = heatmap.imshow(rsq_adj.T, aspect='auto')
             heatmap.get_xaxis().set_visible(False)
+
+            colorbar = plt.subplot(gs[3])
+            plt.colorbar(mappable=heatmap_image, cax=colorbar, aspect=0.75)
 
             line = plt.subplot(gs[2])
             line.plot(rsq_adj.mean(axis=1))
 
             plt.tight_layout()
             plt.margins(x=0)
+
+        return fig, gs, bar, heatmap, colorbar, line
 
     def influential_epochs(self, top=None):
         """Return dataframe with top influential epochs ranked by Cook's-D.

@@ -327,6 +327,13 @@ class Epochs:
             list of channel names to plot the averages
         negative_up : bool, optional, default True
             by convention, ERPs are plotted negative voltage up
+
+        Returns
+        -------
+        fig : matplotlib.figure.Figure
+            figure containing plots
+        axes : numpy.ndarray of matplotlib.axes.Axes
+            axes objects
         """
 
         if channels is None:
@@ -335,4 +342,5 @@ class Epochs:
         from . import plots
 
         data = self._snapshots.mean()
-        plots.stripchart(data[channels], negative_up=negative_up)
+        fig, axes = plots.stripchart(data[channels], negative_up=negative_up)
+        return fig, axes
