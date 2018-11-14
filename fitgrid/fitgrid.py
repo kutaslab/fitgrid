@@ -155,6 +155,11 @@ class FitGrid:
 
     def __init__(self, _grid, epoch_index):
 
+        # check no duplicate column names
+        names = list(_grid.columns)
+        deduped_names = tools.deduplicate_list(names)
+        if deduped_names != names:
+            raise FitGridError('Duplicate column names not allowed.')
         self._grid = _grid
         self._epoch_index = epoch_index
         self.tester = _grid.iloc[0, 0]
