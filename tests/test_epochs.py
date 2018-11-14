@@ -99,12 +99,12 @@ def test_smoke_epochs_distances():
 def test_lm():
     """Probe grid to check that correct results are in the right cells."""
 
-    epochs = fitgrid.generate(n_samples=20)
+    epochs = fitgrid.generate(n_samples=10)
 
     RHS = 'continuous + categorical'
     grid = epochs.lm(RHS=RHS)
 
-    timepoints = [3, 14, 15]
+    timepoints = [2, 3, 7]
     channels = ['channel1', 'channel2', 'channel4']
 
     rsquared = grid.rsquared
@@ -123,12 +123,12 @@ def test_lm():
 def test_lm_parallel():
     """Probe grid to check that correct results are in the right cells."""
 
-    epochs = fitgrid.generate(n_samples=20)
+    epochs = fitgrid.generate(n_samples=10)
 
     RHS = 'continuous + categorical'
     grid = epochs.lm(RHS=RHS, parallel=True, n_cores=2)
 
-    timepoints = [3, 14, 15]
+    timepoints = [2, 3, 7]
     channels = ['channel1', 'channel2', 'channel4']
 
     rsquared = grid.rsquared

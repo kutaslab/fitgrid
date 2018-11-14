@@ -171,7 +171,7 @@ def test_grid_with_duplicate_channels():
 
 def test__smoke_influential_epochs():
 
-    epochs = fitgrid.generate()
+    epochs = fitgrid.generate(n_channels=3, n_samples=10)
     grid = epochs.lm(
         LHS=['channel0', 'channel1', 'channel2'],
         RHS='categorical + continuous',
@@ -181,7 +181,7 @@ def test__smoke_influential_epochs():
 
 def test__smoke_plot_betas():
 
-    epochs = fitgrid.generate()
+    epochs = fitgrid.generate(n_channels=3, n_samples=10)
     grid = epochs.lm(
         LHS=['channel0', 'channel1', 'channel2'],
         RHS='categorical + continuous',
@@ -191,7 +191,7 @@ def test__smoke_plot_betas():
 
 def test__smoke_plot_betas_legend_on_bottom():
 
-    epochs = fitgrid.generate()
+    epochs = fitgrid.generate(n_channels=3, n_samples=10)
     grid = epochs.lm(
         LHS=['channel0', 'channel1', 'channel2'],
         RHS='categorical + continuous',
@@ -210,7 +210,7 @@ def test__plot_betas_single_channel():
 
 def test__smoke_plot_adj_rsquared():
 
-    epochs = fitgrid.generate()
+    epochs = fitgrid.generate(n_channels=3, n_samples=10)
     grid = epochs.lm(
         LHS=['channel0', 'channel1', 'channel2'],
         RHS='categorical + continuous',
