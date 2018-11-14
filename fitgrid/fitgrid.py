@@ -250,7 +250,7 @@ class FitGrid:
         samples, chans = self._grid.shape
         return f'{samples} by {chans} FitGrid of type {type(self.tester)}.'
 
-    def plot_betas(self):
+    def plot_betas(self, legend_on_bottom=False):
         """Plot betas of the model, one plot per channel, overplotting betas.
         """
 
@@ -264,25 +264,37 @@ class FitGrid:
             channels, betas = params.columns.levels
             figsize = (16, 4 * len(channels))
 
+            n_plots = len(channels) + 1 if legend_on_bottom else len(channels)
+
             fig, axes = plt.subplots(
-                nrows=len(channels), figsize=figsize, sharey=True
+                nrows=n_plots, figsize=figsize, sharey=True
             )
 
-            # wrap in list to allow for zipping later
+            # wrap in list if single axis to allow for zipping later
             if not isinstance(axes, np.ndarray):
                 axes = [axes]
+
+            if legend_on_bottom:
+                legend_ax = axes[-1]
+                axes = axes[:-1]
 
             for ax, chan in zip(axes, channels):
                 for beta in params[chan]:
                     ax.plot(params[chan][beta], label=beta)
                 ax.set(ylabel=chan, xlabel=params.index.name)
-                ax.legend(
-                    loc='upper center',
-                    ncol=len(params[chan]),
-                    bbox_to_anchor=(0.5, 1.2),
-                    fancybox=True,
-                    shadow=False,
-                )
+                if not legend_on_bottom:
+                    ax.legend(
+                        loc='upper center',
+                        ncol=len(params[chan]),
+                        bbox_to_anchor=(0.5, 1.2),
+                        fancybox=True,
+                        shadow=False,
+                    )
+
+            if legend_on_bottom:
+                handles, labels = ax.get_legend_handles_labels()
+                legend_ax.set_axis_off()
+                legend_ax.legend(handles, labels, mode='expand', ncol=3)
 
             fig.tight_layout()
 

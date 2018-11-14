@@ -171,6 +171,16 @@ def test__smoke_plot_betas():
     grid.plot_betas()
 
 
+def test__smoke_plot_betas_legend_on_bottom():
+
+    epochs = fitgrid.generate()
+    grid = epochs.lm(
+        LHS=['channel0', 'channel1', 'channel2'],
+        RHS='categorical + continuous',
+    )
+    grid.plot_betas(legend_on_bottom=True)
+
+
 # https://github.com/kutaslab/fitgrid/issues/51
 def test__plot_betas_single_channel():
 
