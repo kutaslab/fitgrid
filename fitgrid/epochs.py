@@ -61,6 +61,12 @@ class Epochs:
                     f'{item} must be a column in the epochs table index.'
                 )
 
+        # check no duplicate column names in index and regular columns
+        names = list(epochs_table.index.names) + list(epochs_table.columns)
+        deduped_names = tools.deduplicate_list(names)
+        if deduped_names != names:
+            raise FitGridError('Duplicate column names not allowed.')
+
         # make our own copy so we are immune to modification to original table
         table = epochs_table.copy().reset_index().set_index(EPOCH_ID)
         assert table.index.names == [EPOCH_ID]
