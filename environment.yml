@@ -1,3 +1,6 @@
+# usage:
+#   conda env create -f environment.yml
+#   conda activate fitgrid_compat
 name: fitgrid_compat
 dependencies:
     - rpy2
