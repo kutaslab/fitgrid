@@ -1,0 +1,40 @@
+package:
+    name: fitgrid
+    version: {{ GIT_DESCRIBE_TAG|replace('v', '') }}
+
+source:
+    git_rev: {{ GIT_DESCRIBE_TAG }}
+    git_url: https://github.com/kutaslab/fitgrid.git
+
+build:
+    script: python setup.py install --single-version-externally-managed --record=record.txt
+
+requirements:
+    build:
+        - python
+
+    run:
+        - python=3.6
+        - rpy2
+        - pip:
+            - "git+https://github.com/andportnoy/pymer4.git"
+        - r-lme4
+        - r-lmerTest
+        - numpy
+        - scipy
+        - pandas
+        - matplotlib
+        - statsmodels
+        - pytables
+        - patsy
+        - tqdm
+
+test:
+    imports:
+        - fitgrid
+        - pymer4
+
+about:
+    home: https://github.com/kutaslab/fitgrid
+    license: BSD
+    license_file: LICENSE
