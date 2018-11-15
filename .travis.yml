@@ -4,8 +4,16 @@ python:
     - '3.6'
 cache: pip
 install:
-    - pip install -r requirements.txt
-    - pip install -U black pytest pytest-cov
+    - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+    - bash miniconda.sh -b -p $HOME/miniconda
+    - export PATH="$HOME/miniconda/bin:$PATH"
+    - hash -r
+    - conda config --set always_yes yes --set changeps1 no
+    - conda update -q conda
+    - conda info -a
+    - conda env create -q -f environment.yml
+    - source activate fitgrid_compat
+    - pip install black
 script:
     - black --check --verbose -S --line-length=79 .
     - pytest --cov=fitgrid
