@@ -13,7 +13,7 @@ install:
     - conda info -a
     - conda env create -q -f environment.yml
     - source activate fitgrid_compat
-    - pip install black
+    - pip install black pytest pytest-cov
 script:
     - black --check --verbose -S --line-length=79 .
     - pytest --cov=fitgrid
