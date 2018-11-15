@@ -1,0 +1,16 @@
+name: fitgrid_compat
+dependencies:
+    - rpy2
+    - python=3.6
+    - pip:
+        - "git+https://github.com/andportnoy/pymer4.git"
+    - r-lme4
+    - r-lmerTest
+    - numpy
+    - scipy
+    - pandas
+    - matplotlib
+    - statsmodels
+    - pytables
+    - patsy
+    - tqdm
