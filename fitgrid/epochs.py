@@ -268,7 +268,9 @@ class Epochs:
 
         _lm = partial(self._lm, RHS=RHS)
 
-        return self.run_model(_lm, LHS, parallel=parallel, n_cores=n_cores)
+        return self.run_model(
+            _lm, channels=LHS, parallel=parallel, n_cores=n_cores
+        )
 
     def _lmer(self, data, channel, RHS):
         from pymer4 import Lmer
@@ -316,7 +318,9 @@ class Epochs:
 
         self._validate_LHS(LHS)
         lmer_runner = partial(self._lmer, RHS=RHS)
-        return self.run_model(lmer_runner, parallel=parallel, n_cores=n_cores)
+        return self.run_model(
+            lmer_runner, channels=LHS, parallel=parallel, n_cores=n_cores
+        )
 
     def plot_averages(self, channels=None, negative_up=True):
         """Plot grand mean averages for each channel, negative up by default.
