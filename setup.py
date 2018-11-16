@@ -18,7 +18,7 @@ def readme():
 
 setup(
     name='fitgrid',
-    version='0.1.4',
+    version='0.1.5',
     description='Mass multiple regression manager',
     long_description=readme(),
     long_description_content_type='text/markdown',
