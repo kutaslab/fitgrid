@@ -156,3 +156,16 @@ def test_smoke_lmer():
     assert grid.warning.dtypes.all() == object
 
     grid.coefs
+
+
+def test_lmer_runs_correct_channels():
+
+    if not shutil.which('R'):
+        pytest.skip('R not installed.')
+
+    epochs = fitgrid.generate(n_samples=2, n_channels=3)
+
+    LHS = ['channel0', 'channel2']
+    grid = epochs.lmer(LHS=LHS, RHS='(continuous | categorical)')
+
+    assert list(grid._grid.columns) == LHS
