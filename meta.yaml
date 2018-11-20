@@ -1,10 +1,9 @@
 package:
     name: fitgrid
-    version: {{ GIT_DESCRIBE_TAG|replace('v', '') }}
+    version: "0.1.5"
 
 source:
-    git_rev: {{ GIT_DESCRIBE_TAG }}
-    git_url: https://github.com/kutaslab/fitgrid.git
+    path: ./
 
 build:
     script: python setup.py install --single-version-externally-managed --record=record.txt
