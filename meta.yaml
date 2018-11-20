@@ -16,8 +16,7 @@ requirements:
     run:
         - python=3.6
         - rpy2
-        - pip:
-            - "git+https://github.com/andportnoy/pymer4.git"
+        - pymer4
         - r-lme4
         - r-lmerTest
         - numpy

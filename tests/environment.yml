@@ -2,11 +2,14 @@
 #   conda env create -f environment.yml
 #   conda activate fitgrid_compat
 name: fitgrid_compat
+channels:
+    - aportnoy
 dependencies:
+    - pytest
+    - pytest-cov
     - rpy2
     - python=3.6
-    - pip:
-        - "git+https://github.com/andportnoy/pymer4.git"
+    - pymer4
     - r-lme4
     - r-lmerTest
     - numpy
