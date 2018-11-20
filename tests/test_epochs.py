@@ -146,9 +146,6 @@ def test_lm_parallel():
 
 def test_smoke_lmer():
 
-    if not shutil.which('R'):
-        pytest.skip('R not installed.')
-
     epochs = fitgrid.generate(n_samples=2, n_channels=2)
     grid = epochs.lmer(RHS='(continuous | categorical)')
 
@@ -159,9 +156,6 @@ def test_smoke_lmer():
 
 
 def test_lmer_runs_correct_channels():
-
-    if not shutil.which('R'):
-        pytest.skip('R not installed.')
 
     epochs = fitgrid.generate(n_samples=2, n_channels=3)
 
