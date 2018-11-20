@@ -13,6 +13,10 @@ Click this button to launch a demo notebook:
 
 ## Installation
 
+    conda install -c aportnoy fitgrid
+
+for full support.  Alternatively (with no `lmer` support),
+
     pip3 install fitgrid
 
 ## Documentation
