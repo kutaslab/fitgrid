@@ -1,6 +1,9 @@
 # TODOs files
 *.todo
 
+# emacs previous version
+*~
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

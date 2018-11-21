@@ -7,3 +7,32 @@ We need it to resolve `fitgrid` for the tests without having to install it to
 
 To be able to do `from .context import fitgrid` without ambiguity as to where
 `context` is located.
+
+# What are the test data?
+
+- expt1_epochs.h5
+
+    single subject, multichannel single-trial EEG epochs donated by
+    a project volunteer for testing and public distribution. 
+
+    - sub000p3.epochs.h5  P300 oddball paradigm
+    - sub000p5.epochs.h5  p50 click-supression
+    - sub000wr.epochs.h5  word repetition memory data
+
+- expt1_epochs.h5
+
+    an experiment-size mock data set (32 Ss x 32 channels) of single
+    trial epochs, constructed by digitally blurring EEG data
+    recordings to comply with project IRB protocols.
+
+- fake_epochs.h5
+
+   a generated epochs data structure filled with noise for testing only
+
+- lmer_coefs_1c_4m.h5
+
+    pandas data frame with a single channel of regression ERPs, AICs and
+    lmer warnings fit with four linear-mixed effects lmer models saved
+    in HDF5 format.
+
+
