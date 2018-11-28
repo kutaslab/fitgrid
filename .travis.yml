@@ -11,7 +11,7 @@ install:
     - conda config --set always_yes yes --set changeps1 no
     - conda update -q conda
     - conda info -a
-    - conda env create -q -f tests/environment.yml
+    - conda env create -q -f conda/environment.yml
     - source activate fitgrid_compat
     - pip install black
 script:
