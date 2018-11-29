@@ -9,7 +9,7 @@ Run models on a 2D grid where each cell holds a dataset.
 
 Click this button to launch a demo notebook:
 
-[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/kutaslab/fitgrid/master?filepath=Demo.ipynb)
+[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/kutaslab/fitgrid/master?filepath=notebooks/Demo.ipynb)
 
 ## Installation
 
