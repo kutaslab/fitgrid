@@ -3,20 +3,25 @@ language: python
 python:
     - '3.6'
 cache: pip
+matrix:
+  include:
+  - name: "Exclude lmer fitter"
+    env: TEST_COMMAND=pytest --cov=fitgrid --ignore=tests/test_utils_lmer.py
+  - name: "Lmer fitter only"
+    env: TEST_COMMAND=travis_wait 30 pytest --cov=fitgrid tests/test_utils_lmer.py
 install:
     - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
     - bash miniconda.sh -b -p $HOME/miniconda
     - export PATH="$HOME/miniconda/bin:$PATH"
     - hash -r
     - conda config --set always_yes yes --set changeps1 no
-    - conda update -q conda
     - conda info -a
     - conda env create -q -f conda/environment.yml
     - source activate fitgrid_compat
     - pip install black
 script:
     - black --check --verbose -S --line-length=79 .
-    - pytest --cov=fitgrid
+    - $TEST_COMMAND
 after_success:
     - pip install codecov && codecov
 before_deploy:
