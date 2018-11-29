@@ -91,7 +91,7 @@ def get_lmer_coefs(tpath):
         ["var_a + (1 | sub_id)", "var_a + (1 | item_id)"],  # n=1, >1
     ],
 )
-@pytest.mark.parametrize("interval", [(-50, 50)])
+@pytest.mark.parametrize("interval", [(-8, 8)])
 def test_fit_lmers(tpath, epochs_f, interval, LHS, RHS):
     """test multiple model fitting loop
 
