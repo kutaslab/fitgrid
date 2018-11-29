@@ -106,7 +106,7 @@ def test_fit_lmers(tpath, epochs_f, interval, LHS, RHS):
     """
     epochs = get_epochs(tpath=tpath, epochs_f=epochs_f, interval=interval)
     fg_epochs = fitgrid.epochs_from_dataframe(epochs)
-    lmer_coefs = fgu.fit_lmers(fg_epochs, LHS, RHS, parallel=True, n_cores=12)
+    lmer_coefs = fgu.fit_lmers(fg_epochs, LHS, RHS, parallel=True, n_cores=2)
 
 
 def test_get_lmer_AICs(tpath):
