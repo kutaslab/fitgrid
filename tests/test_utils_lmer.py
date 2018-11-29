@@ -5,13 +5,43 @@ from matplotlib import pyplot as plt
 from .context import fitgrid, tpath
 from fitgrid.utils import lmer as fgu
 
-# pytest evaluates tpath to the local tests directory 
+# pytest evaluates tpath to the local tests directory
 
 EEG_STREAMS = [
-    'lle',  'lhz',  'MiPf', 'LLPf', 'RLPf', 'LMPf', 'RMPf', 'LDFr', 'RDFr', 
-    'LLFr', 'RLFr', 'LMFr', 'RMFr', 'LMCe', 'RMCe', 'MiCe', 'MiPa', 'LDCe', 
-    'RDCe', 'LDPa', 'RDPa', 'LMOc', 'RMOc', 'LLTe', 'RLTe', 'LLOc', 'RLOc', 
-    'MiOc', 'A2',   'HEOG', 'rle',  'rhz' ]
+    'lle',
+    'lhz',
+    'MiPf',
+    'LLPf',
+    'RLPf',
+    'LMPf',
+    'RMPf',
+    'LDFr',
+    'RDFr',
+    'LLFr',
+    'RLFr',
+    'LMFr',
+    'RMFr',
+    'LMCe',
+    'RMCe',
+    'MiCe',
+    'MiPa',
+    'LDCe',
+    'RDCe',
+    'LDPa',
+    'RDPa',
+    'LMOc',
+    'RMOc',
+    'LLTe',
+    'RLTe',
+    'LLOc',
+    'RLOc',
+    'MiOc',
+    'A2',
+    'HEOG',
+    'rle',
+    'rhz',
+]
+
 
 def get_epochs(tpath=tpath, epochs_f='expt1_epochs.h5', interval=(-8, 12)):
     """hard coded file of single trial epochs, entire experiment
@@ -29,12 +59,15 @@ def get_epochs(tpath=tpath, epochs_f='expt1_epochs.h5', interval=(-8, 12)):
     """
 
     EPOCHS_F = Path.joinpath(tpath, 'data', 'expt1_epochs.h5')
-    epochs = (pd.read_hdf(EPOCHS_F, 'epochs')
-              .reset_index()
-              .set_index(['Epoch_idx', 'Time'])
-              .loc[pd.IndexSlice[:, interval[0]:interval[1]], :])
-    return(epochs)
-    
+    epochs = (
+        pd.read_hdf(EPOCHS_F, 'epochs')
+        .reset_index()
+        .set_index(['Epoch_idx', 'Time'])
+        .loc[pd.IndexSlice[:, interval[0] : interval[1]], :]
+    )
+    return epochs
+
+
 def get_lmer_coefs(tpath):
     """hard coded HDF5 test file with pd.DataFrame of lmer_coefs
 
@@ -48,12 +81,16 @@ def get_lmer_coefs(tpath):
     lmer_coefs = pd.read_hdf(LMER_COEFS_F, 'lmer_coefs')
     return lmer_coefs
 
+
 @pytest.mark.parametrize("epochs_f", ["data/expt1_epochs.h5"])
-@pytest.mark.parametrize("LHS", [['MiPa',], ['MiCe', 'MiPa'], ]) # n=1, >1
-@pytest.mark.parametrize("RHS", [
-    ["var_a + (1 | sub_id)"], # singleton model
-    ["var_a + (1 | sub_id)", "var_a + (1 | item_id)"], # n=1, >1
-])
+@pytest.mark.parametrize("LHS", [['MiPa'], ['MiCe', 'MiPa']])  # n=1, >1
+@pytest.mark.parametrize(
+    "RHS",
+    [
+        ["var_a + (1 | sub_id)"],  # singleton model
+        ["var_a + (1 | sub_id)", "var_a + (1 | item_id)"],  # n=1, >1
+    ],
+)
 @pytest.mark.parametrize("interval", [(-50, 50)])
 def test_fit_lmers(tpath, epochs_f, interval, LHS, RHS):
     """test multiple model fitting loop
@@ -71,6 +108,7 @@ def test_fit_lmers(tpath, epochs_f, interval, LHS, RHS):
     fg_epochs = fitgrid.epochs_from_dataframe(epochs)
     lmer_coefs = fgu.fit_lmers(fg_epochs, LHS, RHS, parallel=True, n_cores=12)
 
+
 def test_get_lmer_AICs(tpath):
     """scrape AICs and AIC_min deltas from lmer_coefs in previously saved pd.DataFrame"""
 
@@ -78,11 +116,13 @@ def test_get_lmer_AICs(tpath):
     aics = fgu.get_lmer_AICs(lmer_coefs)
     return aics
 
+
 def test_plot_lmer_AICs(tpath):
     """plot lmer_coefs AICs, min deltas"""
 
     aics = test_get_lmer_AICs(tpath)
     paic = fgu.plot_lmer_AICs(aics)
+
 
 @pytest.mark.parametrize("LHS", ["cproi"])
 def test_plot_lmer_rERPs(tpath, LHS):
@@ -92,7 +132,9 @@ def test_plot_lmer_rERPs(tpath, LHS):
     LHS = list(lmer_coefs.columns)
 
     for modl in lmer_coefs.index.get_level_values('model').unique():
-        fs = fgu.plot_lmer_rERPs(LHS, lmer_coefs.loc[pd.IndexSlice[: , modl, :], :])
+        fs = fgu.plot_lmer_rERPs(
+            LHS, lmer_coefs.loc[pd.IndexSlice[:, modl, :], :]
+        )
         for f in fs:
             assert isinstance(f, plt.Figure)
             # plt.show(f)

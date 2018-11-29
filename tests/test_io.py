@@ -1,6 +1,7 @@
 from pathlib import Path
 from .context import fitgrid, tpath
 
+
 def test__epochs_from_hdf(tpath):
     TEST_FILE = Path.joinpath(tpath, 'data', 'fake_epochs.h5')
     channels = [f'channel{i}' for i in range(32)]
