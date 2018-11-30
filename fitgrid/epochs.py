@@ -287,7 +287,6 @@ class Epochs:
     ):
         from pymer4 import Lmer
 
-        print('REML: ', REML)
         model = Lmer(channel + ' ~ ' + RHS, data=data, family=family)
         with redirect_stdout(StringIO()) as captured_stdout:
             model.fit(
@@ -306,6 +305,10 @@ class Epochs:
         model.warning = warning
 
         captured_stdout.close()
+
+        del model.data
+        del model.design_matrix
+        del model.model_obj
 
         return model
 
