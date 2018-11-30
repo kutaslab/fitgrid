@@ -307,6 +307,10 @@ class Epochs:
 
         captured_stdout.close()
 
+        del model.data
+        del model.design_matrix
+        del model.model_obj
+
         return model
 
     def lmer(
