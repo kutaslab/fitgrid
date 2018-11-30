@@ -163,3 +163,11 @@ def test_lmer_runs_correct_channels():
     grid = epochs.lmer(LHS=LHS, RHS='(continuous | categorical)')
 
     assert list(grid._grid.columns) == LHS
+
+
+def test_lmer_no_REML():
+
+    epochs = fitgrid.generate(n_samples=2, n_channels=2)
+    grid = epochs.lmer(RHS='(continuous | categorical)', REML=False)
+
+    assert (grid._REML == False).all().all()

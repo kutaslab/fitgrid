@@ -272,12 +272,32 @@ class Epochs:
             _lm, channels=LHS, parallel=parallel, n_cores=n_cores
         )
 
-    def _lmer(self, data, channel, RHS):
+    # family, factors, REML
+    def _lmer(
+        self,
+        data,
+        channel,
+        RHS,
+        family,
+        conf_int,
+        factors,
+        permute,
+        ordered,
+        REML,
+    ):
         from pymer4 import Lmer
 
-        model = Lmer(channel + ' ~ ' + RHS, data=data)
+        print('REML: ', REML)
+        model = Lmer(channel + ' ~ ' + RHS, data=data, family=family)
         with redirect_stdout(StringIO()) as captured_stdout:
-            model.fit(summarize=False)
+            model.fit(
+                summarize=False,
+                conf_int=conf_int,
+                factors=factors,
+                permute=permute,
+                ordered=ordered,
+                REML=REML,
+            )
 
         # lmer prints warnings, capture them and attach to the model object
         warning = captured_stdout.getvalue()
@@ -289,7 +309,19 @@ class Epochs:
 
         return model
 
-    def lmer(self, LHS=None, RHS=None, parallel=False, n_cores=4):
+    def lmer(
+        self,
+        LHS=None,
+        RHS=None,
+        family='gaussian',
+        conf_int='Wald',
+        factors=None,
+        permute=None,
+        ordered=False,
+        REML=True,
+        parallel=False,
+        n_cores=4,
+    ):
         """Fit lme4 linear mixed model by interfacing with R.
 
         Parameters
@@ -298,6 +330,27 @@ class Epochs:
             list of channels for the left hand side of the lmer formula
         RHS : str
             right hand side of the lmer formula
+        family : str, defaults to 'gaussian'
+            distribution link function to use
+        conf_int : str, defaults to 'Wald'
+        factors : dict, optional
+            Keys should be column names in data to treat as factors. Values
+            should either be a list containing unique variable levels if
+            dummy-coding or polynomial coding is desired. Otherwise values
+            should themselves be dictionaries with unique variable levels as
+            keys and desired contrast values (as specified in R!) as keys.
+        permute : int, defaults to None
+            if non-zero, computes parameter significance tests by permuting
+            test stastics rather than parametrically. Permutation is done by
+            shuffling observations within clusters to respect random effects
+            structure of data.
+        ordered : bool, defaults to False
+            whether factors should be treated as ordered polynomial contrasts;
+            this will parameterize a model with K-1 orthogonal polynomial
+            regressors beginning with a linear contrast based on the factor
+            order provided
+        REML : bool, defaults to True
+            change to False to use ML estimation
         parallel : bool, defaults to False
             change to True to run in parallel
         n_cores : int, defaults to 4
@@ -317,7 +370,17 @@ class Epochs:
             raise ValueError('Please enter a valid lmer RHS as a string.')
 
         self._validate_LHS(LHS)
-        lmer_runner = partial(self._lmer, RHS=RHS)
+
+        lmer_runner = partial(
+            self._lmer,
+            RHS=RHS,
+            family=family,
+            conf_int=conf_int,
+            factors=factors,
+            permute=permute,
+            ordered=ordered,
+            REML=REML,
+        )
         return self.run_model(
             lmer_runner, channels=LHS, parallel=parallel, n_cores=n_cores
         )
