@@ -1,5 +1,7 @@
 import pandas as pd
+import pickle
 from .epochs import Epochs
+from .fitgrid import FitGrid
 from .errors import FitGridError
 
 
@@ -63,3 +65,23 @@ def epochs_from_dataframe(dataframe, channels='default'):
         an Epochs object with the data
     """
     return Epochs(dataframe, channels)
+
+
+def load_grid(filename):
+    """Load a FitGrid object from file (created by running grid.save).
+
+    Parameters
+    ----------
+    filename : str
+        indicates file to load from
+
+    Returns
+    -------
+    grid : FitGrid
+        loaded FitGrid object
+    """
+
+    with open(filename, 'rb') as file:
+        _grid, _epoch_index = pickle.load(file)
+
+    return FitGrid(_grid, _epoch_index)

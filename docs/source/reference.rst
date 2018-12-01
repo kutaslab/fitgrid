@@ -19,11 +19,14 @@ Data generation
 Data ingestion
 ==============
 
-Functions that read epochs tables and create ``Epochs``.
+Functions that read epochs tables and create ``Epochs`` and load ``FitGrid``
+objects.
 
 .. autofunction:: epochs_from_dataframe
 
 .. autofunction:: epochs_from_hdf
+
+.. autofunction:: load_grid
 
 ==================
 ``Epochs`` methods
@@ -50,3 +53,5 @@ Plotting and statistics.
 .. autofunction:: fitgrid.fitgrid.FitGrid.plot_betas
 
 .. autofunction:: fitgrid.fitgrid.FitGrid.plot_adj_rsquared
+
+.. autofunction:: fitgrid.fitgrid.FitGrid.save

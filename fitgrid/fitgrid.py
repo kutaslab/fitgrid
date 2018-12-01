@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import pickle
 from functools import lru_cache
 import warnings
 
@@ -223,7 +224,7 @@ class FitGrid:
         """
 
         if not hasattr(self.tester, name):
-            raise FitGridError(f'No such attribute: {name}.')
+            raise AttributeError(f'No such attribute: {name}.')
 
         temp = self._grid.applymap(lambda x: getattr(x, name))
         return _expand(temp, self._epoch_index)
@@ -254,6 +255,20 @@ class FitGrid:
 
         samples, chans = self._grid.shape
         return f'{samples} by {chans} FitGrid of type {type(self.tester)}.'
+
+    def save(self, filename):
+        """Save FitGrid object to file (reload with ``fitgrid.load_grid``).
+
+        Parameters
+        ----------
+        filename : str
+            file name to use
+
+        """
+
+        with open(filename, 'wb') as file:
+            kernel = self._grid, self._epoch_index
+            pickle.dump(kernel, file, protocol=pickle.HIGHEST_PROTOCOL)
 
     def plot_betas(self, legend_on_bottom=False):
         """Plot betas of the model, one plot per channel, overplotting betas.

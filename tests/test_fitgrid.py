@@ -1,7 +1,10 @@
 import pytest
 import numpy as np
 import pandas as pd
-from .context import fitgrid
+import uuid
+import os
+from pathlib import Path
+from .context import fitgrid, tpath
 from fitgrid.errors import FitGridError
 from fitgrid.fitgrid import FitGrid
 from fitgrid import tools
@@ -216,3 +219,35 @@ def test__smoke_plot_adj_rsquared():
         RHS='categorical + continuous',
     )
     grid.plot_adj_rsquared()
+
+
+def test__save_load_grid_lm(tpath):
+
+    epochs = fitgrid.generate(n_samples=2, n_channels=2)
+    grid = epochs.lm(RHS='categorical + continuous')
+
+    TEST_FILENAME = tpath / 'data' / str(uuid.uuid4())
+    grid.save(TEST_FILENAME)
+
+    loaded_grid = fitgrid.load_grid(TEST_FILENAME)
+
+    assert dir(grid) == dir(loaded_grid)
+    assert grid.params.equals(loaded_grid.params)
+
+    os.remove(TEST_FILENAME)
+
+
+def test__save_load_grid_lmer(tpath):
+
+    epochs = fitgrid.generate(n_samples=2, n_channels=1)
+    grid = epochs.lmer(RHS='continuous + (continuous | categorical)')
+
+    TEST_FILENAME = str(tpath / 'data' / str(uuid.uuid4()))
+    grid.save(TEST_FILENAME)
+
+    loaded_grid = fitgrid.load_grid(TEST_FILENAME)
+
+    assert dir(grid) == dir(loaded_grid)
+    assert grid.coefs.equals(loaded_grid.coefs)
+
+    os.remove(TEST_FILENAME)
