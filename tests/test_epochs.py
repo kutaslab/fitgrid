@@ -96,7 +96,7 @@ def test_smoke_epochs_distances():
     epochs.distances()
 
 
-def test_lm():
+def test_lm_correctness():
     """Probe grid to check that correct results are in the right cells."""
 
     epochs = fitgrid.generate(n_samples=10)
@@ -120,7 +120,7 @@ def test_lm():
             assert fit.rsquared == rsquared.loc[timepoint, channel]
 
 
-def test_lm_parallel():
+def test_lm_correctness_parallel():
     """Probe grid to check that correct results are in the right cells."""
 
     epochs = fitgrid.generate(n_samples=10)
@@ -171,3 +171,69 @@ def test_lmer_no_REML():
     grid = epochs.lmer(RHS='(continuous | categorical)', REML=False)
 
     assert (grid._REML == False).all().all()
+
+
+def test_lmer_correctness():
+    """Probe grid to check that correct results are in the right cells."""
+
+    from pymer4 import Lmer
+
+    epochs = fitgrid.generate(n_samples=2, n_channels=2)
+
+    RHS = 'continuous + (continuous | categorical)'
+    grid = epochs.lmer(RHS=RHS)
+
+    timepoints = [0, 1]
+    channels = ['channel0', 'channel1']
+
+    coefs = grid.coefs
+    aic = grid.AIC
+
+    table = epochs.table.reset_index().set_index('Time')
+
+    for timepoint in timepoints:
+        for channel in channels:
+            data = table.loc[timepoint]
+            lmer = Lmer(channel + ' ~ ' + RHS, data)
+            lmer.fit(summarize=False)
+            pd.testing.assert_frame_equal(
+                lmer.coefs,
+                coefs.loc[timepoint, channel].unstack(),
+                # Sig has dtype object and in the grid floats get upgraded to
+                # obj, but up to dtype they are still equal
+                check_dtype=False,
+            )
+            assert lmer.AIC == aic.loc[timepoint, channel]
+
+
+def test_lmer_correctness_parallel():
+    """Probe grid to check that correct results are in the right cells."""
+
+    from pymer4 import Lmer
+
+    epochs = fitgrid.generate(n_samples=2, n_channels=2)
+
+    RHS = 'continuous + (continuous | categorical)'
+    grid = epochs.lmer(RHS=RHS, parallel=True, n_cores=2)
+
+    timepoints = [0, 1]
+    channels = ['channel0', 'channel1']
+
+    coefs = grid.coefs
+    aic = grid.AIC
+
+    table = epochs.table.reset_index().set_index('Time')
+
+    for timepoint in timepoints:
+        for channel in channels:
+            data = table.loc[timepoint]
+            lmer = Lmer(channel + ' ~ ' + RHS, data)
+            lmer.fit(summarize=False)
+            pd.testing.assert_frame_equal(
+                lmer.coefs,
+                coefs.loc[timepoint, channel].unstack(),
+                # Sig has dtype object and in the grid floats get upgraded to
+                # obj, but up to dtype they are still equal
+                check_dtype=False,
+            )
+            assert lmer.AIC == aic.loc[timepoint, channel]
