@@ -1,9 +1,9 @@
 package:
     name: fitgrid
-    version: "0.1.5"
+    version: "0.1.6"
 
 source:
-    path: ./
+    path: ../
 
 build:
     script: python setup.py install --single-version-externally-managed --record=record.txt
