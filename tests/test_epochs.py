@@ -6,7 +6,6 @@ from fitgrid import fake_data
 from fitgrid.errors import FitGridError
 from fitgrid.epochs import Epochs
 from statsmodels.formula.api import ols
-import shutil
 
 import matplotlib
 
@@ -237,3 +236,11 @@ def test_lmer_correctness_parallel():
                 check_dtype=False,
             )
             assert lmer.AIC == aic.loc[timepoint, channel]
+
+
+def test_lm_patsy_formula_variable():
+
+    epochs = fitgrid.generate(n_samples=10, n_channels=2)
+    levels = ['cat0', 'cat1']
+
+    grid = epochs.lm(RHS='1 + C(categorical, levels=levels)')
