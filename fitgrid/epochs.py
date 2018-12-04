@@ -234,11 +234,11 @@ class Epochs:
         grid.index.name = TIME
         return FitGrid(grid, self._epoch_index)
 
-    def _lm(self, data, channel, RHS):
+    def _lm(self, data, channel, RHS, eval_env):
         formula = channel + ' ~ ' + RHS
-        return ols(formula, data).fit()
+        return ols(formula, data, eval_env=eval_env).fit()
 
-    def lm(self, LHS=None, RHS=None, parallel=False, n_cores=4):
+    def lm(self, LHS=None, RHS=None, parallel=False, n_cores=4, eval_env=4):
         """Run ordinary least squares linear regression on the epochs.
 
         Parameters
@@ -251,6 +251,8 @@ class Epochs:
             change to True to run in parallel
         n_cores : int, defaults to 4
             number of processes to use for computation
+        eval_env : int or patsy.EvalEnvironment, defaults to 4
+            environment to use for evaluating patsy formulas, see patsy docs
 
         Returns
         -------
@@ -266,7 +268,7 @@ class Epochs:
         self._validate_LHS(LHS)
         self._validate_RHS(RHS)
 
-        _lm = partial(self._lm, RHS=RHS)
+        _lm = partial(self._lm, RHS=RHS, eval_env=eval_env)
 
         return self.run_model(
             _lm, channels=LHS, parallel=parallel, n_cores=n_cores
