@@ -1,5 +1,7 @@
 import pandas as pd
 import re
+import os
+import pytest
 
 from .context import fitgrid
 from fitgrid import tools
@@ -26,6 +28,10 @@ def test_deduplicate_list():
     assert tools.deduplicate_list(l) == [1, 2, 3, 4]
 
 
+@pytest.mark.skipif(
+    'TRAVIS' in os.environ,
+    reason='https://github.com/kutaslab/fitgrid/issues/86',
+)
 def test_blas_getter():
 
     import numpy
@@ -52,6 +58,10 @@ def test_single_threaded_no_change():
     assert blas.get_n_threads() == old_n_threads
 
 
+@pytest.mark.skipif(
+    'TRAVIS' in os.environ,
+    reason='https://github.com/kutaslab/fitgrid/issues/86',
+)
 def test_single_threaded_change_before():
 
     import numpy
