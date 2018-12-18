@@ -212,7 +212,7 @@ class FitGrid:
         time = check_slicer_component(time)
         channels = check_slicer_component(channels)
         subgrid = self._grid.loc[time, channels].copy()
-        return self.__class__(subgrid, self._epoch_index)
+        return FitGrid(subgrid, self._epoch_index)
 
     @lru_cache()
     def __getattr__(self, name):
@@ -270,6 +270,8 @@ class FitGrid:
             kernel = self._grid, self._epoch_index
             pickle.dump(kernel, file, protocol=pickle.HIGHEST_PROTOCOL)
 
+
+class LMFitGrid(FitGrid):
     def plot_betas(self, legend_on_bottom=False):
         """Plot betas of the model, one plot per channel, overplotting betas.
 
@@ -285,9 +287,6 @@ class FitGrid:
         axes : numpy.ndarray of matplotlib.axes.Axes
             axes objects
         """
-
-        if not hasattr(self.tester, 'params'):
-            raise FitGridError('This FitGrid does not contain fit results.')
 
         import matplotlib.pyplot as plt
 
@@ -349,9 +348,6 @@ class FitGrid:
 
         import matplotlib.pyplot as plt
 
-        if not hasattr(self.tester, 'rsquared_adj'):
-            raise FitGridError('This FitGrid does not contain fit results.')
-
         rsq_adj = self.rsquared_adj
 
         with plt.rc_context({'font.size': 14}):
@@ -395,9 +391,6 @@ class FitGrid:
         channels.
         """
 
-        if not hasattr(self.tester, 'get_influence'):
-            raise FitGridError('This FitGrid does not contain influence data.')
-
         return (
             self.get_influence()
             .cooks_distance.drop(axis=0, index=1, level=1)
@@ -408,3 +401,7 @@ class FitGrid:
             .to_frame(name='average_Cooks_D')
             .iloc[:top]
         )
+
+
+class LMERFitGrid(FitGrid):
+    pass
