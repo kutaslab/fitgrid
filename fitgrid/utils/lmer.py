@@ -19,12 +19,12 @@ def fit_lmers(fg_epochs, LHS, RHSs, parallel=True, n_cores=4, save_as=None):
     Returns
     -------
     lmer_coefs : multi-indexed pandas.DataFrame
-       Time, model, param, key x LHS 
+       Time, model, param, key x LHS
 
     Raises
     ------
     FutureWarning
-    
+
     Examples
     --------
 
@@ -43,8 +43,8 @@ def fit_lmers(fg_epochs, LHS, RHSs, parallel=True, n_cores=4, save_as=None):
     lmer_coefs = pd.DataFrame()
     attribs = ['AIC', 'has_warning']
     for rhs in RHSs:
-        fg_lmer = fg_epochs.lmer(
-            LHS=LHS, RHS=rhs, parallel=parallel, n_cores=n_cores
+        fg_lmer = fitgrid.lmer(
+            fg_epochs, LHS=LHS, RHS=rhs, parallel=parallel, n_cores=n_cores
         )
         fg_lmer.coefs.index.names = ['Time', 'param', 'key']
 
@@ -89,14 +89,14 @@ def get_lmer_AICs(lmer_coefs):
 
     Parameters
     ----------
-    
+
     lmer_coefs : multi-indexed pandas.DataFrame
        Time, model, param, key x LHS, as returned by fit_lmers()
 
     Returns
     -------
     aics : multi-indexed pandas pd.DataFrame
-    
+
     """
     # AIC and lmer warnings are 1 per model, pull from the first
     # model coefficient only, typically (Intercept)

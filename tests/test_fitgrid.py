@@ -3,10 +3,9 @@ import numpy as np
 import pandas as pd
 import uuid
 import os
-from pathlib import Path
 from .context import fitgrid, tpath
 from fitgrid.errors import FitGridError
-from fitgrid.fitgrid import FitGrid
+from fitgrid.fitgrid import FitGrid, LMFitGrid, LMERFitGrid
 from fitgrid import tools
 import matplotlib
 
@@ -16,7 +15,7 @@ matplotlib.use('Agg')
 def test__correct_channels_in_fitgrid():
     epochs = fitgrid.generate()
     LHS = ['channel0', 'channel1', 'channel2']
-    grid = epochs.lm(LHS=LHS, RHS='categorical + continuous')
+    grid = fitgrid.lm(epochs, LHS=LHS, RHS='categorical + continuous')
     assert grid.channels == LHS
 
 
@@ -24,7 +23,7 @@ def test__method_returning_dataframe_expands_correctly():
 
     epochs = fitgrid.generate()
     LHS = ['channel0', 'channel1', 'channel2']
-    grid = epochs.lm(LHS=LHS, RHS='categorical + continuous')
+    grid = fitgrid.lm(epochs, LHS=LHS, RHS='categorical + continuous')
 
     conf_int = grid.conf_int()
     assert (conf_int.columns == LHS).all()
@@ -52,7 +51,8 @@ def test__residuals_have_long_form_and_correct_index():
 
     epochs.table.index = new_index
 
-    grid = epochs.lm(
+    grid = fitgrid.lm(
+        epochs,
         LHS=['channel0', 'channel1', 'channel2'],
         RHS='categorical + continuous',
     )
@@ -81,7 +81,7 @@ def test__epoch_id_substitution():
 
     # take just two channels for speed
     LHS = channels[:2]
-    grid = epochs.lm(LHS=LHS, RHS='categorical + continuous')
+    grid = fitgrid.lm(epochs, LHS=LHS, RHS='categorical + continuous')
 
     # one additional level
     resid_pearson = grid.resid_pearson
@@ -108,7 +108,8 @@ def test__epoch_id_substitution():
 def test__slicing():
 
     epochs = fitgrid.generate()
-    grid = epochs.lm(
+    grid = fitgrid.lm(
+        epochs,
         LHS=['channel0', 'channel1', 'channel2'],
         RHS='categorical + continuous',
     )
@@ -159,7 +160,8 @@ def test__slicing():
 def test_grid_with_duplicate_channels():
 
     epochs = fitgrid.generate()
-    grid = epochs.lm(
+    grid = fitgrid.lm(
+        epochs,
         LHS=['channel0', 'channel1', 'channel2'],
         RHS='categorical + continuous',
     )
@@ -175,7 +177,8 @@ def test_grid_with_duplicate_channels():
 def test__smoke_influential_epochs():
 
     epochs = fitgrid.generate(n_channels=3, n_samples=10)
-    grid = epochs.lm(
+    grid = fitgrid.lm(
+        epochs,
         LHS=['channel0', 'channel1', 'channel2'],
         RHS='categorical + continuous',
     )
@@ -185,7 +188,8 @@ def test__smoke_influential_epochs():
 def test__smoke_plot_betas():
 
     epochs = fitgrid.generate(n_channels=3, n_samples=10)
-    grid = epochs.lm(
+    grid = fitgrid.lm(
+        epochs,
         LHS=['channel0', 'channel1', 'channel2'],
         RHS='categorical + continuous',
     )
@@ -195,7 +199,8 @@ def test__smoke_plot_betas():
 def test__smoke_plot_betas_legend_on_bottom():
 
     epochs = fitgrid.generate(n_channels=3, n_samples=10)
-    grid = epochs.lm(
+    grid = fitgrid.lm(
+        epochs,
         LHS=['channel0', 'channel1', 'channel2'],
         RHS='categorical + continuous',
     )
@@ -207,14 +212,15 @@ def test__plot_betas_single_channel():
 
     epochs = fitgrid.generate(n_samples=2, n_channels=1)
 
-    grid = epochs.lm(RHS='categorical + continuous')
+    grid = fitgrid.lm(epochs, RHS='categorical + continuous')
     grid.plot_betas()
 
 
 def test__smoke_plot_adj_rsquared():
 
     epochs = fitgrid.generate(n_channels=3, n_samples=10)
-    grid = epochs.lm(
+    grid = fitgrid.lm(
+        epochs,
         LHS=['channel0', 'channel1', 'channel2'],
         RHS='categorical + continuous',
     )
@@ -224,13 +230,14 @@ def test__smoke_plot_adj_rsquared():
 def test__save_load_grid_lm(tpath):
 
     epochs = fitgrid.generate(n_samples=2, n_channels=2)
-    grid = epochs.lm(RHS='categorical + continuous')
+    grid = fitgrid.lm(epochs, RHS='categorical + continuous')
 
     TEST_FILENAME = tpath / 'data' / str(uuid.uuid4())
     grid.save(TEST_FILENAME)
 
     loaded_grid = fitgrid.load_grid(TEST_FILENAME)
 
+    assert isinstance(loaded_grid, LMFitGrid)
     assert dir(grid) == dir(loaded_grid)
     assert grid.params.equals(loaded_grid.params)
 
@@ -240,13 +247,14 @@ def test__save_load_grid_lm(tpath):
 def test__save_load_grid_lmer(tpath):
 
     epochs = fitgrid.generate(n_samples=2, n_channels=1)
-    grid = epochs.lmer(RHS='continuous + (continuous | categorical)')
+    grid = fitgrid.lmer(epochs, RHS='continuous + (continuous | categorical)')
 
     TEST_FILENAME = str(tpath / 'data' / str(uuid.uuid4()))
     grid.save(TEST_FILENAME)
 
     loaded_grid = fitgrid.load_grid(TEST_FILENAME)
 
+    assert isinstance(loaded_grid, LMERFitGrid)
     assert dir(grid) == dir(loaded_grid)
     assert grid.coefs.equals(loaded_grid.coefs)
 

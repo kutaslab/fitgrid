@@ -1,7 +1,12 @@
 import pandas as pd
 import pickle
+import statsmodels
+from statsmodels.regression.linear_model import (
+    RegressionResults,
+    RegressionResultsWrapper,
+)
 from .epochs import Epochs
-from .fitgrid import FitGrid
+from .fitgrid import FitGrid, LMFitGrid, LMERFitGrid
 from .errors import FitGridError
 
 
@@ -81,7 +86,16 @@ def load_grid(filename):
         loaded FitGrid object
     """
 
+    from pymer4 import Lmer
+
     with open(filename, 'rb') as file:
         _grid, _epoch_index = pickle.load(file)
 
-    return FitGrid(_grid, _epoch_index)
+    tester = _grid.iloc[0, 0]
+
+    if isinstance(tester, (RegressionResults, RegressionResultsWrapper)):
+        return LMFitGrid(_grid, _epoch_index)
+    elif isinstance(tester, Lmer):
+        return LMERFitGrid(_grid, _epoch_index)
+    else:
+        return FitGrid(_grid, _epoch_index)
