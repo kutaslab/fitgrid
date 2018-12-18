@@ -254,7 +254,8 @@ class FitGrid:
     def __repr__(self):
 
         samples, chans = self._grid.shape
-        return f'{samples} by {chans} FitGrid of type {type(self.tester)}.'
+        classname = self.__class__.__name__
+        return f'{samples} by {chans} {classname} of type {type(self.tester)}.'
 
     def save(self, filename):
         """Save FitGrid object to file (reload with ``fitgrid.load_grid``).

@@ -259,3 +259,17 @@ def test__save_load_grid_lmer(tpath):
     assert grid.coefs.equals(loaded_grid.coefs)
 
     os.remove(TEST_FILENAME)
+
+
+def test__correct_repr():
+
+    epochs = fitgrid.generate(n_samples=2, n_channels=1)
+    lm_grid = fitgrid.lm(epochs, RHS='continuous')
+    lmer_grid = fitgrid.lmer(
+        epochs, RHS='continuous + (continuous | categorical)'
+    )
+    regular_grid = lm_grid.get_influence()
+
+    assert 'LMFitGrid' in lm_grid.__repr__()
+    assert 'LMERFitGrid' in lmer_grid.__repr__()
+    assert ' FitGrid' in regular_grid.__repr__()
