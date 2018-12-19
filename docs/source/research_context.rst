@@ -99,7 +99,7 @@ Design
 storage of the data behind the scenes. The first loop above is now replaced
 with::
 
-    grid = epochs.lm(RHS='x + a')
+    grid = fitgrid.lm(epochs, RHS='x + a')
 
 and the second loop with::
 

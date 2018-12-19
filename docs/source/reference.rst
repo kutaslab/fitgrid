@@ -34,24 +34,32 @@ objects.
 
 Models and plotting.
 
-.. autofunction:: fitgrid.epochs.Epochs.run_model
-
-.. autofunction:: fitgrid.epochs.Epochs.lm
-
-.. autofunction:: fitgrid.epochs.Epochs.lmer
-
 .. autofunction:: fitgrid.epochs.Epochs.plot_averages
+
+=============
+Model running
+=============
+
+.. autofunction:: fitgrid.lm
+
+.. autofunction:: fitgrid.lmer
+
+.. autofunction:: fitgrid.run_model
 
 ===================
 ``FitGrid`` methods
 ===================
 
+.. autofunction:: fitgrid.fitgrid.FitGrid.save
+
+=====================
+``LMFitGrid`` methods
+=====================
+
 Plotting and statistics.
 
-.. autofunction:: fitgrid.fitgrid.FitGrid.influential_epochs
+.. autofunction:: fitgrid.fitgrid.LMFitGrid.influential_epochs
 
-.. autofunction:: fitgrid.fitgrid.FitGrid.plot_betas
+.. autofunction:: fitgrid.fitgrid.LMFitGrid.plot_betas
 
-.. autofunction:: fitgrid.fitgrid.FitGrid.plot_adj_rsquared
-
-.. autofunction:: fitgrid.fitgrid.FitGrid.save
+.. autofunction:: fitgrid.fitgrid.LMFitGrid.plot_adj_rsquared
