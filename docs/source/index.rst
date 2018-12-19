@@ -13,7 +13,7 @@ Here's a quick demo:
 
 2. Run a regression model, which creates a ``FitGrid``::
 
-    grid = epochs.lm(RHS='stimulus_magnitude + stimulus_type')
+    grid = fitgrid.lm(epochs, RHS='stimulus_magnitude + stimulus_type')
 
 3. Now all diagnostic and fit information is available as attributes. For
    example, the betas::

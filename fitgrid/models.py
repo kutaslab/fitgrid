@@ -145,8 +145,8 @@ def lm(epochs, LHS=None, RHS=None, parallel=False, n_cores=4, eval_env=4):
 
     Returns
     -------
-    grid : FitGrid
-        FitGrid object containing results of the regression
+    grid : LMFitGrid
+        LMFitGrid object containing the results of the regression
 
     """
 
@@ -251,8 +251,8 @@ def lmer(
 
     Returns
     -------
-    grid : FitGrid
-        FitGrid object containing results of lmer fitting
+    grid : LMERFitGrid
+        LMERFitGrid object containing the results of lmer fitting
     """
 
     if LHS is None:
