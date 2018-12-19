@@ -76,27 +76,27 @@ each timepoint only unique ``EPOCH_ID`` values are allowed.
 
 As of now, linear regression (via ``statsmodels``' ``ols``) and linear mixed
 models (via ``lme4``'s ``lmer``) are available. For example, to run linear
-regression on the epochs, use the :code:`lm` method::
+regression on the epochs, use the :code:`lm` function::
 
-    grid = epochs.lm(RHS='continuous + categorical')
+    grid = fitgrid.lm(epochs, RHS='continuous + categorical')
 
-:code:`epochs.lm` runs linear regression for each channel, with the channel
+:code:`fitgrid.lm` runs linear regression for each channel, with the channel
 data as the left hand side, and the right hand side given by the Patsy/R style
 formula passed in using the :code:`RHS` parameter.
 
-Similarly, to run `lmer`, use the :code:`lmer` method::
+Similarly, to run `lmer`, use the :code:`lmer` function::
 
-    grid = epochs.lmer(RHS='continuous + (continuous | categorical)')
+    grid = fitgrid.lmer(epochs, RHS='continuous + (continuous | categorical)')
 
 With lmer especially, it might be useful to run your model with multiple
 processes to speed it up. This can be achieved by setting ``parallel`` to
 ``True`` and ``n_cores`` to the desired value (defaults to 4) as follows::
 
-    grid = epochs.lmer(RHS='continuous + (continuous | categorical)', parallel=True)
+    grid = fitgrid.lmer(epochs, RHS='continuous + (continuous | categorical)', parallel=True)
 
 or::
 
-    grid = epochs.lm(RHS='continuous + categorical', parallel=True, n_cores=8)
+    grid = fitgrid.lm(epochs, RHS='continuous + categorical', parallel=True, n_cores=8)
 
 .. note::
 
@@ -105,7 +105,8 @@ or::
     want to run the model on a specific set of channels, you need pass the
     ``LHS`` parameter::
 
-        grid = epochs.lm(
+        grid = fitgrid.lm(
+            epochs,
             LHS=['channel0', 'channel1'],
             RHS='continuous + categorical'
         )
