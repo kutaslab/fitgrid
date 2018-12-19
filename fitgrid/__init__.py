@@ -1,6 +1,6 @@
 from .fake_data import generate
 from .io import epochs_from_hdf, epochs_from_dataframe, load_grid
-from .models import lm, lmer
+from .models import run_model, lm, lmer
 
 #: default epoch identifier
 EPOCH_ID = 'Epoch_idx'
