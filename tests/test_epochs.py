@@ -6,10 +6,6 @@ from fitgrid import fake_data
 from fitgrid.errors import FitGridError
 from fitgrid.epochs import Epochs
 
-import matplotlib
-
-matplotlib.use('Agg')
-
 
 def test_epochs_unequal_snapshots():
 

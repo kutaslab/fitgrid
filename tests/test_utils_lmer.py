@@ -1,9 +1,7 @@
 import pytest
 from pathlib import Path
+import numpy as np
 import pandas as pd
-import matplotlib
-
-matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 from .context import fitgrid, tpath
 from fitgrid.utils import lmer as fgu
@@ -141,3 +139,28 @@ def test_plot_lmer_rERPs(tpath, LHS):
         for f in fs:
             assert isinstance(f, plt.Figure)
             # plt.show(f)
+
+
+def test_get_dfbetas(tpath):
+
+    # the expected DFBETAS dataset was computed using the following code:
+    """
+    library(influence.ME)
+    dat <- read.csv('epochs_to_test_dfbetas.csv')
+    model <- lmer(channel0 ~ continuous + (continuous | categorical), data=dat)
+    estex <- influence(model, 'categorical')
+    write.csv(dfbetas(estex), 'dfbetas_test_values.csv')
+    """
+    TEST_EPOCHS = Path.joinpath(tpath, 'data', 'epochs_to_test_dfbetas.csv')
+    TEST_DFBETAS = Path.joinpath(tpath, 'data', 'dfbetas_test_values.csv')
+
+    expected = pd.read_csv(TEST_DFBETAS, index_col=0).T
+
+    table = pd.read_csv(TEST_EPOCHS).set_index(['Epoch_idx', 'Time'])
+    epochs = fitgrid.epochs_from_dataframe(table, channels=['channel0'])
+    dfbetas = fitgrid.utils.lmer.get_dfbetas(
+        epochs, 'categorical', RHS='continuous + (continuous | categorical)'
+    )
+    actual = dfbetas.loc[0, 'channel0'].unstack().astype(float)
+
+    assert np.isclose(actual, expected).all()

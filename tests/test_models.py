@@ -4,9 +4,6 @@ from statsmodels.formula.api import ols
 from .context import fitgrid
 from fitgrid.errors import FitGridError
 from fitgrid.fitgrid import LMFitGrid, LMERFitGrid
-import matplotlib
-
-matplotlib.use('Agg')
 
 
 def test_epochs_lm_bad_inputs():

@@ -7,9 +7,6 @@ from .context import fitgrid, tpath
 from fitgrid.errors import FitGridError
 from fitgrid.fitgrid import FitGrid, LMFitGrid, LMERFitGrid
 from fitgrid import tools
-import matplotlib
-
-matplotlib.use('Agg')
 
 
 def test__correct_channels_in_fitgrid():
