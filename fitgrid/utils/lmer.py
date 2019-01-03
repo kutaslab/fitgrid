@@ -1,3 +1,4 @@
+import functools
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
@@ -374,3 +375,61 @@ def plot_lmer_rERPs(LHS, lmer_coefs, alpha=0.05):
             ax_coef[idx].set_title(f'{col} {coef}: {formula}')
         figs.append(f)
     return figs
+
+
+def get_dfbetas(epochs, factor, **kwargs):
+    """Fit lmers leaving out factor levels one by one, compute DBETAS.
+
+    Parameters
+    ----------
+    epochs : Epochs
+        Epochs object
+    factor : str
+        column name of the factor of interest
+
+    Returns
+    -------
+    dfbetas : pandas.DataFrame
+        dataframe containing DFBETAS values
+    """
+
+    from fitgrid import EPOCH_ID, TIME
+
+    # get the factor levels
+    table = epochs.table.reset_index().set_index([EPOCH_ID, TIME])
+    levels = table[factor].unique()
+
+    # produce epochs tables with each level left out
+    looo_epochs = (
+        fitgrid.epochs_from_dataframe(
+            table[table[factor] != level], channels=epochs.channels
+        )
+        for level in levels
+    )
+
+    # fit lmer on these epochs
+    fitter = functools.partial(fitgrid.lmer, **kwargs)
+    grids = map(fitter, looo_epochs)
+    coefs = (grid.coefs for grid in grids)
+
+    # get coefficient estimates and se from leave one out fits
+    looo_coefs = pd.concat(coefs, keys=levels, axis=1)
+    looo_estimates = looo_coefs.loc[pd.IndexSlice[:, :, 'Estimate'], :]
+    looo_se = looo_coefs.loc[pd.IndexSlice[:, :, 'SE'], :]
+
+    # get coefficient estimates from regular fit (all levels included)
+    all_levels_coefs = fitgrid.lmer(epochs, **kwargs).coefs
+    all_levels_estimates = all_levels_coefs.loc[
+        pd.IndexSlice[:, :, 'Estimate'], :
+    ]
+
+    # drop outer level of index for convenience
+    for df in (looo_estimates, looo_se, all_levels_estimates):
+        df.index = df.index.droplevel(level=-1)
+
+    # (all_levels_estimate - level_excluded_estimate) / level_excluded_se
+    dfbetas = all_levels_estimates.sub(looo_estimates, level=1).div(
+        looo_se, level=1
+    )
+
+    return dfbetas.stack(level=0)
