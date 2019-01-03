@@ -1,9 +1,6 @@
 import pytest
 from pathlib import Path
 import pandas as pd
-import matplotlib
-
-matplotlib.use('Agg')
 from matplotlib import pyplot as plt
 from .context import fitgrid, tpath
 from fitgrid.utils import lmer as fgu
