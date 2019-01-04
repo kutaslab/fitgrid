@@ -63,3 +63,20 @@ Plotting and statistics.
 .. autofunction:: fitgrid.fitgrid.LMFitGrid.plot_betas
 
 .. autofunction:: fitgrid.fitgrid.LMFitGrid.plot_adj_rsquared
+
+
+.. _model-diagnostic-utilities:
+
+==========================
+Model diagnostic utilities
+==========================
+
+.. autofunction:: fitgrid.utils.lmer.fit_lmers
+
+.. autofunction:: fitgrid.utils.lmer.get_lmer_AICs
+
+.. autofunction:: fitgrid.utils.lmer.plot_lmer_AICs
+
+.. autofunction:: fitgrid.utils.lmer.plot_lmer_rERPs
+
+.. autofunction:: fitgrid.utils.lmer.get_lmer_dfbetas
