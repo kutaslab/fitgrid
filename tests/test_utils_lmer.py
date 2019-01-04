@@ -141,7 +141,7 @@ def test_plot_lmer_rERPs(tpath, LHS):
             # plt.show(f)
 
 
-def test_get_dfbetas(tpath):
+def test_get_lmer_dfbetas(tpath):
 
     # the expected DFBETAS dataset was computed using the following code:
     """
@@ -158,7 +158,7 @@ def test_get_dfbetas(tpath):
 
     table = pd.read_csv(TEST_EPOCHS).set_index(['Epoch_idx', 'Time'])
     epochs = fitgrid.epochs_from_dataframe(table, channels=['channel0'])
-    dfbetas = fitgrid.utils.lmer.get_dfbetas(
+    dfbetas = fitgrid.utils.lmer.get_lmer_dfbetas(
         epochs, 'categorical', RHS='continuous + (continuous | categorical)'
     )
     actual = dfbetas.loc[0, 'channel0'].unstack().astype(float)
