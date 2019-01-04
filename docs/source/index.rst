@@ -30,4 +30,5 @@ Here's a quick demo:
     research_context
     installation
     tutorial
+    details
     reference
