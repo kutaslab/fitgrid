@@ -28,15 +28,17 @@ def fit_lmers(fg_epochs, LHS, RHSs, parallel=True, n_cores=4, save_as=None):
 
     Examples
     --------
+    ::
 
-    LHS = ['MiPf', 'MiCe', 'MiPa', 'MiOc', 'cproi']
-    LHS = ['cproi']
+        LHS = ['MiPf', 'MiCe', 'MiPa', 'MiOc', 'cproi']
+        LHS = ['cproi']
 
-    RHSs = [
-      'a_cloze_c + (a_cloze_c | sub_id) + (a_cloze_c | m_item_id)',
-      'a_cloze_c + (a_cloze_c | sub_id) + (1 | m_item_id)',
-      'a_cloze_c + (1 | sub_id) + (a_cloze | m_item_id)',
-      'a_cloze_c + (1 | sub_id) + (1 | m_item_id)',
+        RHSs = [
+            'a_cloze_c + (a_cloze_c | sub_id) + (a_cloze_c | m_item_id)',
+            'a_cloze_c + (a_cloze_c | sub_id) + (1 | m_item_id)',
+            'a_cloze_c + (1 | sub_id) + (a_cloze | m_item_id)',
+            'a_cloze_c + (1 | sub_id) + (1 | m_item_id)'
+        ]
 
     """
 
