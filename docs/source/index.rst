@@ -28,5 +28,7 @@ Here's a quick demo:
     :hidden:
 
     research_context
+    installation
     tutorial
+    details
     reference

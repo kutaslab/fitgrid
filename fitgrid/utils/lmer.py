@@ -28,15 +28,17 @@ def fit_lmers(fg_epochs, LHS, RHSs, parallel=True, n_cores=4, save_as=None):
 
     Examples
     --------
+    ::
 
-    LHS = ['MiPf', 'MiCe', 'MiPa', 'MiOc', 'cproi']
-    LHS = ['cproi']
+        LHS = ['MiPf', 'MiCe', 'MiPa', 'MiOc', 'cproi']
+        LHS = ['cproi']
 
-    RHSs = [
-      'a_cloze_c + (a_cloze_c | sub_id) + (a_cloze_c | m_item_id)',
-      'a_cloze_c + (a_cloze_c | sub_id) + (1 | m_item_id)',
-      'a_cloze_c + (1 | sub_id) + (a_cloze | m_item_id)',
-      'a_cloze_c + (1 | sub_id) + (1 | m_item_id)',
+        RHSs = [
+            'a_cloze_c + (a_cloze_c | sub_id) + (a_cloze_c | m_item_id)',
+            'a_cloze_c + (a_cloze_c | sub_id) + (1 | m_item_id)',
+            'a_cloze_c + (1 | sub_id) + (a_cloze | m_item_id)',
+            'a_cloze_c + (1 | sub_id) + (1 | m_item_id)'
+        ]
 
     """
 
@@ -377,8 +379,8 @@ def plot_lmer_rERPs(LHS, lmer_coefs, alpha=0.05):
     return figs
 
 
-def get_dfbetas(epochs, factor, **kwargs):
-    """Fit lmers leaving out factor levels one by one, compute DBETAS.
+def get_lmer_dfbetas(epochs, factor, **kwargs):
+    r"""Fit lmers leaving out factor levels one by one, compute DBETAS.
 
     Parameters
     ----------
@@ -386,11 +388,40 @@ def get_dfbetas(epochs, factor, **kwargs):
         Epochs object
     factor : str
         column name of the factor of interest
+    **kwargs
+        keyword arguments to pass on to ``fitgrid.lmer``, like ``RHS``
 
     Returns
     -------
     dfbetas : pandas.DataFrame
         dataframe containing DFBETAS values
+
+    Examples
+    --------
+    Example calculation showing how to pass in model fitting parameters::
+
+        dfbetas = fitgrid.utils.lmer.get_lmer_dfbetas(
+            epochs=epochs,
+            factor='subject_id',
+            RHS='x + (x|a)
+        )
+
+    Notes
+    -----
+    DFBETAS is computed according to the following formula [1]_:
+
+    .. math::
+
+       DFBETAS_{ij} = \frac{\hat{\gamma}_i - \hat{\gamma}_{i(-j)}}{se\left(\hat{\gamma}_{i(-j)}\right)}
+
+    for parameter :math:`i` and level :math:`j` of ``factor``.
+
+    References
+    ----------
+    .. [1] Nieuwenhuis, R., te Grotenhuis, M., & Pelzer, B. (2012).
+       influence.ME: tools for detecting influential data in mixed effects models.
+       R journal, 4(2), 38-47.
+
     """
 
     from fitgrid import EPOCH_ID, TIME
