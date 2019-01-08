@@ -27,5 +27,5 @@ setup(
     url='https://github.com/kutaslab/fitgrid',
     license='BSD-3-Clause',
     packages=find_packages(exclude=['tests']),
-    install_requires=['patsy', 'statsmodels', 'tqdm', 'tables'],
+    install_requires=['patsy', 'statsmodels', 'scipy', 'tqdm', 'tables'],
 )
