@@ -182,3 +182,63 @@ class single_threaded:
                     f'to {self.old_n_threads} threads (previous value).'
                 )
                 raise RuntimeError(message)
+
+
+def design_matrix_is_constant(df, columns, time):
+    """Check that values in columns of df do not change within any epoch.
+
+    See Notes for more details.
+
+    Parameters
+    ----------
+    df : pandas.DataFrame
+        dataframe to check
+    columns : list of str
+        list of column names to be checked
+    time : str
+        name of the time column
+
+    Returns
+    -------
+    result : bool
+        True if values in specified columns don't change, False otherwise
+
+
+    Notes
+    -----
+    We check that from timepoint to timepoint, each epoch has the same value in
+    a given column:
+
+                epoch1
+        ==============
+             A |    B
+        ==============
+             1      x
+             1      x
+             1      x
+             1      x
+             1      x
+
+                epoch2
+        ==============
+             A |    B
+        ==============
+             2      y
+             2      y
+             2      y
+             2      y
+             2      y
+
+    This is helpful when performing linear regression on an epochs table where
+    the predictors vary with epochs (as they are expected to) but stay constant
+    from sample to sample, because we can do our modeling much faster.
+    """
+    gb = df.groupby(time)
+    _, group = next(iter(gb))  # first group
+
+    df_columns_values = df[columns].values
+    group_columns_values = group[columns].values
+
+    expected_df_values = np.repeat(group_columns_values, len(gb), axis=0)
+
+    return (df_columns_values == expected_df_values).all()
