@@ -60,7 +60,9 @@ class Epochs:
             raise FitGridError('Duplicate column names not allowed.')
 
         # make our own copy so we are immune to modification to original table
-        table = epochs_table.copy().reset_index().set_index(EPOCH_ID)
+        table = (
+            epochs_table.copy().reset_index().set_index(EPOCH_ID).sort_index()
+        )
         assert table.index.names == [EPOCH_ID]
 
         snapshots = table.groupby(TIME)
