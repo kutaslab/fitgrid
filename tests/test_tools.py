@@ -87,3 +87,109 @@ def test_single_threaded_change_before():
         assert blas.get_n_threads() == 1
 
     assert blas.get_n_threads() == BEFORE
+
+
+def test_design_matrix_is_constant():
+
+    df = pd.DataFrame(
+        dict(
+            epoch_id=[
+                0,  # epoch 0
+                0,
+                0,
+                0,
+                1,  # epoch 1
+                1,
+                1,
+                1,
+                2,  # epoch 2
+                2,
+                2,
+                2,
+            ],
+            time=[
+                0,  # epoch 0
+                1,
+                2,
+                3,
+                0,  # epoch 1
+                1,
+                2,
+                3,
+                0,  # epoch 2
+                1,
+                2,
+                3,
+            ],
+            b=[
+                'a',  # epoch 0
+                'a',
+                'a',
+                'a',
+                'b',  # epoch 1
+                'b',
+                'b',
+                'b',
+                'c',  # epoch 2
+                'c',
+                'c',
+                'c',
+            ],
+            c=[
+                10,  # epoch 0
+                10,
+                10,
+                10,
+                20,  # epoch 1
+                20,
+                20,
+                20,
+                30,  # epoch 2
+                30,
+                30,
+                30,
+            ],
+        )
+    ).set_index(['epoch_id', 'time'])
+
+    assert tools.design_matrix_is_constant(df, ['b', 'c'], 'time')
+
+    assert not tools.design_matrix_is_constant(
+        df.sample(frac=1), ['b', 'c'], 'time'
+    )
+
+    assert tools.design_matrix_is_constant(
+        df.sample(frac=1).sort_index(), ['b', 'c'], 'time'
+    )
+
+    df['c'] = [
+        0,  # epoch 0
+        1,
+        2,
+        3,
+        4,  # epoch 1
+        5,
+        6,
+        7,
+        8,  # epoch 2
+        9,
+        10,
+        11,
+    ]
+    assert not tools.design_matrix_is_constant(df, ['b', 'c'], 'time')
+
+    df['c'] = [
+        0,  # epoch 0
+        0,
+        0,
+        0,
+        1,  # epoch 1
+        1,
+        10000,
+        1,
+        2,  # epoch 2
+        2,
+        2,
+        2,
+    ]
+    assert not tools.design_matrix_is_constant(df, ['b', 'c'], 'time')
