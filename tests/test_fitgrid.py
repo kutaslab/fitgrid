@@ -270,3 +270,18 @@ def test__correct_repr():
     assert 'LMFitGrid' in lm_grid.__repr__()
     assert 'LMERFitGrid' in lmer_grid.__repr__()
     assert ' FitGrid' in regular_grid.__repr__()
+
+
+def test_dir():
+
+    epochs = fitgrid.generate(n_samples=2, n_channels=1)
+
+    lm_grid = fitgrid.lm(epochs, RHS='continuous')
+    for attr in dir(lm_grid):
+        assert hasattr(lm_grid, attr)
+
+    lmer_grid = fitgrid.lmer(
+        epochs, RHS='continuous + (continuous | categorical)'
+    )
+    for attr in dir(lmer_grid):
+        assert hasattr(lmer_grid, attr)

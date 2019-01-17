@@ -247,9 +247,17 @@ class FitGrid:
 
     def __dir__(self):
 
-        # this exposes the fit object method but hides dunder methods, since
-        # these likely overlap with the grid's own dunder methods
-        return [item for item in dir(self.tester) if not item.startswith('__')]
+        # the result of this call is what shows up for tab completion
+
+        # so we add the cell attributes:
+        cell_attrs = [
+            item for item in dir(self.tester) if not item.startswith('__')
+        ]
+
+        # and the attributes of the grid itself:
+        grid_attrs = [self.save.__name__]
+
+        return cell_attrs + grid_attrs
 
     def __repr__(self):
 
@@ -273,6 +281,15 @@ class FitGrid:
 
 
 class LMFitGrid(FitGrid):
+    def __dir__(self):
+
+        lmfitgrid_attrs = [
+            self.plot_betas.__name__,
+            self.plot_adj_rsquared.__name__,
+            self.influential_epochs.__name__,
+        ]
+        return super().__dir__() + lmfitgrid_attrs
+
     def plot_betas(self, legend_on_bottom=False):
         """Plot betas of the model, one plot per channel, overplotting betas.
 
