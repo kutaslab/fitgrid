@@ -72,6 +72,40 @@ def epochs_from_dataframe(dataframe, channels='default'):
     return Epochs(dataframe, channels)
 
 
+def epochs_from_feather(filename, channels='default'):
+    """Construct Epochs object from a Feather file containing an epochs table.
+
+    The file should contain columns with names defined by EPOCH_ID and TIME.
+
+    Parameters
+    ----------
+    filename : str
+        Feather file name
+    channels : list of str, optional, defaults to CHANNELS
+        list of string channel names
+
+    Returns
+    -------
+    epochs : Epochs
+        an Epochs object with the data
+    """
+
+    check_pandas_pyarrow_versions()
+
+    from . import EPOCH_ID, TIME
+
+    df = pd.read_feather(filename)
+
+    # time and epoch id present in columns, set index
+    if EPOCH_ID in df.columns and TIME in df.columns:
+        df.set_index([EPOCH_ID, TIME], inplace=True)
+        return Epochs(df, channels)
+
+    raise FitGridError(
+        f'Dataset has to contain {EPOCH_ID} and {TIME} as columns or indices.'
+    )
+
+
 def load_grid(filename):
     """Load a FitGrid object from file (created by running grid.save).
 
@@ -99,3 +133,36 @@ def load_grid(filename):
         return LMERFitGrid(_grid, _epoch_index)
     else:
         return FitGrid(_grid, _epoch_index)
+
+
+def check_pandas_pyarrow_versions():
+
+    import pyarrow
+    from pkg_resources import parse_version
+
+    PANDAS_LAST_INCOMPATIBLE_VERSION = parse_version('0.23.4')
+    PYARROW_LAST_INCOMPATIBLE_VERSION = parse_version('0.11.1')
+
+    pandas_version = parse_version(pd.__version__)
+    pyarrow_version = parse_version(pyarrow.__version__)
+
+    have_incompatible_version = False
+
+    msg = ''
+
+    if pandas_version <= PANDAS_LAST_INCOMPATIBLE_VERSION:
+        msg += (
+            'Need at least pandas 0.24.0 to read Feather, '
+            f'you have {str(pandas_version)}.\n'
+        )
+        have_incompatible_version = True
+
+    if pyarrow_version <= PYARROW_LAST_INCOMPATIBLE_VERSION:
+        msg += (
+            'Need at least pyarrow 0.12.0 to read Feather, '
+            f'you have {str(pyarrow_version)}.\n'
+        )
+        have_incompatible_version = True
+
+    if have_incompatible_version:
+        raise ImportError(msg)
