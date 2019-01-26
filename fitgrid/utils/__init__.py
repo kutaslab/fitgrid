@@ -1,1 +1,1 @@
-from . import lmer
+from . import lm, lmer
