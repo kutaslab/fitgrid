@@ -424,16 +424,19 @@ def get_lmer_dfbetas(epochs, factor, **kwargs):
 
     """
 
-    from fitgrid import EPOCH_ID, TIME
-
     # get the factor levels
-    table = epochs.table.reset_index().set_index([EPOCH_ID, TIME])
+    table = epochs.table.reset_index().set_index(
+        [epochs.epoch_id, epochs.time]
+    )
     levels = table[factor].unique()
 
     # produce epochs tables with each level left out
     looo_epochs = (
         fitgrid.epochs_from_dataframe(
-            table[table[factor] != level], channels=epochs.channels
+            table[table[factor] != level],
+            time=epochs.time,
+            epoch_id=epochs.epoch_id,
+            channels=epochs.channels,
         )
         for level in levels
     )

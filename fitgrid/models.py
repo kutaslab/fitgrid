@@ -89,12 +89,10 @@ def run_model(epochs, function, channels=None, parallel=False, n_cores=4):
     _grid = _run_model(
         epochs, function, channels=channels, parallel=parallel, n_cores=n_cores
     )
-    return FitGrid(_grid, epochs._epoch_index)
+    return FitGrid(_grid, epochs.epoch_index, epochs.time)
 
 
 def _run_model(epochs, function, channels=None, parallel=False, n_cores=4):
-
-    from . import TIME
 
     if channels is None:
         channels = epochs.channels
@@ -116,7 +114,7 @@ def _run_model(epochs, function, channels=None, parallel=False, n_cores=4):
         results = map(processor, groups)
 
     grid = pd.concat(results, axis=1).T
-    grid.index.name = TIME
+    grid.index.name = epochs.time
     return grid  # dataframe, not FitGrid
 
 
@@ -166,7 +164,7 @@ def lm(epochs, LHS=None, RHS=None, parallel=False, n_cores=4, eval_env=4):
         n_cores=n_cores,
     )
 
-    return LMFitGrid(_grid, epochs._epoch_index)
+    return LMFitGrid(_grid, epochs.epoch_index, epochs.time)
 
 
 def lmer_single(
@@ -275,4 +273,4 @@ def lmer(
         epochs, function, channels=LHS, parallel=parallel, n_cores=n_cores
     )
 
-    return LMERFitGrid(_grid, epochs._epoch_index)
+    return LMERFitGrid(_grid, epochs.epoch_index, epochs.time)

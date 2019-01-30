@@ -5,6 +5,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from .context import fitgrid, tpath
 from fitgrid.utils import lmer as fgu
+from fitgrid import defaults
 
 # pytest evaluates tpath to the local tests directory
 
@@ -106,7 +107,12 @@ def test_fit_lmers(tpath, epochs_f, interval, LHS, RHS):
 
     """
     epochs = get_epochs(tpath=tpath, epochs_f=epochs_f, interval=interval)
-    fg_epochs = fitgrid.epochs_from_dataframe(epochs)
+    fg_epochs = fitgrid.epochs_from_dataframe(
+        epochs,
+        time=defaults.TIME,
+        epoch_id=defaults.EPOCH_ID,
+        channels=defaults.CHANNELS,
+    )
     lmer_coefs = fgu.fit_lmers(fg_epochs, LHS, RHS, parallel=True, n_cores=2)
 
 
@@ -157,7 +163,9 @@ def test_get_lmer_dfbetas(tpath):
     expected = pd.read_csv(TEST_DFBETAS, index_col=0).T
 
     table = pd.read_csv(TEST_EPOCHS).set_index(['Epoch_idx', 'Time'])
-    epochs = fitgrid.epochs_from_dataframe(table, channels=['channel0'])
+    epochs = fitgrid.epochs_from_dataframe(
+        table, channels=['channel0'], time='Time', epoch_id='Epoch_idx'
+    )
     dfbetas = fitgrid.utils.lmer.get_lmer_dfbetas(
         epochs, 'categorical', RHS='continuous + (continuous | categorical)'
     )

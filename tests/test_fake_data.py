@@ -12,21 +12,28 @@ def test__generate():
         n_epochs=n_epochs,
         n_categories=n_categories,
         n_channels=n_channels,
+        time=fg.defaults.TIME,
+        epoch_id=fg.defaults.EPOCH_ID,
     )
 
     # check index columns
-    assert fg.EPOCH_ID, fg.TIME == table.index.names
+    assert fg.defaults.EPOCH_ID, fg.defaults.TIME == table.index.names
 
     # test general shape
     assert len(table) == n_samples * n_categories * n_epochs
 
     # test uniqueness within columns
-    assert len(table.index.unique(fg.TIME)) == n_samples
-    assert len(table.index.unique(fg.EPOCH_ID)) == n_epochs * n_categories
+    assert len(table.index.unique(fg.defaults.TIME)) == n_samples
+    assert (
+        len(table.index.unique(fg.defaults.EPOCH_ID))
+        == n_epochs * n_categories
+    )
     assert len(table['categorical'].unique()) == n_categories
 
     # test uniqueness of groups (multiple columns)
-    epochs_and_cat = table.groupby([fg.EPOCH_ID, 'categorical']).size()
+    epochs_and_cat = table.groupby(
+        [fg.defaults.EPOCH_ID, 'categorical']
+    ).size()
     assert len(epochs_and_cat) == n_epochs * n_categories
     assert (epochs_and_cat == n_samples).all()
 
@@ -34,7 +41,7 @@ def test__generate():
     categories = table.groupby('categorical')
     assert len(categories) == n_categories
     for i, category in categories:
-        assert len(category.index.unique(fg.EPOCH_ID)) == n_epochs
+        assert len(category.index.unique(fg.defaults.EPOCH_ID)) == n_epochs
 
     # test number of columns (2 predictors + n_channels)
     assert len(channels) == n_channels

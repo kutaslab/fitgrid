@@ -8,9 +8,10 @@ from statsmodels.regression.linear_model import (
 from .epochs import Epochs
 from .fitgrid import FitGrid, LMFitGrid, LMERFitGrid
 from .errors import FitGridError
+from . import defaults
 
 
-def epochs_from_hdf(hdf_filename, key=None, channels='default'):
+def epochs_from_hdf(hdf_filename, key, time, epoch_id, channels):
     """Construct Epochs object from an HDF5 file containing an epochs table.
 
     The HDF5 file should contain columns with names defined by EPOCH_ID and
@@ -33,25 +34,30 @@ def epochs_from_hdf(hdf_filename, key=None, channels='default'):
         an Epochs object with the data
     """
 
-    from . import EPOCH_ID, TIME
+    if None in (time, epoch_id, channels):
+        raise FitGridError(
+            'Please provide `time`, `epoch_id`, and `channels` parameters.'
+            ' You can use the defaults, for example:\n'
+            'time=fitgrid.defaults.TIME'
+        )
 
     df = pd.read_hdf(hdf_filename, key=key)
 
     # time and epoch id already present in index
-    if EPOCH_ID in df.index.names and TIME in df.index.names:
-        return Epochs(df, channels)
+    if epoch_id in df.index.names and time in df.index.names:
+        return Epochs(df, time=time, epoch_id=epoch_id, channels=channels)
 
     # time and epoch id present in columns, set index
-    if EPOCH_ID in df.columns and TIME in df.columns:
-        df.set_index([EPOCH_ID, TIME], inplace=True)
-        return Epochs(df, channels)
+    if epoch_id in df.columns and time in df.columns:
+        df.set_index([epoch_id, time], inplace=True)
+        return Epochs(df, time=time, epoch_id=epoch_id, channels=channels)
 
     raise FitGridError(
-        f'Dataset has to contain {EPOCH_ID} and {TIME} as columns or indices.'
+        f'Dataset has to contain {epoch_id} and {time} as columns or indices.'
     )
 
 
-def epochs_from_dataframe(dataframe, channels='default'):
+def epochs_from_dataframe(dataframe, time, epoch_id, channels):
     """Construct Epochs object from a Pandas DataFrame epochs table.
 
     The DataFrame should contain columns with names defined by EPOCH_ID and
@@ -69,10 +75,10 @@ def epochs_from_dataframe(dataframe, channels='default'):
     epochs : Epochs
         an Epochs object with the data
     """
-    return Epochs(dataframe, channels)
+    return Epochs(dataframe, time=time, epoch_id=epoch_id, channels=channels)
 
 
-def epochs_from_feather(filename, channels='default'):
+def epochs_from_feather(filename, time, epoch_id, channels):
     """Construct Epochs object from a Feather file containing an epochs table.
 
     The file should contain columns with names defined by EPOCH_ID and TIME.
@@ -92,17 +98,15 @@ def epochs_from_feather(filename, channels='default'):
 
     check_pandas_pyarrow_versions()
 
-    from . import EPOCH_ID, TIME
-
     df = pd.read_feather(filename)
 
     # time and epoch id present in columns, set index
-    if EPOCH_ID in df.columns and TIME in df.columns:
-        df.set_index([EPOCH_ID, TIME], inplace=True)
-        return Epochs(df, channels)
+    if epoch_id in df.columns and time in df.columns:
+        df.set_index([epoch_id, time], inplace=True)
+        return Epochs(df, time=time, epoch_id=epoch_id, channels=channels)
 
     raise FitGridError(
-        f'Dataset has to contain {EPOCH_ID} and {TIME} as columns or indices.'
+        f'Dataset has to contain {epoch_id} and {time} as columns or indices.'
     )
 
 
@@ -123,16 +127,16 @@ def load_grid(filename):
     from pymer4 import Lmer
 
     with open(filename, 'rb') as file:
-        _grid, _epoch_index = pickle.load(file)
+        _grid, epoch_index, time = pickle.load(file)
 
     tester = _grid.iloc[0, 0]
 
     if isinstance(tester, (RegressionResults, RegressionResultsWrapper)):
-        return LMFitGrid(_grid, _epoch_index)
+        return LMFitGrid(_grid, epoch_index, time)
     elif isinstance(tester, Lmer):
-        return LMERFitGrid(_grid, _epoch_index)
+        return LMERFitGrid(_grid, epoch_index, time)
     else:
-        return FitGrid(_grid, _epoch_index)
+        return FitGrid(_grid, epoch_index, time)
 
 
 def check_pandas_pyarrow_versions():

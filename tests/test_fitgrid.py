@@ -6,7 +6,7 @@ import os
 from .context import fitgrid, tpath
 from fitgrid.errors import FitGridError
 from fitgrid.fitgrid import FitGrid, LMFitGrid, LMERFitGrid
-from fitgrid import tools
+from fitgrid import tools, defaults
 
 
 def test__correct_channels_in_fitgrid():
@@ -64,13 +64,20 @@ def test__epoch_id_substitution():
     See github.com/kutaslab/fitgrid/issues/25.
     """
 
-    from fitgrid import EPOCH_ID
-
     # create data with unusual index (shifted by 5)
-    data, channels = fitgrid.fake_data._generate(10, 100, 2, 32)
+    data, channels = fitgrid.fake_data._generate(
+        n_epochs=10,
+        n_samples=100,
+        n_categories=2,
+        n_channels=32,
+        time=defaults.TIME,
+        epoch_id=defaults.EPOCH_ID,
+    )
     unusual_index = np.arange(20) + 5
-    data.index.set_levels(unusual_index, level=EPOCH_ID, inplace=True)
-    epochs = fitgrid.epochs_from_dataframe(data, channels)
+    data.index.set_levels(unusual_index, level=defaults.EPOCH_ID, inplace=True)
+    epochs = fitgrid.epochs_from_dataframe(
+        data, time=defaults.TIME, epoch_id=defaults.EPOCH_ID, channels=channels
+    )
 
     # remember epoch_index
     epoch_index = tools.get_first_group(epochs._snapshots).index
@@ -84,7 +91,7 @@ def test__epoch_id_substitution():
     resid_pearson = grid.resid_pearson
     assert resid_pearson.index.levels[1].equals(epoch_index)
     assert (resid_pearson.index.levels[1] == epoch_index).all()
-    assert resid_pearson.index.names[1] == EPOCH_ID
+    assert resid_pearson.index.names[1] == defaults.EPOCH_ID
 
     # now we retrieve cooks_d and expect that EPOCH_ID is correct and named
     influence = grid.get_influence()
@@ -93,13 +100,13 @@ def test__epoch_id_substitution():
     cooks_d = influence.cooks_distance
     assert cooks_d.index.levels[2].equals(epoch_index)
     assert (cooks_d.index.levels[2] == epoch_index).all()
-    assert cooks_d.index.names[2] == EPOCH_ID
+    assert cooks_d.index.names[2] == defaults.EPOCH_ID
 
     # one additional level
     cov_ratio = influence.cov_ratio
     assert cov_ratio.index.levels[1].equals(epoch_index)
     assert (cov_ratio.index.levels[1] == epoch_index).all()
-    assert cov_ratio.index.names[1] == EPOCH_ID
+    assert cov_ratio.index.names[1] == defaults.EPOCH_ID
 
 
 def test__slicing():
@@ -166,7 +173,7 @@ def test_grid_with_duplicate_channels():
         [grid._grid, grid._grid['channel0']], axis=1
     )
     with pytest.raises(FitGridError) as error:
-        FitGrid(_grid_with_duplicate_channels, grid._epoch_index)
+        FitGrid(_grid_with_duplicate_channels, grid.epoch_index, grid.time)
 
     assert "Duplicate column names" in str(error.value)
 
