@@ -14,8 +14,8 @@ from . import defaults
 def epochs_from_hdf(hdf_filename, key, time, epoch_id, channels):
     """Construct Epochs object from an HDF5 file containing an epochs table.
 
-    The HDF5 file should contain columns with names defined by EPOCH_ID and
-    TIME either as index columns or as regular columns. This is added as a
+    The HDF5 file should contain columns with names defined by `epoch_id` and
+    `time` either as index columns or as regular columns. This is added as a
     convenience, in general, input epochs tables should contain these columns
     in the index.
 
@@ -25,7 +25,11 @@ def epochs_from_hdf(hdf_filename, key, time, epoch_id, channels):
         HDF5 file name
     key : str
         group identifier for the dataset when HDF5 file contains more than one
-    channels : list of str, optional, defaults to CHANNELS
+    time : str
+        time column name
+    epoch_id : str
+        epoch identifier column name
+    channels : list of str
         list of string channel names
 
     Returns
@@ -60,14 +64,18 @@ def epochs_from_hdf(hdf_filename, key, time, epoch_id, channels):
 def epochs_from_dataframe(dataframe, time, epoch_id, channels):
     """Construct Epochs object from a Pandas DataFrame epochs table.
 
-    The DataFrame should contain columns with names defined by EPOCH_ID and
-    TIME as index columns.
+    The DataFrame should contain columns with names defined by epoch_id and
+    time as index columns.
 
     Parameters
     ----------
     dataframe : pandas DataFrame
         a pandas DataFrame object
-    channels : list of str, optional, defaults to CHANNELS
+    time : str
+        time column name
+    epoch_id : str
+        epoch identifier column name
+    channels : list of str
         list of string channel names
 
     Returns
@@ -81,13 +89,17 @@ def epochs_from_dataframe(dataframe, time, epoch_id, channels):
 def epochs_from_feather(filename, time, epoch_id, channels):
     """Construct Epochs object from a Feather file containing an epochs table.
 
-    The file should contain columns with names defined by EPOCH_ID and TIME.
+    The file should contain columns with names defined by epoch_id and time.
 
     Parameters
     ----------
     filename : str
         Feather file name
-    channels : list of str, optional, defaults to CHANNELS
+    time : str
+        time column name
+    epoch_id : str
+        epoch identifier column name
+    channels : list of str
         list of string channel names
 
     Returns

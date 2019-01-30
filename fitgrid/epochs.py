@@ -12,6 +12,10 @@ class Epochs:
     ----------
     epochs_table : pandas DataFrame
         long form dataframe containing epochs with equal indices
+    time : str
+        time column name
+    epoch_id : str
+        epoch identifier column name
     channels : list of str
         list of channel names to serve as dependent variables
 
@@ -133,7 +137,7 @@ class Epochs:
 
         Parameters
         ----------
-        channels : list of str, optional, default CHANNELS
+        channels : list of str, optional, defaults to all channels
             list of channel names to plot the averages
         negative_up : bool, optional, default True
             by convention, ERPs are plotted negative voltage up

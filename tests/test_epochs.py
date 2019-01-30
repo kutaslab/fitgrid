@@ -109,7 +109,7 @@ def test_multiple_indices_end_up_EPOCH_ID():
         epoch_id=defaults.EPOCH_ID,
         channels=channels,
     )
-    # internal table has EPOCH_ID in index
+    # internal table has epoch_id in index
     assert epochs.table.index.names == [defaults.EPOCH_ID]
     # input table is not altered
     assert epochs_table.index.names == [

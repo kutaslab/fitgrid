@@ -12,7 +12,7 @@ class FitGrid:
     """Hold rERP fit objects.
 
     FitGrid should not be created directly, the right way to build it is to
-    start with an Epochs object and call a method like `.lm`.
+    start with an Epochs object and pass it to a function like `fitgrid.lm`.
 
     Parameters
     ----------
@@ -20,6 +20,8 @@ class FitGrid:
         Pandas DataFrame of fit objects
     epochs_index : pandas Index
         index containing epoch ids
+    time : str
+        time column name
 
     Returns
     -------
@@ -204,7 +206,7 @@ class FitGrid:
         if isinstance(tester, pd.Series) or isinstance(tester, pd.DataFrame):
             # want single index level
             # can get more if original DataFrame had a multiindex
-            # in Epochs we ensure that only EPOCH_ID is in the index for
+            # in Epochs we ensure that only epoch_id is in the index for
             # groupby
             if tester.index.nlevels > 1:
                 raise NotImplementedError(
@@ -400,7 +402,7 @@ class LMFitGrid(FitGrid):
         Returns
         -------
         top_epochs : pandas DataFrame
-            dataframe with EPOCH_ID as index and aggregated Cook's-D as values
+            dataframe with epoch_id as index and aggregated Cook's-D as values
 
         Notes
         -----

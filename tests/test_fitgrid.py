@@ -60,7 +60,7 @@ def test__residuals_have_long_form_and_correct_index():
 
 
 def test__epoch_id_substitution():
-    """When we get a numpy array/tuple/list, we try to use EPOCH_ID index.
+    """When we get a numpy array/tuple/list, we try to use the epoch_id index.
     See github.com/kutaslab/fitgrid/issues/25.
     """
 
@@ -93,7 +93,7 @@ def test__epoch_id_substitution():
     assert (resid_pearson.index.levels[1] == epoch_index).all()
     assert resid_pearson.index.names[1] == defaults.EPOCH_ID
 
-    # now we retrieve cooks_d and expect that EPOCH_ID is correct and named
+    # now we retrieve cooks_d and expect that epoch_id is correct and named
     influence = grid.get_influence()
 
     # two additional levels
