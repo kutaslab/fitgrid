@@ -8,110 +8,6 @@ from .errors import FitGridError
 from . import tools
 
 
-def add_epoch_index(temp, epoch_index):
-    """We assume that temp is in long form, the columns are channels, and the
-    first index level is TIME."""
-
-    from . import TIME
-
-    # first index level must be TIME
-    assert temp.index.names[0] == TIME
-
-    # temp should be long form, columns have single level (channels hopefully)
-    assert not isinstance(temp.columns, pd.core.index.MultiIndex)
-
-    # we can only handle 2- or 3-dimensional
-    assert temp.index.nlevels in (2, 3)
-
-    for i in range(1, temp.index.nlevels):
-        level = temp.index.levels[i]
-        # if a level looks like it was automatically created by Pandas,
-        # we replace it with the epoch_index
-        if (
-            isinstance(level, pd.RangeIndex)
-            and len(level) == len(epoch_index)
-            and level._start == 0
-            and level._step == 1
-            and level._stop == len(epoch_index)
-        ):
-            temp.index.set_levels(epoch_index, level=i, inplace=True)
-            temp.index.rename(epoch_index.name, level=i, inplace=True)
-
-    return temp
-
-
-def expand_series_or_df(temp):
-    """Expand a DataFrame that has Series or DataFrames for values."""
-
-    columns = (
-        pd.concat(temp[channel].tolist(), keys=temp.index) for channel in temp
-    )
-    # concatenate columns, channel names are top level columns indices
-    result = pd.concat(columns, axis=1, keys=temp.columns)
-
-    # stack to achieve long form if columns have multiple levels
-    if isinstance(result.columns, pd.core.indexes.multi.MultiIndex):
-        return result.stack()
-    return result
-
-
-def _expand(temp, epoch_index):
-    """Expand the values in the grid if possible, return frame or grid."""
-
-    tester = temp.iloc[0, 0]
-
-    # no processing needed
-    if np.isscalar(tester):
-        return temp
-
-    # familiar types, expand them
-    if isinstance(tester, pd.Series) or isinstance(tester, pd.DataFrame):
-        # want single index level
-        # can get more if original DataFrame had a multiindex
-        # in Epochs we ensure that only EPOCH_ID is in the index for groupby
-        if tester.index.nlevels > 1:
-            raise NotImplementedError(
-                f'index should have one level, have {tester.index.nlevels} '
-                f'instead: {tester.index.names}'
-            )
-        return expand_series_or_df(temp)
-
-    # array-like, try converting to array and then Series/DataFrame
-    if isinstance(tester, tuple) or isinstance(tester, list):
-        array_form = np.array(tester)
-        if array_form.ndim == 1:
-            temp = temp.applymap(lambda x: pd.Series(np.array(x)))
-        elif array_form.ndim == 2:
-            temp = temp.applymap(lambda x: pd.DataFrame(np.array(x)))
-        else:
-            raise NotImplementedError(
-                'Cannot use elements with dim > 2,'
-                f'element has ndim = {array_form.ndim}.'
-            )
-        temp_expanded = expand_series_or_df(temp)
-        temp_epoch_index = add_epoch_index(temp_expanded, epoch_index)
-        return temp_epoch_index
-
-    # array, try converting to Series/DataFrame
-    if isinstance(tester, np.ndarray):
-        if tester.ndim == 1:
-            temp = temp.applymap(lambda x: pd.Series(x))
-        elif tester.ndim == 2:
-            temp = temp.applymap(lambda x: pd.DataFrame(x))
-        else:
-            raise NotImplementedError(
-                'Cannot use elements with dim > 2,'
-                f'element has ndim = {tester.ndim}.'
-            )
-        temp_expanded = expand_series_or_df(temp)
-        temp_epoch_index = add_epoch_index(temp_expanded, epoch_index)
-        return temp_epoch_index
-
-    # catchall for all types we don't handle explicitly
-    # statsmodels objects, dicts, methods all go here
-    return FitGrid(temp, epoch_index)
-
-
 class FitGrid:
     """Hold rERP fit objects.
 
@@ -153,7 +49,7 @@ class FitGrid:
     throws a warning and should in future be replaced with a KeyError.
     """
 
-    def __init__(self, _grid, epoch_index):
+    def __init__(self, _grid, epoch_index, time):
 
         # check no duplicate column names
         names = list(_grid.columns)
@@ -161,7 +57,8 @@ class FitGrid:
         if deduped_names != names:
             raise FitGridError('Duplicate column names not allowed.')
         self._grid = _grid
-        self._epoch_index = epoch_index
+        self.epoch_index = epoch_index
+        self.time = time
         self.tester = _grid.iloc[0, 0]
         self.channels = list(_grid.columns)
 
@@ -212,7 +109,7 @@ class FitGrid:
         time = check_slicer_component(time)
         channels = check_slicer_component(channels)
         subgrid = self._grid.loc[time, channels].copy()
-        return self.__class__(subgrid, self._epoch_index)
+        return self.__class__(subgrid, self.epoch_index, self.time)
 
     @lru_cache()
     def __getattr__(self, name):
@@ -227,7 +124,7 @@ class FitGrid:
             raise AttributeError(f'No such attribute: {name}.')
 
         temp = self._grid.applymap(lambda x: getattr(x, name))
-        return _expand(temp, self._epoch_index)
+        return self._expand(temp)
 
     def __call__(self, *args, **kwargs):
         """Broadcast method calling in the grid.
@@ -243,7 +140,7 @@ class FitGrid:
 
         # if we are not callable, we'll get an appropriate exception
         temp = self._grid.applymap(lambda x: x(*args, **kwargs))
-        return _expand(temp, self._epoch_index)
+        return self._expand(temp)
 
     def __dir__(self):
 
@@ -276,8 +173,110 @@ class FitGrid:
         """
 
         with open(filename, 'wb') as file:
-            kernel = self._grid, self._epoch_index
+            kernel = self._grid, self.epoch_index, self.time
             pickle.dump(kernel, file, protocol=pickle.HIGHEST_PROTOCOL)
+
+    def expand_series_or_df(self, temp):
+        """Expand a DataFrame that has Series or DataFrames for values."""
+
+        columns = (
+            pd.concat(temp[channel].tolist(), keys=temp.index)
+            for channel in temp
+        )
+        # concatenate columns, channel names are top level columns indices
+        result = pd.concat(columns, axis=1, keys=temp.columns)
+
+        # stack to achieve long form if columns have multiple levels
+        if isinstance(result.columns, pd.core.indexes.multi.MultiIndex):
+            return result.stack()
+        return result
+
+    def _expand(self, temp):
+        """Expand the values in the grid if possible, return frame or grid."""
+
+        tester = temp.iloc[0, 0]
+
+        # no processing needed
+        if np.isscalar(tester):
+            return temp
+
+        # familiar types, expand them
+        if isinstance(tester, pd.Series) or isinstance(tester, pd.DataFrame):
+            # want single index level
+            # can get more if original DataFrame had a multiindex
+            # in Epochs we ensure that only EPOCH_ID is in the index for
+            # groupby
+            if tester.index.nlevels > 1:
+                raise NotImplementedError(
+                    f'index should have one level, have {tester.index.nlevels}'
+                    f' instead: {tester.index.names}'
+                )
+            return self.expand_series_or_df(temp)
+
+        # array-like, try converting to array and then Series/DataFrame
+        if isinstance(tester, tuple) or isinstance(tester, list):
+            array_form = np.array(tester)
+            if array_form.ndim == 1:
+                temp = temp.applymap(lambda x: pd.Series(np.array(x)))
+            elif array_form.ndim == 2:
+                temp = temp.applymap(lambda x: pd.DataFrame(np.array(x)))
+            else:
+                raise NotImplementedError(
+                    'Cannot use elements with dim > 2,'
+                    f'element has ndim = {array_form.ndim}.'
+                )
+            temp_expanded = self.expand_series_or_df(temp)
+            temp_epoch_index = self.add_epoch_index(temp_expanded)
+            return temp_epoch_index
+
+        # array, try converting to Series/DataFrame
+        if isinstance(tester, np.ndarray):
+            if tester.ndim == 1:
+                temp = temp.applymap(lambda x: pd.Series(x))
+            elif tester.ndim == 2:
+                temp = temp.applymap(lambda x: pd.DataFrame(x))
+            else:
+                raise NotImplementedError(
+                    'Cannot use elements with dim > 2,'
+                    f'element has ndim = {tester.ndim}.'
+                )
+            temp_expanded = self.expand_series_or_df(temp)
+            temp_epoch_index = self.add_epoch_index(temp_expanded)
+            return temp_epoch_index
+
+        # catchall for all types we don't handle explicitly
+        # statsmodels objects, dicts, methods all go here
+        return FitGrid(temp, self.epoch_index, self.time)
+
+    def add_epoch_index(self, temp):
+        """We assume that temp is in long form, the columns are channels, and the
+        first index level is time."""
+
+        # first index level is time
+        assert temp.index.names[0] == self.time
+
+        # temp should be long form, columns have single level (channels
+        # hopefully)
+        assert not isinstance(temp.columns, pd.core.index.MultiIndex)
+
+        # we can only handle 2- or 3-dimensional
+        assert temp.index.nlevels in (2, 3)
+
+        for i in range(1, temp.index.nlevels):
+            level = temp.index.levels[i]
+            # if a level looks like it was automatically created by Pandas,
+            # we replace it with the epoch_index
+            if (
+                isinstance(level, pd.RangeIndex)
+                and len(level) == len(self.epoch_index)
+                and level._start == 0
+                and level._step == 1
+                and level._stop == len(self.epoch_index)
+            ):
+                temp.index.set_levels(self.epoch_index, level=i, inplace=True)
+                temp.index.rename(self.epoch_index.name, level=i, inplace=True)
+
+        return temp
 
 
 class LMFitGrid(FitGrid):

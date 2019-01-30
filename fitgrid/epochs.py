@@ -22,12 +22,7 @@ class Epochs:
 
     """
 
-    def __init__(self, epochs_table, channels='default'):
-
-        from . import EPOCH_ID, TIME, CHANNELS
-
-        if channels == 'default':
-            channels = CHANNELS
+    def __init__(self, epochs_table, time, epoch_id, channels):
 
         # channels must be a list of strings
         if not isinstance(channels, list) or not all(
@@ -47,7 +42,7 @@ class Epochs:
             raise FitGridError('epochs_table must be a Pandas DataFrame.')
 
         # these index columns are required for consistency checks
-        for item in (EPOCH_ID, TIME):
+        for item in (epoch_id, time):
             if item not in epochs_table.index.names:
                 raise FitGridError(
                     f'{item} must be a column in the epochs table index.'
@@ -61,11 +56,11 @@ class Epochs:
 
         # make our own copy so we are immune to modification to original table
         table = (
-            epochs_table.copy().reset_index().set_index(EPOCH_ID).sort_index()
+            epochs_table.copy().reset_index().set_index(epoch_id).sort_index()
         )
-        assert table.index.names == [EPOCH_ID]
+        assert table.index.names == [epoch_id]
 
-        snapshots = table.groupby(TIME)
+        snapshots = table.groupby(time)
 
         # check that snapshots across epochs have equal index by transitivity
         prev_group = None
@@ -74,7 +69,7 @@ class Epochs:
                 if not prev_group.index.equals(cur_group.index):
                     raise FitGridError(
                         f'Snapshot {idx} differs from '
-                        f'previous snapshot in {EPOCH_ID} index:\n'
+                        f'previous snapshot in {epoch_id} index:\n'
                         f'Current snapshot\'s indices:\n'
                         f'{cur_group.index}\n'
                         f'Previous snapshot\'s indices:\n'
@@ -83,16 +78,18 @@ class Epochs:
             prev_group = cur_group
 
         if not prev_group.index.is_unique:
-            dupes = tools.get_index_duplicates_table(table, EPOCH_ID)
+            dupes = tools.get_index_duplicates_table(table, epoch_id)
             raise FitGridError(
-                f'Duplicate values in {EPOCH_ID} index not allowed:\n{dupes}'
+                f'Duplicate values in {epoch_id} index not allowed:\n{dupes}'
             )
 
         # checks passed, set instance variables
+        self.time = time
+        self.epoch_id = epoch_id
         self.channels = channels
         self.table = table
         self._snapshots = snapshots
-        self._epoch_index = tools.get_first_group(snapshots).index.copy()
+        self.epoch_index = tools.get_first_group(snapshots).index.copy()
 
     def distances(self):
         """Return scaled Euclidean distances of epochs from the "mean" epoch.
@@ -107,15 +104,13 @@ class Epochs:
         Distances are scaled by dividing by the max.
         """
 
-        from . import EPOCH_ID, TIME
-
-        table = self.table.reset_index().set_index([EPOCH_ID, TIME])[
+        table = self.table.reset_index().set_index([self.epoch_id, self.time])[
             self.channels
         ]
 
         n_channels = len(table.columns)
-        n_epochs = len(table.index.unique(level=EPOCH_ID))
-        n_samples = len(table.index.unique(level=TIME))
+        n_epochs = len(table.index.unique(level=self.epoch_id))
+        n_samples = len(table.index.unique(level=self.time))
 
         assert table.values.size == n_channels * n_epochs * n_samples
         values = table.values.reshape(n_epochs, n_samples, n_channels)
@@ -129,7 +124,7 @@ class Epochs:
         # first n_samples is axis 1, then n_channels, leaving epochs
         distances_arr = l2_norm(l2_norm(diff))
         distances_arr_scaled = distances_arr / distances_arr.max()
-        distances = pd.Series(distances_arr_scaled, index=self._epoch_index)
+        distances = pd.Series(distances_arr_scaled, index=self.epoch_index)
 
         return distances
 
