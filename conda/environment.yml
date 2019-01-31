@@ -3,7 +3,7 @@
 #   conda activate fitgrid_compat
 name: fitgrid_compat
 channels:
-    - aportnoy
+    - kutaslab
 dependencies:
     - pytest
     - pytest-cov
