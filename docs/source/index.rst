@@ -9,7 +9,12 @@ Here's a quick demo:
 1. Import `fitgrid` and read an epochs table from an HDF5 file::
 
     import fitgrid
-    epochs = fitgrid.epochs_from_hdf('epochs_table.h5')
+    epochs = fitgrid.epochs_from_hdf(
+        filename='epochs_table.h5',
+        time=fitgrid.defaults.TIME
+        epoch_id=fitgrid.defaults.EPOCH_ID,
+        channels=fitgrid.defaults.CHANNELS
+    )
 
 2. Run a regression model, which creates a ``FitGrid``::
 
@@ -29,6 +34,6 @@ Here's a quick demo:
 
     research_context
     installation
-    tutorial
+    Tutorial.ipynb
     details
     reference
