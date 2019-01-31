@@ -21,3 +21,5 @@ dependencies:
     - pyarrow
     - patsy
     - tqdm
+    - pip:
+        - nbsphinx
