@@ -17,7 +17,7 @@ script:
 after_success:
     - pip install codecov && codecov
 before_deploy:
-    - pip install sphinx sphinx_rtd_theme
+    - pip install sphinx sphinx_rtd_theme jupyter nbsphinx
     - cd docs
     - make html
     - touch build/html/.nojekyll

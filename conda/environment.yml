@@ -18,5 +18,6 @@ dependencies:
     - matplotlib
     - statsmodels
     - pytables
+    - pyarrow
     - patsy
     - tqdm

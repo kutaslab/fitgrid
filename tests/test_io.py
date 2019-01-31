@@ -7,7 +7,7 @@ from fitgrid import defaults
 
 def test__epochs_from_hdf(tpath):
     TEST_FILE = Path.joinpath(tpath, 'data', 'fake_epochs.h5')
-    channels = [f'channel{i}' for i in range(32)]
+    channels = [f'channel{i}' for i in range(3)]
     fitgrid.epochs_from_hdf(
         TEST_FILE,
         key=None,
@@ -38,9 +38,6 @@ def test__epochs_from_dataframe_good_data():
     )
 
 
-@pytest.mark.skipif(
-    'TRAVIS' in os.environ, reason='Pandas/pyarrow not mature yet.'
-)
 def test__epochs_from_feather(tpath):
     TEST_FILE = Path.joinpath(tpath, 'data', 'fake_epochs.feather')
     channels = [f'channel{i}' for i in range(32)]
