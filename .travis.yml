@@ -18,6 +18,8 @@ after_success:
     - pip install codecov && codecov
 before_deploy:
     - pip install sphinx sphinx_rtd_theme jupyter nbsphinx
+    - conda install -c conda-forge pandoc
+    - pip install -e . # install fitgrid locally so it can be imported in the notebook
     - cd docs
     - make html
     - touch build/html/.nojekyll
