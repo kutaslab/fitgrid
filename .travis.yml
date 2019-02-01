@@ -8,6 +8,7 @@ install:
     - conda info -a
     - conda env create -f conda/environment.yml
     - source activate fitgrid_compat
+    - conda list
     - lscpu
     - python -c 'import numpy; numpy.show_config()'
     - pip install black
@@ -20,6 +21,7 @@ before_deploy:
     - pip install sphinx sphinx_rtd_theme jupyter nbsphinx
     - conda install -c conda-forge pandoc
     - pip install -e . # install fitgrid locally so it can be imported in the notebook
+    - conda list
     - cd docs
     - make html
     - touch build/html/.nojekyll
