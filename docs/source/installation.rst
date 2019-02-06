@@ -25,7 +25,7 @@ This creates an empty environment called `fitgrid`. To install `fitgrid`, run:
 
 .. code-block:: console
 
-    conda install -c aportnoy fitgrid
+    conda install -c kutaslab fitgrid
 
 The installation might take several minutes, but when it's done you are ready
 to go.
