@@ -1,4 +1,5 @@
 import functools
+import warnings
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
@@ -80,8 +81,14 @@ def fit_lmers(fg_epochs, LHS, RHSs, parallel=True, n_cores=4, save_as=None):
     lmer_coefs.sort_index(inplace=True)
 
     if save_as is not None:
-        # filepath, h5 group slashpath
-        coefs.to_hdf(save_as[0], save_as[1])
+        try:
+            fname, group = save_as
+            lmer_coefs.to_hdf(fname, group)
+        except Exception as fail:
+            warnings.warn(
+                f"save_as={save_as} failed: {fail}. You can try to "
+                "save the returned dataframe with pandas.to_hdf()"
+            )
 
     FutureWarning('lmer_coefs are in early days, subject to change')
     return lmer_coefs
