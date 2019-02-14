@@ -193,3 +193,7 @@ def test_design_matrix_is_constant():
         2,
     ]
     assert not tools.design_matrix_is_constant(df, ['b', 'c'], 'time')
+
+def test_has_version():
+
+    assert hasattr(fitgrid, '__version__')
