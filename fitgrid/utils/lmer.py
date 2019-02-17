@@ -176,11 +176,14 @@ def plot_lmer_AICs(aics, figsize=None, gridspec_kw=None, **kwargs):
     Notes
     -----
 
-    "Some simple rules of thumb are often useful in assessing the relative
-    merits of models in the set: Models having $\Delta_{i} <= 2 have substantial
-    support (evidence), those in which 4 <=  7 have considerably less
-    sup- port, and models having ?i > 10 have essentially no
-    support.
+    From the article:
+
+       "Some simple rules of thumb are often useful in assessing the
+        relative merits of models in the set: Models having
+        $\delta_{i} <= 2$ have substantial support (evidence), those
+        in which $\delta_{i} 4 <= 7$ have considerably less support,
+        and models having $\delta_{i} > 10$ have essentially no
+        support."
 
 
     References
@@ -199,8 +202,7 @@ def plot_lmer_AICs(aics, figsize=None, gridspec_kw=None, **kwargs):
         nrows = len(models)
 
     if figsize is None:
-        figsize=(8, 3)
-    
+        figsize = (8, 3)
 
     f, axs = plt.subplots(
         nrows,  # len(models),
@@ -253,7 +255,7 @@ def plot_lmer_AICs(aics, figsize=None, gridspec_kw=None, **kwargs):
             .astype(bool)
         )
 
-        _min_deltas_ma = np.ma.where(_has_warnings)
+        # _min_deltas_ma = np.ma.where(_has_warnings)
 
         # bluish color blind friendly
         pal = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c']
@@ -285,7 +287,7 @@ def plot_lmer_AICs(aics, figsize=None, gridspec_kw=None, **kwargs):
         cmap_ma.set_over(color='crimson')
         cmap_ma.set_under(alpha=0.0)  # don't show goods
         norm_ma = mpl.colors.BoundaryNorm(bounds_ma, cmap_ma.N)
-        im_ma = heatmap.pcolormesh(
+        heatmap.pcolormesh(
             _has_warnings.index,
             np.arange(len(_has_warnings.columns) + 1),
             _has_warnings.T,
@@ -371,8 +373,9 @@ def plot_lmer_rERPs(
             m = len(fg_lmer_coef)
             pvals = fg_lmer_coef['P-val'].copy().sort_values()
             ks = list()
+
             for k, p in enumerate(pvals):
-                if p <= k / m * alpha:
+                if p <= (k / m) * alpha:
                     ks.append(k)
 
             if len(ks) > 0:
