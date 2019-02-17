@@ -44,40 +44,20 @@ def fit_lmers(fg_epochs, LHS, RHSs, parallel=True, n_cores=4, save_as=None):
     """
 
     # container to hold model information scraped from the fits
-    lmer_coefs = pd.DataFrame()
-    attribs = ['AIC', 'has_warning']
+    lmer_coefs = []
+
     for rhs in RHSs:
         fg_lmer = fitgrid.lmer(
             fg_epochs, LHS=LHS, RHS=rhs, parallel=parallel, n_cores=n_cores
         )
-        fg_lmer.coefs.index.names = ['Time', 'param', 'key']
 
-        # coef estimates and stats ... these are 2-D
-        coefs_df = fg_lmer.coefs.copy()
-        coefs_df.insert(0, 'model', rhs)
-        coefs_df.set_index('model', append=True, inplace=True)
-        coefs_df.reset_index(['key', 'param'], inplace=True)
+        # scrape useful grid info
+        coefs_df = _get_coefs_df(fg_lmer)
+        lmer_coefs.append(coefs_df)
 
-        # LOGGER.info('collecting fit attributes into coefs dataframe')
-        # scrape AIC and other useful 1-D fit attributes into coefs_df
-        for attrib in attribs:
-            # LOGGER.info(attrib)
-            attrib_df = getattr(fg_lmer, attrib).copy()
-            attrib_df.insert(0, 'model', rhs)
-            attrib_df.insert(1, 'key', attrib)
-
-            # propagate attributes to each param ... wasteful but tidy
-            for param in coefs_df['param'].unique():
-                param_attrib = attrib_df.copy().set_index('model', append=True)
-                param_attrib.insert(0, 'param', param)
-                coefs_df = coefs_df.append(param_attrib)
-
-        # update main container
-        lmer_coefs = lmer_coefs.append(coefs_df)
         del (fg_lmer)
 
-    # refresh index
-    lmer_coefs.set_index(['param', 'key'], append=True, inplace=True)
+    lmer_coefs = pd.concat(lmer_coefs)
     lmer_coefs.sort_index(inplace=True)
 
     if save_as is not None:
@@ -92,6 +72,46 @@ def fit_lmers(fg_epochs, LHS, RHSs, parallel=True, n_cores=4, save_as=None):
 
     FutureWarning('lmer_coefs are in early days, subject to change')
     return lmer_coefs
+
+
+def _get_coefs_df(fg_lmer):
+    """scrape fitgrid.LMERFitGrid.coefs into a standardized format dataframe
+
+    Parameters
+    ----------
+    fg_lmer : fitgrid.LMERFitGrid
+
+    """
+    index_names = ['Time', 'model', 'param', 'key']
+
+    attribs = ['AIC', 'has_warning']
+
+    rhs = fg_lmer.formula.iloc[0, 0].split('~')[1].strip()
+
+    # coef estimates and stats ... these are 2-D
+    coefs_df = fg_lmer.coefs.copy()  # don't mod the original
+    coefs_df.index.names = ['Time', 'param', 'key']
+    coefs_df.insert(0, 'model', rhs)
+    coefs_df.set_index('model', append=True, inplace=True)
+    coefs_df.reset_index(['key', 'param'], inplace=True)
+
+    # LOGGER.info('collecting fit attributes into coefs dataframe')
+    # scrape AIC and other useful 1-D fit attributes into coefs_df
+    for attrib in attribs:
+        # LOGGER.info(attrib)
+        attrib_df = getattr(fg_lmer, attrib).copy()
+        attrib_df.insert(0, 'model', rhs)
+        attrib_df.insert(1, 'key', attrib)
+
+        # propagate attributes to each param ... wasteful but tidy
+        for param in coefs_df['param'].unique():
+            param_attrib = attrib_df.copy().set_index('model', append=True)
+            param_attrib.insert(0, 'param', param)
+            coefs_df = coefs_df.append(param_attrib)
+
+    coefs_df = coefs_df.reset_index().set_index(index_names).sort_index()
+    assert coefs_df.index.names == index_names
+    return coefs_df
 
 
 def get_lmer_AICs(lmer_coefs):
@@ -336,6 +356,9 @@ def plot_lmer_rERPs(
 
 
     """
+
+    fw_msg = f"plot_lmer_rERPs is deprecated, use utils.rerps.plot_chans"
+    FutureWarning(fw_msg)
 
     figs = list()
 

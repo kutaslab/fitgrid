@@ -20,12 +20,8 @@ def get_vifs(epochs, RHS):
     return epochs._snapshots.progress_apply(get_single_vif, RHS=RHS)
 
 
-
-
-def _ols_to_rerps(fg_ols, ci_alpha=.05):
-    """scrape model and parameter values out of OLS fitgrids for plotting
-
-    Follows the same format as the lmer fit scraper
+def _get_coefs_df(fg_ols, ci_alpha=.05):
+    """scrape fitgrid.LMFitgrid OLS info into a tidy dataframe
 
     Parameters
     ----------
@@ -37,15 +33,15 @@ def _ols_to_rerps(fg_ols, ci_alpha=.05):
 
     Returns
     -------
-    rerps_df : pd.DataFrame
+    coefs_df : pd.DataFrame
        index.names = [`Time`, `model`, `param`, `key`]
        columns are the `fg_ols` columns
 
 
     Notes
     -----
-    The `rerps_df` dataframe is row and column indexed the same
-    as for lmer ERPs
+    The `coefs_df` dataframe is row and column indexed the same
+    as for fitgrid.lmer._get_coefs_df()
 
     """
 
@@ -93,7 +89,7 @@ def _ols_to_rerps(fg_ols, ci_alpha=.05):
     pmvs = pd.concat(pmvs).reset_index().set_index(index_names)
 
     # lookup the param_name specifc info for this bundle
-    rerps = []
+    coefs = []
 
     # select model point estimates
     sv_attrs = [
@@ -113,24 +109,26 @@ def _ols_to_rerps(fg_ols, ci_alpha=.05):
         attr_vals['key'] = key
 
         # update list of param bundles
-        rerps.append(attr_vals.reset_index().set_index(index_names))
+        coefs.append(attr_vals.reset_index().set_index(index_names))
 
     # special handling for confidence interval
     ci_bounds = [
         f"{bound:.1f}_ci"
-        for bound in [100 * (1 + (b * (1 - ci_alpha))) / 2.0 for b in [-1, 1]]
+        for bound in [
+            100 * (1 + (b * (1 - ci_alpha))) / 2.0 for b in [-1, 1]
+        ]
     ]
     cis = fg_ols.conf_int(alpha=ci_alpha)
     cis.index = cis.index.rename(['Time', 'param', 'key'])
     cis.index = cis.index.set_levels(ci_bounds, 'key')
     cis['model'] = rhs
-    rerps.append(cis.reset_index().set_index(index_names))
+    coefs.append(cis.reset_index().set_index(index_names))
 
-    rerps_df = pd.concat(rerps)
+    coefs_df = pd.concat(coefs)
 
     # add the parmeter model info
-    rerps_df = pd.concat([rerps_df, pmvs]).sort_index()
+    coefs_df = pd.concat([coefs_df, pmvs]).sort_index()
 
-    assert rerps_df.index.names == index_names
-    assert set(key_labels) == set(rerps_df.index.levels[-1])
-    return rerps_df
+    assert coefs_df.index.names == index_names
+    assert set(key_labels) == set(coefs_df.index.levels[-1])
+    return coefs_df
