@@ -306,6 +306,7 @@ def plot_lmer_rERPs(
         LHS,
         lmer_coefs,
         alpha=0.05,
+        fdr='BY',
         figsize=None,
         s=None,
         **kwargs):
@@ -318,7 +319,10 @@ def plot_lmer_rERPs(
     LHS : fitgrid.LHS specification, see fitgrid.fitgrid.lmer()
 
     alpha : float
-       alpha level for BH
+       alpha level for false discovery rate correction
+
+    fdr : str {'BY', 'BH'}
+        BY is Benjamini and Yekatuli FDR, BH is Benjamini and Hochberg
 
     s : float
        scatterplot marker size for BH and lmer decorations
@@ -374,8 +378,18 @@ def plot_lmer_rERPs(
             pvals = fg_lmer_coef['P-val'].copy().sort_values()
             ks = list()
 
+            if fdr not in ['BH', 'BY']:
+                raise ValueError(f"fdr must be BH or BY")
+            if fdr == 'BH':
+                # Benjamini & Hochberg ... restricted
+                c_m = 1
+            elif fdr == 'BY':
+                # Benjamini & Yekatuli general case
+                c_m = np.sum([1 / i for i in range(1, m + 1)])
+
             for k, p in enumerate(pvals):
-                if p <= (k / m) * alpha:
+                kmcm = (k / (m * c_m))
+                if p <= kmcm * alpha:
                     ks.append(k)
 
             if len(ks) > 0:
@@ -428,7 +442,7 @@ def plot_lmer_rERPs(
                 sig_ps['Estimate'],
                 color='black',
                 zorder=3,
-                label=f'BH FDR p < crit {crit_p:0.2}',
+                label=f'{fdr} FDR p < crit {crit_p:0.2}',
                 **my_kwargs,
             )
 
@@ -457,7 +471,7 @@ def plot_lmer_rERPs(
             # rhs = fg_lmer.formula[col].unique()[0]
             formula = fg_lmer_coef.index.get_level_values('model').unique()[0]
             assert isinstance(formula, str)
-            #ax_coef[idx].set_title(f'{col} {coef}: {formula}')
+            # ax_coef[idx].set_title(f'{col} {coef}: {formula}')
             ax_coef.set_title(f'{col} {coef}: {formula}')
 
             figs.append(f)
