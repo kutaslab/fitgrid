@@ -150,8 +150,8 @@ def get_lmer_AICs(lmer_coefs):
 # ------------------------------------------------------------
 # plotting
 # ------------------------------------------------------------
-def plot_lmer_AICs(aics):
-    """plot FitGrid AICs and lmer warnings
+def plot_lmer_AICs(aics, figsize=None, gridspec_kw=None, **kwargs):
+    """plot FitGrid min delta AICs and lmer warnings
 
     Thresholds of AIC_min delta at 2, 4, 7, 10 are from Burnham &
     Anderson 2004, p. 271.
@@ -160,19 +160,54 @@ def plot_lmer_AICs(aics):
     ----------
     aics : pd.DataFrame as returned by get_lmer_AICs()
 
+    figsize : 2-ple
+       pyplot.figure figure size parameter
+
+    gridspec=kw : dict
+       matplotlib.gridspec key : value parameters
+
+    kwargs : dict
+       keyword args passed to plt.subplots(...)
+
     Returns
     -------
     f : matplotlib.pyplot.Figure
+
+    Notes
+    -----
+
+    "Some simple rules of thumb are often useful in assessing the relative
+    merits of models in the set: Models having $\Delta_{i} <= 2 have substantial
+    support (evidence), those in which 4 <=  7 have considerably less
+    sup- port, and models having ?i > 10 have essentially no
+    support.
+
+
+    References
+    ----------
+
+    .. [1] Burnham, K. P., & Anderson, D. R. (2004). Multimodel
+       inference - understanding AIC and BIC in model
+       selection. Sociological Methods & Research, 33(2),
+       261-304. doi:10.1177/0049124104268644
 
     """
     models = aics.index.get_level_values('model').unique()
     channels = aics.index.get_level_values('channel').unique()
 
+    if 'nrows' not in kwargs.keys():
+        nrows = len(models)
+
+    if figsize is None:
+        figsize=(8, 3)
+    
+
     f, axs = plt.subplots(
-        len(models),
+        nrows,  # len(models),
         2,
-        figsize=(16, 6 * len(models)),
-        gridspec_kw={'hspace': 0.3},
+        **kwargs,
+        figsize=figsize,
+        gridspec_kw=gridspec_kw,
     )
 
     for i, m in enumerate(models):
@@ -261,10 +296,18 @@ def plot_lmer_AICs(aics):
         heatmap.yaxis.set_major_locator(yloc)
         heatmap.set_yticklabels(_min_deltas.columns)
         plt.colorbar(im, ax=heatmap, extend='max')
+
     return f
 
 
-def plot_lmer_rERPs(LHS, lmer_coefs, alpha=0.05):
+def plot_lmer_rERPs(
+        LHS,
+        lmer_coefs,
+        alpha=0.05,
+        figsize=None,
+        s=None,
+        **kwargs):
+
     """
     Parameters
     ----------
@@ -273,7 +316,13 @@ def plot_lmer_rERPs(LHS, lmer_coefs, alpha=0.05):
     LHS : fitgrid.LHS specification, see fitgrid.fitgrid.lmer()
 
     alpha : float
-       one-tailed > 0 alpha level
+       alpha level for BH
+
+    s : float
+       scatterplot marker size for BH and lmer decorations
+
+    kwargs : dict
+       keyword args passed to pyplot.subplots()
 
     Returns
     -------
@@ -281,22 +330,30 @@ def plot_lmer_rERPs(LHS, lmer_coefs, alpha=0.05):
 
 
     """
+
     figs = list()
 
     if isinstance(LHS, str):
         LHS = [LHS]
     assert all([isinstance(col, str) for col in LHS])
 
+    # defaults
+    if figsize is None:
+        figsize = (8, 3)
+
     # coefs = fg_lmer.coefs.index.get_level_values('param').unique()
     coefs = lmer_coefs.index.get_level_values('param').unique()
     for col in LHS:
-        f, ax_coef = plt.subplots(
-            len(coefs), figsize=(18, 12), gridspec_kw={'hspace': 0.3}
-        )
-        if len(coefs) == 1:
-            ax_coef = [ax_coef]
+        # for idx, coef in enumerate(coefs):
+        for coef in coefs:
 
-        for idx, coef in enumerate(coefs):
+            # f, ax_coef = plt.subplots(len(coefs), ncol=1, **kwargs)
+            f, ax_coef = plt.subplots(
+                nrows=1, ncols=1, figsize=figsize, **kwargs
+            )
+
+            # if len(coefs) == 1:
+            #    ax_coef = [ax_coef]
 
             # unstack this coef, column for plotting
             fg_lmer_coef = (
@@ -338,13 +395,15 @@ def plot_lmer_rERPs(LHS, lmer_coefs, alpha=0.05):
             fg_lmer_coef.plot(
                 x='Time',
                 y='Estimate',
-                ax=ax_coef[idx],
+                # ax=ax_coef[idx],
+                ax=ax_coef,
                 color='black',
                 alpha=0.5,
                 label=coef,
             )
 
-            ax_coef[idx].fill_between(
+            # ax_coef[idx].fill_between(
+            ax_coef.fill_between(
                 x=fg_lmer_coef['Time'],
                 y1=fg_lmer_coef['mn+SE'],
                 y2=fg_lmer_coef['mn-SE'],
@@ -353,36 +412,52 @@ def plot_lmer_rERPs(LHS, lmer_coefs, alpha=0.05):
             )
 
             # plot log10 df
-            fg_lmer_coef.plot(x='Time', y='log10DF', ax=ax_coef[idx])
+            fg_lmer_coef.plot(x='Time', y='log10DF', ax=ax_coef)
+
+            if s is not None:
+                my_kwargs = {'s': s}
+            else:
+                my_kwargs = {}
 
             # color sig ps
-            ax_coef[idx].scatter(
+            ax_coef.scatter(
                 sig_ps['Time'],
                 sig_ps['Estimate'],
                 color='black',
                 zorder=3,
                 label=f'BH FDR p < crit {crit_p:0.2}',
+                **my_kwargs,
             )
 
-            # color warnings last to mask sig ps
-            warn_ma = np.ma.where(fg_lmer_coef['has_warning'] > 0)[0]
-            ax_coef[idx].scatter(
-                fg_lmer_coef['Time'].iloc[warn_ma],
-                fg_lmer_coef['Estimate'].iloc[warn_ma],
-                color='red',
-                zorder=4,
-                label='lmer warnings',
-            )
+            try:
+                # color warnings last to mask sig ps
+                warn_ma = np.ma.where(fg_lmer_coef['has_warning'] > 0)[0]
+                # ax_coef[idx].scatter(
+                ax_coef.scatter(
+                    fg_lmer_coef['Time'].iloc[warn_ma],
+                    fg_lmer_coef['Estimate'].iloc[warn_ma],
+                    color='red',
+                    zorder=4,
+                    label='lmer warnings',
+                    **my_kwargs,
+                )
+            except Exception:
+                pass
 
-            ax_coef[idx].axhline(y=0, linestyle='--', color='black')
-            ax_coef[idx].legend()
+            # ax_coef[idx].axhline(y=0, linestyle='--', color='black')
+            # ax_coef[idx].legend()
+
+            ax_coef.axhline(y=0, linestyle='--', color='black')
+            ax_coef.legend(loc=(1.0, 0.0))
 
             # title
             # rhs = fg_lmer.formula[col].unique()[0]
             formula = fg_lmer_coef.index.get_level_values('model').unique()[0]
             assert isinstance(formula, str)
-            ax_coef[idx].set_title(f'{col} {coef}: {formula}')
-        figs.append(f)
+            #ax_coef[idx].set_title(f'{col} {coef}: {formula}')
+            ax_coef.set_title(f'{col} {coef}: {formula}')
+
+            figs.append(f)
     return figs
 
 
