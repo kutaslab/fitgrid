@@ -1,11 +1,12 @@
-"""wrappers around fitgrid fitters for rERP analysis"""
-
 import warnings
+import re
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 import fitgrid
+
+import pdb
 
 # enforce some common structure for rerp dataframes
 # scraped out of different fit objects.
@@ -117,7 +118,7 @@ def get_rerps(
                 f"save_as={save_as} failed: {fail}. You can try to "
                 "save the returned dataframe with pandas.to_hdf()"
             )
-
+        
     return rerps_df
 
 
@@ -163,6 +164,7 @@ def _lm_get_coefs_df(fg_ols, ci_alpha=.05):
         0,
         fg_ols._grid.columns[0]
     ].model.formula.iat[0, 0].split('~')[1]
+
 
     # fitgrid returns them in the last column of the index
     param_names = fg_ols.params.index.get_level_values(-1).unique()
@@ -238,10 +240,9 @@ def _lm_get_coefs_df(fg_ols, ci_alpha=.05):
     coefs_df = pd.concat(coefs)
 
     # add the parmeter model info
-    coefs_df = pd.concat([coefs_df, pmvs]).sort_index()
+    coefs_df = pd.concat([coefs_df, pmvs]).sort_index().astype(float)
+    _check_rerps_df(coefs_df)
 
-    assert coefs_df.index.names == INDEX_NAMES
-    assert set(KEY_LABELS) == set(coefs_df.index.levels[-1])
     return coefs_df
 
 
@@ -258,6 +259,7 @@ def _lmer_get_coefs_df(fg_lmer):
     attribs = ['AIC', 'has_warning']
 
     rhs = fg_lmer.formula.iloc[0, 0].split('~')[1].strip()
+    rhs = re.sub(r"[ ]{1,}", r" ", rhs)
 
     # coef estimates and stats ... these are 2-D
     coefs_df = fg_lmer.coefs.copy()  # don't mod the original
@@ -281,7 +283,12 @@ def _lmer_get_coefs_df(fg_lmer):
             param_attrib.insert(0, 'param', param)
             coefs_df = coefs_df.append(param_attrib)
 
-    coefs_df = coefs_df.reset_index().set_index(INDEX_NAMES).sort_index()
+    coefs_df = (
+        coefs_df
+        .reset_index()
+        .set_index(INDEX_NAMES)
+        .sort_index().astype(float)
+    )
     _check_rerps_df(coefs_df)
 
     return coefs_df
@@ -339,7 +346,6 @@ def get_AICs(rerps):
     FutureWarning('coef AICs are in early days, subject to change')
     return AICs
 
-
 def plot_chans(
         rerps_df,
         LHS,
@@ -347,7 +353,8 @@ def plot_chans(
         fdr='BY',
         figsize=None,
         s=None,
-        **kwargs):
+        **kwargs
+):
 
     """Plot single channel rERPs with matplotlib
 

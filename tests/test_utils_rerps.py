@@ -72,7 +72,11 @@ def test_get_rerps():
     # do it
     for modler, RHSs in tests.items():
         rerps_df = fitgrid.utils.rerps.get_rerps(
-            epochs_fg, modler, LHS=epochs_fg.channels, RHS=RHSs
+            epochs_fg,
+            modler,
+            LHS=epochs_fg.channels,
+            RHS=RHSs,
+            n_cores=n_cores
         )
         assert rerps_df.index.names == INDEX_NAMES
         assert set(KEY_LABELS).issubset(set(rerps_df.index.levels[-1]))
