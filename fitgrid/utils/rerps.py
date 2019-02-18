@@ -1,8 +1,290 @@
 """wrappers around fitgrid fitters for rERP analysis"""
 
+import warnings
 import numpy as np
 import pandas as pd
+import matplotlib as mpl
 from matplotlib import pyplot as plt
+import fitgrid
+
+# enforce some common structure for rerp dataframes
+# scraped out of different fit objects.
+INDEX_NAMES = ['Time', 'model', 'param', 'key']
+KEY_LABELS = [
+    '2.5_ci',
+    '97.5_ci',
+    'AIC',
+    'DF',
+    'Estimate',
+    'P-val',
+    'SE',
+    'T-stat',
+    'has_warning',
+]
+
+
+# top level rerp getter
+def get_rerps(
+        epochs_fg=None,
+        modeler=None,
+        LHS=None,
+        RHS=None,
+        parallel=True,
+        n_cores=4,
+        save_as=None
+):
+    """Fit one or more model formulas and return the rERPs for analysis
+
+    Parameters
+    ----------
+    epochs_fg : fitgrid.epochs.Epochs
+       tabular rows x columns of epochs data for modeling as
+       returned by fitgrid.epochs_from_dataframe() or fitgrid.from_hdf()
+
+    modeler : str {'lm', 'lmer'}
+       class of model to fit, must match RHS formula language
+
+    LHS : fitgrid.lmer LHS specification
+       list of one or more columns to model, e.g., EEG data channels
+
+    RHS : model formula or list of model formulas to fit
+       for the lm formula langauge see Python package patsy docs
+       for the lmer formula langauge see R library lme4 docs
+
+    parallel : bool
+
+    n_cores : int
+       number of cores to use. See what works but be nice.
+
+    save_as : 2-ple of str (file_path, name)
+       file path and name to save the rERP dataframe, if desired.
+       Files are written with pd.to_hdf(file_path, name, format='fixed')
+
+    """
+
+    FutureWarning('fitgrid rerps are in early days, subject to change')
+
+    # modicum of guarding
+    msg = None
+    if isinstance(epochs_fg, pd.DataFrame):
+        msg = ("Convert dataframe to fitgrid epochs with "
+               "fitgrid.epochs_from_dataframe()")
+    elif not isinstance(epochs_fg, fitgrid.epochs.Epochs):
+        msg = f"epochs_fg must be a fitgrid.Epochs not {type(epochs_fg)}"
+    if msg is not None:
+        raise TypeError(msg)
+
+    # select modler
+    if modeler == 'lm':
+        _modeler = fitgrid.lm
+        _scraper = _lm_get_coefs_df
+    elif modeler == 'lmer':
+        _modeler = fitgrid.lmer
+        _scraper = _lmer_get_coefs_df
+    else:
+        raise ValueError("modeler must be 'lm' or 'lmer'")
+
+    # single formula -> singleton list
+    if isinstance(RHS, str):
+        RHS = [RHS]
+
+    # loop through model formulas fitting and scraping rerps
+    coefs = []
+    for _rhs in RHS:
+        coefs.append(
+            _scraper(
+                _modeler(
+                    epochs_fg,
+                    LHS=LHS,
+                    RHS=_rhs,
+                    parallel=parallel,
+                    n_cores=n_cores
+                )
+            )
+        )
+
+    rerps_df = pd.concat(coefs)
+    _check_rerps_df(rerps_df)
+
+    del coefs
+
+    if save_as is not None:
+        try:
+            fname, group = save_as
+            rerps_df.to_hdf(fname, group)
+        except Exception as fail:
+            warnings.warn(
+                f"save_as={save_as} failed: {fail}. You can try to "
+                "save the returned dataframe with pandas.to_hdf()"
+            )
+
+    return rerps_df
+
+
+# ------------------------------------------------------------
+# private-ish rerp helpers for tidying messy fit objects
+# ------------------------------------------------------------
+def _check_rerps_df(rerps_df):
+    # order matters
+    if not (
+            rerps_df.index.names == INDEX_NAMES
+            and all(rerps_df.index.levels[-1] == KEY_LABELS)
+    ):
+
+        raise ValueError("uh oh ... rerp dataframe format bug, yell at Urbach")
+
+
+def _lm_get_coefs_df(fg_ols, ci_alpha=.05):
+    """scrape fitgrid.LMFitgrid OLS info into a tidy dataframe
+
+    Parameters
+    ----------
+    fg_ols : fitgrid.LMFitGrid
+
+    ci_alpha : float {.05}
+       alpha for confidence interval
+
+
+    Returns
+    -------
+    coefs_df : pd.DataFrame
+       index.names = [`Time`, `model`, `param`, `key`]
+       columns are the `fg_ols` columns
+
+
+    Notes
+    -----
+    The `coefs_df` dataframe is row and column indexed the same
+    as for fitgrid.lmer._get_coefs_df()
+
+    """
+
+    rhs = fg_ols[
+        0,
+        fg_ols._grid.columns[0]
+    ].model.formula.iat[0, 0].split('~')[1]
+
+    # fitgrid returns them in the last column of the index
+    param_names = fg_ols.params.index.get_level_values(-1).unique()
+
+    # fetch a master copy of the model info
+    model_vals = []
+    model_key_attrs = [("DF", "df_resid"), ("AIC", "aic")]
+    for (key, attr) in model_key_attrs:
+        vals = None
+        vals = getattr(fg_ols, attr).copy()
+        if vals is None:
+            raise AttributeError(f"model: {rhs} attribute: {attr}")
+        vals['key'] = key
+        model_vals.append(vals)
+
+    # build model has_warnings with False for ols
+    warnings = pd.DataFrame(
+        np.zeros(model_vals[0].shape).astype('bool'),
+        columns=model_vals[0].columns,
+        index=model_vals[0].index
+    )
+    warnings['key'] = 'has_warning'
+    model_vals.append(warnings)
+
+    model_vals = pd.concat(model_vals)
+    model_vals['model'] = rhs
+
+    # replicate the constant model info for each parameter
+    # ... horribly redundant but mighty handy when slicing later
+    pmvs = []
+    for p in param_names:
+        pmv = model_vals.copy()
+        pmv['param'] = p
+        pmvs.append(pmv)
+    pmvs = pd.concat(pmvs).reset_index().set_index(INDEX_NAMES)
+
+    # lookup the param_name specifc info for this bundle
+    coefs = []
+
+    # select model point estimates
+    sv_attrs = [
+        ('Estimate', 'params'),  # coefficient value
+        ('SE', 'bse'),
+        ('P-val', 'pvalues'),
+        ('T-stat', 'tvalues'),
+    ]
+
+    for idx, (key, attr) in enumerate(sv_attrs):
+        attr_vals = getattr(fg_ols, attr).copy()  # ! don't mod the _grid
+        if attr_vals is None:
+            raise AttributeError(f"not found: {attr}")
+
+        attr_vals.index = attr_vals.index.rename(['Time', 'param'])
+        attr_vals['model'] = rhs
+        attr_vals['key'] = key
+
+        # update list of param bundles
+        coefs.append(attr_vals.reset_index().set_index(INDEX_NAMES))
+
+    # special handling for confidence interval
+    ci_bounds = [
+        f"{bound:.1f}_ci"
+        for bound in [
+            100 * (1 + (b * (1 - ci_alpha))) / 2.0 for b in [-1, 1]
+        ]
+    ]
+    cis = fg_ols.conf_int(alpha=ci_alpha)
+    cis.index = cis.index.rename(['Time', 'param', 'key'])
+    cis.index = cis.index.set_levels(ci_bounds, 'key')
+    cis['model'] = rhs
+    coefs.append(cis.reset_index().set_index(INDEX_NAMES))
+
+    coefs_df = pd.concat(coefs)
+
+    # add the parmeter model info
+    coefs_df = pd.concat([coefs_df, pmvs]).sort_index()
+
+    assert coefs_df.index.names == INDEX_NAMES
+    assert set(KEY_LABELS) == set(coefs_df.index.levels[-1])
+    return coefs_df
+
+
+def _lmer_get_coefs_df(fg_lmer):
+    """scrape fitgrid.LMERFitGrid.coefs into a standardized format dataframe
+
+    Parameters
+    ----------
+    fg_lmer : fitgrid.LMERFitGrid
+
+    """
+    INDEX_NAMES = ['Time', 'model', 'param', 'key']
+
+    attribs = ['AIC', 'has_warning']
+
+    rhs = fg_lmer.formula.iloc[0, 0].split('~')[1].strip()
+
+    # coef estimates and stats ... these are 2-D
+    coefs_df = fg_lmer.coefs.copy()  # don't mod the original
+    coefs_df.index.names = ['Time', 'param', 'key']
+    coefs_df = coefs_df.query("key != 'Sig'")  # drop the silly stars
+    coefs_df.insert(0, 'model', rhs)
+    coefs_df.set_index('model', append=True, inplace=True)
+    coefs_df.reset_index(['key', 'param'], inplace=True)
+
+    # LOGGER.info('collecting fit attributes into coefs dataframe')
+    # scrape AIC and other useful 1-D fit attributes into coefs_df
+    for attrib in attribs:
+        # LOGGER.info(attrib)
+        attrib_df = getattr(fg_lmer, attrib).copy()
+        attrib_df.insert(0, 'model', rhs)
+        attrib_df.insert(1, 'key', attrib)
+
+        # propagate attributes to each param ... wasteful but tidy
+        for param in coefs_df['param'].unique():
+            param_attrib = attrib_df.copy().set_index('model', append=True)
+            param_attrib.insert(0, 'param', param)
+            coefs_df = coefs_df.append(param_attrib)
+
+    coefs_df = coefs_df.reset_index().set_index(INDEX_NAMES).sort_index()
+    _check_rerps_df(coefs_df)
+
+    return coefs_df
 
 
 def get_AICs(rerps):
@@ -59,21 +341,20 @@ def get_AICs(rerps):
 
 
 def plot_chans(
+        rerps_df,
         LHS,
-        rerps,
         alpha=0.05,
         fdr='BY',
         figsize=None,
         s=None,
         **kwargs):
 
-    """Plot single channel rERPs from an rERP format dataframe with matplotlib
+    """Plot single channel rERPs with matplotlib
 
     Parameters
     ----------
-    rerps : pd.DataFrame
-       as returned by fitgrid.utils.lmer._get_rerps and
-       fitgrid.utils.lm._get_rerps
+    rerps_df : pd.DataFrame
+       as returned by fitgrid.utils.rerps.get_rerps
 
     LHS : fitgrid.LHS specification
        see fitgrid.fitgrid docs
@@ -107,7 +388,7 @@ def plot_chans(
         figsize = (8, 3)
 
     # coefs = fg_lmer.coefs.index.get_level_values('param').unique()
-    coefs = rerps.index.get_level_values('param').unique()
+    coefs = rerps_df.index.get_level_values('param').unique()
     for col in LHS:
         # for idx, coef in enumerate(coefs):
         for coef in coefs:
@@ -122,7 +403,7 @@ def plot_chans(
 
             # unstack this coef, column for plotting
             fg_coef = (
-                rerps.loc[pd.IndexSlice[:, :, coef], col]
+                rerps_df.loc[pd.IndexSlice[:, :, coef], col]
                 .unstack(level='key')
                 .reset_index('Time')
             )
@@ -236,3 +517,155 @@ def plot_chans(
             figs.append(f)
 
     return figs
+
+
+def plot_AICs(aics, figsize=None, gridspec_kw=None, **kwargs):
+    """plot FitGrid min delta AICs and rerp warnings
+
+    Thresholds of AIC_min delta at 2, 4, 7, 10 are from Burnham &
+    Anderson 2004, p. 271.
+
+    Parameters
+    ----------
+    aics : pd.DataFrame as returned by get_rerp_AICs()
+
+    figsize : 2-ple
+       pyplot.figure figure size parameter
+
+    gridspec=kw : dict
+       matplotlib.gridspec key : value parameters
+
+    kwargs : dict
+       keyword args passed to plt.subplots(...)
+
+    Returns
+    -------
+    f : matplotlib.pyplot.Figure
+
+    Notes
+    -----
+
+    From the article:
+
+       "Some simple rules of thumb are often useful in assessing the
+        relative merits of models in the set: Models having
+        delta_{i} <= 2 have substantial support (evidence), those
+        in which delta_{i} 4 <= 7 have considerably less support,
+        and models having delta_{i} > 10 have essentially no
+        support."
+
+
+    References
+    ----------
+
+    .. [1] Burnham, K. P., & Anderson, D. R. (2004). Multimodel
+       inference - understanding AIC and BIC in model
+       selection. Sociological Methods & Research, 33(2),
+       261-304. doi:10.1177/0049124104268644
+
+    """
+    models = aics.index.get_level_values('model').unique()
+    channels = aics.index.get_level_values('channel').unique()
+
+    if 'nrows' not in kwargs.keys():
+        nrows = len(models)
+
+    if figsize is None:
+        figsize = (8, 3)
+
+    f, axs = plt.subplots(
+        nrows,  # len(models),
+        2,
+        **kwargs,
+        figsize=figsize,
+        gridspec_kw=gridspec_kw,
+    )
+
+    for i, m in enumerate(models):
+        # channel traces
+        if len(models) == 1:
+            traces = axs[0]
+            heatmap = axs[1]
+        else:
+            traces = axs[i, 0]
+            heatmap = axs[i, 1]
+
+        traces.set_title(f'aic min delta: {m}')
+        for c in channels:
+            min_deltas = aics.loc[
+                pd.IndexSlice[:, m, c], ['min_delta', 'has_warning']
+            ].reset_index('Time')
+            traces.plot(min_deltas['Time'], min_deltas['min_delta'], label=c)
+            warn_ma = np.ma.where(min_deltas['has_warning'] > 0)
+            traces.scatter(
+                min_deltas['Time'].iloc[warn_ma],
+                min_deltas['min_delta'].iloc[warn_ma],
+                color='red',
+                label=None,
+            )
+        traces.legend()
+
+        aic_min_delta_bounds = [0, 2, 4, 7, 10]
+        for y in aic_min_delta_bounds:
+            traces.axhline(y=y, color='black', linestyle='dotted')
+
+        # heat map
+        _min_deltas = (
+            aics.loc[pd.IndexSlice[:, m, :], 'min_delta']
+            .reset_index('model', drop=True)
+            .unstack('channel')
+            .astype(float)
+        )
+
+        _has_warnings = (
+            aics.loc[pd.IndexSlice[:, m, :], 'has_warning']
+            .reset_index('model', drop=True)
+            .unstack('channel')
+            .astype(bool)
+        )
+
+        # _min_deltas_ma = np.ma.where(_has_warnings)
+
+        # bluish color blind friendly
+        pal = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c']
+
+        # redish color blind friendly
+        # pal = ['#fee5d9', '#fcae91', '#fb6a4a', '#de2d26', '#a50f15']
+
+        # grayscale
+        # pal = ['#f7f7f7', '#cccccc', '#969696', '#636363', '#252525']
+
+        cmap = mpl.colors.ListedColormap(pal)
+        cmap.set_over(color='#fcae91')
+        # cmap.set_under('0.75')
+        bounds = aic_min_delta_bounds
+        norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
+        # cb2 = mpl.colorbar.ColorbarBase(cmap=cmap,
+        im = heatmap.pcolormesh(
+            _min_deltas.index,
+            np.arange(len(_min_deltas.columns) + 1),
+            _min_deltas.T,
+            cmap=cmap,
+            norm=norm,
+        )
+
+        # rerp warnings mask
+        pal_ma = ['k']
+        bounds_ma = [0.5]
+        cmap_ma = mpl.colors.ListedColormap(pal_ma)
+        cmap_ma.set_over(color='crimson')
+        cmap_ma.set_under(alpha=0.0)  # don't show goods
+        norm_ma = mpl.colors.BoundaryNorm(bounds_ma, cmap_ma.N)
+        heatmap.pcolormesh(
+            _has_warnings.index,
+            np.arange(len(_has_warnings.columns) + 1),
+            _has_warnings.T,
+            cmap=cmap_ma,
+            norm=norm_ma,
+        )
+        yloc = mpl.ticker.IndexLocator(base=1, offset=0.5)
+        heatmap.yaxis.set_major_locator(yloc)
+        heatmap.set_yticklabels(_min_deltas.columns)
+        plt.colorbar(im, ax=heatmap, extend='max')
+
+    return f
