@@ -292,3 +292,12 @@ def test_dir():
     )
     for attr in dir(lmer_grid):
         assert hasattr(lmer_grid, attr)
+
+
+def test_compare_different_fixed_effects_with_REML():
+
+    epochs = fitgrid.generate(n_samples=2, n_channels=1)
+    grid1 = fitgrid.lmer(epochs, RHS='continuous + (1|categorical)', REML=True)
+    grid2 = fitgrid.lmer(epochs, RHS='(1|categorical)', REML=True)
+    with pytest.raises(FitGridError) as error:
+        grid1 | grid2

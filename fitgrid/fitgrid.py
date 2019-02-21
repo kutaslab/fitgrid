@@ -423,4 +423,36 @@ class LMFitGrid(FitGrid):
 
 
 class LMERFitGrid(FitGrid):
-    pass
+    def __or__(self, other):
+
+        if not isinstance(other, self.__class__):
+            raise FitGridError(
+                'Can only compare LMERFitGrid to other LMERFitGrid.'
+            )
+        # figure out the situation
+        this_fixef = self.tester.fixef.columns
+        other_fixef = other.tester.fixef.columns
+        same_fixef = this_fixef.equals(other_fixef)
+        at_least_one_fit_with_REML = self.tester._REML or other.tester._REML
+
+        if (not same_fixef) and at_least_one_fit_with_REML:
+            raise FitGridError(
+                'Cannot compare models with different fixed effects when '
+                'REML is used. For more context, see '
+                'https://stats.stackexchange.com/a/116796'
+            )
+        diff = self.AIC - other.AIC
+
+        import matplotlib.pyplot as plt
+
+        with plt.rc_context({'font.size': 14}):
+            fig = plt.figure(figsize=(16, 12))
+            gs = plt.GridSpec(1, 2, width_ratios=[15, 1])
+
+            heatmap = plt.subplot(gs[0])
+            heatmap_image = heatmap.imshow(diff.T, aspect='auto')
+
+            colorbar = plt.subplot(gs[1])
+            plt.colorbar(mappable=heatmap_image, cax=colorbar)
+
+        return fig, gs, heatmap, colorbar
