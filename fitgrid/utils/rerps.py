@@ -32,7 +32,8 @@ def get_rerps(
         RHS=None,
         parallel=True,
         n_cores=4,
-        save_as=None
+        save_as=None,
+        **kwargs,
 ):
     """Fit one or more model formulas and return the rERPs for analysis
 
@@ -60,6 +61,28 @@ def get_rerps(
     save_as : 2-ple of str (file_path, name)
        file path and name to save the rERP dataframe, if desired.
        Files are written with pd.to_hdf(file_path, name, format='fixed')
+
+    **kwargs : key=value arguments passed to the modeler 
+
+
+    Examples
+    --------
+
+    >>> lmer_formulas = [
+        '1 + fxd_a + (1 | rndm_a) + (1 | rndm_b)',
+        '1 + fxd_a + (1 | rndm_a)',
+        '1 + fxd_a + (1 | rndm_b)',
+    ]
+    >>> lmer_rerps_df = fitgrid.utils.get_rerps(
+        prerun_epochs_fg,
+        'lmer',
+        LHS=['MiPa'],
+        RHS=lmer_formulas,
+        parallel=True,
+        n_cores=24,
+        REML=False
+    )
+    
 
     """
 
@@ -123,7 +146,7 @@ def get_rerps(
 
 
 # ------------------------------------------------------------
-# private-ish rerp helpers for tidying messy fit objects
+# private-ish rerp helpers for scraping summary info from fits
 # ------------------------------------------------------------
 def _check_rerps_df(rerps_df):
     # order matters
@@ -132,7 +155,7 @@ def _check_rerps_df(rerps_df):
             and all(rerps_df.index.levels[-1] == KEY_LABELS)
     ):
 
-        raise ValueError("uh oh ... rerp dataframe format bug, yell at Urbach")
+        raise ValueError("uh oh ... rerp dataframe format bug, please post an issue")
 
 
 def _lm_get_coefs_df(fg_ols, ci_alpha=.05):
@@ -192,7 +215,7 @@ def _lm_get_coefs_df(fg_ols, ci_alpha=.05):
     model_vals = pd.concat(model_vals)
     model_vals['model'] = rhs
 
-    # replicate the constant model info for each parameter
+    # replicate the model info for each parameter
     # ... horribly redundant but mighty handy when slicing later
     pmvs = []
     for p in param_names:

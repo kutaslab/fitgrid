@@ -67,16 +67,27 @@ Plotting and statistics.
 
 .. _model-diagnostic-utilities:
 
-==========================
-Model diagnostic utilities
-==========================
+======================================
+Model fitting and diagnostic utilities
+======================================
 
-.. autofunction:: fitgrid.utils.lmer.fit_lmers
+.. autofunction:: fitgrid.utils.rerps.get_rerps
 
-.. autofunction:: fitgrid.utils.lmer.get_lmer_AICs
+.. autofunction:: fitgrid.utils.rerps.plot_chans
 
-.. autofunction:: fitgrid.utils.lmer.plot_lmer_AICs
+.. autofunction:: fitgrid.utils.rerps.get_AICs
 
-.. autofunction:: fitgrid.utils.lmer.plot_lmer_rERPs
 
-.. autofunction:: fitgrid.utils.lmer.get_lmer_dfbetas
+----------------------------
+Ordinary least squares (OLS)
+----------------------------
+
+.. autofunction:: fitgrid.utils.lm.get_vifs
+
+
+----------------------------
+Linear Mixed Effects (LMER)
+----------------------------
+
+.. autofunction:: get_lmer_dfbetas
+
