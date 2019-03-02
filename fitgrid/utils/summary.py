@@ -8,9 +8,9 @@ import fitgrid
 
 import pdb
 
-# enforce some common structure for rerp dataframes
+# enforce some common structure for summary dataframes
 # scraped out of different fit objects.
-INDEX_NAMES = ['Time', 'model', 'param', 'key']
+INDEX_NAMES = ['Time', 'model', 'beta', 'key']
 KEY_LABELS = [
     '2.5_ci',
     '97.5_ci',
@@ -24,69 +24,98 @@ KEY_LABELS = [
 ]
 
 
-# top level rerp getter
-def get_rerps(
-        epochs_fg=None,
-        modeler=None,
-        LHS=None,
-        RHS=None,
+def summarize(
+        epochs_fg,
+        modeler,
+        LHS,
+        RHS,
         parallel=True,
         n_cores=4,
         save_as=None,
         **kwargs,
 ):
-    """Fit one or more model formulas and return the rERPs for analysis
+    """Fit a list of one or more models and return summary information.
+
+    Convenience wrapper for fitting a stack of models
+    while keeping memory use manageable.
+
 
     Parameters
     ----------
     epochs_fg : fitgrid.epochs.Epochs
-       tabular rows x columns of epochs data for modeling as
-       returned by fitgrid.epochs_from_dataframe() or fitgrid.from_hdf()
+       as returned by `fitgrid.epochs_from_dataframe()` or
+       `fitgrid.from_hdf()`, *NOT* a `pandas.DataFrame`.
 
-    modeler : str {'lm', 'lmer'}
-       class of model to fit, must match RHS formula language
+    modeler : {'lm', 'lmer'}
+       class of model to fit, `lm` for OLS, `lmer` for linear mixed-effects.
+       Note: the RHS formula language must match the modeler.
 
-    LHS : fitgrid.lmer LHS specification
-       list of one or more columns to model, e.g., EEG data channels
+    LHS : list of str
+       the data columns to model
 
     RHS : model formula or list of model formulas to fit
-       for the lm formula langauge see Python package patsy docs
-       for the lmer formula langauge see R library lme4 docs
+       see the Python package `patsy` docs for `lm` formula langauge
+       and the R library `lme4` docs for the `lmer` formula langauge.
 
     parallel : bool
 
     n_cores : int
-       number of cores to use. See what works but be nice.
+       number of cores to use. See what works, but golden rule if running
+       on a shared machine.
 
-    save_as : 2-ple of str (file_path, name)
-       file path and name to save the rERP dataframe, if desired.
-       Files are written with pd.to_hdf(file_path, name, format='fixed')
+    save_as : 2-ple of str, optional
+       write the summary dataframe to disk with
+       `pd.to_hdf(path, key, format='fixed')`
 
-    **kwargs : key=value arguments passed to the modeler 
+    **kwargs : key=value arguments passed to the modeler
+
+
+    Returns
+    -------
+    summary_df : `pandas.DataFrame`
+        indexed by `timestamp`, `model_formula`, `beta`, and `key`,
+        where the keys are `ll.l_ci`, `uu.u_ci`, `AIC`, `DF`, `Estimate`,
+        `P-val`, `SE`, `T-stat`, `has_warning`.
 
 
     Examples
     --------
 
-    >>> lmer_formulas = [
-        '1 + fxd_a + (1 | rndm_a) + (1 | rndm_b)',
-        '1 + fxd_a + (1 | rndm_a)',
-        '1 + fxd_a + (1 | rndm_b)',
+    >>> lm_formulas = [
+        '1 + fixed_a + fixed_b + fixed_a:fixed_b',
+        '1 + fixed_a + fixed_b',
+        '1 + fixed_a,
+        '1 + fixed_b,
+        '1',
     ]
-    >>> lmer_rerps_df = fitgrid.utils.get_rerps(
-        prerun_epochs_fg,
-        'lmer',
-        LHS=['MiPa'],
+    >>> lm_summary_df = fitgrid.utils.summarize(
+        epochs_fg,
+        'lm',
+        LHS=['MiPf', 'MiCe', 'MiPa', 'MiOc'],
         RHS=lmer_formulas,
         parallel=True,
         n_cores=24,
         REML=False
     )
-    
+
+    >>> lmer_formulas = [
+        '1 + fixed_a + (1 + fixed_a | random_a) + (1 | random_b)',
+        '1 + fixed_a + (1 | random_a) + (1 | random_b)',
+        '1 + fixed_a + (1 | random_a)',
+    ]
+    >>> lmer_summary_df = fitgrid.utils.summarize(
+        epochs_fg,
+        'lmer',
+        LHS=['MiPf', 'MiCe', 'MiPa', 'MiOc'],
+        RHS=lmer_formulas,
+        parallel=True,
+        n_cores=24,
+        REML=False
+    )
 
     """
 
-    FutureWarning('fitgrid rerps are in early days, subject to change')
+    FutureWarning('fitgrid summaries are in early days, subject to change')
 
     # modicum of guarding
     msg = None
@@ -101,10 +130,10 @@ def get_rerps(
     # select modler
     if modeler == 'lm':
         _modeler = fitgrid.lm
-        _scraper = _lm_get_coefs_df
+        _scraper = _lm_get_summaries_df
     elif modeler == 'lmer':
         _modeler = fitgrid.lmer
-        _scraper = _lmer_get_coefs_df
+        _scraper = _lmer_get_summaries_df
     else:
         raise ValueError("modeler must be 'lm' or 'lmer'")
 
@@ -112,10 +141,10 @@ def get_rerps(
     if isinstance(RHS, str):
         RHS = [RHS]
 
-    # loop through model formulas fitting and scraping rerps
-    coefs = []
+    # loop through model formulas fitting and scraping summaries
+    summaries = []
     for _rhs in RHS:
-        coefs.append(
+        summaries.append(
             _scraper(
                 _modeler(
                     epochs_fg,
@@ -127,38 +156,40 @@ def get_rerps(
             )
         )
 
-    rerps_df = pd.concat(coefs)
-    _check_rerps_df(rerps_df)
+    summary_df = pd.concat(summaries)
+    _check_summary_df(summary_df)
 
-    del coefs
+    del summaries
 
     if save_as is not None:
         try:
             fname, group = save_as
-            rerps_df.to_hdf(fname, group)
+            summary_df.to_hdf(fname, group)
         except Exception as fail:
             warnings.warn(
                 f"save_as={save_as} failed: {fail}. You can try to "
                 "save the returned dataframe with pandas.to_hdf()"
             )
-        
-    return rerps_df
+
+    return summary_df
 
 
 # ------------------------------------------------------------
-# private-ish rerp helpers for scraping summary info from fits
+# private-ish summary helpers for scraping summary info from fits
 # ------------------------------------------------------------
-def _check_rerps_df(rerps_df):
+def _check_summary_df(summary_df):
     # order matters
     if not (
-            rerps_df.index.names == INDEX_NAMES
-            and all(rerps_df.index.levels[-1] == KEY_LABELS)
+            summary_df.index.names == INDEX_NAMES
+            and all(summary_df.index.levels[-1] == KEY_LABELS)
     ):
 
-        raise ValueError("uh oh ... rerp dataframe format bug, please post an issue")
+        raise ValueError(
+            "uh oh ... fitgrid summary dataframe bug, please post an issue"
+        )
 
 
-def _lm_get_coefs_df(fg_ols, ci_alpha=.05):
+def _lm_get_summaries_df(fg_ols, ci_alpha=.05):
     """scrape fitgrid.LMFitgrid OLS info into a tidy dataframe
 
     Parameters
@@ -171,15 +202,15 @@ def _lm_get_coefs_df(fg_ols, ci_alpha=.05):
 
     Returns
     -------
-    coefs_df : pd.DataFrame
+    summaries_df : pd.DataFrame
        index.names = [`Time`, `model`, `param`, `key`]
        columns are the `fg_ols` columns
 
 
     Notes
     -----
-    The `coefs_df` dataframe is row and column indexed the same
-    as for fitgrid.lmer._get_coefs_df()
+    The `summaries_df` dataframe is row and column indexed the same
+    as for fitgrid.lmer._get_summaries_df()
 
     """
 
@@ -187,7 +218,6 @@ def _lm_get_coefs_df(fg_ols, ci_alpha=.05):
         0,
         fg_ols._grid.columns[0]
     ].model.formula.iat[0, 0].split('~')[1]
-
 
     # fitgrid returns them in the last column of the index
     param_names = fg_ols.params.index.get_level_values(-1).unique()
@@ -220,14 +250,16 @@ def _lm_get_coefs_df(fg_ols, ci_alpha=.05):
     pmvs = []
     for p in param_names:
         pmv = model_vals.copy()
-        pmv['param'] = p
+        # pmv['param'] = p
+        pmv['beta'] = p
         pmvs.append(pmv)
+
     pmvs = pd.concat(pmvs).reset_index().set_index(INDEX_NAMES)
 
     # lookup the param_name specifc info for this bundle
-    coefs = []
+    summaries = []
 
-    # select model point estimates
+    # select model point estimates (summary_name, OLS_attribute)
     sv_attrs = [
         ('Estimate', 'params'),  # coefficient value
         ('SE', 'bse'),
@@ -240,12 +272,13 @@ def _lm_get_coefs_df(fg_ols, ci_alpha=.05):
         if attr_vals is None:
             raise AttributeError(f"not found: {attr}")
 
-        attr_vals.index = attr_vals.index.rename(['Time', 'param'])
+        # attr_vals.index = attr_vals.index.rename(['Time', 'param'])
+        attr_vals.index = attr_vals.index.rename(['Time', 'beta'])
         attr_vals['model'] = rhs
         attr_vals['key'] = key
 
         # update list of param bundles
-        coefs.append(attr_vals.reset_index().set_index(INDEX_NAMES))
+        summaries.append(attr_vals.reset_index().set_index(INDEX_NAMES))
 
     # special handling for confidence interval
     ci_bounds = [
@@ -255,29 +288,31 @@ def _lm_get_coefs_df(fg_ols, ci_alpha=.05):
         ]
     ]
     cis = fg_ols.conf_int(alpha=ci_alpha)
-    cis.index = cis.index.rename(['Time', 'param', 'key'])
+    # cis.index = cis.index.rename(['Time', 'param', 'key'])
+    cis.index = cis.index.rename(['Time', 'beta', 'key'])
     cis.index = cis.index.set_levels(ci_bounds, 'key')
     cis['model'] = rhs
-    coefs.append(cis.reset_index().set_index(INDEX_NAMES))
+    summaries.append(cis.reset_index().set_index(INDEX_NAMES))
 
-    coefs_df = pd.concat(coefs)
+    summaries_df = pd.concat(summaries)
 
     # add the parmeter model info
-    coefs_df = pd.concat([coefs_df, pmvs]).sort_index().astype(float)
-    _check_rerps_df(coefs_df)
+    summaries_df = pd.concat([summaries_df, pmvs]).sort_index().astype(float)
+    _check_summary_df(summaries_df)
 
-    return coefs_df
+    return summaries_df
 
 
-def _lmer_get_coefs_df(fg_lmer):
-    """scrape fitgrid.LMERFitGrid.coefs into a standardized format dataframe
+def _lmer_get_summaries_df(fg_lmer):
+    """scrape fitgrid.LMERFitGrid.summaries into a standardized format dataframe
 
     Parameters
     ----------
     fg_lmer : fitgrid.LMERFitGrid
 
     """
-    INDEX_NAMES = ['Time', 'model', 'param', 'key']
+
+    # INDEX_NAMES = ['Time', 'model', 'param', 'key']
 
     attribs = ['AIC', 'has_warning']
 
@@ -285,15 +320,19 @@ def _lmer_get_coefs_df(fg_lmer):
     rhs = re.sub(r"[ ]{1,}", r" ", rhs)
 
     # coef estimates and stats ... these are 2-D
-    coefs_df = fg_lmer.coefs.copy()  # don't mod the original
-    coefs_df.index.names = ['Time', 'param', 'key']
-    coefs_df = coefs_df.query("key != 'Sig'")  # drop the silly stars
-    coefs_df.insert(0, 'model', rhs)
-    coefs_df.set_index('model', append=True, inplace=True)
-    coefs_df.reset_index(['key', 'param'], inplace=True)
+    summaries_df = fg_lmer.coefs.copy()  # don't mod the original
 
-    # LOGGER.info('collecting fit attributes into coefs dataframe')
-    # scrape AIC and other useful 1-D fit attributes into coefs_df
+    # summaries_df.index.names = ['Time', 'param', 'key']
+    summaries_df.index.names = ['Time', 'beta', 'key']
+    summaries_df = summaries_df.query("key != 'Sig'")  # drop the silly stars
+    summaries_df.insert(0, 'model', rhs)
+    summaries_df.set_index('model', append=True, inplace=True)
+
+    # summaries_df.reset_index(['key', 'param'], inplace=True)
+    summaries_df.reset_index(['key', 'beta'], inplace=True)
+
+    # LOGGER.info('collecting fit attributes into summaries dataframe')
+    # scrape AIC and other useful 1-D fit attributes into summaries_df
     for attrib in attribs:
         # LOGGER.info(attrib)
         attrib_df = getattr(fg_lmer, attrib).copy()
@@ -301,43 +340,44 @@ def _lmer_get_coefs_df(fg_lmer):
         attrib_df.insert(1, 'key', attrib)
 
         # propagate attributes to each param ... wasteful but tidy
-        for param in coefs_df['param'].unique():
-            param_attrib = attrib_df.copy().set_index('model', append=True)
-            param_attrib.insert(0, 'param', param)
-            coefs_df = coefs_df.append(param_attrib)
+        for beta in summaries_df['beta'].unique():
+            beta_attrib = attrib_df.copy().set_index('model', append=True)
+            beta_attrib.insert(0, 'beta', beta)
+            summaries_df = summaries_df.append(beta_attrib)
 
-    coefs_df = (
-        coefs_df
+    summaries_df = (
+        summaries_df
         .reset_index()
         .set_index(INDEX_NAMES)
         .sort_index().astype(float)
     )
-    _check_rerps_df(coefs_df)
+    _check_summary_df(summaries_df)
 
-    return coefs_df
+    return summaries_df
 
 
-def get_AICs(rerps):
-    """collect AICs, AIC_min deltas, and lmer warnings from rerps
+def get_AICs(summary_df):
+    """collect AICs, AIC_min deltas, and lmer warnings from summary_df
 
     Parameters
     ----------
 
-    rerps : multi-indexed pandas.DataFrame
-       Time, model, param, key x LHS, as returned by fit_lmers()
+    summary_df : multi-indexed pandas.DataFrame
+       as returned by `fitgrid.summary.summarize()`
 
     Returns
     -------
     aics : multi-indexed pandas pd.DataFrame
 
     """
+
     # AIC and lmer warnings are 1 per model, pull from the first
     # model coefficient only, typically (Intercept)
-    first_param = rerps.index.get_level_values('param').unique()[0]
+    first_param = summary_df.index.get_level_values('beta').unique()[0]
     AICs = pd.DataFrame(
         (
-            rerps.loc[pd.IndexSlice[:, :, first_param, 'AIC'], :]
-            .reset_index(['key', 'param'], drop=True)
+            summary_df.loc[pd.IndexSlice[:, :, first_param, 'AIC'], :]
+            .reset_index(['key', 'beta'], drop=True)
             .stack(0)
         ),
         columns=['AIC'],
@@ -357,8 +397,8 @@ def get_AICs(rerps):
 
     # merge in corresponding column of lmer warnings
     has_warnings = pd.DataFrame(
-        rerps.loc[pd.IndexSlice[:, :, first_param, 'has_warning'], :]
-        .reset_index(['key', 'param'], drop=True)
+        summary_df.loc[pd.IndexSlice[:, :, first_param, 'has_warning'], :]
+        .reset_index(['key', 'beta'], drop=True)
         .stack(0),
         columns=['has_warning'],
     )
@@ -369,8 +409,8 @@ def get_AICs(rerps):
     FutureWarning('coef AICs are in early days, subject to change')
     return AICs
 
-def plot_chans(
-        rerps_df,
+def plot_betas(
+        summary_df,
         LHS,
         alpha=0.05,
         fdr='BY',
@@ -379,15 +419,15 @@ def plot_chans(
         **kwargs
 ):
 
-    """Plot single channel rERPs with matplotlib
+    """Plot model parameter estimates for data columns in LHS
 
     Parameters
     ----------
-    rerps_df : pd.DataFrame
-       as returned by fitgrid.utils.rerps.get_rerps
+    summary_df : pd.DataFrame
+       as returned by fitgrid.utils.summary.summarize
 
-    LHS : fitgrid.LHS specification
-       see fitgrid.fitgrid docs
+    LHS : list of str
+       column names of the data fitgrid.fitgrid docs
 
     alpha : float
        alpha level for false discovery rate correction
@@ -417,8 +457,7 @@ def plot_chans(
     if figsize is None:
         figsize = (8, 3)
 
-    # coefs = fg_lmer.coefs.index.get_level_values('param').unique()
-    coefs = rerps_df.index.get_level_values('param').unique()
+    coefs = summary_df.index.get_level_values('beta').unique()
     for col in LHS:
         # for idx, coef in enumerate(coefs):
         for coef in coefs:
@@ -433,7 +472,7 @@ def plot_chans(
 
             # unstack this coef, column for plotting
             fg_coef = (
-                rerps_df.loc[pd.IndexSlice[:, :, coef], col]
+                summary_df.loc[pd.IndexSlice[:, :, coef], col]
                 .unstack(level='key')
                 .reset_index('Time')
             )
@@ -550,14 +589,14 @@ def plot_chans(
 
 
 def plot_AICs(aics, figsize=None, gridspec_kw=None, **kwargs):
-    """plot FitGrid min delta AICs and rerp warnings
+    """plot FitGrid min delta AICs and fitter warnings
 
     Thresholds of AIC_min delta at 2, 4, 7, 10 are from Burnham &
     Anderson 2004, p. 271.
 
     Parameters
     ----------
-    aics : pd.DataFrame as returned by get_rerp_AICs()
+    aics : pd.DataFrame as returned by summary.get_AICs()
 
     figsize : 2-ple
        pyplot.figure figure size parameter
@@ -679,7 +718,7 @@ def plot_AICs(aics, figsize=None, gridspec_kw=None, **kwargs):
             norm=norm,
         )
 
-        # rerp warnings mask
+        # fitter warnings mask
         pal_ma = ['k']
         bounds_ma = [0.5]
         cmap_ma = mpl.colors.ListedColormap(pal_ma)

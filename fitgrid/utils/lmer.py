@@ -7,7 +7,7 @@ import pandas as pd
 import fitgrid
 
 
-def get_lmer_dfbetas(epochs, factor, **kwargs):
+def get_dfbetas(epochs, factor, **kwargs):
     r"""Fit lmers leaving out factor levels one by one, compute DBETAS.
 
     Parameters
