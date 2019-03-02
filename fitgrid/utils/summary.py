@@ -32,10 +32,10 @@ def summarize(
         save_as=None,
         **kwargs,
 ):
-    """Fit a list of one or more models and return summary information.
+    """Fit the data with one or more model formulas and return summary information.
 
-    Convenience wrapper for fitting a stack of models
-    while keeping memory use manageable.
+    Convenience wrapper, useful for keeping memory use manageable when
+    gathering betas and fit measures for a stack of models.
 
 
     Parameters
@@ -212,10 +212,12 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=.05):
 
     """
 
+    # grab and tidy the formula RHS
     rhs = fg_ols[
         0,
         fg_ols._grid.columns[0]
-    ].model.formula.iat[0, 0].split('~')[1]
+    ].model.formula.iat[0, 0].split('~')[1].strip()
+    rhs = re.sub(r"\s+", " ", rhs)
 
     # fitgrid returns them in the last column of the index
     param_names = fg_ols.params.index.get_level_values(-1).unique()
@@ -313,8 +315,9 @@ def _lmer_get_summaries_df(fg_lmer):
 
     attribs = ['AIC', 'has_warning']
 
+    # grab and tidy the formulat RHS
     rhs = fg_lmer.formula.iloc[0, 0].split('~')[1].strip()
-    rhs = re.sub(r"[ ]{1,}", r" ", rhs)
+    rhs = re.sub(r"\s+", " ", rhs)
 
     # coef estimates and stats ... these are 2-D
     summaries_df = fg_lmer.coefs.copy()  # don't mod the original
@@ -351,7 +354,7 @@ def _lmer_get_summaries_df(fg_lmer):
     return summaries_df
 
 
-def get_AICs(summary_df):
+def _get_AICs(summary_df):
     """collect AICs, AIC_min deltas, and lmer warnings from summary_df
 
     Parameters
@@ -585,15 +588,16 @@ def plot_betas(
     return figs
 
 
-def plot_AICs(aics, figsize=None, gridspec_kw=None, **kwargs):
-    """plot FitGrid min delta AICs and fitter warnings
+def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
+    r"""plot FitGrid min delta AICs and fitter warnings
 
     Thresholds of AIC_min delta at 2, 4, 7, 10 are from Burnham &
     Anderson 2004, p. 271.
 
     Parameters
     ----------
-    aics : pd.DataFrame as returned by summary.get_AICs()
+    summary_df : pd.DataFrame
+       as returned by fitgrid.utils.summary.summarize
 
     figsize : 2-ple
        pyplot.figure figure size parameter
@@ -611,25 +615,35 @@ def plot_AICs(aics, figsize=None, gridspec_kw=None, **kwargs):
     Notes
     -----
 
-    From the article:
+       Where :math:`AIC_{min}` is the lowest AIC value for "a set of a
+       priori candidate models well-supported by the underlying
+       science :math:`g_{i}, i = 1, 2, ..., R)`",
+
+       .. math:: \Delta_{i} = AIC_{i} - AIC_{min}
+
+       "is the information loss experienced if we are using fitted
+       model :math:`g_{i}` rather than the best model, :math:`g_{min}`
+       for inference." ...
 
        "Some simple rules of thumb are often useful in assessing the
-        relative merits of models in the set: Models having
-        delta_{i} <= 2 have substantial support (evidence), those
-        in which delta_{i} 4 <= 7 have considerably less support,
-        and models having delta_{i} > 10 have essentially no
-        support."
+       relative merits of models in the set: Models having
+       :math:`\Delta_{i} <= 2` have substantial support (evidence), those
+       in which :math:`\Delta_{i} 4 <= 7` have considerably less support,
+       and models having :math:`\Delta_{i} > 10` have essentially no
+       support." [BurAnd2004]_ p. 270-271.
 
 
     References
     ----------
 
-    .. [1] Burnham, K. P., & Anderson, D. R. (2004). Multimodel
+    .. [BurAnd2004] Burnham, K. P., & Anderson, D. R. (2004). Multimodel
        inference - understanding AIC and BIC in model
        selection. Sociological Methods & Research, 33(2),
        261-304. doi:10.1177/0049124104268644
 
     """
+
+    aics = _get_AICs(summary_df)
     models = aics.index.get_level_values('model').unique()
     channels = aics.index.get_level_values('channel').unique()
 

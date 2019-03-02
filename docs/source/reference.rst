@@ -77,21 +77,21 @@ model fit summaries
 
 .. autofunction:: fitgrid.utils.summary.summarize
 
-.. autofunction:: fitgrid.utils.summary.plot_beta_hats
+.. autofunction:: fitgrid.utils.summary.plot_betas
 
-.. autofunction:: fitgrid.utils.summary.get_AICs
+.. autofunction:: fitgrid.utils.summary.plot_AICmin_deltas
 
 
----------------------------
-lm (ordinary least squares)
----------------------------
+--------------
+lm diagnostics
+--------------
 
 .. autofunction:: fitgrid.utils.lm.get_vifs
 
 
----------------------------
-lmer (linear mixed-effects)
----------------------------
+----------------
+lmer diagnostics
+----------------
 
 .. autofunction:: fitgrid.utils.lmer.get_dfbetas
 

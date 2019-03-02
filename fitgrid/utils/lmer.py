@@ -7,7 +7,7 @@ import pandas as pd
 import fitgrid
 
 
-def get_dfbetas(epochs, factor, **kwargs):
+def get_lmer_dfbetas(epochs, factor, **kwargs):
     r"""Fit lmers leaving out factor levels one by one, compute DBETAS.
 
     Parameters
@@ -36,7 +36,7 @@ def get_dfbetas(epochs, factor, **kwargs):
 
     Notes
     -----
-    DFBETAS is computed according to the following formula [1]_:
+    DFBETAS is computed according to the following formula [NieGroPel2012]_:
 
     .. math::
 
@@ -46,7 +46,7 @@ def get_dfbetas(epochs, factor, **kwargs):
 
     References
     ----------
-    .. [1] Nieuwenhuis, R., te Grotenhuis, M., & Pelzer, B. (2012).
+    .. [NieGroPel2012] Nieuwenhuis, R., te Grotenhuis, M., & Pelzer, B. (2012).
        influence.ME: tools for detecting influential data in mixed effects models.
        R journal, 4(2), 38-47.
 
