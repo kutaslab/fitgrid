@@ -93,5 +93,5 @@ lm diagnostics
 lmer diagnostics
 ----------------
 
-.. autofunction:: fitgrid.utils.lmer.get_dfbetas
+.. autofunction:: fitgrid.utils.lmer.get_lmer_dfbetas
 
