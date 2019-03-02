@@ -6,8 +6,6 @@ import matplotlib as mpl
 from matplotlib import pyplot as plt
 import fitgrid
 
-import pdb
-
 # enforce some common structure for summary dataframes
 # scraped out of different fit objects.
 INDEX_NAMES = ['Time', 'model', 'beta', 'key']
@@ -203,7 +201,7 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=.05):
     Returns
     -------
     summaries_df : pd.DataFrame
-       index.names = [`Time`, `model`, `param`, `key`]
+       index.names = [`Time`, `model`, `beta`, `key`]
        columns are the `fg_ols` columns
 
 
@@ -243,9 +241,11 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=.05):
     model_vals.append(warnings)
 
     model_vals = pd.concat(model_vals)
+
+    # constants across the model
     model_vals['model'] = rhs
 
-    # replicate the model info for each parameter
+    # replicate the model info for each beta
     # ... horribly redundant but mighty handy when slicing later
     pmvs = []
     for p in param_names:
@@ -259,7 +259,7 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=.05):
     # lookup the param_name specifc info for this bundle
     summaries = []
 
-    # select model point estimates (summary_name, OLS_attribute)
+    # select model point estimates mapped like so (key, OLS_attribute)
     sv_attrs = [
         ('Estimate', 'params'),  # coefficient value
         ('SE', 'bse'),
@@ -272,12 +272,11 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=.05):
         if attr_vals is None:
             raise AttributeError(f"not found: {attr}")
 
-        # attr_vals.index = attr_vals.index.rename(['Time', 'param'])
         attr_vals.index = attr_vals.index.rename(['Time', 'beta'])
         attr_vals['model'] = rhs
         attr_vals['key'] = key
 
-        # update list of param bundles
+        # update list of beta bundles
         summaries.append(attr_vals.reset_index().set_index(INDEX_NAMES))
 
     # special handling for confidence interval
@@ -288,7 +287,7 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=.05):
         ]
     ]
     cis = fg_ols.conf_int(alpha=ci_alpha)
-    # cis.index = cis.index.rename(['Time', 'param', 'key'])
+
     cis.index = cis.index.rename(['Time', 'beta', 'key'])
     cis.index = cis.index.set_levels(ci_bounds, 'key')
     cis['model'] = rhs
@@ -312,8 +311,6 @@ def _lmer_get_summaries_df(fg_lmer):
 
     """
 
-    # INDEX_NAMES = ['Time', 'model', 'param', 'key']
-
     attribs = ['AIC', 'has_warning']
 
     rhs = fg_lmer.formula.iloc[0, 0].split('~')[1].strip()
@@ -322,13 +319,11 @@ def _lmer_get_summaries_df(fg_lmer):
     # coef estimates and stats ... these are 2-D
     summaries_df = fg_lmer.coefs.copy()  # don't mod the original
 
-    # summaries_df.index.names = ['Time', 'param', 'key']
     summaries_df.index.names = ['Time', 'beta', 'key']
     summaries_df = summaries_df.query("key != 'Sig'")  # drop the silly stars
     summaries_df.insert(0, 'model', rhs)
     summaries_df.set_index('model', append=True, inplace=True)
 
-    # summaries_df.reset_index(['key', 'param'], inplace=True)
     summaries_df.reset_index(['key', 'beta'], inplace=True)
 
     # LOGGER.info('collecting fit attributes into summaries dataframe')
@@ -409,6 +404,7 @@ def get_AICs(summary_df):
     FutureWarning('coef AICs are in early days, subject to change')
     return AICs
 
+
 def plot_betas(
         summary_df,
         LHS,
@@ -419,7 +415,7 @@ def plot_betas(
         **kwargs
 ):
 
-    """Plot model parameter estimates for data columns in LHS
+    """Plot model parameter estimates for each data column in LHS
 
     Parameters
     ----------
@@ -441,9 +437,10 @@ def plot_betas(
     kwargs : dict
        keyword args passed to pyplot.subplots()
 
+
     Returns
     -------
-    f : matplotlib.pyplot.Figure
+    figs : list
 
     """
 
@@ -457,34 +454,34 @@ def plot_betas(
     if figsize is None:
         figsize = (8, 3)
 
-    coefs = summary_df.index.get_level_values('beta').unique()
+    betas = summary_df.index.get_level_values('beta').unique()
     for col in LHS:
-        # for idx, coef in enumerate(coefs):
-        for coef in coefs:
+        # for idx, beta in enumerate(betas):
+        for beta in betas:
 
-            # f, ax_coef = plt.subplots(len(coefs), ncol=1, **kwargs)
-            f, ax_coef = plt.subplots(
+            # f, ax_beta = plt.subplots(len(betas), ncol=1, **kwargs)
+            f, ax_beta = plt.subplots(
                 nrows=1, ncols=1, figsize=figsize, **kwargs
             )
 
-            # if len(coefs) == 1:
-            #    ax_coef = [ax_coef]
+            # if len(betas) == 1:
+            #    ax_beta = [ax_beta]
 
-            # unstack this coef, column for plotting
-            fg_coef = (
-                summary_df.loc[pd.IndexSlice[:, :, coef], col]
+            # unstack this beta, column for plotting
+            fg_beta = (
+                summary_df.loc[pd.IndexSlice[:, :, beta], col]
                 .unstack(level='key')
                 .reset_index('Time')
             )
 
             # log scale DF
-            fg_coef['log10DF'] = fg_coef['DF'].apply(
+            fg_beta['log10DF'] = fg_beta['DF'].apply(
                 lambda x: np.log10(x)
             )
 
             # calculate B-H FDR
-            m = len(fg_coef)
-            pvals = fg_coef['P-val'].copy().sort_values()
+            m = len(fg_beta)
+            pvals = fg_beta['P-val'].copy().sort_values()
             ks = list()
 
             if fdr not in ['BH', 'BY']:
@@ -505,40 +502,40 @@ def plot_betas(
                 crit_p = pvals.iloc[max(ks)]
             else:
                 crit_p = 0.0
-            fg_coef['sig_fdr'] = fg_coef['P-val'] < crit_p
+            fg_beta['sig_fdr'] = fg_beta['P-val'] < crit_p
 
             # slice out sig ps for plotting
-            sig_ps = fg_coef.loc[fg_coef['sig_fdr'], :]
+            sig_ps = fg_beta.loc[fg_beta['sig_fdr'], :]
 
             # lmer SEs
-            fg_coef['mn+SE'] = (
-                fg_coef['Estimate'] + fg_coef['SE']
+            fg_beta['mn+SE'] = (
+                fg_beta['Estimate'] + fg_beta['SE']
             ).astype(float)
-            fg_coef['mn-SE'] = (
-                fg_coef['Estimate'] - fg_coef['SE']
+            fg_beta['mn-SE'] = (
+                fg_beta['Estimate'] - fg_beta['SE']
             ).astype(float)
 
-            fg_coef.plot(
+            fg_beta.plot(
                 x='Time',
                 y='Estimate',
-                # ax=ax_coef[idx],
-                ax=ax_coef,
+                # ax=ax_beta[idx],
+                ax=ax_beta,
                 color='black',
                 alpha=0.5,
-                label=coef,
+                label=beta,
             )
 
-            # ax_coef[idx].fill_between(
-            ax_coef.fill_between(
-                x=fg_coef['Time'],
-                y1=fg_coef['mn+SE'],
-                y2=fg_coef['mn-SE'],
+            # ax_beta[idx].fill_between(
+            ax_beta.fill_between(
+                x=fg_beta['Time'],
+                y1=fg_beta['mn+SE'],
+                y2=fg_beta['mn-SE'],
                 alpha=0.2,
                 color='black',
             )
 
             # plot log10 df
-            fg_coef.plot(x='Time', y='log10DF', ax=ax_coef)
+            fg_beta.plot(x='Time', y='log10DF', ax=ax_beta)
 
             if s is not None:
                 my_kwargs = {'s': s}
@@ -546,7 +543,7 @@ def plot_betas(
                 my_kwargs = {}
 
             # color sig ps
-            ax_coef.scatter(
+            ax_beta.scatter(
                 sig_ps['Time'],
                 sig_ps['Estimate'],
                 color='black',
@@ -557,11 +554,11 @@ def plot_betas(
 
             try:
                 # color warnings last to mask sig ps
-                warn_ma = np.ma.where(fg_coef['has_warning'] > 0)[0]
-                # ax_coef[idx].scatter(
-                ax_coef.scatter(
-                    fg_coef['Time'].iloc[warn_ma],
-                    fg_coef['Estimate'].iloc[warn_ma],
+                warn_ma = np.ma.where(fg_beta['has_warning'] > 0)[0]
+                # ax_beta[idx].scatter(
+                ax_beta.scatter(
+                    fg_beta['Time'].iloc[warn_ma],
+                    fg_beta['Estimate'].iloc[warn_ma],
                     color='red',
                     zorder=4,
                     label='lmer warnings',
@@ -570,18 +567,18 @@ def plot_betas(
             except Exception:
                 pass
 
-            # ax_coef[idx].axhline(y=0, linestyle='--', color='black')
-            # ax_coef[idx].legend()
+            # ax_beta[idx].axhline(y=0, linestyle='--', color='black')
+            # ax_beta[idx].legend()
 
-            ax_coef.axhline(y=0, linestyle='--', color='black')
-            ax_coef.legend(loc=(1.0, 0.0))
+            ax_beta.axhline(y=0, linestyle='--', color='black')
+            ax_beta.legend(loc=(1.0, 0.0))
 
             # title
             # rhs = fg_lmer.formula[col].unique()[0]
-            formula = fg_coef.index.get_level_values('model').unique()[0]
+            formula = fg_beta.index.get_level_values('model').unique()[0]
             assert isinstance(formula, str)
-            # ax_coef[idx].set_title(f'{col} {coef}: {formula}')
-            ax_coef.set_title(f'{col} {coef}: {formula}')
+            # ax_beta[idx].set_title(f'{col} {beta}: {formula}')
+            ax_beta.set_title(f'{col} {beta}: {formula}')
 
             figs.append(f)
 
