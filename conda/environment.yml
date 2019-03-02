@@ -12,7 +12,7 @@ dependencies:
     - pymer4
     - r-lme4
     - r-lmerTest
-    - numpy
+    - numpy=1.15.4
     - scipy
     - pandas
     - matplotlib
