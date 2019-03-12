@@ -7,7 +7,7 @@ Background: signal + noise across time
 ======================================
 
 ``fitgrid`` began as an implementation of the regression ERP (rERP)
-framework described in [SmiKut2015a]_. Since the 1950's, the dominant
+framework described in [SmiKut2015a]_. Since the 1960's, the dominant
 (but not only) experimental paradigm in human EEG research has been
 the time-domain averge ERP. This approach uses the familiar trick of
 averaging a set of noisy measurements to get a better (more precise)
@@ -15,18 +15,18 @@ estimate of the "true" value. Under the assumption that there is a
 small but consistent brain response to the event, averaging multiple
 measurements should tend to cancel out the (typically much larger)
 variation in the background EEG. From a signal processing perspective,
-this assumes a fixed event-related signal that varies with time,
-:math:`x(t)`, and noise that does not. That is for each epoch
-:math:`i` and measurement :math:`y_{i}`,
+this assumes the time-series of measurements :math:`y_{i}` are a
+combination of event-related signal that varies systematically with
+time, :math:`x(t)`, and random noise that does not.
 
-.. math:: y_{i}(t) = x(t) + \epsilon_{i}
+.. math:: y_{i}(t) = x(t) + \mathit{noise}_{i}
 
 --------------------------------------
 Generalization #1: regression modeling
 --------------------------------------
 
 As Smith pointed out, the signal + noise model is a special case of
-linear regression. That the familiar time-domain average ERP is
+linear regression. The familiar time-domain average ERP is
 mathematically identical to the estimated intercept coefficient
 :math:`\hat{\beta}_{0}` ("beta-hat nought") in an intercept-only
 linear regression model fit to the :math:`n` data samples :math:`i =
@@ -35,76 +35,83 @@ linear regression model fit to the :math:`n` data samples :math:`i =
 .. math:: y_{i}(t) = \beta_{0}(t) + \epsilon_{i}
 
 The time series of these :math:`\hat{\beta}_{0}` estimates is exactly
-the time-domain average ERP from a regression modeling perspective,
-dubbed regression ERP (rERP). More generally, multiple regression
-models characterize relationships between predictor variables
-:math:`X_{1} ... X_{k}` and the response variable :math:`y`.
+the time-domain average ERP viewed from a regression modeling
+perspective. More generally, regression models characterize
+relationships between multiple predictor variables :math:`X_{1} ... X_{k}` and
+the response variable :math:`y`.
 
 .. math:: y_{i}(t) = \beta_{0}(t) + \beta_{1}X_{1}(t) +
           ... \beta_{k}X_{k}(t) + \epsilon_{i}
 
 Fitting such models at each time point estimates all the :math:`\beta`
-s together and the time series of these beta-hats
-:math:`\hat{\beta}_{0}, \hat{\beta}_{1}, \hat{\beta}_{k}` are also
-regression ERPs of which the familiar time-domain average is one
-special case.
+s together. Smith dubbed the time series of these beta-hats
+:math:`\hat{\beta}_{0}, \hat{\beta}_{1}, \hat{\beta}_{k}` regression
+ERPs, of which the familiar time-domain average is one special case.
 
-The rERP framework allows a shift in perspective from the engineering
-view in which "the" ERP signal is a needle in the haystack of
-background EEG to be discovered by averaging, to a data modelling
-perspective that asks question "which beta-hat regression ERPs
+The rERP framework encourages a shift in perspective from the
+engineering view in which "the" ERP signal is a needle in the haystack
+of background EEG to be discovered by averaging, to a data modelling
+perspective that asks questions like, "which beta-hat regression ERPs
 :math:`\hat{\beta}_{0} ... \hat{\beta}_{n}` best model the data?" and
-relies on general methods of applied regression analysis for answers.
+relies on tried and true methods of applied regression analysis for
+answers.
 
 
 --------------------------------
 Generalization #2: sensor arrays
 --------------------------------
 
-Regression ERPs sweep a regression model time-point by time-point,
-channel by channel to track how the model estimates and goodness of
-fit shift, trade, and evolve over time at different scalp locations.
+Regression ERPs sweep a regression model across EEG data recordings
+time-point by time-point, channel by channel, to track how the model
+estimates and goodness of fits evolve over time at different scalp
+locations.
 
-Digital EEG data recordings are a special case of regularly sampled,
-discrete time-series, synchronized across a sensor array. Such
-multi-sensor arrays abound in the physical sciences, not just
-in neuroimaging: magneto-encephalogray, event-related fMRI, also
-weather stations, buoy arrays, Internet of Things.
+EEG recordings are a special case of regularly sampled, discrete
+time-series, synchronized across a sensor array. Synchronized
+multi-sensor recording arrays abound in neuroimaing and across the
+physical sciences and engineering: magneto-encephalogray,
+event-related fMRI, weather stations, buoy arrays, Internet of Things.
 
-Stepping back from EEG data analysis, we see that the general
+Stepping back from EEG data analysis, we see that versions of the
 "event-related mass time-series regression modeling" approach could be
 be applied to event-related sensor array data in a wide range of other
 domains where regression modeling is appropriate
 
 However.
 
-
 ==============================================================
 Fitting regression models is easy, regression modeling is hard
 ==============================================================
 
-Guidance on regression modelling best practices emphasizes the fluid
-and iterative nature of the project: diagnostic examination for
-pathological data points; model fitting; testing data for outliers and
-influential data points with respect to the fitted model, examination
-of residuals for signs of violated assumptions; evaluation of model
-parameters for signs of over-fitting, multicollinearity. Evaluate,
-remediate data, refit, adjust parameters, refit. Repeat as necessary.
+Guidance on regression modelling best practices emphasizes the fluid,
+iterative nature of the project: data screening for pathological
+(non-)data points; preliminary model fitting; diagnostic testing for
+outliers and influential data points, examination of residuals for
+signs of violated assumptions; evaluation of signs of over-fitting,
+multicollinearity. Evaluate, remediate, refit, adjust parameters,
+refit. Repeat as necessary. [GelHil200
 
 This is for a single model. Regression analyses that model arrays of
 multi-channel time series such as EEG data time point by time point,
 channel by channel, multiply these iterative investigation by the
 number of points x the number of channels in a combinatorial
-explosion. For example, there are 750 time points in 3 second epochs
-of EEG data sampled 250 times per second. For 32 EEG channels, this
-makes 750 timepoints x 32 channels = 24,000 data sets. The pairwise
-comparison of two models requires 48,000 model fits. 
+explosion. There are 750 time points in 3 second epochs of EEG data
+sampled 250 times per second. For 32 EEG channels, this makes 750
+timepoints x 32 channels = 24,000 data sets. The pairwise comparison
+of three candidate models requires 72,000 model fits.
 
 Nothing can prevent this combinatorial explosion, FitGrid is a
 resource for managing it. 
 
+
+=======
+FitGrid 
+=======
+
+For an overview of the workflow see :doc:`Quickstart`
+
 With one function call, FitGrid sweeps a model formula cross each of
-the 24,000 timepoints x channels (in parallel on multiple CPU cores if
+the timepoints x channels (in parallel on multiple CPU cores if
 supported by hardware) and collects the fits. When the fitting is
 complete the results of the fitting and diagnostic measures can be
 queried in a format ready for visualization and analysis.
@@ -119,13 +126,11 @@ mixed effects models are shipped out of Python and into R via the
 `pymer <https://github.com/kmerkmer/pymer>`_ interface and fit with
 `lme4::lmer
 <https://cran.r-project.org/web/packages/lme4/index.html>`_ (see
-[BatMaeBokWal2015]_).
+[BatMaeBolWal2015]_).
 
-
-
-==========================
-Doing statistics in Python
-==========================
+--------------------------------
+Doing statistics in Python and R
+--------------------------------
 
 The modeling described above can be done using ``statsmodels``, the major
 statistics package in Python. Suppose you have a pandas DataFrame ``data`` with
@@ -173,9 +178,10 @@ nested ``for`` loops are required::
         for timepoint in timepoints:
             # extract diagnostic or fit measure, save it somewhere
 
-======
-Design
-======
+--------------
+FitGrid Design
+--------------
+
 
 ``fitgrid`` abstracts this complexity away and handles the iteration and
 storage of the data behind the scenes. The first loop above is now replaced

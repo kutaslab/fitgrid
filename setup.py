@@ -11,6 +11,7 @@
 from setuptools import find_packages, setup
 from fitgrid import __version__
 
+
 def readme():
     with open('README.md') as f:
         return f.read()

@@ -26,7 +26,7 @@ def get_epochs(tpath=tpath, epochs_f='expt1_epochs.h5', interval=(-8, 12)):
         pd.read_hdf(EPOCHS_F, 'epochs')
         .reset_index()
         .set_index(['Epoch_idx', 'Time'])
-        .loc[pd.IndexSlice[:, interval[0]: interval[1]], :]
+        .loc[pd.IndexSlice[:, interval[0] : interval[1]], :]
     )
     return epochs
 

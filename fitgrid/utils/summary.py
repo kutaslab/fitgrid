@@ -23,14 +23,14 @@ KEY_LABELS = [
 
 
 def summarize(
-        epochs_fg,
-        modeler,
-        LHS,
-        RHS,
-        parallel=True,
-        n_cores=4,
-        save_as=None,
-        **kwargs,
+    epochs_fg,
+    modeler,
+    LHS,
+    RHS,
+    parallel=True,
+    n_cores=4,
+    save_as=None,
+    **kwargs,
 ):
     """Fit the data with one or more model formulas and return summary information.
 
@@ -118,8 +118,10 @@ def summarize(
     # modicum of guarding
     msg = None
     if isinstance(epochs_fg, pd.DataFrame):
-        msg = ("Convert dataframe to fitgrid epochs with "
-               "fitgrid.epochs_from_dataframe()")
+        msg = (
+            "Convert dataframe to fitgrid epochs with "
+            "fitgrid.epochs_from_dataframe()"
+        )
     elif not isinstance(epochs_fg, fitgrid.epochs.Epochs):
         msg = f"epochs_fg must be a fitgrid.Epochs not {type(epochs_fg)}"
     if msg is not None:
@@ -149,7 +151,7 @@ def summarize(
                     LHS=LHS,
                     RHS=_rhs,
                     parallel=parallel,
-                    n_cores=n_cores
+                    n_cores=n_cores,
                 )
             )
         )
@@ -178,8 +180,8 @@ def summarize(
 def _check_summary_df(summary_df):
     # order matters
     if not (
-            summary_df.index.names == INDEX_NAMES
-            and all(summary_df.index.levels[-1] == KEY_LABELS)
+        summary_df.index.names == INDEX_NAMES
+        and all(summary_df.index.levels[-1] == KEY_LABELS)
     ):
 
         raise ValueError(
@@ -187,7 +189,7 @@ def _check_summary_df(summary_df):
         )
 
 
-def _lm_get_summaries_df(fg_ols, ci_alpha=.05):
+def _lm_get_summaries_df(fg_ols, ci_alpha=0.05):
     """scrape fitgrid.LMFitgrid OLS info into a tidy dataframe
 
     Parameters
@@ -213,10 +215,12 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=.05):
     """
 
     # grab and tidy the formula RHS
-    rhs = fg_ols[
-        0,
-        fg_ols._grid.columns[0]
-    ].model.formula.iat[0, 0].split('~')[1].strip()
+    rhs = (
+        fg_ols[0, fg_ols._grid.columns[0]]
+        .model.formula.iat[0, 0]
+        .split('~')[1]
+        .strip()
+    )
     rhs = re.sub(r"\s+", " ", rhs)
 
     # fitgrid returns them in the last column of the index
@@ -237,7 +241,7 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=.05):
     warnings = pd.DataFrame(
         np.zeros(model_vals[0].shape).astype('bool'),
         columns=model_vals[0].columns,
-        index=model_vals[0].index
+        index=model_vals[0].index,
     )
     warnings['key'] = 'has_warning'
     model_vals.append(warnings)
@@ -284,9 +288,7 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=.05):
     # special handling for confidence interval
     ci_bounds = [
         f"{bound:.1f}_ci"
-        for bound in [
-            100 * (1 + (b * (1 - ci_alpha))) / 2.0 for b in [-1, 1]
-        ]
+        for bound in [100 * (1 + (b * (1 - ci_alpha))) / 2.0 for b in [-1, 1]]
     ]
     cis = fg_ols.conf_int(alpha=ci_alpha)
 
@@ -344,10 +346,10 @@ def _lmer_get_summaries_df(fg_lmer):
             summaries_df = summaries_df.append(beta_attrib)
 
     summaries_df = (
-        summaries_df
-        .reset_index()
+        summaries_df.reset_index()
         .set_index(INDEX_NAMES)
-        .sort_index().astype(float)
+        .sort_index()
+        .astype(float)
     )
     _check_summary_df(summaries_df)
 
@@ -409,13 +411,7 @@ def _get_AICs(summary_df):
 
 
 def plot_betas(
-        summary_df,
-        LHS,
-        alpha=0.05,
-        fdr='BY',
-        figsize=None,
-        s=None,
-        **kwargs
+    summary_df, LHS, alpha=0.05, fdr='BY', figsize=None, s=None, **kwargs
 ):
 
     """Plot model parameter estimates for each data column in LHS
@@ -478,9 +474,7 @@ def plot_betas(
             )
 
             # log scale DF
-            fg_beta['log10DF'] = fg_beta['DF'].apply(
-                lambda x: np.log10(x)
-            )
+            fg_beta['log10DF'] = fg_beta['DF'].apply(lambda x: np.log10(x))
 
             # calculate B-H FDR
             m = len(fg_beta)
@@ -497,7 +491,7 @@ def plot_betas(
                 c_m = np.sum([1 / i for i in range(1, m + 1)])
 
             for k, p in enumerate(pvals):
-                kmcm = (k / (m * c_m))
+                kmcm = k / (m * c_m)
                 if p <= kmcm * alpha:
                     ks.append(k)
 
@@ -511,12 +505,12 @@ def plot_betas(
             sig_ps = fg_beta.loc[fg_beta['sig_fdr'], :]
 
             # lmer SEs
-            fg_beta['mn+SE'] = (
-                fg_beta['Estimate'] + fg_beta['SE']
-            ).astype(float)
-            fg_beta['mn-SE'] = (
-                fg_beta['Estimate'] - fg_beta['SE']
-            ).astype(float)
+            fg_beta['mn+SE'] = (fg_beta['Estimate'] + fg_beta['SE']).astype(
+                float
+            )
+            fg_beta['mn-SE'] = (fg_beta['Estimate'] - fg_beta['SE']).astype(
+                float
+            )
 
             fg_beta.plot(
                 x='Time',
@@ -592,7 +586,7 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
     r"""plot FitGrid min delta AICs and fitter warnings
 
     Thresholds of AIC_min delta at 2, 4, 7, 10 are from Burnham &
-    Anderson 2004, p. 271.
+    Anderson 2004, see Notes.
 
     Parameters
     ----------
@@ -615,9 +609,10 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
     Notes
     -----
 
-       Where :math:`AIC_{min}` is the lowest AIC value for "a set of a
-       priori candidate models well-supported by the underlying
-       science :math:`g_{i}, i = 1, 2, ..., R)`",
+       [BurAnd2004]_ p. 270-271. Where :math:`AIC_{min}` is the
+       lowest AIC value for "a set of a priori candidate models
+       well-supported by the underlying science :math:`g_{i}, i = 1,
+       2, ..., R)`",
 
        .. math:: \Delta_{i} = AIC_{i} - AIC_{min}
 
@@ -630,16 +625,8 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
        :math:`\Delta_{i} <= 2` have substantial support (evidence), those
        in which :math:`\Delta_{i} 4 <= 7` have considerably less support,
        and models having :math:`\Delta_{i} > 10` have essentially no
-       support." [BurAnd2004]_ p. 270-271.
+       support."
 
-
-    References
-    ----------
-
-    .. [BurAnd2004] Burnham, K. P., & Anderson, D. R. (2004). Multimodel
-       inference - understanding AIC and BIC in model
-       selection. Sociological Methods & Research, 33(2),
-       261-304. doi:10.1177/0049124104268644
 
     """
 

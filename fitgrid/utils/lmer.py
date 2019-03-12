@@ -1,9 +1,5 @@
 import functools
-#import warnings
-#import numpy as np
 import pandas as pd
-#import matplotlib as mpl
-#from matplotlib import pyplot as plt
 import fitgrid
 
 
@@ -44,11 +40,6 @@ def get_lmer_dfbetas(epochs, factor, **kwargs):
 
     for parameter :math:`i` and level :math:`j` of ``factor``.
 
-    References
-    ----------
-    .. [NieGroPel2012] Nieuwenhuis, R., te Grotenhuis, M., & Pelzer, B. (2012).
-       influence.ME: tools for detecting influential data in mixed effects models.
-       R journal, 4(2), 38-47.
 
     """
 

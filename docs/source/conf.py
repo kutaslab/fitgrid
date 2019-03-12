@@ -53,8 +53,8 @@ extensions = [
     'nbsphinx',
 ]
 
-# nbsphinx_timeout = 5 * 60  # lmer needs time to run in Tutorial
-# nbsphinx_timeout = -1 # don't
+# nbsphinx_timeout = -1 # don't timeout
+nbsphinx_timeout = 5 * 60  # lmer needs time to run in Tutorial
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
