@@ -5,7 +5,7 @@ Tutorial
 The `fitgrid` workflow consists of 3 steps:
 
 0. ``import fitgrid`` and set defaults.
-1. Read in an epochs table, which creates ``Epochs``.
+1. Load a ``fitgrid`` epochs table, which creates ``Epochs``.
 2. Run a model using the ``Epochs``, which creates a ``FitGrid``.
 3. Examine fit or diagnostic information using the ``FitGrid``.
 
@@ -48,7 +48,7 @@ For example::
 
 
 =================
-1. Read in epochs
+1. Load in epochs
 =================
 
 Epochs tables can come from pandas DataFrames::
@@ -121,7 +121,7 @@ such as :math:`R^2` in case of linear regression.
 ==================
 
 Now ``grid``, a ``FitGrid`` object, can be queried for attributes just like a
-``fit`` object from ``statsmodels`` (see :doc:`/research_context` for more
+``fit`` object from ``statsmodels`` (see :doc:`/overview` for more
 background), for example::
 
     betas = grid.params
