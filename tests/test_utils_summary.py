@@ -1,12 +1,19 @@
+import pytest
+import pandas as pd
 import fitgrid
 from fitgrid.utils.summary import INDEX_NAMES, KEY_LABELS
 
+PARALLEL = True
+N_CORES = 4
 
-def _get_epochs_fg():
+
+def _get_epochs_fg(seed=None):
     # pretend we are starting the pipeline with user epochs dataframe
 
     # generate fake data
-    fake_epochs = fitgrid.generate(n_samples=5, n_channels=2, n_categories=2)
+    fake_epochs = fitgrid.generate(
+        n_samples=5, n_channels=2, n_categories=2, seed=seed
+    )
     epochs_df = fake_epochs.table
     chans = fake_epochs.channels
 
@@ -24,7 +31,10 @@ def _get_epochs_fg():
 def test__lm_get_summaries_df():
 
     fgrid_lm = fitgrid.lm(
-        _get_epochs_fg(), RHS="1 + continuous + categorical", n_cores=4
+        _get_epochs_fg(),
+        RHS="1 + continuous + categorical",
+        parallel=PARALLEL,
+        n_cores=N_CORES,
     )
 
     summaries_df = fitgrid.utils.summary._lm_get_summaries_df(fgrid_lm)
@@ -34,7 +44,10 @@ def test__lm_get_summaries_df():
 def test__lmer_get_summaries_df():
 
     fgrid_lmer = fitgrid.lmer(
-        _get_epochs_fg(), RHS="1 + continuous + (1 | categorical)", n_cores=4
+        _get_epochs_fg(),
+        RHS="1 + continuous + (1 | categorical)",
+        parallel=PARALLEL,
+        n_cores=N_CORES,
     )
 
     summaries_df = fitgrid.utils.summary._lmer_get_summaries_df(fgrid_lmer)
@@ -43,8 +56,6 @@ def test__lmer_get_summaries_df():
 
 def test_summarize():
     """test main wrapper to scrape summaries from either lm or lmer grids"""
-
-    n_cores = 12
 
     # modelers and RHSs
     tests = {
@@ -69,12 +80,143 @@ def test_summarize():
             modler,
             LHS=epochs_fg.channels,
             RHS=RHSs,
-            n_cores=n_cores,
+            parallel=PARALLEL,
+            n_cores=N_CORES,
         )
         assert summaries_df.index.names == INDEX_NAMES
         assert set(KEY_LABELS).issubset(set(summaries_df.index.levels[-1]))
 
+    fitgrid.utils.summary._check_summary_df(summaries_df)
     return summaries_df
+
+
+# ------------------------------------------------------------
+# lmer kwarg test values from frozen random number generator
+# ------------------------------------------------------------
+Estimate = pd.DataFrame(
+    {
+        "channel0": [12.501_775, 8.695_407, -0.687_732, 5.780_693, 2.560_008],
+        "channel1": [
+            -12.797_436,
+            -5.100_620,
+            -0.130_712,
+            -5.296_107,
+            0.637_531,
+        ],
+    }
+)
+
+AIC_REML_True = pd.DataFrame(
+    {
+        "channel0": [
+            187.238_526,
+            185.522_789,
+            185.038_999,
+            188.017_987,
+            186.134_492,
+        ],
+        "channel1": [
+            180.067_965,
+            181.492_657,
+            182.632_950,
+            191.689_899,
+            187.709_303,
+        ],
+    }
+)
+
+AIC_REML_False = pd.DataFrame(
+    {
+        "channel0": [
+            199.401_434,
+            197.185_610,
+            196.598_625,
+            199.734_402,
+            197.751_776,
+        ],
+        "channel1": [
+            191.365_958,
+            194.114_479,
+            194.065_942,
+            203.599_573,
+            200.262_021,
+        ],
+    }
+)
+
+
+@pytest.mark.parametrize(
+    "kw,est,aic",
+    [
+        ({}, Estimate, AIC_REML_True),
+        ({"REML": True}, Estimate, AIC_REML_True),
+        ({"REML": False}, Estimate, AIC_REML_False),
+    ],
+)
+def test_summarize_lmer_kwargs(kw, est, aic):
+
+    epochs_fg = _get_epochs_fg(seed=0)  # freeze data to test values
+
+    LHS = epochs_fg.channels
+    RHS = "1 + (1 | categorical)"  # for fitgrid.lmer
+
+    # what the fitgrid modeler returns
+    lmer_fit = fitgrid.lmer(epochs_fg, LHS=LHS, RHS=RHS, **kw)
+    lmer_fit_betas = lmer_fit.coefs
+    lmer_fit_betas.index.names = ['Time', 'beta', 'key']
+
+    # what the summarize wrapper scrapes from the grid
+    summaries_df = fitgrid.utils.summary.summarize(
+        epochs_fg, "lmer", LHS=LHS, RHS=RHS, **kw
+    )
+    fitgrid.utils.summary._check_summary_df(summaries_df)
+
+    # compare results
+    summary_keys = set(summaries_df.index.unique('key'))
+    lmer_fit_betas_keys = set(lmer_fit_betas.index.unique('key'))
+
+    # from the grid.params ... lmer specific
+    shared_keys = summary_keys.intersection(lmer_fit_betas_keys)
+
+    # other grid.attr
+    attr_keys = summary_keys.difference(lmer_fit_betas_keys)
+    for key in shared_keys.union(attr_keys):
+
+        # these come from the coefs dataframe
+        if key in shared_keys:
+            modeler_vals = lmer_fit_betas.query("key==@key").reset_index(
+                drop=True
+            )
+
+            summarize_vals = summaries_df.query(
+                "model==@RHS and key==@key"
+            ).reset_index(drop=True)
+
+        # these come from grid attributes
+        elif key in attr_keys:
+            modeler_vals = getattr(lmer_fit, key).reset_index(drop=True)
+            summarize_vals = summaries_df.query("key==@key").reset_index(
+                drop=True
+            )
+        else:
+            raise ValueError(f"unknown key: {key}")
+
+        try:
+            all(modeler_vals == summarize_vals)
+        except Exception as fail:
+            msg = f"kwargs: {kw} key: {key}"
+            print(msg)
+            raise fail
+
+        # smoke test that the REML=True v. False is not changing Estimate
+        # and is changing AIC
+        if key == 'Estimate':
+            assert all(summarize_vals == est)
+
+        if key == 'AIC':
+            assert all(summarize_vals == aic)
+
+    pass
 
 
 def test__get_AICs():
@@ -108,4 +250,4 @@ def test_smoke_plot_betas():
 def test_smoke_plot_AICs():
 
     summary_df = test_summarize()
-    figs = fitgrid.utils.summary.plot_AICmin_deltas(summary_df)
+    fitgrid.utils.summary.plot_AICmin_deltas(summary_df)

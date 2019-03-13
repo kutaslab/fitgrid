@@ -65,7 +65,7 @@ def summarize(
        write the summary dataframe to disk with
        `pd.to_hdf(path, key, format='fixed')`
 
-    **kwargs : key=value arguments passed to the modeler
+    **kwargs : key=value arguments passed to the modeler, optional 
 
 
     Returns
@@ -92,8 +92,7 @@ def summarize(
         LHS=['MiPf', 'MiCe', 'MiPa', 'MiOc'],
         RHS=lmer_formulas,
         parallel=True,
-        n_cores=24,
-        REML=False
+        n_cores=4
     )
 
     >>> lmer_formulas = [
@@ -107,7 +106,7 @@ def summarize(
         LHS=['MiPf', 'MiCe', 'MiPa', 'MiOc'],
         RHS=lmer_formulas,
         parallel=True,
-        n_cores=24,
+        n_cores=12,
         REML=False
     )
 
@@ -152,6 +151,7 @@ def summarize(
                     RHS=_rhs,
                     parallel=parallel,
                     n_cores=n_cores,
+                    **kwargs,
                 )
             )
         )
@@ -209,8 +209,8 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=0.05):
 
     Notes
     -----
-    The `summaries_df` dataframe is row and column indexed the same
-    as for fitgrid.lmer._get_summaries_df()
+    The `summaries_df` row and column indexes are munged to match
+    fitgrid.lmer._get_summaries_df() 
 
     """
 
