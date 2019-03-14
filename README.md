@@ -13,7 +13,7 @@ Click this button to launch a demo notebook:
 
 ## Installation
 
-    conda install -c aportnoy fitgrid
+    conda install -c kutaslab fitgrid
 
 for full support.  Alternatively (with no `lmer` support),
 
