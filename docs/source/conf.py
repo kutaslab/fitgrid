@@ -16,7 +16,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.abspath('../..'))
-# sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('.'))
 
 
 # -- Project information -----------------------------------------------------
@@ -27,9 +27,9 @@ author = 'Andrey Portnoy, Thomas P. Urbach'
 today = 'October 1, 2018'
 
 # The short X.Y version
-version = ''
+version = '0.3'
 # The full version, including alpha/beta/rc tags
-release = '0.1'
+release = '0.3.0'
 
 
 # -- General configuration ---------------------------------------------------
@@ -53,7 +53,8 @@ extensions = [
     'nbsphinx',
 ]
 
-nbsphinx_timeout = 5 * 60  # give lmer some time to run
+# nbsphinx_timeout = -1 # don't timeout
+nbsphinx_timeout = 5 * 60  # lmer needs time to run in Tutorial
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

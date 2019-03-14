@@ -9,6 +9,7 @@
 # http://python-packaging.readthedocs.io/en/latest/minimal.html
 
 from setuptools import find_packages, setup
+from fitgrid import __version__
 
 
 def readme():
@@ -18,7 +19,7 @@ def readme():
 
 setup(
     name='fitgrid',
-    version='0.2.2',
+    version=__version__,
     description='Mass multiple regression manager',
     long_description=readme(),
     long_description_content_type='text/markdown',

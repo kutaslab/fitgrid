@@ -12,6 +12,7 @@ def generate(
     n_channels=32,
     time=defaults.TIME,
     epoch_id=defaults.EPOCH_ID,
+    seed=None,
 ):
     """Return Epochs object with fake EEG data.
 
@@ -29,6 +30,11 @@ def generate(
         time column name
     epoch_id : str, defaults to defaults.EPOCH_ID
         epoch identifier column name
+    seed=None : {None, int, array_like}, optional
+        Random number generation seed. Default=None lets data
+        vary from run to run. Set `seed` to a 32-bit unsigned
+        integer to generate the same fake data run to run.
+        See numpy.random.RandomState for details.
 
 
     Returns
@@ -48,13 +54,18 @@ def generate(
     """
 
     df, channels = _generate(
-        n_epochs, n_samples, n_categories, n_channels, time, epoch_id
+        n_epochs, n_samples, n_categories, n_channels, time, epoch_id, seed
     )
     return Epochs(df, time=time, epoch_id=epoch_id, channels=channels)
 
 
-def _generate(n_epochs, n_samples, n_categories, n_channels, time, epoch_id):
+def _generate(
+    n_epochs, n_samples, n_categories, n_channels, time, epoch_id, seed=None
+):
     """Return Pandas DataFrame with fake EEG data, and a list of channels."""
+
+    if seed is not None:
+        np.random.seed(seed)
 
     total = n_epochs * n_samples * n_categories
 
