@@ -82,7 +82,9 @@ def _get_infl_cooks_distance(infl, crit_val=None):
             + (infl_vals_grid.iloc[row, col], crit_val)
         )
 
-    infl_data_df = pd.DataFrame(infl_data, columns=_FG_LM_DIAGNOSTIC_COLUMNS)
+    infl_data_df = pd.DataFrame(
+        infl_data, columns=_FG_LM_DIAGNOSTIC_COLUMNS
+    ).sort_values(by=['Epoch_idx', 'Time', 'channel'])
 
     return infl_data_df, infl_idxs
 
@@ -122,13 +124,15 @@ def _get_infl_dffits_internal(infl, crit_val=None):
     for row, col in zip(*infl_idxs):
 
         infl_data.append(
-            infl_vals_grid.index[row]
+            infl_vals_grid.index[row][::-1]
             + (infl_vals_grid.columns[col],)
             + ('dffits_internal',)
             + (infl_vals_grid.iloc[row, col], crit_val)
         )
 
-    infl_data_df = pd.DataFrame(infl_data, columns=_FG_LM_DIAGNOSTIC_COLUMNS)
+    infl_data_df = pd.DataFrame(
+        infl_data, columns=_FG_LM_DIAGNOSTIC_COLUMNS
+    ).sort_values(['Epoch_idx', 'Time', 'channel'])
 
     return infl_data_df, infl_idxs
 
