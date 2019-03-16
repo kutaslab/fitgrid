@@ -1,3 +1,4 @@
+import warnings
 import numpy as np
 from scipy import stats
 import pandas as pd
@@ -10,6 +11,53 @@ from statsmodels.regression.linear_model import RegressionResultsWrapper
 
 from fitgrid.fitgrid import FitGrid
 
+
+# data bank of what there is, how it runs, data type
+# test_lm_utils.py guards the attrs and data types
+#
+#   nobs = number of observations
+#   nobs_k = number of observations x model regressors
+#   nobs_loop = nobs iteration ... slow
+#
+f4 = np.float64
+i4 = np.int64
+_OLS_INFLUENCE_ATTRS = {
+    '_get_drop_vari': (None, None),
+    '_res_looo': (None, None),
+    '_ols_xnoti': (None, None),
+    'aux_regression_exog': (None, None),
+    'aux_regression_endog': (None, None),
+    'cooks_distance': ('nobs', f4),
+    'cov_ratio': ('nobs_loop', f4),
+    'det_cov_params_not_obsi': ('nobs_loop', f4),
+    'dfbetas': ('nobs_loop', f4),
+    'dffits': ('nobs_loop', f4),
+    'dffits_internal': ('nobs', f4),
+    'endog': ('nobs', f4),  # from data
+    'ess_press': ('nobs', f4),
+    'exog': ('nobs_k', f4),  # from data
+    'get_resid_studentized_external': ('nobs_loop', f4),
+    'hat_diag_factor': ('nobs', f4),
+    'hat_matrix_diag': ('nobs', f4),
+    'influence': ('nobs', f4),
+    'k_vars': ('nobs', i4),
+    'model_class': (None, None),  # not a DataFrame
+    'nobs': ('nobs', i4),
+    'params_not_obsi': ('nobs_loop', f4),
+    'resid_press': ('nobs', f4),
+    'resid_std': ('nobs', f4),
+    'resid_studentized_external': ('nobs_loop', f4),
+    'resid_studentized_internal': ('nobs', f4),
+    'resid_var': ('nobs', f4),
+    'results': (None, None),  # not a DataFrame
+    'save': (None, None),  # not a DataFrame
+    'sigma2_not_obsi': ('nobs_loop', f4),
+    'sigma_est': ('nobs', f4),
+    'summary_frame': (None, None),  # not a DataFrame
+    'summary_table': (None, None),  # not a DataFrame
+}
+
+
 _FG_LM_DIAGNOSTIC_COLUMNS = [
     'Epoch_idx',
     'Time',
@@ -18,6 +66,31 @@ _FG_LM_DIAGNOSTIC_COLUMNS = [
     'value',
     'critical',
 ]
+
+
+def _check_influence_attr(lm_grid, infl_attr):
+
+    if infl_attr not in _OLS_INFLUENCE_ATTRS:
+        raise ValueError(f"unknown OLSInfluence attribute {infl_attr}")
+
+    infl_calc, infl_dtype = _OLS_INFLUENCE_ATTRS[infl_attr]
+
+    if infl_calc is None:
+        # warnings.warn(f"{infl_attr} is not an influence measure")
+        return -1
+
+    if infl_calc == "nobs_loop":
+        # warnings.warn(f"{infl_attr} is slow nobs loop")
+        return -2
+
+    infl = lm_grid.get_influence()
+    actual_type = type(getattr(infl, infl_attr).iloc[0, 0])
+    if not actual_type is infl_dtype:
+        # raise TypeError(f"gridded {infl_attr} dtype should be {infl_dtype}")
+        print(
+            f"fitgrid spec {infl_attr}:{infl_dtype} but "
+            f"actual type {actual_type}"
+        )
 
 
 def get_vifs(epochs, RHS):

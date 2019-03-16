@@ -1,23 +1,20 @@
 from .context import fitgrid
 from numpy import allclose
 from pandas import DataFrame
+from statsmodels.stats.outliers_influence import OLSInfluence
+
+from fitgrid.utils.lm import _OLS_INFLUENCE_ATTRS
 
 PARALLEL = True
 N_CORES = 4
 SEED = 0
 
 
-def test_smoke_get_vifs():
-
-    epochs = fitgrid.generate()
-    RHS = 'continuous + categorical'
-    fitgrid.utils.lm.get_vifs(epochs, RHS)
-
-
-def test__get_infl_dffits_internal():
+def get_seeded_lm_grid_infl(seed):
+    """frozen test data and influence measures"""
 
     epochs = fitgrid.generate(
-        n_samples=5, n_channels=2, n_categories=2, seed=SEED
+        n_samples=5, n_channels=2, n_categories=2, seed=seed
     )
     RHS = 'continuous + categorical'
     lm_grid = fitgrid.lm(
@@ -29,6 +26,39 @@ def test__get_infl_dffits_internal():
     )
 
     infl = lm_grid.get_influence()
+
+    return lm_grid, infl
+
+
+def test_smoke_get_vifs():
+
+    epochs = fitgrid.generate()
+    RHS = 'continuous + categorical'
+    fitgrid.utils.lm.get_vifs(epochs, RHS)
+
+
+def test__OLS_INFLUENCE_ATTRS():
+    # check the fitgrid lm influence attr database is current
+
+    lm_grid, infl = get_seeded_lm_grid_infl(SEED)
+    infl_attrs = dir(infl)  # from the mother ship
+
+    assert set(infl_attrs) == set(_OLS_INFLUENCE_ATTRS.keys())
+    for infl_attr, spec in _OLS_INFLUENCE_ATTRS.items():
+        calc, val_type = spec[0], spec[1]
+        assert calc in [None, 'nobs', 'nobs_loop', 'nobs_k']
+        assert val_type in [None, float]
+
+
+def test__check_infl_attr():
+    lm_grid, infl = get_seeded_lm_grid_infl(SEED)
+
+    for infl_attr in dir(infl):
+        fitgrid.utils.lm._check_influence_attr(lm_grid, infl_attr)
+
+def test__get_infl_dffits_internal():
+
+    lm_grid, infl = get_seeded_lm_grid_infl(SEED)
 
     crit_val = 0.93
     infl_data_df, infl_idxs = fitgrid.utils.lm._get_infl_dffits_internal(
@@ -53,20 +83,7 @@ def test__get_infl_dffits_internal():
 
 def test__get_infl_cooks_distance():
 
-    epochs = fitgrid.generate(
-        n_samples=5, n_channels=2, n_categories=2, seed=SEED
-    )
-    RHS = "continuous + categorical"
-
-    lm_grid = fitgrid.lm(
-        epochs,
-        LHS=epochs.channels,
-        RHS=RHS,
-        parallel=PARALLEL,
-        n_cores=N_CORES,
-    )
-
-    infl = lm_grid.get_influence()
+    lm_grid, infl = get_seeded_lm_grid_infl(SEED)
 
     crit_val = 0.3
     infl_data_df, infl_idxs = fitgrid.utils.lm._get_infl_cooks_distance(
@@ -101,30 +118,17 @@ def test_smoke_get_influential_data():
             infl_data_df.columns == fitgrid.utils.lm._FG_LM_DIAGNOSTIC_COLUMNS
         )
         assert all(infl_data_df["diagnostic"] == diagnostic)
-        # print(infl_data_df.head())
-        # print(infl_data_df.tail())
-        # print(f"get_influential data({diagnostic}) ok")
 
-    epochs = fitgrid.generate(
-        n_samples=5, n_channels=2, n_categories=2, seed=SEED
-    )
-    RHS = "continuous + categorical"
+    lm_grid, _ = get_seeded_lm_grid_infl(SEED)
 
-    lm_grid = fitgrid.lm(
-        epochs,
-        LHS=epochs.channels,
-        RHS=RHS,
-        parallel=PARALLEL,
-        n_cores=N_CORES,
-    )
-
-    # test the crit_val param
+    # default, no critical value
     for diagnostic in ["dffits_internal", "cooks_distance"]:
         infl_data_df = fitgrid.utils.lm.get_influential_data(
             lm_grid, diagnostic
         )
         _check_infl_data_df(infl_data_df, with_cval=False)
 
+        # explicit critical value
         for cval in [None, 0.1]:
             infl_data_df = fitgrid.utils.lm.get_influential_data(
                 lm_grid, diagnostic, crit_val=cval
