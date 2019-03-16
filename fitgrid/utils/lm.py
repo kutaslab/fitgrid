@@ -76,7 +76,7 @@ def _get_infl_cooks_distance(infl, crit_val=None):
     infl_data = []  # list of tuples
     for row, col in zip(*infl_idxs):
         infl_data.append(
-            infl_vals_grid.index[row]
+            infl_vals_grid.index[row][::-1]
             + (infl_vals_grid.columns[col],)
             + ('cooks_distance',)
             + (infl_vals_grid.iloc[row, col], crit_val)
@@ -124,7 +124,7 @@ def _get_infl_dffits_internal(infl, crit_val=None):
     for row, col in zip(*infl_idxs):
 
         infl_data.append(
-            infl_vals_grid.index[row][::-1]
+            infl_vals_grid.index[row]
             + (infl_vals_grid.columns[col],)
             + ('dffits_internal',)
             + (infl_vals_grid.iloc[row, col], crit_val)

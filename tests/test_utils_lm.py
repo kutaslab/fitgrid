@@ -36,11 +36,11 @@ def test__get_infl_dffits_internal():
     )
 
     test_vals = {
-        "Epoch_idx": [0, 0, 2, 2],
-        "Time": [6, 14, 3, 18],
-        "channel": ["channel0", "channel1", "channel0", "channel1"],
+        "Epoch_idx": [3, 6, 14, 18],
+        "Time": [2, 0, 0, 2],
+        "channel": ["channel0", "channel0", "channel1", "channel1"],
         "diagnostic": "dffits_internal",
-        'value': [0.958969, 1.049066, 1.002137, 0.943897],
+        'value': [1.002137, 0.958969, 1.049066, 0.943897],
         "critical": crit_val,
     }
 
@@ -76,11 +76,11 @@ def test__get_infl_cooks_distance():
     # compare with seeded test run
     assert infl_data_df.shape == (4, 6)
     test_vals = {
-        "Epoch_idx": [0, 0, 1, 2],
-        "Time": [6, 14, 18, 3],
-        "channel": ["channel0", "channel1", "channel1", "channel0"],
+        "Epoch_idx": [3, 6, 14, 18],
+        "Time": [2, 0, 0, 1],
+        "channel": ["channel0", "channel0", "channel1", "channel1"],
         "diagnostic": "cooks_distance",
-        'value': [0.306540, 0.366846, 0.331196, 0.334759],
+        'value': [0.334759, 0.306540, 0.366846, 0.331196],
         "critical": crit_val,
     }
 
