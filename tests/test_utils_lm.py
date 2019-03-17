@@ -1,20 +1,31 @@
 from .context import fitgrid
 from numpy import allclose
 from pandas import DataFrame, MultiIndex
-from statsmodels.stats.outliers_influence import OLSInfluence
 
 from fitgrid.utils.lm import _OLS_INFLUENCE_ATTRS, FLOAT_TYPE, INT_TYPE
 
+
 PARALLEL = True
 N_CORES = 4
-SEED = 0
 
 
-def get_seeded_lm_grid_infl(seed):
+def get_seeded_lm_grid_infl(
+        n_samples=5,
+        n_epochs=10,
+        n_channels=2,
+        n_categories=2,
+        seed=0,
+        parallel=True,
+        n_cores=4
+):
     """frozen test data and influence measures"""
 
     epochs = fitgrid.generate(
-        n_samples=5, n_channels=2, n_categories=2, seed=seed
+        n_epochs=n_epochs,
+        n_samples=n_samples,
+        n_channels=n_channels,
+        n_categories=n_categories,
+        seed=seed
     )
     RHS = 'continuous + categorical'
     lm_grid = fitgrid.lm(
@@ -38,9 +49,9 @@ def test_smoke_get_vifs():
 
 
 def test__OLS_INFLUENCE_ATTRS():
-    # check the fitgrid lm influence attr database is current
+    """fitgrid influence attr database must match statsmodels OLSInfluence"""
 
-    lm_grid, infl = get_seeded_lm_grid_infl(SEED)
+    lm_grid, infl = get_seeded_lm_grid_infl()
     infl_attrs = dir(infl)  # from the mother ship
 
     assert set(infl_attrs) == set(_OLS_INFLUENCE_ATTRS.keys())
@@ -51,20 +62,21 @@ def test__OLS_INFLUENCE_ATTRS():
 
 
 def test__check_infl_attr():
-    lm_grid, infl = get_seeded_lm_grid_infl(SEED)
+    """prerun all available OLSInfluence attrs through the checker"""
 
+    lm_grid, infl = get_seeded_lm_grid_infl()
     for infl_attr in dir(infl):
         fitgrid.utils.lm._check_influence_attr(infl, infl_attr)
 
 
 def test__get_infl_attr_vals():
-
-    lm_grid, infl = get_seeded_lm_grid_infl(SEED)
+    """grab values for real"""
+    lm_grid, infl = get_seeded_lm_grid_infl()
 
     implemented_diagnostics = [
         attr
         for attr, spec in _OLS_INFLUENCE_ATTRS.items()
-        if spec[0] is not None  # in ['nobs', 'nobs_k']
+        if spec[0] is not None  # 'nobs', 'nobs_k', 'nobs_loop'
     ]
     for infl_attr in implemented_diagnostics:
         infl_data_df = fitgrid.utils.lm._get_infl_attr_vals(
@@ -74,34 +86,34 @@ def test__get_infl_attr_vals():
         print(infl_data_df.iloc[0:5, :])
 
 
-def test__get_infl_dffits_internal():
+def test__get_infl_attr_vals_big():
+    """grab values for large data set"""
 
-    lm_grid, infl = get_seeded_lm_grid_infl(SEED)
-
-    crit_val = 0.93
-    infl_data_df, infl_idxs = fitgrid.utils.lm._get_infl_dffits_internal(
-        infl, crit_val
+    print('fitting a big grid ... be patient')
+    lm_grid, infl = get_seeded_lm_grid_infl(
+        n_samples=20,
+        n_epochs=10000,
+        n_channels=24,
+        parallel=True,
+        n_cores=4,
     )
+    print('done')
 
-    test_vals = {
-        "Epoch_idx": [3, 6, 14, 18],
-        "Time": [2, 0, 0, 2],
-        "channel": ["channel0", "channel0", "channel1", "channel1"],
-        "diagnostic": "dffits_internal",
-        'value': [1.002137, 0.958969, 1.049066, 0.943897],
-        "critical": crit_val,
-    }
-
-    for col, result in test_vals.items():
-        if col == 'value':
-            assert allclose(infl_data_df[col], result)
-        else:
-            assert all(infl_data_df[col] == result)
+    nobs_diagnostics = [
+        attr
+        for attr, spec in _OLS_INFLUENCE_ATTRS.items()
+        if spec[0] == 'nobs'
+    ]
+    for infl_attr in nobs_diagnostics:
+        infl_data_df = fitgrid.utils.lm._get_infl_attr_vals(
+            lm_grid, infl_attr
+        )
+        print(infl_attr, infl_data_df.shape)
 
 
 def test__get_infl_cooks_distance():
 
-    lm_grid, infl = get_seeded_lm_grid_infl(SEED)
+    lm_grid, infl = get_seeded_lm_grid_infl()
 
     crit_val = 0.3
     infl_data_df, infl_data_idxs = fitgrid.utils.lm._get_infl_cooks_distance(
@@ -132,6 +144,31 @@ def test__get_infl_cooks_distance():
     assert all([all(x[0] == x[1]) for x in zip(test_idxs, infl_data_idxs)])
 
 
+def test__get_infl_dffits_internal():
+
+    lm_grid, infl = get_seeded_lm_grid_infl()
+
+    crit_val = 0.93
+    infl_data_df, infl_idxs = fitgrid.utils.lm._get_infl_dffits_internal(
+        infl, crit_val
+    )
+
+    test_vals = {
+        "Epoch_idx": [3, 6, 14, 18],
+        "Time": [2, 0, 0, 2],
+        "channel": ["channel0", "channel0", "channel1", "channel1"],
+        "diagnostic": "dffits_internal",
+        'value': [1.002137, 0.958969, 1.049066, 0.943897],
+        "critical": crit_val,
+    }
+
+    for col, result in test_vals.items():
+        if col == 'value':
+            assert allclose(infl_data_df[col], result)
+        else:
+            assert all(infl_data_df[col] == result)
+
+
 def test_smoke_get_influential_data():
     """wrapper"""
 
@@ -142,7 +179,7 @@ def test_smoke_get_influential_data():
         )
         assert all(infl_data_df["diagnostic"] == diagnostic)
 
-    lm_grid, _ = get_seeded_lm_grid_infl(SEED)
+    lm_grid, _ = get_seeded_lm_grid_infl()
 
     # default, no critical value
     for diagnostic in ["dffits_internal", "cooks_distance"]:

@@ -1,4 +1,3 @@
-import warnings
 import numpy as np
 from scipy import stats
 import pandas as pd
@@ -11,19 +10,23 @@ from statsmodels.regression.linear_model import RegressionResultsWrapper
 
 from fitgrid.fitgrid import FitGrid
 
-
-# data bank of what there is, how it runs, data type
-# test_lm_utils.py guards the attrs and data types
+# ------------------------------------------------------------
+# r.e. statsmodels OLS influence attributes
+#
+# fitgrid's database of what there is, how it runs, and data type.
+#
+# used for checking and to guard user input
+#
+# suitable for generating a docs table, but not implemented
 #
 #   nobs = number of observations
 #   nobs_k = number of observations x model regressors
 #   nobs_loop = nobs iteration ... slow
 #
-
 FLOAT_TYPE = np.float64
 INT_TYPE = np.int64
 
-# attr : calc_type, value_dtype, index_names returned by fitgrid
+# attr : (calc_type, value_dtype, index_names) as returned by fitgrid
 _OLS_INFLUENCE_ATTRS = {
     '_get_drop_vari': (None, None),
     '_res_looo': (None, None),
@@ -124,7 +127,9 @@ def get_vifs(epochs, RHS):
     return epochs._snapshots.progress_apply(get_single_vif, RHS=RHS)
 
 
-def _get_infl_attr_vals(lm_grid, attr, crit_val=None, do_nobs_loop=False):
+def _get_infl_attr_vals(
+        lm_grid, attr, crit_val='auto', direction='above', do_nobs_loop=False
+):
     """scrape OLSInfluence attribute data into long form Time, Epoch, Chan
 
     Parameters
@@ -134,15 +139,29 @@ def _get_infl_attr_vals(lm_grid, attr, crit_val=None, do_nobs_loop=False):
     attr : string
        see _OLS_INFLUENCE_ATTRS for supported attributes
 
-    crit_val : TBD
+    crit_val : {float, 'sm', func, None}
+       critical value cutoff for filtering returned data points
+
+       `float` is explicit value, e.g., from a user calculation
+
+       `func` is a function that takes `lm_grid`, `attr` and
+            returns one critical val float or same shape grid of them
+
+       `sm` is the statsmodels default, e.g., for cook's D, dffits
+
+       `None` return all, may be very large for data point influence measures
+
+
+    direction : {'above', 'below'}
+       data points to return relative to critical value
 
     do_nobs_loop : bool
-       if True, calculate nobs loop measures. Default false
+       if True, calculate slow leave-one-out nobs loop, default=False
 
     Return
     ------
     attr_df : pd.DataFrame
-        row index names: time, epoch_id, channel
+        grid_time, grid_epoch_id, channel
         columns vary by attribute
 
     """
@@ -150,29 +169,28 @@ def _get_infl_attr_vals(lm_grid, attr, crit_val=None, do_nobs_loop=False):
     infl = lm_grid.get_influence()
     _check_influence_attr(infl, attr, do_nobs_loop)
 
-    attr_df = getattr(infl, attr)  # .loc[vals_slicer, :]
+    attr_df = getattr(infl, attr)
 
-    # switch everything to long form
+    # switch the 2-D Time, Epoch x Channels grid
+    # to long format dataframe Time, Epoch, Channels
 
-    # standardize the row index,
-    #  - fill in None with attr
-    #  - propogate attr name to index level labels
-    index_names, none_count, attr_idxs = [], 0, []
+    # standardize the row index
+    #  - replace index col names fitgrid returns as None with attr name(s)
+    #  - propogate attr name(s) to index level row labels
+    index_names, none_idxs, none_count = [], [], 0
     for i, name in enumerate(attr_df.index.names):
         if name is not None:
             index_names.append(name)
         else:
-            # process unnamed leels
+            # capture this index offset for unstacking
+            none_idxs.append(i)
 
-            # 1. capture the offset for unstacking
-            attr_idxs.append(i)
-
-            # 2. rename name the column from the attr, extend if needed
+            # rename name the column from the attr, extend if needed
             nc_str = '' if none_count == 0 else str(none_count)
             attr_idx_name = f"{attr}{nc_str}"
             index_names.append(attr_idx_name)
 
-            # 2. update this level labels with the new name
+            # update this index level labels with the new name
             new_labels = [
                 f"{attr_idx_name}_{j}" for j in attr_df.index.levels[i]
             ]
@@ -182,11 +200,12 @@ def _get_infl_attr_vals(lm_grid, attr, crit_val=None, do_nobs_loop=False):
             none_count += 1
 
     attr_df.index.names = index_names
-    if len(attr_idxs) > 0:
-        attr_df = attr_df.unstack(attr_idxs)
+    if len(none_idxs) > 0:
+        attr_df = attr_df.unstack(none_idxs)
     attr_df = attr_df.stack(0)
-    attr_df.index.rename(attr_df.index.names[:-1] + ['Channel'], inplace=True)
-    # promote series to frame
+    attr_df.index.names = attr_df.index.names[:-1] + ['Channel']
+
+    # promote series so all returns are data frames
     if isinstance(attr_df, pd.Series):
         attr_df.name = attr
         attr_df = attr_df.to_frame()
