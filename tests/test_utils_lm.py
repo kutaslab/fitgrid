@@ -1,9 +1,9 @@
 from .context import fitgrid
 from numpy import allclose
-from pandas import DataFrame
+from pandas import DataFrame, MultiIndex
 from statsmodels.stats.outliers_influence import OLSInfluence
 
-from fitgrid.utils.lm import _OLS_INFLUENCE_ATTRS
+from fitgrid.utils.lm import _OLS_INFLUENCE_ATTRS, FLOAT_TYPE, INT_TYPE
 
 PARALLEL = True
 N_CORES = 4
@@ -47,14 +47,32 @@ def test__OLS_INFLUENCE_ATTRS():
     for infl_attr, spec in _OLS_INFLUENCE_ATTRS.items():
         calc, val_type = spec[0], spec[1]
         assert calc in [None, 'nobs', 'nobs_loop', 'nobs_k']
-        assert val_type in [None, float]
+        assert val_type in [None, FLOAT_TYPE, INT_TYPE]
 
 
 def test__check_infl_attr():
     lm_grid, infl = get_seeded_lm_grid_infl(SEED)
 
     for infl_attr in dir(infl):
-        fitgrid.utils.lm._check_influence_attr(lm_grid, infl_attr)
+        fitgrid.utils.lm._check_influence_attr(infl, infl_attr)
+
+
+def test__get_infl_attr_vals():
+
+    lm_grid, infl = get_seeded_lm_grid_infl(SEED)
+
+    implemented_diagnostics = [
+        attr
+        for attr, spec in _OLS_INFLUENCE_ATTRS.items()
+        if spec[0] is not None  # in ['nobs', 'nobs_k']
+    ]
+    for infl_attr in implemented_diagnostics:
+        infl_data_df = fitgrid.utils.lm._get_infl_attr_vals(
+            lm_grid, infl_attr, do_nobs_loop=True
+        )
+        print(infl_attr, type(infl_data_df))
+        print(infl_data_df.iloc[0:5, :])
+
 
 def test__get_infl_dffits_internal():
 
@@ -86,27 +104,32 @@ def test__get_infl_cooks_distance():
     lm_grid, infl = get_seeded_lm_grid_infl(SEED)
 
     crit_val = 0.3
-    infl_data_df, infl_idxs = fitgrid.utils.lm._get_infl_cooks_distance(
-        infl, crit_val
+    infl_data_df, infl_data_idxs = fitgrid.utils.lm._get_infl_cooks_distance(
+        lm_grid, crit_val
     )
 
-    # compare with seeded test run
-    assert infl_data_df.shape == (4, 6)
+    # compare with seeded test run and enforce index structure
+    test_index = MultiIndex.from_arrays(
+        names=['Time', 'Epoch_idx', 'Channels'],
+        arrays=[
+            [0, 0, 1, 2],
+            [6, 14, 18, 3],
+            ["channel0", "channel1", "channel1", "channel0"],
+        ],
+    )
+
     test_vals = {
-        "Epoch_idx": [3, 6, 14, 18],
-        "Time": [2, 0, 0, 1],
-        "channel": ["channel0", "channel0", "channel1", "channel1"],
-        "diagnostic": "cooks_distance",
-        'value': [0.334759, 0.306540, 0.366846, 0.331196],
-        "critical": crit_val,
+        'cooks_distance_0': [0.306540, 0.366846, 0.331196, 0.334759],
+        "cooks_distance_1": crit_val,
     }
 
-    for col, result in test_vals.items():
-        if col == 'value':
-            # float64
-            assert allclose(infl_data_df[col], result)
-        else:
-            assert all(infl_data_df[col] == result)
+    test_idxs = (([12, 29, 77, 86]),)
+
+    assert infl_data_df.shape == (4, 2)
+    assert infl_data_df.columns.name == 'cooks_distance'
+    assert all(test_index == infl_data_df.index)
+    assert all(test_vals == infl_data_df)
+    assert all([all(x[0] == x[1]) for x in zip(test_idxs, infl_data_idxs)])
 
 
 def test_smoke_get_influential_data():

@@ -218,8 +218,32 @@ class FitGrid:
         # array-like, try converting to array and then Series/DataFrame
         if isinstance(tester, tuple) or isinstance(tester, list):
             array_form = np.array(tester)
+
+            # TPU ----------
+            untidy = True if array_form.dtype == np.dtype("object") else False
             if array_form.ndim == 1:
-                temp = temp.applymap(lambda x: pd.Series(np.array(x)))
+
+                def tidy_fun(x): return pd.Series(np.array(x))  # default
+
+                # TPU hack for, e.g., statsmodels dffits: ([...], scalar)
+                def untidy_fun(x): return pd.DataFrame(
+                        np.broadcast(*x)
+                ).T
+
+                # try broadcasting untidy 1-D data to a dataframe
+                if untidy:
+                    try:
+                        pd_fun = untidy_fun
+                        pd_fun(tester)
+                    except Exception:
+                        # oh well ... fall back to default
+                        pd_fun = tidy_fun
+                else:
+                    pd_fun = tidy_fun
+
+                temp = temp.applymap(lambda x: pd_fun(x))
+            # ---------- TPU
+
             elif array_form.ndim == 2:
                 temp = temp.applymap(lambda x: pd.DataFrame(np.array(x)))
             else:

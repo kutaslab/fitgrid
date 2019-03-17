@@ -19,40 +19,51 @@ from fitgrid.fitgrid import FitGrid
 #   nobs_k = number of observations x model regressors
 #   nobs_loop = nobs iteration ... slow
 #
-f4 = np.float64
-i4 = np.int64
+
+FLOAT_TYPE = np.float64
+INT_TYPE = np.int64
+
+# attr : calc_type, value_dtype, index_names returned by fitgrid
 _OLS_INFLUENCE_ATTRS = {
     '_get_drop_vari': (None, None),
     '_res_looo': (None, None),
     '_ols_xnoti': (None, None),
     'aux_regression_exog': (None, None),
     'aux_regression_endog': (None, None),
-    'cooks_distance': ('nobs', f4),
-    'cov_ratio': ('nobs_loop', f4),
-    'det_cov_params_not_obsi': ('nobs_loop', f4),
-    'dfbetas': ('nobs_loop', f4),
-    'dffits': ('nobs_loop', f4),
-    'dffits_internal': ('nobs', f4),
-    'endog': ('nobs', f4),  # from data
-    'ess_press': ('nobs', f4),
-    'exog': ('nobs_k', f4),  # from data
-    'get_resid_studentized_external': ('nobs_loop', f4),
-    'hat_diag_factor': ('nobs', f4),
-    'hat_matrix_diag': ('nobs', f4),
-    'influence': ('nobs', f4),
-    'k_vars': ('nobs', i4),
+    'cooks_distance': ('nobs', FLOAT_TYPE, ['Time', None, 'Epoch_idx']),
+    'cov_ratio': ('nobs_loop', FLOAT_TYPE, ['Time', 'Epoch_idx']),
+    'det_cov_params_not_obsi': (
+        'nobs_loop',
+        FLOAT_TYPE,
+        ['Time', 'Epoch_idx'],
+    ),
+    'dfbetas': ('nobs_loop', FLOAT_TYPE, ['Time', 'Epoch_idx', None]),
+    'dffits': ('nobs_loop', FLOAT_TYPE, ['Time', None, 'Epoch_idx']),
+    'dffits_internal': ('nobs', FLOAT_TYPE, ['Time', None, 'Epoch_idx']),
+    'endog': (None, None),  # ('nobs', FLOAT_TYPE),  # from data
+    'ess_press': ('nobs', FLOAT_TYPE, ['Time']),
+    'exog': (None, None),  # 'nobs_k', FLOAT_TYPE),  # from data
+    'get_resid_studentized_external': (None, None),  # method
+    'hat_diag_factor': ('nobs', FLOAT_TYPE, ['Time', 'Epoch_idx']),
+    'hat_matrix_diag': ('nobs', FLOAT_TYPE, ['Time', 'Epoch_idx']),
+    'influence': ('nobs', FLOAT_TYPE, ['Time', 'Epoch_idx']),
+    'k_vars': ('nobs', INT_TYPE, ['Time']),
     'model_class': (None, None),  # not a DataFrame
-    'nobs': ('nobs', i4),
-    'params_not_obsi': ('nobs_loop', f4),
-    'resid_press': ('nobs', f4),
-    'resid_std': ('nobs', f4),
-    'resid_studentized_external': ('nobs_loop', f4),
-    'resid_studentized_internal': ('nobs', f4),
-    'resid_var': ('nobs', f4),
+    'nobs': ('nobs', INT_TYPE, ['Time']),
+    'params_not_obsi': ('nobs_loop', FLOAT_TYPE, ['Time', 'Epoch_idx', None]),
+    'resid_press': ('nobs', FLOAT_TYPE, ['Time', 'Epoch_idx']),
+    'resid_std': ('nobs', FLOAT_TYPE, ['Time', 'Epoch_idx']),
+    'resid_studentized_external': (
+        'nobs_loop',
+        FLOAT_TYPE,
+        ['Time', 'Epoch_idx'],
+    ),
+    'resid_studentized_internal': ('nobs', FLOAT_TYPE, ['Time', 'Epoch_idx']),
+    'resid_var': ('nobs', FLOAT_TYPE, ['Time', 'Epoch_idx']),
     'results': (None, None),  # not a DataFrame
     'save': (None, None),  # not a DataFrame
-    'sigma2_not_obsi': ('nobs_loop', f4),
-    'sigma_est': ('nobs', f4),
+    'sigma2_not_obsi': ('nobs_loop', FLOAT_TYPE, ['Time', 'Epoch_idx']),
+    'sigma_est': ('nobs', FLOAT_TYPE, ['Time']),
     'summary_frame': (None, None),  # not a DataFrame
     'summary_table': (None, None),  # not a DataFrame
 }
@@ -68,28 +79,34 @@ _FG_LM_DIAGNOSTIC_COLUMNS = [
 ]
 
 
-def _check_influence_attr(lm_grid, infl_attr):
+def _check_influence_attr(infl, infl_attr, do_nobs_loop):
 
     if infl_attr not in _OLS_INFLUENCE_ATTRS:
         raise ValueError(f"unknown OLSInfluence attribute {infl_attr}")
 
-    infl_calc, infl_dtype = _OLS_INFLUENCE_ATTRS[infl_attr]
+    infl_calc, infl_dtype, index_names = _OLS_INFLUENCE_ATTRS[infl_attr]
 
     if infl_calc is None:
-        # warnings.warn(f"{infl_attr} is not an influence measure")
-        return -1
+        raise ValueError(f"fitgrid cannot calculate {infl_attr}")
 
     if infl_calc == "nobs_loop":
-        # warnings.warn(f"{infl_attr} is slow nobs loop")
-        return -2
+        if not do_nobs_loop:
+            msg = f"{infl_attr} is slow, to calculate set do_nob_loop=True"
+            raise ValueError(msg)
 
-    infl = lm_grid.get_influence()
+    attr_grid = getattr(infl, infl_attr)
+    if not isinstance(attr_grid, pd.DataFrame):
+        raise TypeError(f"{infl_attr} grid is not a pandas DataFrame")
+
     actual_type = type(getattr(infl, infl_attr).iloc[0, 0])
-    if not actual_type is infl_dtype:
-        # raise TypeError(f"gridded {infl_attr} dtype should be {infl_dtype}")
-        print(
-            f"fitgrid spec {infl_attr}:{infl_dtype} but "
-            f"actual type {actual_type}"
+    if actual_type is not infl_dtype:
+        raise TypeError(f"gridded {infl_attr} dtype should be {infl_dtype}")
+
+    if not index_names == attr_grid.index.names:
+        raise TypeError(
+            f" OLS_INFLUENCE_ATTRS thinks {infl_attr} index"
+            f" names should be be {index_names},  the grid"
+            f" index names are {attr_grid.index.names}"
         )
 
 
@@ -107,15 +124,85 @@ def get_vifs(epochs, RHS):
     return epochs._snapshots.progress_apply(get_single_vif, RHS=RHS)
 
 
-def _get_infl_cooks_distance(infl, crit_val=None):
+def _get_infl_attr_vals(lm_grid, attr, crit_val=None, do_nobs_loop=False):
+    """scrape OLSInfluence attribute data into long form Time, Epoch, Chan
+
+    Parameters
+    ----------
+    lm_grid : LMFitGrid
+
+    attr : string
+       see _OLS_INFLUENCE_ATTRS for supported attributes
+
+    crit_val : TBD
+
+    do_nobs_loop : bool
+       if True, calculate nobs loop measures. Default false
+
+    Return
+    ------
+    attr_df : pd.DataFrame
+        row index names: time, epoch_id, channel
+        columns vary by attribute
+
+    """
+
+    infl = lm_grid.get_influence()
+    _check_influence_attr(infl, attr, do_nobs_loop)
+
+    attr_df = getattr(infl, attr)  # .loc[vals_slicer, :]
+
+    # switch everything to long form
+
+    # standardize the row index,
+    #  - fill in None with attr
+    #  - propogate attr name to index level labels
+    index_names, none_count, attr_idxs = [], 0, []
+    for i, name in enumerate(attr_df.index.names):
+        if name is not None:
+            index_names.append(name)
+        else:
+            # process unnamed leels
+
+            # 1. capture the offset for unstacking
+            attr_idxs.append(i)
+
+            # 2. rename name the column from the attr, extend if needed
+            nc_str = '' if none_count == 0 else str(none_count)
+            attr_idx_name = f"{attr}{nc_str}"
+            index_names.append(attr_idx_name)
+
+            # 2. update this level labels with the new name
+            new_labels = [
+                f"{attr_idx_name}_{j}" for j in attr_df.index.levels[i]
+            ]
+            attr_df.index.set_levels(new_labels, i, inplace=True)
+
+            # increment on the way out
+            none_count += 1
+
+    attr_df.index.names = index_names
+    if len(attr_idxs) > 0:
+        attr_df = attr_df.unstack(attr_idxs)
+    attr_df = attr_df.stack(0)
+    attr_df.index.rename(attr_df.index.names[:-1] + ['Channel'], inplace=True)
+    # promote series to frame
+    if isinstance(attr_df, pd.Series):
+        attr_df.name = attr
+        attr_df = attr_df.to_frame()
+
+    # standard-ish long Time, Epoch,  Channel dataframe
+    return attr_df
+
+
+def _get_infl_cooks_distance(lm_grid, crit_val=None):
     """backend Cook's D grid scraper, returns 2-D row, col indexs
 
     statmodels returns a D and p-value, we want the critical D
 
-    Since n epochs, and p model params are constant across
-    a grid, we can get away with one critical value, all cells
+    n epochs, and p model params are constant across a grid, so we can
+    get away with one critical value, all grid cells
 
-    TPU
     """
 
     if not (crit_val is None or isinstance(crit_val, float)):
@@ -124,6 +211,7 @@ def _get_infl_cooks_distance(infl, crit_val=None):
 
     if crit_val is None:
         # fall back to calculated median critical D = F(n, n - p )
+        infl = lm_grid.get_influence()
 
         dfn = int(np.unique(infl.k_vars)[0])
         assert isinstance(dfn, int)
@@ -137,29 +225,15 @@ def _get_infl_cooks_distance(infl, crit_val=None):
         crit_val = np.median(fcdf)
 
     # cooks D grid ... hanging slice is black's idea not mine
-    infl_vals_grid = infl.cooks_distance.loc[
-        pd.IndexSlice[:, 0, :], :
-    ].reset_index(1, drop=True)
+    infl_vals = _get_infl_attr_vals(lm_grid, 'cooks_distance')
+    infl_val_idxs = np.where(infl_vals['cooks_distance_0'] > crit_val)
 
-    assert crit_val is not None
+    infl_vals = infl_vals.iloc[infl_val_idxs]
+    infl_vals['cooks_distance_1'] = crit_val
+    infl_vals.index = infl_vals.index.remove_unused_levels()
+    infl_vals.sort_values(by=['Time', 'Epoch_idx', 'Channel'])
 
-    # grid indices, not values
-    infl_idxs = np.where(infl_vals_grid > crit_val)
-
-    infl_data = []  # list of tuples
-    for row, col in zip(*infl_idxs):
-        infl_data.append(
-            infl_vals_grid.index[row][::-1]
-            + (infl_vals_grid.columns[col],)
-            + ('cooks_distance',)
-            + (infl_vals_grid.iloc[row, col], crit_val)
-        )
-
-    infl_data_df = pd.DataFrame(
-        infl_data, columns=_FG_LM_DIAGNOSTIC_COLUMNS
-    ).sort_values(by=['Epoch_idx', 'Time', 'channel'])
-
-    return infl_data_df, infl_idxs
+    return infl_vals, infl_val_idxs
 
 
 def _get_infl_dffits_internal(infl, crit_val=None):
@@ -178,16 +252,17 @@ def _get_infl_dffits_internal(infl, crit_val=None):
 
     # reindex with infl FitGrid epoch_ids
 
-    # Unlike Cook's D, all epoch dffit values are nested as a list
-    # in each Time x Chan grid cell. Munge back into a epoch_id indexed
-    # dataframe like so ...
-    infl_vals_grid = (
-        infl.dffits_internal.loc[pd.IndexSlice[:, 0], :]
-        .reset_index(-1, drop=True)
-        .stack(-1)
-        .apply(lambda x: pd.Series(x, index=infl.epoch_index))
-        .unstack(0)
-    ).T
+    # infl_vals_grid = (
+    #     infl.dffits_internal.loc[pd.IndexSlice[:, 0], :]
+    #     .reset_index(-1, drop=True)
+    #    .stack(-1)
+    #    .apply(lambda x: pd.Series(x, index=infl.epoch_index))
+    #    .unstack(0)
+    # ).T
+
+    infl_vals_grid = infl.dffits_internal.loc[
+        pd.IndexSlice[:, 0, :], :
+    ].reset_index(1, drop=True)
 
     # the munging and testing could be one line but oh boy
     infl_idxs = np.where(infl_vals_grid > crit_val)
@@ -197,7 +272,7 @@ def _get_infl_dffits_internal(infl, crit_val=None):
     for row, col in zip(*infl_idxs):
 
         infl_data.append(
-            infl_vals_grid.index[row]
+            infl_vals_grid.index[row][::-1]
             + (infl_vals_grid.columns[col],)
             + ('dffits_internal',)
             + (infl_vals_grid.iloc[row, col], crit_val)
