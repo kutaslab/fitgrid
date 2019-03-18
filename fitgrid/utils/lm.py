@@ -7,6 +7,8 @@ from statsmodels.stats.outliers_influence import (
     variance_inflation_factor as vif,
 )
 from statsmodels.regression.linear_model import RegressionResultsWrapper
+from statsmodels.stats.outliers_influence import OLSInfluence
+import warnings
 
 from fitgrid.fitgrid import FitGrid
 
@@ -184,11 +186,16 @@ def _get_infl_attr_vals(lm_grid, attr, do_nobs_loop=False):
     Return
     ------
     attr_df : pd.DataFrame
-        grid_time, grid_epoch_id, channel
+        index is grid_time, grid_epoch_id, channel
         columns vary by attribute
+
+    sm_1 : pd.DataFrame
+        emtpy except when statsmodels return is a 2-ple (vals_0, vals_1),
+        then vals_1
 
     """
 
+    attr_df, sm_1 = None, None
     infl = lm_grid.get_influence()
     attr_df = _check_influence_attr(infl, attr, do_nobs_loop)
 
@@ -229,101 +236,278 @@ def _get_infl_attr_vals(lm_grid, attr, do_nobs_loop=False):
         attr_df.name = attr
         attr_df = attr_df.to_frame()
 
-    # standard-ish long Time, Epoch,  Channel dataframe
-    return attr_df
+
+    import pdb
+    pdb.set_trace()
+
+    # special case handling to split up dataframe from statsmodel tuples
+    if attr in ["cooks_distance", "dffits_internal", "dffits_external"]:
+        sm_1 = attr_df[attr_df.columns[-1]].to_frame()
+        sm_1.columns = [f"{col}_sm" for col in sm_1.columns]
+        del attr[attr_df.columns[-1]
+
+    # standard-ish long Time, Epoch,  Channel dataframes
+    return attr_df, sm_1
+
+# ------------------------------------------------------------
+# idiosyncratic backends for UI getter
+# ------------------------------------------------------------
+# def _get_infl_cooks_distance(lm_grid, crit_val=None):
+#     """backend Cook's D grid scraper, returns 2-D row, col indexs
+
+#     statmodels returns a D and p-value, we want the critical D
+
+#     n epochs, and p model params are constant across a grid, so we can
+#     get away with one critical value, all grid cells
+
+#     """
+#     infl_df, infl_idxs = None, None
+#     infl_df = _get_infl_attr_vals(lm_grid, 'cooks_distance')
+
+#     infl_df.sort_values(by=['Time', 'Epoch_idx', 'Channel'])
+#     return infl_df, infl_idxs
 
 
-def _get_infl_cooks_distance(lm_grid, crit_val=None):
-    """backend Cook's D grid scraper, returns 2-D row, col indexs
+# def _get_infl_dffits_internal(lm_grid, crit_val='sm', direction='above'):
+#     """backend dffit grid scraper"""
 
-    statmodels returns a D and p-value, we want the critical D
+#     infl_df, infl_idxs = None, None
+#     infl_df = _get_infl_attr_vals(lm_grid, 'dffits_internal')
+#     infl_df = _crit_val_handler(infl, diagnostic, crit_val)
 
-    n epochs, and p model params are constant across a grid, so we can
-    get away with one critical value, all grid cells
+#     infl_df.sort_values(by=['Time', 'Epoch_idx', 'Channel'])
+#     return infl_df, infl_idxs
 
-    """
 
-    if not (crit_val is None or isinstance(crit_val, float)):
-        msg = f"crit_val must be a floating point number"
-        raise TypeError(msg)
+def _crit_val_handler(infl_df, infl, diagnostic, direction, crit_val):
 
+    # No way around special critical value handling b.c. statsmodels
+    # returns a critical value or p for cooks_distance, dffits, but
+    # not others
+    # 
+    # There are 16 (4 x 4) i, j cases:
+    #   4 crit_val:  None, float, 'sm', function(infl)
+    #   4 diagnostics:
+    #      cooks_distance, dffits_internal, dffits_external, the rest
+    #
+    # Approach
+    #   * set crit_val_ according to the crit_val i, diagnostic j case
+    #   * slice infl_df with crit_val_ and return
+
+    # deviations should be caught in the UI, check anyhow
+    assert isinstance(infl_df, pd.DataFrame)
+    assert isinstance(infl, FitGrid)
+    assert diagnostic in _OLS_INFLUENCE_ATTRS.keys()
+    assert direction in ['above', 'below']
+
+    # default: assume we aren't thresholding by crit_val
+    infl_idxs, crit_val_ = np.ndarray(shape=(0,)), np.ndarray(shape=(0,))
+
+    import pdb
+
+    infl_idxs, crit_val_ = None, None
+
+    # first strip oddball diagnostic dataframes down to just the diagnostic
+    # values, like all the rest, but retain the statsmodels computations
+    # for the 'sm' option
+    special_diagnostics = [
+        'cooks_distance', 'dffits_internal', 'dffits_external'
+    ]
+    if diagnostic in special_diagnostics:
+        # these infl_df have an extra colum froom the statsmodels
+        # (values, crit) tuple, strip it from the data frame
+        assert infl_df.columns[1] == f"{diagnostic}_1"
+        crit_val_ = infl_df[infl_df.columns[1]].to_frame()
+        crit_val_.columns = [f"{col}_sm_crit_val" for col in crit_val_.columns]
+        infl_df.drop(columns=[infl_df.columns[1]], inplace=True)
+
+    # now all infl_dfs are the same format, handle crit_val by case
+
+    # ------------------------------------------------------------
+    # case i==0 crit_val is None
+    # j = 0,1,2,3 all diagnostics
     if crit_val is None:
-        # fall back to calculated median critical D = F(n, n - p )
-        infl = lm_grid.get_influence()
+        # do not subset results. special case crit_val_ is returned
+        return infl_df, infl_idxs, crit_val_
 
-        dfn = int(np.unique(infl.k_vars)[0])
-        assert isinstance(dfn, int)
-
-        dfd = int(np.unique(infl.results.df_resid)[0])
-        assert isinstance(dfd, int)
-
-        # look up the approx F_0.5 for the model
-        # median F (p, n - p)  about 1.0, for large n
-        fcdf = stats.f.cdf(np.linspace(0, 100, num=1000), dfn, dfd)
-        crit_val = np.median(fcdf)
-
-    infl_df, infl_idxs = None, None
-    infl_df = _get_infl_attr_vals(lm_grid, 'cooks_distance')
-
-    if crit_val is not None:
-        infl_idxs = np.where(infl_df['cooks_distance_0'] > crit_val)
-        infl_df = infl_df.iloc[infl_idxs]
-        infl_df['cooks_distance_1'] = crit_val
-        infl_df.index = infl_df.index.remove_unused_levels()
-
-    infl_df.sort_values(by=['Time', 'Epoch_idx', 'Channel'])
-    return infl_df, infl_idxs
-
-
-def _get_infl_dffits_internal(lm_grid, crit_val='sm', direction='above'):
-    """backend dffit grid scraper"""
-
-    infl_df = _get_infl_attr_vals(lm_grid, 'dffits_internal')
-
-    # no way around special critical value handling for dffits
-    # b.c. it returns a crit val scalar by default in second
-    # column
+    # ------------------------------------------------------------
+    # case i==2 crit_val == 'sm' for statsmodel default
+    # case j=1,2,3 special diagnostic crit_val were handled above
     if crit_val == 'sm':
-        pass  # use statsmodels default
-    elif crit_val is None or isinstance(crit_val, float):
-        infl_df['dffits_internal_1'] = crit_val
-    elif hasattr(crit_val, '__call__'):
-        # crit_val(lm_grid)
-        raise NotImplementedError('TO DO')
-    else:
-        raise TypeError('crit_val must be None, sm, float, or function')
+        # case j=4 non-special case diagnostics have no sm crit_values
+        if diagnostic not in special_diagnostics:
+            msg = (
+                f"ignoring crit_val='sm', statsmodels does not define"
+                " a critical value for {diagnostic}"
+            )
+            warnings.warn(msg)
+            infl_idxs, crit_val_ = None, None
 
-    if crit_val is not None:
+    # ------------------------------------------------------------
+    # case i==1 crit_val is float-like
+    try:
+        # convertible to float?
+        crit_val_ = float(crit_val)
+    except Exception:
+        pass
+
+    # ------------------------------------------------------------
+    # i==3 crit_val is a function
+    if hasattr(crit_val, '__call__'):
+        crit_val_ = crit_val(infl)
+        warnings.warn('functions not implemented')
+
+    if crit_val_ is None:
+        infl_idxs = None
+        return infl_df, infl_idxs, crit_val_
+
+    # assert isinstance(crit_val_, pd.DataFrame)
+    # assert crit_val_.shape[0] == 1 or crit_val_.shape == infl_df.shape
+
+    # wrap up ... most infl_df dataframes now are all just the
+    # calculated values, having the special case special case critical
+    # value columns in case (1, 1:3)
+    # The exceptions are special cases where statsmodels returns a
+    # a tuple (values, crit) and the crit got stripped above. So
+    # every
+    # was pre-decorated with statsmodels critical value h
+    try:
         if direction == 'above':
-            cond = infl_df['dffits_internal_0'] > crit_val
+            infl_idxs = np.where(infl_df > crit_val_.to_numpy())
         elif direction == 'below':
-            cond = infl_df['dffits_internal_0'] < crit_val
+            infl_idxs = np.where(infl_df < crit_val_.to_numpy())
         else:
-            raise ValueError('bug in lm.py illegal direction={direction}')
+            msg = 'lm.py bad direction={direction} please report an issue'
+            raise ValueError(msg)
+    except Exception:
+        pdb.set_trace()
 
-        infl_idxs = np.where(cond)
-        infl_df = infl_df.iloc[infl_idxs]
-        infl_df.index = infl_df.index.remove_unused_levels()
+    infl_df = infl_df.iloc[infl_idxs]
+    infl_df.index = infl_df.index.remove_unused_levels()
 
-    infl_df.sort_values(by=['Time', 'Epoch_idx', 'Channel'])
-    return infl_df, infl_idxs
+    return infl_df, crit_val_, infl_idxs
+
+    # # DEPRECATED ------
+
+    # if crit_val is not None:
+    #     infl_idxs = np.where(infl_df['cooks_distance_0'] > crit_val)
+    #     infl_df = infl_df.iloc[infl_idxs]
+    #     infl_df['cooks_distance_1'] = crit_val
+    #     infl_df.index = infl_df.index.remove_unused_levels()
+
+    # # dffits internal ----------------------------------------
+    # if crit_val == 'sm':
+    #     pass  # use statsmodels default
+    # elif crit_val is None or isinstance(crit_val, float):
+    #     infl_df['dffits_internal_1'] = crit_val
+    # elif hasattr(crit_val, '__call__'):
+    #     # crit_val(lm_grid)
+    #     raise NotImplementedError('TO DO')
+    # else:
+    #     raise TypeError('crit_val must be None, sm, float, or function')
+
+    # if crit_val is not None:
+
+    # # general case ----------------------------------------
+    # # statsmodels doesn't define a critical value for most diagnostics
+    # if crit_val in ['sm', None] or isinstance(crit_val, float):
+    #     infl_df['critical_value'] = crit_val
+    # elif hasattr(crit_val, '__call__'):
+    #     # crit_val(lm_grid)
+    #     raise NotImplementedError('TO DO')
+    # else:
+    #     raise TypeError('crit_val must be None, sm, float, or function')
+
+    # if crit_val is not None:
+    #     if direction == 'above':
+    #         infl_idxs = np.where(infl_df > crit_val)
+    #     elif direction == 'below':
+    #         infl_idxs = np.where(infl_df < crit_val)
+    #     else:
+    #         msg = 'lm.py bad direction={direction} please report an issue'
+    #         raise ValueError(msg)
+
+    #     infl_df = infl_df.iloc[infl_idxs]
+    #     infl_df.index = infl_df.index.remove_unused_levels()
 
 
-def get_influential_data(lm_grid, diagnostic, crit_val=None):
-    """all the FitGrid's influential datapoints as an Epoch, Time, Chan dataframe
+# ------------------------------------------------------------
+# User wrappers
+# ------------------------------------------------------------
+def list_diagnostics():
+    """brief description and usage"""
+
+    fast = [
+        f"  get_diagnostic(lm_grid, {attr}, direction, crit_val)"
+        for attr, spec in _OLS_INFLUENCE_ATTRS.items()
+        if spec[0] not in [None, 'nobs_loop']
+    ]
+
+    slow = [
+        (
+            f"  get_diagnostic(lm_grid, {attr}, direction, crit_val,"
+            " do_nobs_loop=True)"
+        )
+        for attr, spec in _OLS_INFLUENCE_ATTRS.items()
+        if spec[0] == 'nobs_loop'
+    ]
+    not_implemented = [
+        f"  {attr}: not implemented"
+        for attr, spec in _OLS_INFLUENCE_ATTRS.items()
+        if spec[0] is None
+    ]
+
+    print("Fast:\nThese are caclulated quickly from the fitted grid,"
+          " usable for large data sets\n")
+    for usage in fast:
+        print(usage)
+
+    print("\nSlow:\nThese recompute a new model for each data point,"
+          " disabled by default but can be forced like so\n")
+    for usage in slow:
+        print(usage)
+
+    print("\nNot implemented:\nThese are not available from fitgrid\n")
+    for usage in not_implemented:
+        print(usage)
+
+
+def get_diagnostic(
+    lm_grid, diagnostic, direction=None, crit_val=None, do_nobs_loop=False
+):
+    """statsmodels diagnostic measures for the grid's models and data
+
+    .. Warning::
+
+       The size of data diagnostic measures like `cooks_distance`,
+       `dffits`, and `dfbetas` is a multiple of the original data.
+
+       Use the `crit_val` and `direction` option to get smaller
+       subsets of the measures above or below the critical value.
+
+    For a list of `statsmodels` diagnostics available in fitgrid run
+
+        ```python
+        fitgrid.utils.lm.list_diagnostics()
+        ```
+
+    For details about the diagnostic measures visit
+
+    www.statsmodels.org/statsmodels.stats.outliers_influence.OLSInfluence
+
 
     Parameters
     ----------
     lm_grid : fitgrid.FitGrid
         as returned by fg.lm()
 
-    diagnostic : {cooks_distance, dffits_internal}
-        see `statsmodels.OLSInfluence` docs
+    diagnostic : string
+        e.g., "est_std", "cooks_distance", "dffits_internal",
 
     crit_val : {None, float, 'sm', func}
        critical value cutoff for filtering returned data points
 
-       `None` return all, may be very large for data point influence measures
+       `None` return all, may be a multiple of the number of observations
 
        `float` is explicit value, e.g., from a user calculation
 
@@ -331,6 +515,7 @@ def get_influential_data(lm_grid, diagnostic, crit_val=None):
 
        `func` is a function that takes `lm_grid`, `attr` and
             returns one critical val float or same shape grid of them
+            NOT IMPLEMENTED
 
     direction : {'above','below'}
        which side of the critical value to return
@@ -357,16 +542,16 @@ def get_influential_data(lm_grid, diagnostic, crit_val=None):
     if msg is not None:
         raise TypeError(msg)
 
-    # ask statsmodels about influence
-    infl = lm_grid.get_influence()
+    infl_data_df, infl_idxs = None, None
 
-    if diagnostic == 'cooks_distance':
-        infl_data_df, _ = _get_infl_cooks_distance(infl, crit_val)
+    # scrape the grid
+    infl_df, infl = _get_infl_attr_vals(lm_grid, diagnostic, do_nobs_loop)
+    print('before crit_val', diagnostic, infl_df.shape)
 
-    elif diagnostic == 'dffits_internal':
-        infl_data_df, _ = _get_infl_dffits_internal(infl, crit_val)
+    # prune by crit_val if any
+    infl_df, infl_idxs, crit_val = _crit_val_handler(
+        infl_df, infl, diagnostic, direction, crit_val
+    )
 
-    else:
-        raise NotImplementedError(f"{diagnostic}")
-
-    return infl_data_df
+    print('after crit_val', diagnostic, infl_df.shape)
+    return infl_data_df, infl_idxs

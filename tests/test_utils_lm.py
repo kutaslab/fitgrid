@@ -4,7 +4,6 @@ from pandas import DataFrame
 
 from fitgrid.utils.lm import _OLS_INFLUENCE_ATTRS, FLOAT_TYPE, INT_TYPE
 
-
 PARALLEL = True
 N_CORES = 4
 
@@ -48,11 +47,12 @@ def test_smoke_get_vifs():
     fitgrid.utils.lm.get_vifs(epochs, RHS)
 
 
+# _OLS_INFLUENCE_ATTRS lists statsmodels diagnostics known to lm.py
 def test__OLS_INFLUENCE_ATTRS():
-    """fitgrid influence attr database must match statsmodels OLSInfluence"""
+    """verify _OLS_INFLUENCE_ATTRS matches statsmodels OLSInfluence"""
 
     lm_grid, infl = get_seeded_lm_grid_infl()
-    infl_attrs = dir(infl)  # from the mother ship
+    infl_attrs = dir(infl)  # from the mothership
 
     assert set(infl_attrs) == set(_OLS_INFLUENCE_ATTRS.keys())
     for infl_attr, spec in _OLS_INFLUENCE_ATTRS.items():
@@ -61,8 +61,7 @@ def test__OLS_INFLUENCE_ATTRS():
         assert val_type in [None, FLOAT_TYPE, INT_TYPE]
 
 
-# ------------------------------------------------------------
-# lots of influence measures, lots of outcomes
+# OLSInfluence diagnostics are a grab bag, lots of outcomes
 
 # not gridded, gridable should fail NotImplemented
 not_imp = [
@@ -93,8 +92,9 @@ rest = [
 ]
 
 
+# parametrize the tests
 def pytest_generate_tests(metafunc):
-    # expand the params for
+    # _check_infl_attr parametrizer
     if (
             metafunc.function is test__check_infl_attr
             and 'attr' in metafunc.fixturenames
@@ -105,12 +105,13 @@ def pytest_generate_tests(metafunc):
         )
 
 
+# function argument checker
 def test__check_infl_attr(attr, do_nobs_loop):
-    # prerun all available _OLS_INFLUENCE_ATTR through the checker
     lm_grid, infl = get_seeded_lm_grid_infl()
     fitgrid.utils.lm._check_influence_attr(infl, attr, do_nobs_loop)
 
 
+# actual test fixture (finally)
 def test__get_infl_attr_vals():
     """grab values for real"""
     lm_grid, infl = get_seeded_lm_grid_infl()
@@ -129,7 +130,7 @@ def test__get_infl_attr_vals():
 
 
 def test__get_infl_attr_vals_big():
-    """grab values for large data set"""
+    # nobs diagnostics on a large dataset
 
     print('fitting a big grid ... be patient')
     lm_grid, infl = get_seeded_lm_grid_infl(
@@ -147,12 +148,15 @@ def test__get_infl_attr_vals_big():
         if spec[0] == 'nobs'
     ]
     for infl_attr in nobs_diagnostics:
-        infl_df = fitgrid.utils.lm._get_infl_attr_vals(
+        fitgrid.utils.lm._get_infl_attr_vals(
             lm_grid, infl_attr
         )
-        print(infl_attr, infl_df.shape)
+        # print(infl_attr, infl_df.shape)
 
 
+# ------------------------------------------------------------
+# cooks_distance and dffits need special handling because
+# statsmodels returns a tuple
 def test__get_infl_cooks_distance():
 
     lm_grid, infl = get_seeded_lm_grid_infl()
@@ -206,28 +210,28 @@ def test__get_infl_dffits_internal():
     assert all([all(x[0] == x[1]) for x in zip(test_idxs, infl_idxs)])
 
 
-def test_smoke_get_influential_data():
-    """wrapper"""
+# ------------------------------------------------------------
+# UI wrappers
+# ------------------------------------------------------------
+def test_list_diagnostics():
+    fitgrid.utils.lm.list_diagnostics()
 
-    def _check_infl_df(iddf, with_cval=False, cval=None):
-        assert isinstance(infl_df, DataFrame)
-        assert all(
-            infl_df.columns == fitgrid.utils.lm._FG_LM_DIAGNOSTIC_COLUMNS
-        )
-        assert all(infl_df["diagnostic"] == diagnostic)
+
+@pytest.mark.parametrize("crit_val", ['sm', None, 0.1])
+@pytest.mark.parametrize("direction", ["above", "below"])
+# @pytest.mark.parametrize("crit_val", ['sm']) #, None, 0.1])
+# @pytest.mark.parametrize("direction", ["above",] )#  "below"])
+def test_smoke_get_diagnostics(crit_val, direction):
 
     lm_grid, _ = get_seeded_lm_grid_infl()
-
-    # default, no critical value
-    for diagnostic in ["dffits_internal", "cooks_distance"]:
-        infl_df = fitgrid.utils.lm.get_influential_data(
-            lm_grid, diagnostic
-        )
-        _check_infl_df(infl_df, with_cval=False)
-
-        # explicit critical value
-        for cval in [None, 0.1]:
-            infl_df = fitgrid.utils.lm.get_influential_data(
-                lm_grid, diagnostic, crit_val=cval
+    do_nobs_loop = False
+    for diagnostic, spec in _OLS_INFLUENCE_ATTRS.items():
+        calc, val_type, index_names = spec
+        if calc is None:
+            continue
+        if calc == 'nobs_loop':
+            do_nobs_loop = True
+        fitgrid.utils.lm.get_diagnostic(
+                lm_grid, diagnostic, direction, crit_val, do_nobs_loop
             )
-            _check_infl_df(infl_df, with_cval=True, cval=cval)
+        # _check_infl_df(infl_df, with_cval=False)
