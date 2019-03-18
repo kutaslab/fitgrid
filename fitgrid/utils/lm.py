@@ -28,11 +28,11 @@ INT_TYPE = np.int64
 
 # attr : (calc_type, value_dtype, index_names) as returned by fitgrid
 _OLS_INFLUENCE_ATTRS = {
-    '_get_drop_vari': (None, None),
-    '_res_looo': (None, None),
-    '_ols_xnoti': (None, None),
-    'aux_regression_exog': (None, None),
-    'aux_regression_endog': (None, None),
+    '_get_drop_vari': (None, None, None),
+    '_res_looo': (None, None, None),
+    '_ols_xnoti': (None, None, None),
+    'aux_regression_exog': (None, None, None),
+    'aux_regression_endog': (None, None, None),
     'cooks_distance': ('nobs', FLOAT_TYPE, ['Time', None, 'Epoch_idx']),
     'cov_ratio': ('nobs_loop', FLOAT_TYPE, ['Time', 'Epoch_idx']),
     'det_cov_params_not_obsi': (
@@ -43,15 +43,15 @@ _OLS_INFLUENCE_ATTRS = {
     'dfbetas': ('nobs_loop', FLOAT_TYPE, ['Time', 'Epoch_idx', None]),
     'dffits': ('nobs_loop', FLOAT_TYPE, ['Time', None, 'Epoch_idx']),
     'dffits_internal': ('nobs', FLOAT_TYPE, ['Time', None, 'Epoch_idx']),
-    'endog': (None, None),  # ('nobs', FLOAT_TYPE),  # from data
+    'endog': (None, None, None),  # ('nobs', FLOAT_TYPE),  # from data
     'ess_press': ('nobs', FLOAT_TYPE, ['Time']),
-    'exog': (None, None),  # 'nobs_k', FLOAT_TYPE),  # from data
-    'get_resid_studentized_external': (None, None),  # method
+    'exog': (None, None, None),  # 'nobs_k', FLOAT_TYPE),  # from data
+    'get_resid_studentized_external': (None, None, None),  # method
     'hat_diag_factor': ('nobs', FLOAT_TYPE, ['Time', 'Epoch_idx']),
     'hat_matrix_diag': ('nobs', FLOAT_TYPE, ['Time', 'Epoch_idx']),
     'influence': ('nobs', FLOAT_TYPE, ['Time', 'Epoch_idx']),
     'k_vars': ('nobs', INT_TYPE, ['Time']),
-    'model_class': (None, None),  # not a DataFrame
+    'model_class': (None, None, None),  # not a DataFrame
     'nobs': ('nobs', INT_TYPE, ['Time']),
     'params_not_obsi': ('nobs_loop', FLOAT_TYPE, ['Time', 'Epoch_idx', None]),
     'resid_press': ('nobs', FLOAT_TYPE, ['Time', 'Epoch_idx']),
@@ -63,12 +63,12 @@ _OLS_INFLUENCE_ATTRS = {
     ),
     'resid_studentized_internal': ('nobs', FLOAT_TYPE, ['Time', 'Epoch_idx']),
     'resid_var': ('nobs', FLOAT_TYPE, ['Time', 'Epoch_idx']),
-    'results': (None, None),  # not a DataFrame
-    'save': (None, None),  # not a DataFrame
+    'results': (None, None, None),  # not a DataFrame
+    'save': (None, None, None),  # not a DataFrame
     'sigma2_not_obsi': ('nobs_loop', FLOAT_TYPE, ['Time', 'Epoch_idx']),
     'sigma_est': ('nobs', FLOAT_TYPE, ['Time']),
-    'summary_frame': (None, None),  # not a DataFrame
-    'summary_table': (None, None),  # not a DataFrame
+    'summary_frame': (None, None, None),  # not a DataFrame
+    'summary_table': (None, None, None),  # not a DataFrame
 }
 
 
@@ -80,37 +80,6 @@ _FG_LM_DIAGNOSTIC_COLUMNS = [
     'value',
     'critical',
 ]
-
-
-def _check_influence_attr(infl, infl_attr, do_nobs_loop):
-
-    if infl_attr not in _OLS_INFLUENCE_ATTRS:
-        raise ValueError(f"unknown OLSInfluence attribute {infl_attr}")
-
-    infl_calc, infl_dtype, index_names = _OLS_INFLUENCE_ATTRS[infl_attr]
-
-    if infl_calc is None:
-        raise ValueError(f"fitgrid cannot calculate {infl_attr}")
-
-    if infl_calc == "nobs_loop":
-        if not do_nobs_loop:
-            msg = f"{infl_attr} is slow, to calculate set do_nob_loop=True"
-            raise ValueError(msg)
-
-    attr_grid = getattr(infl, infl_attr)
-    if not isinstance(attr_grid, pd.DataFrame):
-        raise TypeError(f"{infl_attr} grid is not a pandas DataFrame")
-
-    actual_type = type(getattr(infl, infl_attr).iloc[0, 0])
-    if actual_type is not infl_dtype:
-        raise TypeError(f"gridded {infl_attr} dtype should be {infl_dtype}")
-
-    if not index_names == attr_grid.index.names:
-        raise TypeError(
-            f" OLS_INFLUENCE_ATTRS thinks {infl_attr} index"
-            f" names should be be {index_names},  the grid"
-            f" index names are {attr_grid.index.names}"
-        )
 
 
 def get_vifs(epochs, RHS):
@@ -127,9 +96,76 @@ def get_vifs(epochs, RHS):
     return epochs._snapshots.progress_apply(get_single_vif, RHS=RHS)
 
 
-def _get_infl_attr_vals(
-        lm_grid, attr, crit_val='auto', direction='above', do_nobs_loop=False
-):
+# ------------------------------------------------------------
+# getter function argument and getter checkers
+# ------------------------------------------------------------
+def _check_get_infl_args(lm_grid, infl_attr, direction, crit_val):
+    """argument type, value checker, doesn't run anything"""
+
+    if not isinstance(lm_grid, pd.DataFrame):
+        raise TypeError(f"lm_grid is not a pandas DataFrame")
+
+    if not (
+        isinstance(infl_attr, str) and infl_attr in _OLS_INFLUENCE_ATTRS
+    ):
+        raise ValueError(f"unknown OLSInfluence attribute {infl_attr}")
+
+    if not (
+            (crit_val is None)
+            or (crit_val != 'sm')
+            or (isinstance(crit_val, float))
+            or (hasattr(crit_val, '__call__'))
+    ):
+        msg = "crit_val must be None, 'sm', a float or a function"
+        raise TypeError(msg)
+
+    # need a direction with critical values
+    if crit_val is not None:
+        if direction not in ['above', 'below']:
+            raise ValueError(
+                f"crit_val requires a direction 'above' or 'below"
+            )
+
+    return 0
+
+
+def _check_influence_attr(infl, infl_attr, do_nobs_loop):
+    """general purpose checker and raw grid getter, may be slow"""
+
+    if infl_attr not in _OLS_INFLUENCE_ATTRS:
+        raise ValueError(f"unknown OLSInfluence attribute {infl_attr}")
+
+    infl_calc, infl_dtype, index_names = _OLS_INFLUENCE_ATTRS[infl_attr]
+
+    if infl_calc is None:
+        raise ValueError(f"fitgrid cannot calculate {infl_attr}")
+
+    if infl_calc == "nobs_loop" and not do_nobs_loop:
+        msg = f"{infl_attr} is slow, to calculate anyway set do_nob_loop=True"
+        raise ValueError(msg)
+
+    attr_grid = getattr(infl, infl_attr)
+    if not isinstance(attr_grid, pd.DataFrame):
+        raise TypeError(f"{infl_attr} grid is not a pandas DataFrame")
+
+    actual_type = type(getattr(infl, infl_attr).iloc[0, 0])
+    if actual_type is not infl_dtype:
+        raise TypeError(f"gridded {infl_attr} dtype should be {infl_dtype}")
+
+    if not index_names == attr_grid.index.names:
+        raise TypeError(
+            f" OLS_INFLUENCE_ATTRS thinks {infl_attr} index"
+            f" names should be be {index_names},  the grid"
+            f" index names are {attr_grid.index.names}"
+        )
+
+    return attr_grid
+
+
+# ------------------------------------------------------------
+# back end workers ...
+# ------------------------------------------------------------
+def _get_infl_attr_vals(lm_grid, attr, do_nobs_loop=False):
     """scrape OLSInfluence attribute data into long form Time, Epoch, Chan
 
     Parameters
@@ -139,21 +175,8 @@ def _get_infl_attr_vals(
     attr : string
        see _OLS_INFLUENCE_ATTRS for supported attributes
 
-    crit_val : {float, 'sm', func, None}
-       critical value cutoff for filtering returned data points
-
-       `float` is explicit value, e.g., from a user calculation
-
-       `func` is a function that takes `lm_grid`, `attr` and
-            returns one critical val float or same shape grid of them
-
-       `sm` is the statsmodels default, e.g., for cook's D, dffits
-
-       `None` return all, may be very large for data point influence measures
-
-
     direction : {'above', 'below'}
-       data points to return relative to critical value
+       data points to return relative to critical value, if set
 
     do_nobs_loop : bool
        if True, calculate slow leave-one-out nobs loop, default=False
@@ -167,30 +190,26 @@ def _get_infl_attr_vals(
     """
 
     infl = lm_grid.get_influence()
-    _check_influence_attr(infl, attr, do_nobs_loop)
-
-    attr_df = getattr(infl, attr)
+    attr_df = _check_influence_attr(infl, attr, do_nobs_loop)
 
     # switch the 2-D Time, Epoch x Channels grid
     # to long format dataframe Time, Epoch, Channels
 
-    # standardize the row index
-    #  - replace index col names fitgrid returns as None with attr name(s)
-    #  - propogate attr name(s) to index level row labels
+    # standardize the row index with attribut name and labels
     index_names, none_idxs, none_count = [], [], 0
     for i, name in enumerate(attr_df.index.names):
         if name is not None:
             index_names.append(name)
         else:
-            # capture this index offset for unstacking
+            # capture the index offset for unstacking
             none_idxs.append(i)
 
-            # rename name the column from the attr, extend if needed
+            # rename name the None column from the attr
             nc_str = '' if none_count == 0 else str(none_count)
             attr_idx_name = f"{attr}{nc_str}"
             index_names.append(attr_idx_name)
 
-            # update this index level labels with the new name
+            # index labels are 0, 1, ... prepend the attr
             new_labels = [
                 f"{attr_idx_name}_{j}" for j in attr_df.index.levels[i]
             ]
@@ -243,65 +262,51 @@ def _get_infl_cooks_distance(lm_grid, crit_val=None):
         fcdf = stats.f.cdf(np.linspace(0, 100, num=1000), dfn, dfd)
         crit_val = np.median(fcdf)
 
-    # cooks D grid ... hanging slice is black's idea not mine
-    infl_vals = _get_infl_attr_vals(lm_grid, 'cooks_distance')
-    infl_val_idxs = np.where(infl_vals['cooks_distance_0'] > crit_val)
+    infl_df, infl_idxs = None, None
+    infl_df = _get_infl_attr_vals(lm_grid, 'cooks_distance')
 
-    infl_vals = infl_vals.iloc[infl_val_idxs]
-    infl_vals['cooks_distance_1'] = crit_val
-    infl_vals.index = infl_vals.index.remove_unused_levels()
-    infl_vals.sort_values(by=['Time', 'Epoch_idx', 'Channel'])
+    if crit_val is not None:
+        infl_idxs = np.where(infl_df['cooks_distance_0'] > crit_val)
+        infl_df = infl_df.iloc[infl_idxs]
+        infl_df['cooks_distance_1'] = crit_val
+        infl_df.index = infl_df.index.remove_unused_levels()
 
-    return infl_vals, infl_val_idxs
+    infl_df.sort_values(by=['Time', 'Epoch_idx', 'Channel'])
+    return infl_df, infl_idxs
 
 
-def _get_infl_dffits_internal(infl, crit_val=None):
-    """backend dffit grid scraper ... use the wrapper """
+def _get_infl_dffits_internal(lm_grid, crit_val='sm', direction='above'):
+    """backend dffit grid scraper"""
 
-    if crit_val is None:
-        # fall back to statsmodels default
+    infl_df = _get_infl_attr_vals(lm_grid, 'dffits_internal')
 
-        # else blackened at the 0 index ... too much of a good thing
-        slicer = pd.IndexSlice
-        crit_val = np.unique(infl.dffits_internal.loc[slicer[:, 1], :])[0]
+    # no way around special critical value handling for dffits
+    # b.c. it returns a crit val scalar by default in second
+    # column
+    if crit_val == 'sm':
+        pass  # use statsmodels default
+    elif crit_val is None or isinstance(crit_val, float):
+        infl_df['dffits_internal_1'] = crit_val
+    elif hasattr(crit_val, '__call__'):
+        # crit_val(lm_grid)
+        raise NotImplementedError('TO DO')
+    else:
+        raise TypeError('crit_val must be None, sm, float, or function')
 
-    assert isinstance(crit_val, float)
+    if crit_val is not None:
+        if direction == 'above':
+            cond = infl_df['dffits_internal_0'] > crit_val
+        elif direction == 'below':
+            cond = infl_df['dffits_internal_0'] < crit_val
+        else:
+            raise ValueError('bug in lm.py illegal direction={direction}')
 
-    # TO DO ... these could get big ... iterate over grid cells to save space?
+        infl_idxs = np.where(cond)
+        infl_df = infl_df.iloc[infl_idxs]
+        infl_df.index = infl_df.index.remove_unused_levels()
 
-    # reindex with infl FitGrid epoch_ids
-
-    # infl_vals_grid = (
-    #     infl.dffits_internal.loc[pd.IndexSlice[:, 0], :]
-    #     .reset_index(-1, drop=True)
-    #    .stack(-1)
-    #    .apply(lambda x: pd.Series(x, index=infl.epoch_index))
-    #    .unstack(0)
-    # ).T
-
-    infl_vals_grid = infl.dffits_internal.loc[
-        pd.IndexSlice[:, 0, :], :
-    ].reset_index(1, drop=True)
-
-    # the munging and testing could be one line but oh boy
-    infl_idxs = np.where(infl_vals_grid > crit_val)
-
-    # slice out just the influential data points
-    infl_data = []  # list of tuples
-    for row, col in zip(*infl_idxs):
-
-        infl_data.append(
-            infl_vals_grid.index[row][::-1]
-            + (infl_vals_grid.columns[col],)
-            + ('dffits_internal',)
-            + (infl_vals_grid.iloc[row, col], crit_val)
-        )
-
-    infl_data_df = pd.DataFrame(
-        infl_data, columns=_FG_LM_DIAGNOSTIC_COLUMNS
-    ).sort_values(['Epoch_idx', 'Time', 'channel'])
-
-    return infl_data_df, infl_idxs
+    infl_df.sort_values(by=['Time', 'Epoch_idx', 'Channel'])
+    return infl_df, infl_idxs
 
 
 def get_influential_data(lm_grid, diagnostic, crit_val=None):
@@ -314,6 +319,21 @@ def get_influential_data(lm_grid, diagnostic, crit_val=None):
 
     diagnostic : {cooks_distance, dffits_internal}
         see `statsmodels.OLSInfluence` docs
+
+    crit_val : {None, float, 'sm', func}
+       critical value cutoff for filtering returned data points
+
+       `None` return all, may be very large for data point influence measures
+
+       `float` is explicit value, e.g., from a user calculation
+
+       `sm` is the statsmodels default, e.g., for cook's D, dffits
+
+       `func` is a function that takes `lm_grid`, `attr` and
+            returns one critical val float or same shape grid of them
+
+    direction : {'above','below'}
+       which side of the critical value to return
 
     Returns
     -------
