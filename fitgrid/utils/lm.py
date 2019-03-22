@@ -197,7 +197,7 @@ def _get_attr_df(infl, infl_attr, do_nobs_loop):
     # decorate the columns, diagnostic spans channels
     attr_df.columns = pd.MultiIndex.from_product(
         [[infl_attr], attr_df.columns],
-        names=['diagnostic', 'Channels']
+        names=['diagnostic', 'channel']
     )
 
     # attr_df.columns.name must == diagnostic by construction

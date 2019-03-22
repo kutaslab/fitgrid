@@ -147,8 +147,6 @@ def test_get_ess_press():
         select_by=crit_val,
         direction='above',
     )
-    # raise NotImplementedError("check values")
-    infl_df.head()
     warnings.warn("TO DO: add values check")
 
 
@@ -163,8 +161,6 @@ def test__get_dfbetas_distance():
         select_by=crit_val,
         direction='above',
     )
-    # raise NotImplementedError("check values")
-    infl_df.head()
     warnings.warn("TO DO: add values check")
 
 
@@ -185,13 +181,14 @@ def test_get_cooks_distance():
     test_vals = {
         "Time": [0, 0, 1, 2],
         "Epoch_idx": [6, 14, 18, 3],
-        "Channel": ["channel0", "channel1", "channel1", "channel0"],
+        "channel": ["channel0", "channel1", "channel1", "channel0"],
         'cooks_distance': [0.306540, 0.366846, 0.331196, 0.334759],
     }
     test_df = DataFrame.from_dict(test_vals).set_index(
-        ['Time', 'Epoch_idx', 'Channel']
+        ['Time', 'Epoch_idx', 'channel']
     )
 
+    assert all(test_df.index == infl_df.index)
     assert all(infl_df == test_df)
 
 
@@ -211,13 +208,14 @@ def test_get_dffits_internal():
     test_vals = {
         "Time": [0, 0, 2, 2],
         "Epoch_idx": [6, 14, 3, 18],
-        "Channel": ["channel0", "channel1", "channel0", "channel1"],
+        "channel": ["channel0", "channel1", "channel0", "channel1"],
         "dffits_internal": [0.958969, 1.049066, 1.002137, 0.943897],
     }
 
     test_df = DataFrame.from_dict(test_vals).set_index(
-        ['Time', 'Epoch_idx', 'Channel']
+        ['Time', 'Epoch_idx', 'channel']
     )
+    assert all(test_df.index == infl_df.index)
     assert all(test_df == infl_df)
 
 
