@@ -2,7 +2,6 @@ import warnings
 import pytest
 from .context import fitgrid
 from pandas import DataFrame
-import pdb
 
 from fitgrid.utils.lm import _OLS_INFLUENCE_ATTRS, FLOAT_TYPE, INT_TYPE
 
@@ -229,8 +228,8 @@ def test_list_diagnostics():
     fitgrid.utils.lm.list_diagnostics()
 
 
-def test_fun(x): return None
-@pytest.mark.parametrize("select_by", [None, 'sm', 0.1, test_fun])
+def demo_fun(x): return None
+@pytest.mark.parametrize("select_by", [None, 'sm', 0.1, demo_fun])
 @pytest.mark.parametrize("direction", ["above", "below"])
 def test_smoke_get_diagnostics(select_by, direction):
 
@@ -246,4 +245,3 @@ def test_smoke_get_diagnostics(select_by, direction):
         fitgrid.utils.lm.get_diagnostic(
                 lm_grid, diagnostic, select_by,  direction, do_nobs_loop
             )
-        # _check_infl_df(infl_df, with_cval=False)

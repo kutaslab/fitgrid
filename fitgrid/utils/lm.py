@@ -7,26 +7,22 @@ from statsmodels.stats.outliers_influence import (
 )
 from statsmodels.regression.linear_model import RegressionResultsWrapper
 import warnings
-import pdb
 from fitgrid.fitgrid import FitGrid
 
 # ------------------------------------------------------------
-# r.e. statsmodels OLS influence attributes
+# fitgrid's database of statsmodels OLSInfluence diagnostics:
 #
-# fitgrid's database of what there is, how it runs, and data type.
+#  * what there is, how it runs, and data type, like so
 #
-# used for checking and to guard user input
+#  *  attr : (calc_type, value_dtype, df.index.names)
 #
-# suitable for generating a docs table, but not implemented
-#
-#   nobs = number of observations
-#   nobs_k = number of observations x model regressors
-#   nobs_loop = nobs iteration ... slow
-#
+#  df.index.names are as returned by LMFitGrid attribute getter
+#  nobs = number of observations
+#  nobs_k = number of observations x model regressors
+#  nobs_loop = nobs re-fitting ... slow
+# ------------------------------------------------------------
 FLOAT_TYPE = np.float64
 INT_TYPE = np.int64
-
-# attr : (calc_type, value_dtype, index_names) as returned by fitgrid
 _OLS_INFLUENCE_ATTRS = {
     '_get_drop_vari': (None, None, None),
     '_res_looo': (None, None, None),
@@ -72,16 +68,6 @@ _OLS_INFLUENCE_ATTRS = {
 }
 
 
-_FG_LM_DIAGNOSTIC_COLUMNS = [
-    'Epoch_idx',
-    'Time',
-    'channel',
-    'diagnostic',
-    'value',
-    'critical',
-]
-
-
 def get_vifs(epochs, RHS):
     def get_single_vif(group, RHS):
         dmatrix = patsy.dmatrix(formula_like=RHS, data=group)
@@ -97,19 +83,18 @@ def get_vifs(epochs, RHS):
 
 
 # ------------------------------------------------------------
-# getter function argument and getter checkers
+# OLSInfluence diagnostic helpers TPU
 # ------------------------------------------------------------
 def _check_get_diagnostic_args(
-        lm_grid,
-        diagnostic,
+        lm_grid=None,
+        diagnostic=None,
         select_by=None,
         direction=None,
         do_nobs_loop=False
 ):
+    # type, value checking doesn't run anything, for args see get_diagnostic()
 
-    """argument type, value checker, doesn't run anything"""
-
-    # types
+    # types ------------------------------------------------------
     msg = None
     if not isinstance(lm_grid, FitGrid):
         msg = f"lm_grid must be a FitGrid not {type(lm_grid)}"
@@ -117,17 +102,11 @@ def _check_get_diagnostic_args(
     if not isinstance(lm_grid.tester, RegressionResultsWrapper):
         msg = f"lm_grid must be fit with fitgrid.lm()"
 
-    if not isinstance(do_nobs_loop, bool):
-        msg = f"do_nobs_loop must be True or False"
+    if not isinstance(diagnostic, str):
+        msg = f"{diagnostic} must be a string"
 
-    if msg is not None:
-        raise TypeError(msg)
-
-    # values
-    if not (
-        isinstance(diagnostic, str) and diagnostic in _OLS_INFLUENCE_ATTRS
-    ):
-        raise ValueError(f"unknown OLSInfluence attribute {diagnostic}")
+    if not (isinstance(direction, str) or direction is None):
+        msg = f"{direction} must be a string"
 
     if not (
             (select_by is None)
@@ -136,25 +115,34 @@ def _check_get_diagnostic_args(
             or (hasattr(select_by, '__call__'))
     ):
         msg = "select_by must be None, 'sm', a float or a function"
+
+    if not isinstance(do_nobs_loop, bool):
+        msg = f"do_nobs_loop must be True or False"
+
+    if msg is not None:
         raise TypeError(msg)
 
-    # need a direction with critical values
+    # values ------------------------------------------------------
+    if not (
+        diagnostic in _OLS_INFLUENCE_ATTRS
+    ):
+        msg = f"unknown OLSInfluence attribute {diagnostic}"
+
+    # need a direction to select
     if select_by is not None:
         if direction not in ['above', 'below']:
-            raise ValueError(
-                f"crit_val requires a direction 'above' or 'below"
-            )
+            msg = f"select_by requires a direction 'above' or 'below"
 
-    return 0
+    if msg is not None:
+        raise ValueError(msg)
 
 
-# ------------------------------------------------------------
-# back end workers ...
-# ------------------------------------------------------------
 def _get_attr_df(infl, infl_attr, do_nobs_loop):
     """general purpose checker and raw grid getter, may be slow"""
 
-    if infl_attr not in _OLS_INFLUENCE_ATTRS:
+    if not (
+        infl_attr in _OLS_INFLUENCE_ATTRS
+    ):
         raise ValueError(f"unknown OLSInfluence attribute {infl_attr}")
 
     infl_calc, infl_dtype, index_names = _OLS_INFLUENCE_ATTRS[infl_attr]
@@ -228,13 +216,11 @@ def _get_attr_crit_val(diagnostic, attr_df, sm_1_df, select_by):
 
     Parameters
     ----------
-    see `get_diagnostics()`
+    see get_diagnostics()
 
-    four cases:
+    Four cases: select_by = None, float-like, 'sm', function
 
         None = not selecting diagnostic values, passing all through
-
-        crit_val = float-like, float-array-like, 'sm', function,
 
         float-like is a user-defined constant or array same shape as attr_df
 
@@ -243,16 +229,16 @@ def _get_attr_crit_val(diagnostic, attr_df, sm_1_df, select_by):
 
         function is a user defined function of attr_df, infl.
 
-    Return
-    ------
+    Returns
+    -------
     crit_vals_df
-        shape == attr_df.shape or None
+        where crit_vals_df.shape == attr_df.shape or crit_vals is None
 
     """
 
     crit_vals_df = None  # empty
 
-    # case 1 float-like -> dataframe
+    # case 1 float-like scalar
     try:
         crit_vals_df = pd.DataFrame(
             np.full(shape=attr_df.shape, fill_value=float(select_by))
@@ -269,7 +255,6 @@ def _get_attr_crit_val(diagnostic, attr_df, sm_1_df, select_by):
         crit_vals_df.index = attr_df.index.copy()
         crit_vals_df.columns = attr_df.columns.copy()
         crit_vals_df.columns.name = [f"{diagnostic}_crit_val"]
-
     except Exception:
         pass
 
@@ -291,14 +276,14 @@ def _get_attr_crit_val(diagnostic, attr_df, sm_1_df, select_by):
         and all(crit_vals_df.index == attr_df.index)
     )
 
-    return crit_vals_df
+    return crit_vals_df  # may be None
 
 
 # ------------------------------------------------------------
-# User wrappers
+# UI wrappers
 # ------------------------------------------------------------
 def list_diagnostics():
-    """brief description and usage"""
+    """Show fast, slow, and not implemented statsmodels diagnostics"""
 
     fast = [
         f"  get_diagnostic(lm_grid, {attr}, direction, crit_val)"
@@ -338,59 +323,119 @@ def list_diagnostics():
 def get_diagnostic(
     lm_grid, diagnostic, select_by=None, direction=None, do_nobs_loop=False
 ):
-    """statsmodels diagnostic measures for the grid's models and data
+    """Fetch and optionally prune a `statsmodels` diagnostic measure.
 
-    .. Warning::
+    `statsmodels` implements a variety of data and model diagnostic
+    measures. For some, it also computes a version of a recommended
+    critical value or :math:`p`-value. Use these at your own risk
+    after careful study of the `statsmodels` source code. For details
+    visit :sm_docs:`statsmodels.stats.outliers_influence.OLSInfluence.html`
 
-       The size of data diagnostic measures like `cooks_distance`,
-       `dffits`, and `dfbetas` is a multiple of the original data.
+    For a catalog of the measures available for `fitgrid.lm()` run
+    this in Python
 
-       Use the `crit_val` and `direction` option to get smaller
-       subsets of the measures above or below the critical value.
+    .. code-block:: python
 
-    For a list of `statsmodels` diagnostics available in fitgrid run
+       >>>fitgrid.utils.lm.list_diagnostics()
 
-        ```python
-        fitgrid.utils.lm.list_diagnostics()
-        ```
+    .. Warning:: Data diagnostics can be very large and very slow, see
+       Notes for details.
 
-    For details about the diagnostic measures visit
+       * By default **all** values of the diagnostics are computed, these
+         can be pruned with the `select_by` and `direction` options.
 
-    www.statsmodels.org/statsmodels.stats.outliers_influence.OLSInfluence
+       * By default slow diagnostics are **not** computed, this can be
+         forced by setting `do_nobs_loop=True`.
 
 
     Parameters
     ----------
-    lm_grid : fitgrid.FitGrid
-        as returned by fg.lm()
+    lm_grid : fitgrid.LMFitGrid
+        as returned by `figrid.lm()`
 
     diagnostic : string
-        e.g., "est_std", "cooks_distance", "dffits_internal",
+        as implemented in `statsmodels`, e.g., "cooks_distance",
+        "dffits_internal", "est_std".
 
-    select_by : {None, float, float-array, 'sm', func}
-       critical value cutoff for filtering returned data points
+    select_by : one of {None, float, float-array, 'sm', func}
+        critical value cutoff for filtering returned data points
 
-       `None` return all, may be a multiple of the number of observations
+        * `None` returns all, may be a multiple of the number of observations
 
-       `float` is explicit value, e.g., from a user calculation
+        * `float` is a float-like number or numpy.array of float-like
+          the same length as the number of observations, e.g., from
+          a user calculation
 
-       `sm` is the statsmodels default, e.g., for cook's D, dffits
+        * `sm` is the statsmodels default, where there is one, e.g., for
+          `cooks_distance`, `dffits_internal`, `dffits`.
 
-       `func` is a function that takes `lm_grid`, `attr` and
-            returns one critical val float or same shape grid of them
-            NOT IMPLEMENTED
+        * `func` NOT IMPLEMENTED. A function that computes critical
+          value(s)
 
-    direction : {'above','below'}
+    direction : {"above", "below"}
        which side of the critical value to return
 
     Returns
     -------
-        infl_data_df
+        diagnostic_df : pandas.DataFrame
 
     Notes
     -----
 
-        diagnostic critical values are defined in statsmodels.OLSInfluence
+    * Size
+      `diagnostic_df` values for data measures like `cooks_distance`
+      and `hat_matrix_diagonal` are the size of the original data plus
+      a row index and for some data measures like `dfbetas`, they are the
+      size of the data multiplied by the number of regressors in the
+      model.
+
+    * Speed
+      Leave-one-observation-out (LOOO) model refitting take as long as
+      it takes to fit one model multiplied by the number of
+      observations. This can be intractable for large datasets. Diagnostic
+      measures calculated from the original fit like `cooks_distance`
+      and `dffits_internal` are tractable even for large data sets.
+
+    Examples
+    --------
+
+    .. code-block:: python
+
+       # fake data
+       epochs_fg = fitgrid.generate()
+       lm_grid = fitgrid.lm(
+           epochs_fg,
+           LHS=epochs_fg.channels,
+           RHS='continuous + categorical',
+           parallel=True,
+           n_cores=4,
+       )
+
+       press_crit_val = 12000.0  # made up value
+       diagnostic_df = fitgrid.utils.lm.get_diagnostic(
+           lm_grid,
+           'ess_press',
+           select_by=press_crit_val,
+           direction='above',
+       )
+
+       # Some folks think this is reasonable for large N,
+       # references witheld by design. What do you think?
+       cooks_D_crit_val = 1.0
+
+       influential_cooks_Ds_df = fitgrid.utils.lm.get_diagnostic(
+           lm_grid,
+           'ess_press',
+           select_by=cooks_D_crit_val,
+           direction='above',
+       )
+
+       un_influential_cooks_Ds_df = fitgrid.utils.lm.get_diagnostic(
+           lm_grid,
+           'ess_press',
+           select_by=cooks_D_crit_val,
+           direction='below',
+       )
 
     """
 
@@ -403,32 +448,31 @@ def get_diagnostic(
         do_nobs_loop
     )
 
-
     # a FitGrid
-    attr_df, sm_1_df = _get_attr_df(
+    diagnostic_df, sm_1_df = _get_attr_df(
         lm_grid.get_influence(), diagnostic, do_nobs_loop
     )
 
     # critical values for this diagnostic, if any
     crit_vals_df = _get_attr_crit_val(
-        diagnostic, attr_df, sm_1_df, select_by
+        diagnostic, diagnostic_df, sm_1_df, select_by
     )
 
     # prune diagnostic values according to critical values
     if crit_vals_df is not None:
         # prune
         if direction == 'above':
-            m = attr_df > crit_vals_df.to_numpy()
+            m = diagnostic_df > crit_vals_df.to_numpy()
         elif direction == 'below':
-            m = attr_df < crit_vals_df.to_numpy()
+            m = diagnostic_df < crit_vals_df.to_numpy()
         else:
             msg = f"{direction} bad crit_val direction please report an issue"
             raise ValueError(msg)
-        attr_df = attr_df.where(m, np.nan)
+        diagnostic_df = diagnostic_df.where(m, np.nan)
 
     # pivot columns to long format, explict dropna is the default
-    attr_df = attr_df.stack(1, dropna=True)
-    if attr_df.size > 0:
-        assert isinstance(attr_df, pd.DataFrame)
+    diagnostic_df = diagnostic_df.stack(1, dropna=True)
+    if diagnostic_df.size > 0:
+        assert isinstance(diagnostic_df, pd.DataFrame)
 
-    return attr_df
+    return diagnostic_df

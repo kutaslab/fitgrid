@@ -88,6 +88,9 @@ lm diagnostics
 
 .. autofunction:: fitgrid.utils.lm.get_vifs
 
+.. autofunction:: fitgrid.utils.lm.get_diagnostic
+
+.. autofunction:: fitgrid.utils.lm.list_diagnostics
 
 ----------------
 lmer diagnostics
