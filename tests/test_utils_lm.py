@@ -1,22 +1,32 @@
+import pdb
 import warnings
 import pytest
 from .context import fitgrid
 from pandas import DataFrame
 
-from fitgrid.utils.lm import _OLS_INFLUENCE_ATTRS, FLOAT_TYPE, INT_TYPE
+from fitgrid.utils.lm import(
+    _OLS_INFLUENCE_ATTRS,
+    FLOAT_TYPE,
+    INT_TYPE,
+    _check_get_diagnostic_args,
+    _get_diagnostic,
+    get_diagnostic,
+    filter_diagnostic,
+    list_diagnostics,
+)
 
 PARALLEL = True
 N_CORES = 4
 
 
 def get_seeded_lm_grid_infl(
-        n_samples=5,
-        n_epochs=10,
-        n_channels=2,
-        n_categories=2,
-        seed=0,
-        parallel=True,
-        n_cores=4
+    n_samples=5,
+    n_epochs=10,
+    n_channels=2,
+    n_categories=2,
+    seed=0,
+    parallel=True,
+    n_cores=4
 ):
     """frozen test data and influence measures"""
 
@@ -25,7 +35,7 @@ def get_seeded_lm_grid_infl(
         n_samples=n_samples,
         n_channels=n_channels,
         n_categories=n_categories,
-        seed=seed
+        seed=seed,
     )
     RHS = 'continuous + categorical'
     lm_grid = fitgrid.lm(
@@ -62,8 +72,9 @@ def test__OLS_INFLUENCE_ATTRS():
         assert val_type in [None, FLOAT_TYPE, INT_TYPE]
 
 
+# ------------------------------------------------------------
 # OLSInfluence diagnostics are a grab bag, lots of outcomes
-
+# ------------------------------------------------------------
 # not gridded, gridable should fail NotImplemented
 not_imp = [
     pytest.param(att, tv, marks=pytest.mark.xfail)
@@ -74,7 +85,7 @@ not_imp = [
 
 # nobs_loop should fail with do_nobs_loop=False, run with True
 nobs_loop_false = [
-    pytest.param(att, False, marks=pytest.mark.xfail)
+    pytest.param(att, False, marks=pytest.mark.xfail(strict=True))
     for att, spec in _OLS_INFLUENCE_ATTRS.items()
     if spec[0] == 'nobs_loop'
 ]
@@ -92,33 +103,98 @@ rest = [
     for tv in (True, False)
 ]
 
+# ------------------------------------------------------------
+# smoke tests for diagnostic data frame filtering options
+# ------------------------------------------------------------
+filt_1_side = [
+    pytest.param(how, b0, b1, shape)
+    for how in ["above", "below"]
+    for b0 in [-1.0, 1.0]
+    for b1 in [None, -1.0, 1.0]
+    for shape in ['long', 'wide']
+]
+filt_1_side_x = [
+    pytest.param(
+        how, b0, b1, "long", marks=pytest.mark.xfail(
+            strict=True, raises=ValueError
+        )
+    )
+    for how in ["above", "below"]
+    for b0 in [None]
+    for b1 in [None, -1.0, 1.0]
+]
+filt_interval = [
+    pytest.param(how, b0, b1, shape)
+    for how in ["inside", "outside"]
+    for b0 in [0, 1.0]
+    for b1 in [1.0, 2.0]
+    for shape in ['long', 'wide']
+]
+filt_interval_x = [
+    pytest.param(
+        how, b0, b1, "long",
+        marks=pytest.mark.xfail(strict=True, raises=ValueError)
+    )
+    for how in ["inside", "outside"]
+    for b0 in [None, -1.0, 1.0]
+    for b1 in [None]
+]
 
-# parametrize the tests
+
+# ------------------------------------------------------------
+# pytest metafunc parametrization
+# ------------------------------------------------------------
 def pytest_generate_tests(metafunc):
-    # _check_infl_attr parametrizer
-    if (
-            metafunc.function is test__get_attr_df
-            and 'attr' in metafunc.fixturenames
-    ):
+
+    # backend grid scraper
+    if (metafunc.function in [test__get_diagnostic, test_get_diagnostic]):
         metafunc.parametrize(
             "attr,do_nobs_loop",
-            not_imp + nobs_loop_false + nobs_loop_true + rest
+            not_imp + nobs_loop_false + nobs_loop_true + rest,
+        )
+
+    # diagnostic filter function
+    if metafunc.function is test_smoke_filter_diagnostic:
+        metafunc.parametrize(
+            "how,b0,b1,shape",
+            filt_1_side + filt_1_side_x + filt_interval + filt_interval_x
         )
 
 
-# actual test fixture (finally)
-def test__get_attr_df(attr, do_nobs_loop):
-    lm_grid, infl = get_seeded_lm_grid_infl()
-    fitgrid.utils.lm._get_attr_df(infl, attr, do_nobs_loop)
+# ------------------------------------------------------------
+# backend
+# ------------------------------------------------------------
+def test__get_diagnostic(attr, do_nobs_loop):
+    # getter for native fitgrid dataframe
+    lm_grid, __ = get_seeded_lm_grid_infl()
+    _ = fitgrid.utils.lm._get_diagnostic(lm_grid, attr, do_nobs_loop)
+
+
+# ------------------------------------------------------------
+# UI wrappers
+# ------------------------------------------------------------
+def test_list_diagnostics():
+    fitgrid.utils.lm.list_diagnostics()
+
+
+def test_get_diagnostic(attr, do_nobs_loop):
+    # UI getter labels indexes and (ugh) splits special case
+    # statsmodels 2-ple returns ... ugh.
+    lm_grid, _ = get_seeded_lm_grid_infl()
+    d_df, sm_df = fitgrid.utils.lm.get_diagnostic(
+        lm_grid, attr, do_nobs_loop
+    )
+    assert attr == d_df.columns.unique('diagnostic')[0]
+    assert all(d_df.columns.unique('channel') == ['channel0', 'channel1'])
+    assert sm_df is None or sm_df.shape == d_df.shape
 
 
 def test_get_nobs_diagnostics_big_grid():
     # nobs diagnostics on a large dataset
-
     print('fitting a big grid ... be patient')
     lm_grid, infl = get_seeded_lm_grid_infl(
         n_samples=20,
-        n_epochs=10,  # 10000
+        n_epochs=10000,
         n_channels=24,
         parallel=True,
         n_cores=4,
@@ -131,35 +207,27 @@ def test_get_nobs_diagnostics_big_grid():
         if spec[0] == 'nobs'
     ]
     for infl_attr in nobs_diagnostics:
-        diag_df = fitgrid.utils.lm.get_diagnostic(
+        diag_df, _ = fitgrid.utils.lm.get_diagnostic(
             lm_grid, infl_attr
         )
         print(infl_attr, diag_df.shape)
 
 
 def test_get_ess_press():
-    # nobs x 1 length values, no special handling
     lm_grid, infl = get_seeded_lm_grid_infl()
-    crit_val = 0.3
-    infl_df = fitgrid.utils.lm.get_diagnostic(
+    infl_df, _ = fitgrid.utils.lm.get_diagnostic(
         lm_grid,
         'ess_press',
-        select_by=crit_val,
-        direction='above',
     )
     warnings.warn("TO DO: add values check")
 
 
-def test__get_dfbetas_distance():
-
+def test_get_dfbetas():
     lm_grid, infl = get_seeded_lm_grid_infl()
-    crit_val = 0.3
-
-    infl_df = fitgrid.utils.lm.get_diagnostic(
+    infl_df, _ = fitgrid.utils.lm.get_diagnostic(
         lm_grid,
-        'cooks_distance',
-        select_by=crit_val,
-        direction='above',
+        'dfbetas',
+        do_nobs_loop=True
     )
     warnings.warn("TO DO: add values check")
 
@@ -170,12 +238,9 @@ def test__get_dfbetas_distance():
 def test_get_cooks_distance():
 
     lm_grid, infl = get_seeded_lm_grid_infl()
-    crit_val = 0.3
-    infl_df = fitgrid.utils.lm.get_diagnostic(
+    infl_df, sm_1_df = fitgrid.utils.lm.get_diagnostic(
         lm_grid,
         'cooks_distance',
-        select_by=crit_val,
-        direction='above',
     )
 
     test_vals = {
@@ -188,22 +253,15 @@ def test_get_cooks_distance():
         ['Time', 'Epoch_idx', 'channel']
     )
 
-    assert all(test_df.index == infl_df.index)
-    assert all(infl_df == test_df)
+    crit_val = 0.3
+    selected_df = fitgrid.utils.lm.filter_diagnostic(
+        infl_df, "above", crit_val
+    )
+    assert all(test_df.index == selected_df.index)
+    assert all(test_df == selected_df)
 
 
 def test_get_dffits_internal():
-
-    lm_grid, infl = get_seeded_lm_grid_infl()
-
-    crit_val = 0.93
-
-    infl_df = fitgrid.utils.lm.get_diagnostic(
-        lm_grid,
-        'dffits_internal',
-        select_by=crit_val,
-        direction='above',
-    )
 
     test_vals = {
         "Time": [0, 0, 2, 2],
@@ -215,31 +273,31 @@ def test_get_dffits_internal():
     test_df = DataFrame.from_dict(test_vals).set_index(
         ['Time', 'Epoch_idx', 'channel']
     )
-    assert all(test_df.index == infl_df.index)
-    assert all(test_df == infl_df)
 
+    lm_grid, infl = get_seeded_lm_grid_infl()
+    infl_df, sm_df = fitgrid.utils.lm.get_diagnostic(
+        lm_grid,
+        'dffits_internal',
+    )
 
-# ------------------------------------------------------------
-# UI wrappers
-# ------------------------------------------------------------
-def test_list_diagnostics():
-    fitgrid.utils.lm.list_diagnostics()
+    crit_val = 0.93
+    selected_df = fitgrid.utils.lm.filter_diagnostic(
+        infl_df, "above", crit_val
+    )
 
+    assert all(test_df.index == selected_df.index)
+    assert all(test_df == selected_df)
 
-def demo_fun(x): return None
-@pytest.mark.parametrize("select_by", [None, 'sm', 0.1, demo_fun])
-@pytest.mark.parametrize("direction", ["above", "below"])
-def test_smoke_get_diagnostics(select_by, direction):
+def test_smoke_filter_diagnostic(how, b0, b1, shape):
 
     lm_grid, _ = get_seeded_lm_grid_infl()
-    do_nobs_loop = False
     for diagnostic, spec in _OLS_INFLUENCE_ATTRS.items():
-        calc, val_type, index_names = spec
+        calc, _, _ = spec
         if calc is None:
             continue
-        if calc == 'nobs_loop':
-            do_nobs_loop = True
-
-        fitgrid.utils.lm.get_diagnostic(
-                lm_grid, diagnostic, select_by,  direction, do_nobs_loop
-            )
+        diag_df, sm_1_df = fitgrid.utils.lm.get_diagnostic(
+            lm_grid, diagnostic, do_nobs_loop=True
+        )
+        fd = filter_diagnostic(diag_df, how, b0, b1, shape)
+        if shape == "wide":
+            assert diag_df.shape == fd.shape
