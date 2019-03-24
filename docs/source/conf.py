@@ -27,9 +27,9 @@ author = 'Andrey Portnoy, Thomas P. Urbach'
 today = 'October 1, 2018'
 
 # The short X.Y version
-version = '0.3'
+version = '0.4.0-dev'
 # The full version, including alpha/beta/rc tags
-release = '0.3.0'
+release = '0.4.0-dev.4.1'
 
 
 # -- General configuration ---------------------------------------------------
@@ -59,14 +59,7 @@ extensions = [
 nbsphinx_timeout = -1
 
 # alias long urls to keep line length under control
-extlinks = {
-    "sm_docs": (
-        "https://www.statsmodels.org/stable/generated/%s",
-        ""
-    )
-}
-
-
+extlinks = {"sm_docs": ("https://www.statsmodels.org/stable/generated/%s", "")}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

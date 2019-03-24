@@ -72,8 +72,8 @@ def test__raises_error_on_epoch_index_mismatch():
     epochs_table.index.set_levels(
         levels=bad_index, level=defaults.TIME, inplace=True
     )
-    epochs_table.index.set_labels(
-        labels=bad_index, level=defaults.TIME, inplace=True
+    epochs_table.index.set_codes(
+        codes=bad_index, level=defaults.TIME, inplace=True
     )
 
     # now time index is equal to row number in the table overall
