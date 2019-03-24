@@ -4,8 +4,8 @@ from .context import fitgrid
 from pandas import DataFrame
 import fitgrid.utils as fgutil
 
-PARALLEL = True
-N_CORES = 4
+PARALLEL = False
+N_CORES = 4 # for dev/testing
 
 
 def get_seeded_lm_grid_infl(
@@ -181,7 +181,7 @@ def test_get_diagnostic(attr, do_nobs_loop):
     assert sm_df is None or sm_df.shape == d_df.shape
 
 
-def test_get_nobs_diagnostics_big_grid():
+def Xtest_get_nobs_diagnostics_big_grid():
     # nobs diagnostics on a large dataset
     print('fitting a big grid ... be patient')
     lm_grid, infl = get_seeded_lm_grid_infl(
