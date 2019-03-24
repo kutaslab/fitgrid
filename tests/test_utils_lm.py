@@ -5,7 +5,7 @@ from pandas import DataFrame
 import fitgrid.utils as fgutil
 
 PARALLEL = False
-N_CORES = 4 # for dev/testing
+N_CORES = 4  # for dev/testing
 
 
 def get_seeded_lm_grid_infl(
