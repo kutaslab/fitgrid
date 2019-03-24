@@ -196,8 +196,10 @@ def list_diagnostics():
     for usage in slow:
         print(usage)
 
-    print("\nNot implemented:\nThese are not available for get_diagnostic() but"
-          "may be available in the fitted grid.\n")
+    print(
+        "\nNot implemented:\nThese are not available for get_diagnostic() but"
+        "may be available in the fitted grid.\n"
+    )
     for usage in not_implemented:
         print(usage)
 
