@@ -429,17 +429,17 @@ def filter_diagnostic(
         diagnostic_df = diagnostic_df.where(diagnostic_df.lt(bound_0))
 
     if how == "inside":
-        diagnostic_df = diagnostic_df.where(diagnostic_df.gt(bound_0)).where(
-            diagnostic_df.lt(bound_1)
+        diagnostic_df = diagnostic_df.where(
+            diagnostic_df.gt(bound_0) & diagnostic_df.lt(bound_1)
         )
 
     if how == "outside":
-        diagnostic_df = diagnostic_df.where(diagnostic_df.lt(bound_0)).where(
-            diagnostic_df.gt(bound_1)
+        diagnostic_df = diagnostic_df.where(
+            diagnostic_df.lt(bound_0) | diagnostic_df.gt(bound_1)
         )
 
     if format == "long":
-        return diagnostic_df.stack(1, dropna=True)
+        return diagnostic_df.stack(1, dropna=True).sort_index()
     elif format == "wide":
         return diagnostic_df
     else:

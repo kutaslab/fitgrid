@@ -1,7 +1,7 @@
 import warnings
 import pytest
 from .context import fitgrid
-from pandas import DataFrame
+from pandas import DataFrame, concat
 import fitgrid.utils as fgutil
 
 PARALLEL = False
@@ -164,6 +164,40 @@ def test__get_diagnostic(attr, do_nobs_loop):
     _ = fgutil.lm._get_diagnostic(lm_grid, attr, do_nobs_loop)
 
 
+lmg, _ = get_seeded_lm_grid_infl()
+lmgx, _ = get_seeded_lm_grid_infl()
+lmgx.tester = []
+
+
+@pytest.mark.parametrize(
+    "lm_grid",
+    [
+        lmg,
+        pytest.param(lmgx, marks=pytest.mark.xfail(strict=True)),
+        pytest.param([], marks=pytest.mark.xfail(strict=True)),
+    ],
+)
+@pytest.mark.parametrize(
+    "diag",
+    [
+        "cooks_distance",
+        pytest.param("Cooks_D", marks=pytest.mark.xfail(strict=True)),
+        pytest.param(True, marks=pytest.mark.xfail(strict=True)),
+    ],
+)
+@pytest.mark.parametrize(
+    "dnl",
+    [
+        True,
+        pytest.param("True", marks=pytest.mark.xfail(strict=True)),
+        pytest.param(123.4, marks=pytest.mark.xfail(strict=True)),
+    ],
+)
+def test__check_get_diagnostic_args(lm_grid, diag, dnl):
+
+    fgutil.lm._check_get_diagnostic_args(lm_grid, diag, dnl)
+
+
 # ------------------------------------------------------------
 # UI wrappers
 # ------------------------------------------------------------
@@ -279,9 +313,9 @@ def test_smoke_filter_diagnostic(how, b0, b1, shape):
     'b0,b1',
     [
         (0, 0),
-        (0, 1),
+        (-10, 10),
         pytest.param(
-            1, 0, marks=pytest.mark.xfail(strict=True, raises=ValueError)
+            10, -10, marks=pytest.mark.xfail(strict=True, raises=ValueError)
         ),
         pytest.param(
             0, [1], marks=pytest.mark.xfail(strict=True, raises=TypeError)
@@ -291,7 +325,13 @@ def test_smoke_filter_diagnostic(how, b0, b1, shape):
 def test_filter_diagnostic_interval(b0, b1):
 
     lm_grid, _ = get_seeded_lm_grid_infl()
+
     diag_df, sm_1_df = fgutil.lm.get_diagnostic(
-        lm_grid, "ess_press", do_nobs_loop=True
+        lm_grid, "influence", do_nobs_loop=True
     )
-    fgutil.lm.filter_diagnostic(diag_df, "inside", b0, b1)
+
+    in_df = fgutil.lm.filter_diagnostic(diag_df, 'inside', b0, b1)
+    out_df = fgutil.lm.filter_diagnostic(diag_df, 'outside', b0, b1)
+
+    if not all(diag_df.stack(-1) == concat([in_df, out_df]).sort_index()):
+        raise ValueError("inside + outside != all")

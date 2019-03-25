@@ -29,7 +29,7 @@ today = 'October 1, 2018'
 # The short X.Y version
 version = '0.4.0-dev'
 # The full version, including alpha/beta/rc tags
-release = '0.4.0-dev.4.1'
+release = '0.4.0-dev.4.2'
 
 
 # -- General configuration ---------------------------------------------------
@@ -55,8 +55,7 @@ extensions = [
 ]
 
 # nbsphinx_timeout = -1 # don't timeout
-# nbsphinx_timeout = 5 * 60  # lmer needs time to run in Tutorial
-nbsphinx_timeout = -1
+nbsphinx_timeout = 5 * 60  # lmer needs time to run in Tutorial
 
 # alias long urls to keep line length under control
 extlinks = {"sm_docs": ("https://www.statsmodels.org/stable/generated/%s", "")}
