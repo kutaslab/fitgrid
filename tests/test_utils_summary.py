@@ -241,11 +241,13 @@ def test_smoke_plot_betas():
     """TO DO: needs argument testing"""
 
     summary_df = test_summarize()
-    fitgrid.utils.summary.plot_betas(
-        summary_df=summary_df,
-        LHS=[col for col in summary_df.columns if "channel" in col],
-    )
 
+    for fdr in [None, 'BY', 'BH']:
+        fitgrid.utils.summary.plot_betas(
+            summary_df=summary_df,
+            LHS=[col for col in summary_df.columns if "channel" in col],
+            fdr=fdr
+        )
 
 def test_smoke_plot_AICs():
 

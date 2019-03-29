@@ -427,8 +427,10 @@ def plot_betas(
     alpha : float
        alpha level for false discovery rate correction
 
-    fdr : str {'BY', 'BH'}
-        BY is Benjamini and Yekatuli FDR, BH is Benjamini and Hochberg
+    fdr : str {'BY', 'BH', None}
+        Add markers for FDR adjusted significant :math:`p`-values. BY
+        is Benjamini and Yekatuli, BH is Benjamini and Hochberg, None
+        supresses the markers.
 
     s : float
        scatterplot marker size for BH and lmer decorations
@@ -443,11 +445,44 @@ def plot_betas(
 
     """
 
+    def _do_fdr(_fg_beta):
+        # FDR helper
+        m = len(_fg_beta)
+        pvals = _fg_beta['P-val'].copy().sort_values()
+        ks = list()
+
+        if fdr == 'BH':
+            # Benjamini & Hochberg ... restricted
+            c_m = 1
+        if fdr == 'BY':
+            # Benjamini & Yekatuli general case
+            c_m = np.sum([1 / i for i in range(1, m + 1)])
+
+        for k, p in enumerate(pvals):
+            kmcm = k / (m * c_m)
+            if p <= kmcm * alpha:
+                ks.append(k)
+
+        if len(ks) > 0:
+            crit_p = pvals.iloc[max(ks)]
+        else:
+            crit_p = 0.0
+        
+        _fg_beta['sig_fdr'] = _fg_beta['P-val'] < crit_p
+
+        # slice out sig ps for plotting
+        sig_ps = _fg_beta.loc[_fg_beta['sig_fdr'], :]
+        return sig_ps, crit_p
+        # --------------------
+
     figs = list()
 
     if isinstance(LHS, str):
         LHS = [LHS]
     assert all([isinstance(col, str) for col in LHS])
+
+    if fdr not in ['BH', 'BY', None]:
+        raise ValueError(f"fdr must be 'BH', 'BY' or None")
 
     # defaults
     if figsize is None:
@@ -475,34 +510,6 @@ def plot_betas(
 
             # log scale DF
             fg_beta['log10DF'] = fg_beta['DF'].apply(lambda x: np.log10(x))
-
-            # calculate B-H FDR
-            m = len(fg_beta)
-            pvals = fg_beta['P-val'].copy().sort_values()
-            ks = list()
-
-            if fdr not in ['BH', 'BY']:
-                raise ValueError(f"fdr must be BH or BY")
-            if fdr == 'BH':
-                # Benjamini & Hochberg ... restricted
-                c_m = 1
-            elif fdr == 'BY':
-                # Benjamini & Yekatuli general case
-                c_m = np.sum([1 / i for i in range(1, m + 1)])
-
-            for k, p in enumerate(pvals):
-                kmcm = k / (m * c_m)
-                if p <= kmcm * alpha:
-                    ks.append(k)
-
-            if len(ks) > 0:
-                crit_p = pvals.iloc[max(ks)]
-            else:
-                crit_p = 0.0
-            fg_beta['sig_fdr'] = fg_beta['P-val'] < crit_p
-
-            # slice out sig ps for plotting
-            sig_ps = fg_beta.loc[fg_beta['sig_fdr'], :]
 
             # lmer SEs
             fg_beta['mn+SE'] = (fg_beta['Estimate'] + fg_beta['SE']).astype(
@@ -539,15 +546,18 @@ def plot_betas(
             else:
                 my_kwargs = {}
 
-            # color sig ps
-            ax_beta.scatter(
-                sig_ps['Time'],
-                sig_ps['Estimate'],
-                color='black',
-                zorder=3,
-                label=f'{fdr} FDR p < crit {crit_p:0.2}',
-                **my_kwargs,
-            )
+            # mark FDR sig ps
+            if fdr is not None:
+                # optionally fetch FDR adjusted sig ps 
+                sig_ps, crit_p = _do_fdr(fg_beta)
+                ax_beta.scatter(
+                    sig_ps['Time'],
+                    sig_ps['Estimate'],
+                    color='black',
+                    zorder=3,
+                    label=f'{fdr} FDR p < crit {crit_p:0.2}',
+                    **my_kwargs,
+                )
 
             try:
                 # color warnings last to mask sig ps
@@ -558,7 +568,7 @@ def plot_betas(
                     fg_beta['Estimate'].iloc[warn_ma],
                     color='red',
                     zorder=4,
-                    label='lmer warnings',
+                    label='model warnings',
                     **my_kwargs,
                 )
             except Exception:
