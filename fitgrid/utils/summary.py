@@ -411,7 +411,14 @@ def _get_AICs(summary_df):
 
 
 def plot_betas(
-    summary_df, LHS, alpha=0.05, fdr='BY', figsize=None, s=None, **kwargs
+    summary_df,
+    LHS,
+    alpha=0.05,
+    fdr=None,
+    figsize=None,
+    s=None,
+    df_func=None,
+    **kwargs,
 ):
 
     """Plot model parameter estimates for each data column in LHS
@@ -427,10 +434,12 @@ def plot_betas(
     alpha : float
        alpha level for false discovery rate correction
 
-    fdr : str {'BY', 'BH', None}
+    fdr : str {None, 'BY', 'BH'}
         Add markers for FDR adjusted significant :math:`p`-values. BY
         is Benjamini and Yekatuli, BH is Benjamini and Hochberg, None
         supresses the markers.
+    df_func : {None, function}
+        plot `function(degrees of freedom)`, e.g., `np.log10`,  `lambda x: x`
 
     s : float
        scatterplot marker size for BH and lmer decorations
@@ -467,7 +476,7 @@ def plot_betas(
             crit_p = pvals.iloc[max(ks)]
         else:
             crit_p = 0.0
-        
+
         _fg_beta['sig_fdr'] = _fg_beta['P-val'] < crit_p
 
         # slice out sig ps for plotting
@@ -508,9 +517,6 @@ def plot_betas(
                 .reset_index('Time')
             )
 
-            # log scale DF
-            fg_beta['log10DF'] = fg_beta['DF'].apply(lambda x: np.log10(x))
-
             # lmer SEs
             fg_beta['mn+SE'] = (fg_beta['Estimate'] + fg_beta['SE']).astype(
                 float
@@ -539,7 +545,10 @@ def plot_betas(
             )
 
             # plot log10 df
-            fg_beta.plot(x='Time', y='log10DF', ax=ax_beta)
+            # log scale DF
+            if df_func is not None:
+                fg_beta['DF_'] = fg_beta['DF'].apply(lambda x: df_func(x))
+                fg_beta.plot(x='Time', y='DF_', ax=ax_beta)
 
             if s is not None:
                 my_kwargs = {'s': s}
@@ -548,7 +557,7 @@ def plot_betas(
 
             # mark FDR sig ps
             if fdr is not None:
-                # optionally fetch FDR adjusted sig ps 
+                # optionally fetch FDR adjusted sig ps
                 sig_ps, crit_p = _do_fdr(fg_beta)
                 ax_beta.scatter(
                     sig_ps['Time'],

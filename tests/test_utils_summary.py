@@ -1,4 +1,5 @@
 import pytest
+from numpy import log10
 import pandas as pd
 import fitgrid
 from fitgrid.utils.summary import INDEX_NAMES, KEY_LABELS
@@ -241,13 +242,18 @@ def test_smoke_plot_betas():
     """TO DO: needs argument testing"""
 
     summary_df = test_summarize()
+    cols = [col for col in summary_df.columns if "channel" in col]
 
     for fdr in [None, 'BY', 'BH']:
         fitgrid.utils.summary.plot_betas(
-            summary_df=summary_df,
-            LHS=[col for col in summary_df.columns if "channel" in col],
-            fdr=fdr
+            summary_df=summary_df, LHS=cols, fdr=fdr
         )
+
+    for df_func in [None, log10]:
+        fitgrid.utils.summary.plot_betas(
+            summary_df=summary_df, LHS=cols, df_func=df_func
+        )
+
 
 def test_smoke_plot_AICs():
 
