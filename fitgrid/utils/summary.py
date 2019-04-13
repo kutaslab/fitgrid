@@ -19,6 +19,7 @@ KEY_LABELS = [
     'SE',
     'T-stat',
     'has_warning',
+    'logLike',
 ]
 
 
@@ -65,7 +66,7 @@ def summarize(
        write the summary dataframe to disk with
        `pd.to_hdf(path, key, format='fixed')`
 
-    **kwargs : key=value arguments passed to the modeler, optional 
+    **kwargs : key=value arguments passed to the modeler, optional
 
 
     Returns
@@ -210,7 +211,7 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=0.05):
     Notes
     -----
     The `summaries_df` row and column indexes are munged to match
-    fitgrid.lmer._get_summaries_df() 
+    fitgrid.lmer._get_summaries_df()
 
     """
 
@@ -228,7 +229,8 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=0.05):
 
     # fetch a master copy of the model info
     model_vals = []
-    model_key_attrs = [("DF", "df_resid"), ("AIC", "aic")]
+    model_key_attrs = [("DF", "df_resid"), ("AIC", "aic"), ("logLike", 'llf')]
+
     for (key, attr) in model_key_attrs:
         vals = None
         vals = getattr(fg_ols, attr).copy()
@@ -236,6 +238,15 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=0.05):
             raise AttributeError(f"model: {rhs} attribute: {attr}")
         vals['key'] = key
         model_vals.append(vals)
+
+    # statsmodels result wrappers have different versions of llf!
+    aics = (-2 * fg_ols.llf) + 2 * (fg_ols.df_model + fg_ols.k_constant)
+    if not np.allclose(fg_ols.aic, aics):
+        msg = (
+            "uh oh ...statsmodels OLS aic and llf calculations have changed."
+            " please report an issue to fitgrid"
+        )
+        raise ValueError(msg)
 
     # build model has_warnings with False for ols
     warnings = pd.DataFrame(
@@ -315,7 +326,7 @@ def _lmer_get_summaries_df(fg_lmer):
 
     """
 
-    attribs = ['AIC', 'has_warning']
+    attribs = ['AIC', 'has_warning', 'logLike']
 
     # grab and tidy the formulat RHS
     rhs = fg_lmer.formula.iloc[0, 0].split('~')[1].strip()

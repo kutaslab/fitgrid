@@ -1,8 +1,9 @@
 import pytest
 from numpy import log10
 import pandas as pd
+from matplotlib import pyplot as plt
 import fitgrid
-from fitgrid.utils.summary import INDEX_NAMES, KEY_LABELS
+from fitgrid.utils.summary import INDEX_NAMES  # , KEY_LABELS
 
 PARALLEL = True
 N_CORES = 4
@@ -75,6 +76,7 @@ def test_summarize():
     epochs_fg = _get_epochs_fg()
 
     # do it
+    summary_dfs = []
     for modler, RHSs in tests.items():
         summaries_df = fitgrid.utils.summary.summarize(
             epochs_fg,
@@ -85,10 +87,10 @@ def test_summarize():
             n_cores=N_CORES,
         )
         assert summaries_df.index.names == INDEX_NAMES
-        assert set(KEY_LABELS).issubset(set(summaries_df.index.levels[-1]))
+        fitgrid.utils.summary._check_summary_df(summaries_df)
+        summary_dfs.append(summaries_df)
 
-    fitgrid.utils.summary._check_summary_df(summaries_df)
-    return summaries_df
+    return summary_dfs
 
 
 # ------------------------------------------------------------
@@ -241,21 +243,23 @@ def test__get_AICs():
 def test_smoke_plot_betas():
     """TO DO: needs argument testing"""
 
-    summary_df = test_summarize()
-    cols = [col for col in summary_df.columns if "channel" in col]
+    for summary_df in test_summarize():
+        cols = [col for col in summary_df.columns if "channel" in col]
+        for fdr in [None, 'BY', 'BH']:
+            _ = fitgrid.utils.summary.plot_betas(
+                summary_df=summary_df, LHS=cols, fdr=fdr
+            )
+            plt.close('all')
 
-    for fdr in [None, 'BY', 'BH']:
-        fitgrid.utils.summary.plot_betas(
-            summary_df=summary_df, LHS=cols, fdr=fdr
-        )
-
-    for df_func in [None, log10]:
-        fitgrid.utils.summary.plot_betas(
-            summary_df=summary_df, LHS=cols, df_func=df_func
-        )
+        for df_func in [None, log10]:
+            _ = fitgrid.utils.summary.plot_betas(
+                summary_df=summary_df, LHS=cols, df_func=df_func
+            )
+            plt.close('all')
 
 
 def test_smoke_plot_AICs():
 
-    summary_df = test_summarize()
-    fitgrid.utils.summary.plot_AICmin_deltas(summary_df)
+    for summary_df in test_summarize():
+        _ = fitgrid.utils.summary.plot_AICmin_deltas(summary_df)
+        plt.close('all')

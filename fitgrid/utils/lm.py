@@ -135,7 +135,7 @@ def _get_diagnostic(lm_grid, diag, do_nobs_loop):
     )
 
     infl_calc, infl_dtype, index_names = _OLS_INFLUENCE_ATTRS[diag]
-    attr_df = getattr(lm_grid.get_influence(), diag)
+    attr_df = getattr(lm_grid.get_influence(), diag).copy()
 
     if not isinstance(attr_df, pd.DataFrame):
         raise TypeError(f"{diag} grid is not a pandas DataFrame")
@@ -150,7 +150,6 @@ def _get_diagnostic(lm_grid, diag, do_nobs_loop):
             f" should be {index_names} not {attr_df.index.names}"
         )
 
-    # default fitgrid dataframe
     return attr_df
 
 
@@ -325,7 +324,7 @@ def get_diagnostic(lm_grid, diagnostic, do_nobs_loop=False):
         sm_1_df = diag_df.loc[pd.IndexSlice[:, 1, :], :].reset_index(
             1, drop=True
         )
-        # sm_1_df.columns.name = f"{diagnostic}_sm_1"
+
         # label the columns
         sm_1_df.columns = pd.MultiIndex.from_product(
             [[f"{diagnostic}_sm_1"], diag_df.columns],
