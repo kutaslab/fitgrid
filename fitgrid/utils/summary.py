@@ -74,7 +74,7 @@ def summarize(
     summary_df : `pandas.DataFrame`
         indexed by `timestamp`, `model_formula`, `beta`, and `key`,
         where the keys are `ll.l_ci`, `uu.u_ci`, `AIC`, `DF`, `Estimate`,
-        `P-val`, `SE`, `T-stat`, `has_warning`.
+        `P-val`, `SE`, `T-stat`, `has_warning`, `logLike`.
 
 
     Examples
@@ -555,11 +555,12 @@ def plot_betas(
                 color='black',
             )
 
-            # plot log10 df
-            # log scale DF
+            # plot transformed df
             if df_func is not None:
                 fg_beta['DF_'] = fg_beta['DF'].apply(lambda x: df_func(x))
-                fg_beta.plot(x='Time', y='DF_', ax=ax_beta)
+                fg_beta.plot(
+                    x='Time', y='DF_', ax=ax_beta, label=f"{df_func}(df)"
+                )
 
             if s is not None:
                 my_kwargs = {'s': s}
