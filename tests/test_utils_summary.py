@@ -182,7 +182,7 @@ def test_summarize_lmer_kwargs(kw, est, aic):
     shared_keys = summary_keys.intersection(lmer_fit_betas_keys)
 
     # other grid.attr
-    attr_keys = summary_keys.difference(lmer_fit_betas_keys)
+    attr_keys = [key for key in summary_keys if key in dir(lmer_fit.tester)]
     for key in shared_keys.union(attr_keys):
 
         # these come from the coefs dataframe

@@ -17,6 +17,7 @@ KEY_LABELS = [
     'Estimate',
     'P-val',
     'SE',
+    'SSresid',
     'T-stat',
     'has_warning',
     'logLike',
@@ -184,7 +185,6 @@ def _check_summary_df(summary_df):
         summary_df.index.names == INDEX_NAMES
         and all(summary_df.index.levels[-1] == KEY_LABELS)
     ):
-
         raise ValueError(
             "uh oh ... fitgrid summary dataframe bug, please post an issue"
         )
@@ -229,7 +229,12 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=0.05):
 
     # fetch a master copy of the model info
     model_vals = []
-    model_key_attrs = [("DF", "df_resid"), ("AIC", "aic"), ("logLike", 'llf')]
+    model_key_attrs = [
+        ("DF", "df_resid"),
+        ("AIC", "aic"),
+        ("logLike", 'llf'),
+        ("SSresid", 'ssr'),
+    ]
 
     for (key, attr) in model_key_attrs:
         vals = None
@@ -326,7 +331,14 @@ def _lmer_get_summaries_df(fg_lmer):
 
     """
 
-    attribs = ['AIC', 'has_warning', 'logLike']
+    pymer_attribs = ['AIC', 'has_warning', 'logLike']
+
+    # caclulate on the fly with x=lmer_fg
+    derived_attribs = {
+        'SSresid': lambda x: x.resid.groupby('Time').apply(
+            lambda y: np.sum(y ** 2)
+        )
+    }
 
     # grab and tidy the formulat RHS
     rhs = fg_lmer.formula.iloc[0, 0].split('~')[1].strip()
@@ -342,11 +354,18 @@ def _lmer_get_summaries_df(fg_lmer):
 
     summaries_df.reset_index(['key', 'beta'], inplace=True)
 
+    # ssr = np.sum(fg_lmer.tester.resid ** 2)
     # LOGGER.info('collecting fit attributes into summaries dataframe')
     # scrape AIC and other useful 1-D fit attributes into summaries_df
-    for attrib in attribs:
+    for attrib in pymer_attribs + list(derived_attribs.keys()):
         # LOGGER.info(attrib)
-        attrib_df = getattr(fg_lmer, attrib).copy()
+
+        # lookup or calculate model measures
+        if attrib in pymer_attribs:
+            attrib_df = getattr(fg_lmer, attrib).copy()
+        else:
+            attrib_df = derived_attribs[attrib](fg_lmer)
+
         attrib_df.insert(0, 'model', rhs)
         attrib_df.insert(1, 'key', attrib)
 
