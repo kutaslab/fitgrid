@@ -21,6 +21,7 @@ KEY_LABELS = [
     'T-stat',
     'has_warning',
     'logLike',
+    'sigma2',
 ]
 
 
@@ -234,6 +235,7 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=0.05):
         ("AIC", "aic"),
         ("logLike", 'llf'),
         ("SSresid", 'ssr'),
+        ("sigma2", 'mse_resid'),
     ]
 
     for (key, attr) in model_key_attrs:
@@ -317,6 +319,7 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=0.05):
 
     # add the parmeter model info
     summaries_df = pd.concat([summaries_df, pmvs]).sort_index().astype(float)
+
     _check_summary_df(summaries_df)
 
     return summaries_df
@@ -331,13 +334,36 @@ def _lmer_get_summaries_df(fg_lmer):
 
     """
 
+    def scrape_sigma2(fg_lmer):
+        # lmer residuals should be in the last row of ranef_var at each Time
+        ranef_var = fg_lmer.ranef_var
+
+        # set the None index names
+        assert ranef_var.index.names == ['Time', None, None]
+        ranef_var.index.names = ['Time', 'key', 'value']
+
+        assert 'Residual' == ranef_var.index.get_level_values(1).unique()[-1]
+        assert all(
+            ['Name', 'Var', 'Std']
+            == ranef_var.index.get_level_values(2).unique()
+        )
+
+        # slice out the Residual Variance at each time point
+        # and drop all but the Time indexes to make Time x Chan
+        sigma2 = ranef_var.query(
+            'key=="Residual" and value=="Var"'
+        ).reset_index(['key', 'value'], drop=True)
+
+        return sigma2
+
     pymer_attribs = ['AIC', 'has_warning', 'logLike']
 
-    # caclulate on the fly with x=lmer_fg
+    # caclulate or lookup on the fly with x=lmer_fg
     derived_attribs = {
         'SSresid': lambda x: x.resid.groupby('Time').apply(
             lambda y: np.sum(y ** 2)
-        )
+        ),
+        'sigma2': lambda x: scrape_sigma2(x),
     }
 
     # grab and tidy the formulat RHS
@@ -354,8 +380,6 @@ def _lmer_get_summaries_df(fg_lmer):
 
     summaries_df.reset_index(['key', 'beta'], inplace=True)
 
-    # ssr = np.sum(fg_lmer.tester.resid ** 2)
-    # LOGGER.info('collecting fit attributes into summaries dataframe')
     # scrape AIC and other useful 1-D fit attributes into summaries_df
     for attrib in pymer_attribs + list(derived_attribs.keys()):
         # LOGGER.info(attrib)
@@ -688,7 +712,7 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
         nrows = len(models)
 
     if figsize is None:
-        figsize = (8, 3)
+        figsize = (12, 8)
 
     f, axs = plt.subplots(
         nrows,  # len(models),
