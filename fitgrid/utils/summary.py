@@ -326,7 +326,9 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=0.05):
 
 
 def _lmer_get_summaries_df(fg_lmer):
-    """scrape fitgrid.LMERFitGrid.summaries into a standardized format dataframe
+    """scrape a single model fitgrid.LMERFitGrid into a standard summary format
+
+    Note: some values are fitgrid attributes (via pymer), others are derived
 
     Parameters
     ----------
@@ -335,7 +337,8 @@ def _lmer_get_summaries_df(fg_lmer):
     """
 
     def scrape_sigma2(fg_lmer):
-        # lmer residuals should be in the last row of ranef_var at each Time
+        # sigma2 is extracted from fg_lmer.ranef_var ...
+        # residuals should be in the last row of ranef_var at each Time
         ranef_var = fg_lmer.ranef_var
 
         # set the None index names
@@ -356,17 +359,19 @@ def _lmer_get_summaries_df(fg_lmer):
 
         return sigma2
 
+    # look these up directly
     pymer_attribs = ['AIC', 'has_warning', 'logLike']
 
-    # caclulate or lookup on the fly with x=lmer_fg
+    #  x=lmer_fg caclulate or extract from other attributes
     derived_attribs = {
+        # fg_lmer.resid comes from pymer wrapping lme4 function resid(object)
         'SSresid': lambda x: x.resid.groupby('Time').apply(
             lambda y: np.sum(y ** 2)
         ),
         'sigma2': lambda x: scrape_sigma2(x),
     }
 
-    # grab and tidy the formulat RHS
+    # grab and tidy the formulat RHS from the first grid cell
     rhs = fg_lmer.formula.iloc[0, 0].split('~')[1].strip()
     rhs = re.sub(r"\s+", " ", rhs)
 
@@ -375,9 +380,10 @@ def _lmer_get_summaries_df(fg_lmer):
 
     summaries_df.index.names = ['Time', 'beta', 'key']
     summaries_df = summaries_df.query("key != 'Sig'")  # drop the silly stars
+    summaries_df.index = summaries_df.index.remove_unused_levels()
+
     summaries_df.insert(0, 'model', rhs)
     summaries_df.set_index('model', append=True, inplace=True)
-
     summaries_df.reset_index(['key', 'beta'], inplace=True)
 
     # scrape AIC and other useful 1-D fit attributes into summaries_df

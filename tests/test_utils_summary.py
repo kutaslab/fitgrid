@@ -5,6 +5,7 @@ from matplotlib import pyplot as plt
 import fitgrid
 from fitgrid.utils.summary import INDEX_NAMES  # , KEY_LABELS
 
+pd.set_option("display.width", 256)
 PARALLEL = True
 N_CORES = 4
 
@@ -68,12 +69,13 @@ def test_summarize():
             "1",
         ],
         "lmer": [
-            "1 + continuous + (1 | categorical)",
+            "1 + continuous + (continuous | categorical)",
+            "1 + (continuous | categorical)",
             "1 + (1 | categorical)",
         ],
     }
 
-    epochs_fg = _get_epochs_fg()
+    epochs_fg = _get_epochs_fg(seed=0)
 
     # do it
     summary_dfs = []
@@ -86,6 +88,7 @@ def test_summarize():
             parallel=PARALLEL,
             n_cores=N_CORES,
         )
+
         assert summaries_df.index.names == INDEX_NAMES
         fitgrid.utils.summary._check_summary_df(summaries_df)
         summary_dfs.append(summaries_df)
@@ -231,7 +234,7 @@ def test__get_AICs():
         "1 + categorical",
     ]
 
-    epochs_fg = _get_epochs_fg()
+    epochs_fg = _get_epochs_fg(seed=0)
     summaries_df = fitgrid.utils.summary.summarize(
         epochs_fg, 'lm', LHS=epochs_fg.channels, RHS=RHSs
     )
