@@ -10,7 +10,7 @@ import fitgrid
 # scraped out of different fit objects.
 INDEX_NAMES = ['Time', 'model', 'beta', 'key']
 
-# each model, beta combination has all these values, 
+# each model, beta combination has all these values,
 # some are per-beta, some are per-model
 KEY_LABELS = [
     '2.5_ci',
@@ -35,6 +35,7 @@ PER_MODEL_KEY_LABELS = [
     'logLike',
     'sigma2',
 ]
+
 
 def summarize(
     epochs_fg,
@@ -826,4 +827,4 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
         heatmap.set_yticklabels(_min_deltas.columns)
         plt.colorbar(im, ax=heatmap, extend='max')
 
-    return f
+    return f, axs
