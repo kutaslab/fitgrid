@@ -9,6 +9,9 @@ import fitgrid
 # enforce some common structure for summary dataframes
 # scraped out of different fit objects.
 INDEX_NAMES = ['Time', 'model', 'beta', 'key']
+
+# each model, beta combination has all these values, 
+# some are per-beta, some are per-model
 KEY_LABELS = [
     '2.5_ci',
     '97.5_ci',
@@ -24,6 +27,14 @@ KEY_LABELS = [
     'sigma2',
 ]
 
+# these are per model, broadcast to all params
+PER_MODEL_KEY_LABELS = [
+    'AIC',
+    'SSresid',
+    'has_warning',
+    'logLike',
+    'sigma2',
+]
 
 def summarize(
     epochs_fg,
@@ -379,7 +390,7 @@ def _lmer_get_summaries_df(fg_lmer):
     summaries_df = fg_lmer.coefs.copy()  # don't mod the original
 
     summaries_df.index.names = ['Time', 'beta', 'key']
-    summaries_df = summaries_df.query("key != 'Sig'")  # drop the silly stars
+    summaries_df = summaries_df.query("key != 'Sig'")  # drop the stars
     summaries_df.index = summaries_df.index.remove_unused_levels()
 
     summaries_df.insert(0, 'model', rhs)
@@ -399,7 +410,8 @@ def _lmer_get_summaries_df(fg_lmer):
         attrib_df.insert(0, 'model', rhs)
         attrib_df.insert(1, 'key', attrib)
 
-        # propagate attributes to each param ... wasteful but tidy
+        # propagate attributes to each beta ... wasteful but tidy
+        # when grouping by beta
         for beta in summaries_df['beta'].unique():
             beta_attrib = attrib_df.copy().set_index('model', append=True)
             beta_attrib.insert(0, 'beta', beta)
@@ -684,7 +696,7 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
 
     Returns
     -------
-    f : matplotlib.pyplot.Figure
+    f, axs : matplotlib.pyplot.Figure
 
     Notes
     -----
@@ -710,12 +722,11 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
 
     """
 
-    aics = _get_AICs(summary_df)
-    models = aics.index.get_level_values('model').unique()
-    channels = aics.index.get_level_values('channel').unique()
+    aics = _get_AICs(summary_df)  # long format
+    models = aics.index.unique('model')
+    channels = aics.index.unique('channel')
 
-    if 'nrows' not in kwargs.keys():
-        nrows = len(models)
+    nrows = len(models)
 
     if figsize is None:
         figsize = (12, 8)
