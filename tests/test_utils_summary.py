@@ -324,7 +324,7 @@ def test__get_AICs():
         min = tc_aics['AIC'].min()
         assert np.allclose(
             tc_aics['AIC'].astype('float') - min,
-            tc_aics['min_delta'].astype('float')
+            tc_aics['min_delta'].astype('float'),
         )
     return aics
 

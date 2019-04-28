@@ -28,13 +28,7 @@ KEY_LABELS = [
 ]
 
 # these are per model, broadcast to all params
-PER_MODEL_KEY_LABELS = [
-    'AIC',
-    'SSresid',
-    'has_warning',
-    'logLike',
-    'sigma2',
-]
+PER_MODEL_KEY_LABELS = ['AIC', 'SSresid', 'has_warning', 'logLike', 'sigma2']
 
 
 def summarize(
@@ -229,12 +223,7 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=0.05):
     """
 
     # grab and tidy the formula RHS
-    rhs = (
-        fg_ols[0, fg_ols._grid.columns[0]]
-        .model.formula.iat[0, 0]
-        .split('~')[1]
-        .strip()
-    )
+    rhs = fg_ols.tester.model.formula.split('~')[1].strip()
     rhs = re.sub(r"\s+", " ", rhs)
 
     # fitgrid returns them in the last column of the index
@@ -384,7 +373,7 @@ def _lmer_get_summaries_df(fg_lmer):
     }
 
     # grab and tidy the formulat RHS from the first grid cell
-    rhs = fg_lmer.formula.iloc[0, 0].split('~')[1].strip()
+    rhs = fg_lmer.tester.formula.split('~')[1].strip()
     rhs = re.sub(r"\s+", " ", rhs)
 
     # coef estimates and stats ... these are 2-D
