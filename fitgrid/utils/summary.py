@@ -738,7 +738,7 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
             traces = axs[i, 0]
             heatmap = axs[i, 1]
 
-        traces.set_title(f'aic min delta: {m}')
+        traces.set_title(f'aic min delta: {m}', loc='left')
         for c in channels:
             min_deltas = aics.loc[
                 pd.IndexSlice[:, m, c], ['min_delta', 'has_warning']
@@ -751,7 +751,10 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
                 color='red',
                 label=None,
             )
-        traces.legend()
+
+        if i == 0:
+            # first channel legend left of the main plot
+            traces.legend(loc='upper right', bbox_to_anchor=(-0.2, 1.0))
 
         aic_min_delta_bounds = [0, 2, 4, 7, 10]
         for y in aic_min_delta_bounds:
