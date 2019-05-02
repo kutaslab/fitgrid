@@ -218,8 +218,30 @@ class FitGrid:
         # array-like, try converting to array and then Series/DataFrame
         if isinstance(tester, tuple) or isinstance(tester, list):
             array_form = np.array(tester)
+
             if array_form.ndim == 1:
-                temp = temp.applymap(lambda x: pd.Series(np.array(x)))
+                # Tidy 1-D are Series. Untidy 1-D may be broadcastable
+                # into a tidy DataFrame
+
+                def series_fun(x):
+                    return pd.Series(np.array(x))  # default
+
+                if array_form.dtype != np.dtype("object"):
+                    pd_fun = series_fun  # tidy
+                else:
+                    try:
+                        # broadcastable to DataFrame?
+                        def df_fun(x):
+                            return pd.DataFrame(np.broadcast(*x)).T
+
+                        pd_fun = df_fun
+                        pd_fun(tester)
+                    except Exception:
+                        # oh well, fall back to Series
+                        pd_fun = series_fun
+
+                temp = temp.applymap(lambda x: pd_fun(x))
+
             elif array_form.ndim == 2:
                 temp = temp.applymap(lambda x: pd.DataFrame(np.array(x)))
             else:

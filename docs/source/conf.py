@@ -14,23 +14,31 @@
 #
 import os
 import sys
+import re
 
 sys.path.insert(0, os.path.abspath('../..'))
 sys.path.insert(0, os.path.abspath('.'))
+
+# after sys.path.insert to import local __version__
+from fitgrid import __version__
 
 
 # -- Project information -----------------------------------------------------
 
 project = 'fitgrid'
-copyright = '2018, Andrey Portnoy'
+copyright = '2018-2019, Andrey Portnoy, Thomas P. Urbach'
 author = 'Andrey Portnoy, Thomas P. Urbach'
-today = 'October 1, 2018'
+today = 'April 20, 2019'
+
+
+ver_tag = re.match(r"(?P<ver>^\d\.\d)(?P<tag>.*)", __version__)
+assert ver_tag is not None
 
 # The short X.Y version
-version = '0.3'
-# The full version, including alpha/beta/rc tags
-release = '0.3.0'
+version = ver_tag['ver']
 
+# The full version, including alpha/beta/rc tags
+release = ver_tag['ver'] + ver_tag['tag']
 
 # -- General configuration ---------------------------------------------------
 
@@ -50,11 +58,15 @@ extensions = [
     'sphinx.ext.mathjax',
     'sphinx.ext.githubpages',
     'sphinx.ext.viewcode',
+    'sphinx.ext.extlinks',
     'nbsphinx',
 ]
 
 # nbsphinx_timeout = -1 # don't timeout
 nbsphinx_timeout = 5 * 60  # lmer needs time to run in Tutorial
+
+# alias long urls to keep line length under control
+extlinks = {"sm_docs": ("https://www.statsmodels.org/stable/generated/%s", "")}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

@@ -9,6 +9,9 @@ import fitgrid
 # enforce some common structure for summary dataframes
 # scraped out of different fit objects.
 INDEX_NAMES = ['Time', 'model', 'beta', 'key']
+
+# each model, beta combination has all these values,
+# some are per-beta, some are per-model
 KEY_LABELS = [
     '2.5_ci',
     '97.5_ci',
@@ -17,9 +20,15 @@ KEY_LABELS = [
     'Estimate',
     'P-val',
     'SE',
+    'SSresid',
     'T-stat',
     'has_warning',
+    'logLike',
+    'sigma2',
 ]
+
+# special treatment for per-model values ... broadcast to all params
+PER_MODEL_KEY_LABELS = ['AIC', 'SSresid', 'has_warning', 'logLike', 'sigma2']
 
 
 def summarize(
@@ -65,7 +74,7 @@ def summarize(
        write the summary dataframe to disk with
        `pd.to_hdf(path, key, format='fixed')`
 
-    **kwargs : key=value arguments passed to the modeler, optional 
+    **kwargs : key=value arguments passed to the modeler, optional
 
 
     Returns
@@ -73,7 +82,7 @@ def summarize(
     summary_df : `pandas.DataFrame`
         indexed by `timestamp`, `model_formula`, `beta`, and `key`,
         where the keys are `ll.l_ci`, `uu.u_ci`, `AIC`, `DF`, `Estimate`,
-        `P-val`, `SE`, `T-stat`, `has_warning`.
+        `P-val`, `SE`, `T-stat`, `has_warning`, `logLike`.
 
 
     Examples
@@ -183,7 +192,6 @@ def _check_summary_df(summary_df):
         summary_df.index.names == INDEX_NAMES
         and all(summary_df.index.levels[-1] == KEY_LABELS)
     ):
-
         raise ValueError(
             "uh oh ... fitgrid summary dataframe bug, please post an issue"
         )
@@ -210,17 +218,12 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=0.05):
     Notes
     -----
     The `summaries_df` row and column indexes are munged to match
-    fitgrid.lmer._get_summaries_df() 
+    fitgrid.lmer._get_summaries_df()
 
     """
 
     # grab and tidy the formula RHS
-    rhs = (
-        fg_ols[0, fg_ols._grid.columns[0]]
-        .model.formula.iat[0, 0]
-        .split('~')[1]
-        .strip()
-    )
+    rhs = fg_ols.tester.model.formula.split('~')[1].strip()
     rhs = re.sub(r"\s+", " ", rhs)
 
     # fitgrid returns them in the last column of the index
@@ -228,7 +231,14 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=0.05):
 
     # fetch a master copy of the model info
     model_vals = []
-    model_key_attrs = [("DF", "df_resid"), ("AIC", "aic")]
+    model_key_attrs = [
+        ("DF", "df_resid"),
+        ("AIC", "aic"),
+        ("logLike", 'llf'),
+        ("SSresid", 'ssr'),
+        ("sigma2", 'mse_resid'),
+    ]
+
     for (key, attr) in model_key_attrs:
         vals = None
         vals = getattr(fg_ols, attr).copy()
@@ -236,6 +246,15 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=0.05):
             raise AttributeError(f"model: {rhs} attribute: {attr}")
         vals['key'] = key
         model_vals.append(vals)
+
+    # statsmodels result wrappers have different versions of llf!
+    aics = (-2 * fg_ols.llf) + 2 * (fg_ols.df_model + fg_ols.k_constant)
+    if not np.allclose(fg_ols.aic, aics):
+        msg = (
+            "uh oh ...statsmodels OLS aic and llf calculations have changed."
+            " please report an issue to fitgrid"
+        )
+        raise ValueError(msg)
 
     # build model has_warnings with False for ols
     warnings = pd.DataFrame(
@@ -301,13 +320,16 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=0.05):
 
     # add the parmeter model info
     summaries_df = pd.concat([summaries_df, pmvs]).sort_index().astype(float)
+
     _check_summary_df(summaries_df)
 
     return summaries_df
 
 
 def _lmer_get_summaries_df(fg_lmer):
-    """scrape fitgrid.LMERFitGrid.summaries into a standardized format dataframe
+    """scrape a single model fitgrid.LMERFitGrid into a standard summary format
+
+    Note: some values are fitgrid attributes (via pymer), others are derived
 
     Parameters
     ----------
@@ -315,31 +337,71 @@ def _lmer_get_summaries_df(fg_lmer):
 
     """
 
-    attribs = ['AIC', 'has_warning']
+    def scrape_sigma2(fg_lmer):
+        # sigma2 is extracted from fg_lmer.ranef_var ...
+        # residuals should be in the last row of ranef_var at each Time
+        ranef_var = fg_lmer.ranef_var
 
-    # grab and tidy the formulat RHS
-    rhs = fg_lmer.formula.iloc[0, 0].split('~')[1].strip()
+        # set the None index names
+        assert ranef_var.index.names == ['Time', None, None]
+        ranef_var.index.names = ['Time', 'key', 'value']
+
+        assert 'Residual' == ranef_var.index.get_level_values(1).unique()[-1]
+        assert all(
+            ['Name', 'Var', 'Std']
+            == ranef_var.index.get_level_values(2).unique()
+        )
+
+        # slice out the Residual Variance at each time point
+        # and drop all but the Time indexes to make Time x Chan
+        sigma2 = ranef_var.query(
+            'key=="Residual" and value=="Var"'
+        ).reset_index(['key', 'value'], drop=True)
+
+        return sigma2
+
+    # look these up directly
+    pymer_attribs = ['AIC', 'has_warning', 'logLike']
+
+    #  x=lmer_fg caclulate or extract from other attributes
+    derived_attribs = {
+        # fg_lmer.resid comes from pymer wrapping lme4 function resid(object)
+        'SSresid': lambda x: x.resid.groupby('Time').apply(
+            lambda y: np.sum(y ** 2)
+        ),
+        'sigma2': lambda x: scrape_sigma2(x),
+    }
+
+    # grab and tidy the formulat RHS from the first grid cell
+    rhs = fg_lmer.tester.formula.split('~')[1].strip()
     rhs = re.sub(r"\s+", " ", rhs)
 
     # coef estimates and stats ... these are 2-D
     summaries_df = fg_lmer.coefs.copy()  # don't mod the original
 
     summaries_df.index.names = ['Time', 'beta', 'key']
-    summaries_df = summaries_df.query("key != 'Sig'")  # drop the silly stars
+    summaries_df = summaries_df.query("key != 'Sig'")  # drop the stars
+    summaries_df.index = summaries_df.index.remove_unused_levels()
+
     summaries_df.insert(0, 'model', rhs)
     summaries_df.set_index('model', append=True, inplace=True)
-
     summaries_df.reset_index(['key', 'beta'], inplace=True)
 
-    # LOGGER.info('collecting fit attributes into summaries dataframe')
     # scrape AIC and other useful 1-D fit attributes into summaries_df
-    for attrib in attribs:
+    for attrib in pymer_attribs + list(derived_attribs.keys()):
         # LOGGER.info(attrib)
-        attrib_df = getattr(fg_lmer, attrib).copy()
+
+        # lookup or calculate model measures
+        if attrib in pymer_attribs:
+            attrib_df = getattr(fg_lmer, attrib).copy()
+        else:
+            attrib_df = derived_attribs[attrib](fg_lmer)
+
         attrib_df.insert(0, 'model', rhs)
         attrib_df.insert(1, 'key', attrib)
 
-        # propagate attributes to each param ... wasteful but tidy
+        # propagate attributes to each beta ... wasteful but tidy
+        # when grouping by beta
         for beta in summaries_df['beta'].unique():
             beta_attrib = attrib_df.copy().set_index('model', append=True)
             beta_attrib.insert(0, 'beta', beta)
@@ -411,7 +473,14 @@ def _get_AICs(summary_df):
 
 
 def plot_betas(
-    summary_df, LHS, alpha=0.05, fdr='BY', figsize=None, s=None, **kwargs
+    summary_df,
+    LHS,
+    alpha=0.05,
+    fdr=None,
+    figsize=None,
+    s=None,
+    df_func=None,
+    **kwargs,
 ):
 
     """Plot model parameter estimates for each data column in LHS
@@ -427,8 +496,12 @@ def plot_betas(
     alpha : float
        alpha level for false discovery rate correction
 
-    fdr : str {'BY', 'BH'}
-        BY is Benjamini and Yekatuli FDR, BH is Benjamini and Hochberg
+    fdr : str {None, 'BY', 'BH'}
+        Add markers for FDR adjusted significant :math:`p`-values. BY
+        is Benjamini and Yekatuli, BH is Benjamini and Hochberg, None
+        supresses the markers.
+    df_func : {None, function}
+        plot `function(degrees of freedom)`, e.g., `np.log10`,  `lambda x: x`
 
     s : float
        scatterplot marker size for BH and lmer decorations
@@ -443,11 +516,44 @@ def plot_betas(
 
     """
 
+    def _do_fdr(_fg_beta):
+        # FDR helper
+        m = len(_fg_beta)
+        pvals = _fg_beta['P-val'].copy().sort_values()
+        ks = list()
+
+        if fdr == 'BH':
+            # Benjamini & Hochberg ... restricted
+            c_m = 1
+        if fdr == 'BY':
+            # Benjamini & Yekatuli general case
+            c_m = np.sum([1 / i for i in range(1, m + 1)])
+
+        for k, p in enumerate(pvals):
+            kmcm = k / (m * c_m)
+            if p <= kmcm * alpha:
+                ks.append(k)
+
+        if len(ks) > 0:
+            crit_p = pvals.iloc[max(ks)]
+        else:
+            crit_p = 0.0
+
+        _fg_beta['sig_fdr'] = _fg_beta['P-val'] < crit_p
+
+        # slice out sig ps for plotting
+        sig_ps = _fg_beta.loc[_fg_beta['sig_fdr'], :]
+        return sig_ps, crit_p
+        # --------------------
+
     figs = list()
 
     if isinstance(LHS, str):
         LHS = [LHS]
     assert all([isinstance(col, str) for col in LHS])
+
+    if fdr not in ['BH', 'BY', None]:
+        raise ValueError(f"fdr must be 'BH', 'BY' or None")
 
     # defaults
     if figsize is None:
@@ -472,37 +578,6 @@ def plot_betas(
                 .unstack(level='key')
                 .reset_index('Time')
             )
-
-            # log scale DF
-            fg_beta['log10DF'] = fg_beta['DF'].apply(lambda x: np.log10(x))
-
-            # calculate B-H FDR
-            m = len(fg_beta)
-            pvals = fg_beta['P-val'].copy().sort_values()
-            ks = list()
-
-            if fdr not in ['BH', 'BY']:
-                raise ValueError(f"fdr must be BH or BY")
-            if fdr == 'BH':
-                # Benjamini & Hochberg ... restricted
-                c_m = 1
-            elif fdr == 'BY':
-                # Benjamini & Yekatuli general case
-                c_m = np.sum([1 / i for i in range(1, m + 1)])
-
-            for k, p in enumerate(pvals):
-                kmcm = k / (m * c_m)
-                if p <= kmcm * alpha:
-                    ks.append(k)
-
-            if len(ks) > 0:
-                crit_p = pvals.iloc[max(ks)]
-            else:
-                crit_p = 0.0
-            fg_beta['sig_fdr'] = fg_beta['P-val'] < crit_p
-
-            # slice out sig ps for plotting
-            sig_ps = fg_beta.loc[fg_beta['sig_fdr'], :]
 
             # lmer SEs
             fg_beta['mn+SE'] = (fg_beta['Estimate'] + fg_beta['SE']).astype(
@@ -531,23 +606,30 @@ def plot_betas(
                 color='black',
             )
 
-            # plot log10 df
-            fg_beta.plot(x='Time', y='log10DF', ax=ax_beta)
+            # plot transformed df
+            if df_func is not None:
+                fg_beta['DF_'] = fg_beta['DF'].apply(lambda x: df_func(x))
+                fg_beta.plot(
+                    x='Time', y='DF_', ax=ax_beta, label=f"{df_func}(df)"
+                )
 
             if s is not None:
                 my_kwargs = {'s': s}
             else:
                 my_kwargs = {}
 
-            # color sig ps
-            ax_beta.scatter(
-                sig_ps['Time'],
-                sig_ps['Estimate'],
-                color='black',
-                zorder=3,
-                label=f'{fdr} FDR p < crit {crit_p:0.2}',
-                **my_kwargs,
-            )
+            # mark FDR sig ps
+            if fdr is not None:
+                # optionally fetch FDR adjusted sig ps
+                sig_ps, crit_p = _do_fdr(fg_beta)
+                ax_beta.scatter(
+                    sig_ps['Time'],
+                    sig_ps['Estimate'],
+                    color='black',
+                    zorder=3,
+                    label=f'{fdr} FDR p < crit {crit_p:0.2}',
+                    **my_kwargs,
+                )
 
             try:
                 # color warnings last to mask sig ps
@@ -558,7 +640,7 @@ def plot_betas(
                     fg_beta['Estimate'].iloc[warn_ma],
                     color='red',
                     zorder=4,
-                    label='lmer warnings',
+                    label='model warnings',
                     **my_kwargs,
                 )
             except Exception:
@@ -596,7 +678,7 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
     figsize : 2-ple
        pyplot.figure figure size parameter
 
-    gridspec=kw : dict
+    gridspec_kw : dict
        matplotlib.gridspec key : value parameters
 
     kwargs : dict
@@ -604,7 +686,7 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
 
     Returns
     -------
-    f : matplotlib.pyplot.Figure
+    f, axs : matplotlib.pyplot.Figure
 
     Notes
     -----
@@ -630,22 +712,17 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
 
     """
 
-    aics = _get_AICs(summary_df)
-    models = aics.index.get_level_values('model').unique()
-    channels = aics.index.get_level_values('channel').unique()
+    aics = _get_AICs(summary_df)  # long format
+    models = aics.index.unique('model')
+    channels = aics.index.unique('channel')
 
-    if 'nrows' not in kwargs.keys():
-        nrows = len(models)
+    nrows = len(models)
 
     if figsize is None:
-        figsize = (8, 3)
+        figsize = (12, 8)
 
     f, axs = plt.subplots(
-        nrows,  # len(models),
-        2,
-        **kwargs,
-        figsize=figsize,
-        gridspec_kw=gridspec_kw,
+        nrows, 2, **kwargs, figsize=figsize, gridspec_kw=gridspec_kw
     )
 
     for i, m in enumerate(models):
@@ -657,7 +734,7 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
             traces = axs[i, 0]
             heatmap = axs[i, 1]
 
-        traces.set_title(f'aic min delta: {m}')
+        traces.set_title(f'aic min delta: {m}', loc='left')
         for c in channels:
             min_deltas = aics.loc[
                 pd.IndexSlice[:, m, c], ['min_delta', 'has_warning']
@@ -670,7 +747,10 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
                 color='red',
                 label=None,
             )
-        traces.legend()
+
+        if i == 0:
+            # first channel legend left of the main plot
+            traces.legend(loc='upper right', bbox_to_anchor=(-0.2, 1.0))
 
         aic_min_delta_bounds = [0, 2, 4, 7, 10]
         for y in aic_min_delta_bounds:
@@ -691,12 +771,10 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
             .astype(bool)
         )
 
-        # _min_deltas_ma = np.ma.where(_has_warnings)
-
-        # bluish color blind friendly
+        # blues color blind friendly
         pal = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c']
 
-        # redish color blind friendly
+        # reds color blind friendly
         # pal = ['#fee5d9', '#fcae91', '#fb6a4a', '#de2d26', '#a50f15']
 
         # grayscale
@@ -704,10 +782,8 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
 
         cmap = mpl.colors.ListedColormap(pal)
         cmap.set_over(color='#fcae91')
-        # cmap.set_under('0.75')
         bounds = aic_min_delta_bounds
         norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
-        # cb2 = mpl.colorbar.ColorbarBase(cmap=cmap,
         im = heatmap.pcolormesh(
             _min_deltas.index,
             np.arange(len(_min_deltas.columns) + 1),
@@ -735,4 +811,4 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
         heatmap.set_yticklabels(_min_deltas.columns)
         plt.colorbar(im, ax=heatmap, extend='max')
 
-    return f
+    return f, axs

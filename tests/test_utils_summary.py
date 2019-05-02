@@ -1,8 +1,13 @@
 import pytest
+import re
+from numpy import log10
+import numpy as np
 import pandas as pd
+from matplotlib import pyplot as plt
 import fitgrid
-from fitgrid.utils.summary import INDEX_NAMES, KEY_LABELS
+from fitgrid.utils.summary import INDEX_NAMES, KEY_LABELS, PER_MODEL_KEY_LABELS
 
+pd.set_option("display.width", 256)
 PARALLEL = True
 N_CORES = 4
 
@@ -57,6 +62,10 @@ def test__lmer_get_summaries_df():
 def test_summarize():
     """test main wrapper to scrape summaries from either lm or lmer grids"""
 
+    # column sums ... guard against unexpected changes
+    lm_checksum = np.array([65721.957_801_9, 97108.199_717_59])
+    lmer_checksum = np.array([27917.386_516_15, 63191.613_344_82])
+
     # modelers and RHSs
     tests = {
         "lm": [
@@ -66,14 +75,19 @@ def test_summarize():
             "1",
         ],
         "lmer": [
+            "1 + continuous + (continuous | categorical)",
             "1 + continuous + (1 | categorical)",
+            "1 + (continuous | categorical)",
             "1 + (1 | categorical)",
         ],
     }
 
-    epochs_fg = _get_epochs_fg()
+    epochs_fg = fitgrid.generate(
+        n_samples=2, n_epochs=3, n_channels=2, n_categories=2, seed=0
+    )
 
     # do it
+    summary_dfs = []
     for modler, RHSs in tests.items():
         summaries_df = fitgrid.utils.summary.summarize(
             epochs_fg,
@@ -83,11 +97,77 @@ def test_summarize():
             parallel=PARALLEL,
             n_cores=N_CORES,
         )
-        assert summaries_df.index.names == INDEX_NAMES
-        assert set(KEY_LABELS).issubset(set(summaries_df.index.levels[-1]))
 
-    fitgrid.utils.summary._check_summary_df(summaries_df)
-    return summaries_df
+        assert summaries_df.index.names == INDEX_NAMES
+        assert all(summaries_df.index.levels[-1] == KEY_LABELS)
+        fitgrid.utils.summary._check_summary_df(summaries_df)
+
+        # verify checksums and select the modler
+        if modler == 'lm':
+            assert np.allclose(summaries_df.apply(sum), lm_checksum)
+            modler_ = fitgrid.lm
+        elif modler == 'lmer':
+            assert np.allclose(summaries_df.apply(sum), lmer_checksum)
+            modler_ = fitgrid.lmer
+        else:
+            raise ValueError('bad modler')
+
+        # ensure the one and only per-model values are broadcast
+        # correctly across the betas within a model
+        per_model_keys = ['AIC', 'SSresid', 'has_warning', 'logLike', 'sigma2']
+        for pmk in per_model_keys:
+            for time, models in summaries_df.groupby('Time'):
+                for model, model_data in models.groupby('model'):
+                    # each
+                    assert all(
+                        model_data.query('key==@pmk').apply(
+                            lambda x: len(np.unique(x))
+                        )
+                        == 1
+                    )
+
+        # refit the models and check against slices of the summary stack
+        # ... guard against slicing-induced swizzled row indexes
+        for rhs in RHSs:
+            grid_fg = modler_(
+                epochs_fg,
+                RHS=rhs,
+                LHS=epochs_fg.channels,
+                parallel=PARALLEL,
+                n_cores=N_CORES,
+            )
+
+            # reconstruct a partial summary for this fit
+            param_keys = ['Estimate', 'SE']
+            if modler == 'lm':
+                Estimate = grid_fg.params.copy()
+                Estimate.insert(0, 'key', 'Estimate')
+
+                SE = grid_fg.bse.copy()
+                SE.insert(0, 'key', 'SE')
+
+                summary = pd.concat([Estimate, SE])
+                summary.index.names = ['Time', 'beta']
+
+            elif modler == 'lmer':
+                summary = grid_fg.coefs.loc[pd.IndexSlice[:, :, param_keys], :]
+                summary.index.names = ['Time', 'beta', 'key']
+
+            # add the model and index
+            summary.insert(0, 'model', rhs)
+            summary = summary.reset_index().set_index(INDEX_NAMES)
+
+            # slice the summary stack and check against the re-fitted grid
+            for key, model_key in summaries_df.query('model==@rhs').groupby(
+                'key'
+            ):
+                if key in param_keys:
+                    assert all(model_key == summary.query('key==@key'))
+
+        # made it
+        summary_dfs.append(summaries_df)
+
+    return summary_dfs
 
 
 # ------------------------------------------------------------
@@ -179,7 +259,7 @@ def test_summarize_lmer_kwargs(kw, est, aic):
     shared_keys = summary_keys.intersection(lmer_fit_betas_keys)
 
     # other grid.attr
-    attr_keys = summary_keys.difference(lmer_fit_betas_keys)
+    attr_keys = [key for key in summary_keys if key in dir(lmer_fit.tester)]
     for key in shared_keys.union(attr_keys):
 
         # these come from the coefs dataframe
@@ -220,7 +300,6 @@ def test_summarize_lmer_kwargs(kw, est, aic):
 
 
 def test__get_AICs():
-    """stub"""
 
     RHSs = [
         "1 + continuous + categorical",
@@ -228,26 +307,49 @@ def test__get_AICs():
         "1 + categorical",
     ]
 
-    epochs_fg = _get_epochs_fg()
+    epochs_fg = _get_epochs_fg(seed=0)
     summaries_df = fitgrid.utils.summary.summarize(
         epochs_fg, 'lm', LHS=epochs_fg.channels, RHS=RHSs
     )
 
+    # first check AIC summaries are OK
+    # summaries_df is for a stack of models at each time
+    for time, aics in summaries_df.query('key=="AIC"').groupby('Time'):
+        for model, model_aic in aics.groupby('model'):
+            assert all(model_aic.apply(lambda x: len(np.unique(x))) == 1)
+
     aics = fitgrid.utils.summary._get_AICs(summaries_df)
+
+    for (time, chan), tc_aics in aics.groupby(['Time', 'channel']):
+        # mins at each time, channel
+        min = tc_aics['AIC'].min()
+        assert np.allclose(
+            tc_aics['AIC'].astype('float') - min,
+            tc_aics['min_delta'].astype('float'),
+        )
     return aics
 
 
 def test_smoke_plot_betas():
     """TO DO: needs argument testing"""
 
-    summary_df = test_summarize()
-    fitgrid.utils.summary.plot_betas(
-        summary_df=summary_df,
-        LHS=[col for col in summary_df.columns if "channel" in col],
-    )
+    for summary_df in test_summarize():
+        cols = [col for col in summary_df.columns if "channel" in col]
+        for fdr in [None, 'BY', 'BH']:
+            _ = fitgrid.utils.summary.plot_betas(
+                summary_df=summary_df, LHS=cols, fdr=fdr
+            )
+            plt.close('all')
+
+        for df_func in [None, log10]:
+            _ = fitgrid.utils.summary.plot_betas(
+                summary_df=summary_df, LHS=cols, df_func=df_func
+            )
+            plt.close('all')
 
 
 def test_smoke_plot_AICs():
 
-    summary_df = test_summarize()
-    fitgrid.utils.summary.plot_AICmin_deltas(summary_df)
+    for summary_df in test_summarize():
+        f, axs = fitgrid.utils.summary.plot_AICmin_deltas(summary_df)
+        plt.close('all')
