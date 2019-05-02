@@ -1,4 +1,5 @@
 import pytest
+import re
 from numpy import log10
 import numpy as np
 import pandas as pd
@@ -350,5 +351,5 @@ def test_smoke_plot_betas():
 def test_smoke_plot_AICs():
 
     for summary_df in test_summarize():
-        _ = fitgrid.utils.summary.plot_AICmin_deltas(summary_df)
+        f, axs = fitgrid.utils.summary.plot_AICmin_deltas(summary_df)
         plt.close('all')

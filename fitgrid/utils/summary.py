@@ -27,7 +27,7 @@ KEY_LABELS = [
     'sigma2',
 ]
 
-# these are per model, broadcast to all params
+# special treatment for per-model values ... broadcast to all params
 PER_MODEL_KEY_LABELS = ['AIC', 'SSresid', 'has_warning', 'logLike', 'sigma2']
 
 
@@ -678,7 +678,7 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
     figsize : 2-ple
        pyplot.figure figure size parameter
 
-    gridspec=kw : dict
+    gridspec_kw : dict
        matplotlib.gridspec key : value parameters
 
     kwargs : dict
@@ -722,11 +722,7 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
         figsize = (12, 8)
 
     f, axs = plt.subplots(
-        nrows,  # len(models),
-        2,
-        **kwargs,
-        figsize=figsize,
-        gridspec_kw=gridspec_kw,
+        nrows, 2, **kwargs, figsize=figsize, gridspec_kw=gridspec_kw
     )
 
     for i, m in enumerate(models):
@@ -775,12 +771,10 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
             .astype(bool)
         )
 
-        # _min_deltas_ma = np.ma.where(_has_warnings)
-
-        # bluish color blind friendly
+        # blues color blind friendly
         pal = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c']
 
-        # redish color blind friendly
+        # reds color blind friendly
         # pal = ['#fee5d9', '#fcae91', '#fb6a4a', '#de2d26', '#a50f15']
 
         # grayscale
@@ -788,10 +782,8 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
 
         cmap = mpl.colors.ListedColormap(pal)
         cmap.set_over(color='#fcae91')
-        # cmap.set_under('0.75')
         bounds = aic_min_delta_bounds
         norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
-        # cb2 = mpl.colorbar.ColorbarBase(cmap=cmap,
         im = heatmap.pcolormesh(
             _min_deltas.index,
             np.arange(len(_min_deltas.columns) + 1),
