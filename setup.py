@@ -8,8 +8,29 @@
 #
 # http://python-packaging.readthedocs.io/en/latest/minimal.html
 
+import re
 from setuptools import find_packages, setup
-from fitgrid import __version__
+
+
+# from fitgrid.version import __version__
+def get_ver():
+    with open("./fitgrid/__init__.py", "r") as stream:
+        fg_ver = re.search(
+            r".*__version__.*=.*[\"\'](?P<ver_str>\d+\.\d+\.\d+\S*)[\'\"].*",
+            stream.read(),
+        )
+
+    if fg_ver is None:
+        msg = f"""
+        fitgrid.__init__.py must have a semantic version like one of these
+
+        __version__ = '0.0.0'
+        __version__ = '0.0.0-dev.0.0'
+
+        """
+        raise ValueError(msg)
+    else:
+        return fg_ver['ver_str']
 
 
 def readme():
@@ -19,7 +40,7 @@ def readme():
 
 setup(
     name='fitgrid',
-    version=__version__,
+    version=get_ver(),
     description='Mass multiple regression manager',
     long_description=readme(),
     long_description_content_type='text/markdown',
