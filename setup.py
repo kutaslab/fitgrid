@@ -22,7 +22,7 @@ def get_ver():
 
     if fg_ver is None:
         msg = f"""
-        fitgrid.__init__.py must have a semantic version like one of these
+        fitgrid.__init__.py must have an X.Y.Z semantic version, e.g.,
 
         __version__ = '0.0.0'
         __version__ = '0.0.0-dev.0.0'
