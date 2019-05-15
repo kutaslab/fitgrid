@@ -771,17 +771,15 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
             .astype(bool)
         )
 
-        # blues color blind friendly
+        # colorbrewer 2.0 Blues color blind safe n=5 
+        # http://colorbrewer2.org/#type=sequential&scheme=Blues&n=5
         pal = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c']
 
-        # reds color blind friendly
-        # pal = ['#fee5d9', '#fcae91', '#fb6a4a', '#de2d26', '#a50f15']
-
-        # grayscale
-        # pal = ['#f7f7f7', '#cccccc', '#969696', '#636363', '#252525']
-
         cmap = mpl.colors.ListedColormap(pal)
-        cmap.set_over(color='#fcae91')
+        # cmap.set_over(color='#fcae91')
+        cmap.set_over(color='#08306b')  # darkest from Blues n=7 ... 
+        cmap.set_under(color='lightgray')
+
         bounds = aic_min_delta_bounds
         norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
         im = heatmap.pcolormesh(
