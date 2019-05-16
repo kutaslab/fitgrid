@@ -446,7 +446,7 @@ def _get_AICs(summary_df):
     )
 
     AICs.index.names = AICs.index.names[:-1] + ['channel']
-    AICs['min_delta'] = None
+    AICs['min_delta'] = np.inf  # init to float
     AICs.sort_index(inplace=True)
 
     # calculate AIC_min for the fitted models at each time, channel
@@ -771,13 +771,13 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
             .astype(bool)
         )
 
-        # colorbrewer 2.0 Blues color blind safe n=5 
+        # colorbrewer 2.0 Blues color blind safe n=5
         # http://colorbrewer2.org/#type=sequential&scheme=Blues&n=5
         pal = ['#eff3ff', '#bdd7e7', '#6baed6', '#3182bd', '#08519c']
 
         cmap = mpl.colors.ListedColormap(pal)
         # cmap.set_over(color='#fcae91')
-        cmap.set_over(color='#08306b')  # darkest from Blues n=7 ... 
+        cmap.set_over(color='#08306b')  # darkest from Blues n=7
         cmap.set_under(color='lightgray')
 
         bounds = aic_min_delta_bounds
