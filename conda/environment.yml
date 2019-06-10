@@ -7,11 +7,12 @@ channels:
 dependencies:
     - pytest
     - pytest-cov
+    - mro-base
     - rpy2
     - python=3.6
     - pymer4
-    - r-lme4
-    - r-lmerTest
+    - r-lme4=1.1_17
+    - r-lmerTest=3.0_1
     - numpy=1.15.4
     - scipy
     - pandas
