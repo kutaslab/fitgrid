@@ -1,6 +1,6 @@
 package:
     name: fitgrid
-    version: "0.4.2"
+    version: "0.4.3"
 
 source:
     path: ../
@@ -16,8 +16,8 @@ requirements:
         - python=3.6
         - rpy2
         - pymer4
-        - r-lme4
-        - r-lmerTest
+        - r-lme4=1.1_17
+        - r-lmerTest=3.0_1
         - numpy=1.15.4
         - scipy
         - pandas
