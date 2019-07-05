@@ -22,7 +22,7 @@ requirements:
         - scipy
         - pandas
         - matplotlib
-        - statsmodels
+        - statsmodels=0.9.0
         - pytables
         - patsy
         - tqdm
