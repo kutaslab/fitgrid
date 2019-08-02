@@ -15,10 +15,10 @@ dependencies:
     - r-lmerTest=3.0_1
     - numpy=1.15.4
     - scipy=1.2.1
-    - pandas
+    - pandas=0.24.1
     - matplotlib
     - statsmodels=0.9.0
     - pytables
     - pyarrow
     - patsy
-    - tqdm=4.31.1
+    - tqdm
