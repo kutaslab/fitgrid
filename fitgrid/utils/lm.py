@@ -63,7 +63,7 @@ _OLS_INFLUENCE_ATTRS = {
     'results': (None, None, None),  # not a DataFrame
     'save': (None, None, None),  # not a DataFrame
     'sigma2_not_obsi': ('nobs_loop', _FLOAT_TYPE, ['Time', 'Epoch_idx']),
-    'sigma_est': ('nobs', _FLOAT_TYPE, ['Time']),
+    #'sigma_est': ('nobs', _FLOAT_TYPE, ['Time']),
     'summary_frame': (None, None, None),  # not a DataFrame
     'summary_table': (None, None, None),  # not a DataFrame
 }
