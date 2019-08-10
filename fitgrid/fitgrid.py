@@ -293,9 +293,9 @@ class FitGrid:
             if (
                 isinstance(level, pd.RangeIndex)
                 and len(level) == len(self.epoch_index)
-                and level._start == 0
-                and level._step == 1
-                and level._stop == len(self.epoch_index)
+                and level.start == 0
+                and level.step == 1
+                and level.stop == len(self.epoch_index)
             ):
                 temp.index.set_levels(self.epoch_index, level=i, inplace=True)
                 temp.index.rename(self.epoch_index.name, level=i, inplace=True)
