@@ -69,4 +69,4 @@ def test_get_lmer_dfbetas(tpath):
     )
     actual = dfbetas.loc[0, 'channel0'].unstack().astype(float)
 
-    assert np.isclose(actual, expected).all()
+    assert np.allclose(actual, expected, atol=0)
