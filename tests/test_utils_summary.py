@@ -63,11 +63,11 @@ def test_summarize():
     """test main wrapper to scrape summaries from either lm or lmer grids"""
 
     # column sums ... guard against unexpected changes
-    #lm_checksum = np.array([65721.957_801_9, 97108.199_717_59])
+    # lm_checksum = np.array([65721.957_801_9, 97108.199_717_59])
     # lmer_checksum = np.array([27917.386_516_15, 63191.613_344_82])
 
-    lm_checksum = np.array([120135.560_853_52, 172375.489_486_64])
-    lmer_checksum = np.array([41756.165_766_74, 90723.291_317_1 ])
+    lm_checksum = np.array([120_135.560_853_52, 172_375.489_486_64])
+    lmer_checksum = np.array([41756.165_766_74, 90723.291_317_1])
 
     # modelers and RHSs
     tests = {
@@ -328,7 +328,9 @@ def test__get_AICs():
             assert all(model_aic.apply(lambda x: len(np.unique(x))) == 1)
 
     aics = fitgrid.utils.summary._get_AICs(summaries_df)
-    assert set(aics.index.unique('model')) == set(summaries_df.index.unique('model'))
+    assert set(aics.index.unique('model')) == set(
+        summaries_df.index.unique('model')
+    )
 
     for (time, chan), tc_aics in aics.groupby(['Time', 'channel']):
         # mins at each time, channel

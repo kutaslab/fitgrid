@@ -444,12 +444,14 @@ def _get_AICs(summary_df):
             .stack(-1)
             .unstack("key")
             .reset_index(["beta"], drop=True),
-            columns = aic_cols
+            columns=aic_cols,
         )
         aic.index.names = aic.index.names[:-1] + ["channel"]
         aics += [aic]
     AICs = pd.concat(aics)
-    assert set(summary_df.index.unique('model')) == set(AICs.index.unique('model'))
+    assert set(summary_df.index.unique('model')) == set(
+        AICs.index.unique('model')
+    )
 
     # AICs.index.names = AICs.index.names[:-1] + ['channel']
     AICs['min_delta'] = np.inf  # init to float
@@ -465,7 +467,9 @@ def _get_AICs(summary_df):
 
     FutureWarning('coef AICs are in early days, subject to change')
 
-    assert set(summary_df.index.unique('model')) == set(AICs.index.unique('model'))
+    assert set(summary_df.index.unique('model')) == set(
+        AICs.index.unique('model')
+    )
     return AICs
 
 
