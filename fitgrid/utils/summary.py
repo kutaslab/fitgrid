@@ -434,18 +434,24 @@ def _get_AICs(summary_df):
     """
 
     # AIC and lmer warnings are 1 per model, pull from the first
-    # model coefficient only, typically (Intercept)
-    first_param = summary_df.index.get_level_values('beta').unique()[0]
-    AICs = pd.DataFrame(
-        (
-            summary_df.loc[pd.IndexSlice[:, :, first_param, 'AIC'], :]
-            .reset_index(['key', 'beta'], drop=True)
-            .stack(0)
-        ),
-        columns=['AIC'],
-    )
+    # model coefficient only, e.g., (Intercept)
+    aic_cols = ["AIC", "has_warning"]
+    aics = []
+    for model, model_data in summary_df.groupby('model'):
+        first_param = model_data.index.get_level_values('beta').unique()[0]
+        aic = pd.DataFrame(
+            summary_df.loc[pd.IndexSlice[:, model, first_param, aic_cols], :]
+            .stack(-1)
+            .unstack("key")
+            .reset_index(["beta"], drop=True),
+            columns = aic_cols
+        )
+        aic.index.names = aic.index.names[:-1] + ["channel"]
+        aics += [aic]
+    AICs = pd.concat(aics)
+    assert set(summary_df.index.unique('model')) == set(AICs.index.unique('model'))
 
-    AICs.index.names = AICs.index.names[:-1] + ['channel']
+    # AICs.index.names = AICs.index.names[:-1] + ['channel']
     AICs['min_delta'] = np.inf  # init to float
     AICs.sort_index(inplace=True)
 
@@ -457,18 +463,9 @@ def _get_AICs(summary_df):
                 AICs.loc[slicer, 'AIC']
             )
 
-    # merge in corresponding column of lmer warnings
-    has_warnings = pd.DataFrame(
-        summary_df.loc[pd.IndexSlice[:, :, first_param, 'has_warning'], :]
-        .reset_index(['key', 'beta'], drop=True)
-        .stack(0),
-        columns=['has_warning'],
-    )
-
-    has_warnings.index.names = has_warnings.index.names[:-1] + ['channel']
-    has_warnings.sort_index(inplace=True)
-    AICs = AICs.merge(has_warnings, left_index=True, right_index=True)
     FutureWarning('coef AICs are in early days, subject to change')
+
+    assert set(summary_df.index.unique('model')) == set(AICs.index.unique('model'))
     return AICs
 
 
