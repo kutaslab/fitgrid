@@ -106,6 +106,7 @@ def test_summarize():
             n_cores=N_CORES,
         )
 
+        assert RHSs == summaries_df.index.unique('model').to_list()
         assert summaries_df.index.names == INDEX_NAMES
         assert all(summaries_df.index.levels[-1] == KEY_LABELS)
         fitgrid.utils.summary._check_summary_df(summaries_df)
@@ -328,8 +329,10 @@ def test__get_AICs():
             assert all(model_aic.apply(lambda x: len(np.unique(x))) == 1)
 
     aics = fitgrid.utils.summary._get_AICs(summaries_df)
-    assert set(aics.index.unique('model')) == set(
-        summaries_df.index.unique('model')
+    assert (
+        RHSs
+        == summaries_df.index.unique('model').tolist()
+        == aics.index.unique('model').tolist()
     )
 
     for (time, chan), tc_aics in aics.groupby(['Time', 'channel']):
