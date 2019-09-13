@@ -413,6 +413,7 @@ def _lmer_get_summaries_df(fg_lmer):
         .sort_index()
         .astype(float)
     )
+
     _check_summary_df(summaries_df)
 
     return summaries_df
@@ -434,22 +435,38 @@ def _get_AICs(summary_df):
     """
 
     # AIC and lmer warnings are 1 per model, pull from the first
-    # model coefficient only, typically (Intercept)
-    first_param = summary_df.index.get_level_values('beta').unique()[0]
-    AICs = pd.DataFrame(
-        (
-            summary_df.loc[pd.IndexSlice[:, :, first_param, 'AIC'], :]
-            .reset_index(['key', 'beta'], drop=True)
-            .stack(0)
-        ),
-        columns=['AIC'],
+    # model coefficient only, e.g., (Intercept)
+    aic_cols = ["AIC", "has_warning"]
+    aics = []
+    # for model, model_data in summary_df.groupby('model'):
+    # groupby processes models in alphabetical sort order
+    for model in summary_df.index.unique('model'):
+        model_data = summary_df.query("model==@model")
+        first_param = model_data.index.get_level_values('beta').unique()[0]
+        aic = pd.DataFrame(
+            summary_df.loc[pd.IndexSlice[:, model, first_param, aic_cols], :]
+            .stack(-1)
+            .unstack("key")
+            .reset_index(["beta"], drop=True),
+            columns=aic_cols,
+        )
+        aic.index.names = aic.index.names[:-1] + ["channel"]
+        aics += [aic]
+    AICs = pd.concat(aics)
+    assert set(summary_df.index.unique('model')) == set(
+        AICs.index.unique('model')
     )
 
-    AICs.index.names = AICs.index.names[:-1] + ['channel']
-    AICs['min_delta'] = np.inf  # init to float
-    AICs.sort_index(inplace=True)
+    # sort except model, channel
+    AICs.sort_index(
+        axis=0,
+        level=[l for l in AICs.index.names if not l in ['model', 'channel']],
+        sort_remaining=False,
+        inplace=True,
+    )
 
     # calculate AIC_min for the fitted models at each time, channel
+    AICs['min_delta'] = np.inf  # init to float
     for time in AICs.index.get_level_values('Time').unique():
         for chan in AICs.index.get_level_values('channel').unique():
             slicer = pd.IndexSlice[time, :, chan]
@@ -457,18 +474,11 @@ def _get_AICs(summary_df):
                 AICs.loc[slicer, 'AIC']
             )
 
-    # merge in corresponding column of lmer warnings
-    has_warnings = pd.DataFrame(
-        summary_df.loc[pd.IndexSlice[:, :, first_param, 'has_warning'], :]
-        .reset_index(['key', 'beta'], drop=True)
-        .stack(0),
-        columns=['has_warning'],
-    )
+    FutureWarning('fitgrid AICs are in early days, subject to change')
 
-    has_warnings.index.names = has_warnings.index.names[:-1] + ['channel']
-    has_warnings.sort_index(inplace=True)
-    AICs = AICs.merge(has_warnings, left_index=True, right_index=True)
-    FutureWarning('coef AICs are in early days, subject to change')
+    assert set(summary_df.index.unique('model')) == set(
+        AICs.index.unique('model')
+    )
     return AICs
 
 
@@ -726,6 +736,10 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
     )
 
     for i, m in enumerate(models):
+
+        # debugging
+        # print(f"i: {i} m: {m}")
+
         # channel traces
         if len(models) == 1:
             traces = axs[0]
@@ -756,13 +770,15 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
         for y in aic_min_delta_bounds:
             traces.axhline(y=y, color='black', linestyle='dotted')
 
-        # heat map
+        # for heat map
         _min_deltas = (
             aics.loc[pd.IndexSlice[:, m, :], 'min_delta']
             .reset_index('model', drop=True)
             .unstack('channel')
             .astype(float)
         )
+        # unstack() alphanum sorts the channel index ... ugh
+        _min_deltas = _min_deltas.reindex(columns=channels)
 
         _has_warnings = (
             aics.loc[pd.IndexSlice[:, m, :], 'has_warning']
@@ -770,6 +786,7 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
             .unstack('channel')
             .astype(bool)
         )
+        _has_warnings = _has_warnings.reindex(columns=channels)
 
         # colorbrewer 2.0 Blues color blind safe n=5
         # http://colorbrewer2.org/#type=sequential&scheme=Blues&n=5

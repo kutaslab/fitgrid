@@ -2,10 +2,10 @@ import warnings
 import numpy as np
 import pandas as pd
 import patsy
-from tqdm import tqdm
 from statsmodels.stats.outliers_influence import (
     variance_inflation_factor as vif,
 )
+from tqdm import tqdm
 from statsmodels.regression.linear_model import RegressionResultsWrapper
 from fitgrid.fitgrid import FitGrid
 
@@ -25,32 +25,16 @@ from fitgrid.fitgrid import FitGrid
 _FLOAT_TYPE = np.float64
 _INT_TYPE = np.int64
 _OLS_INFLUENCE_ATTRS = {
-    '_get_drop_vari': (None, None, None),
-    '_res_looo': (None, None, None),
-    '_ols_xnoti': (None, None, None),
-    'aux_regression_exog': (None, None, None),
-    'aux_regression_endog': (None, None, None),
     'cooks_distance': ('nobs', _FLOAT_TYPE, ['Time', None, 'Epoch_idx']),
     'cov_ratio': ('nobs_loop', _FLOAT_TYPE, ['Time', 'Epoch_idx']),
-    'det_cov_params_not_obsi': (
-        'nobs_loop',
-        _FLOAT_TYPE,
-        ['Time', 'Epoch_idx'],
-    ),
     'dfbetas': ('nobs_loop', _FLOAT_TYPE, ['Time', 'Epoch_idx', None]),
     'dffits': ('nobs_loop', _FLOAT_TYPE, ['Time', None, 'Epoch_idx']),
     'dffits_internal': ('nobs', _FLOAT_TYPE, ['Time', None, 'Epoch_idx']),
-    'endog': (None, None, None),  # ('nobs', _FLOAT_TYPE),  # from data
     'ess_press': ('nobs', _FLOAT_TYPE, ['Time']),
-    'exog': (None, None, None),  # 'nobs_k', _FLOAT_TYPE),  # from data
-    'get_resid_studentized_external': (None, None, None),  # method
-    'hat_diag_factor': ('nobs', _FLOAT_TYPE, ['Time', 'Epoch_idx']),
     'hat_matrix_diag': ('nobs', _FLOAT_TYPE, ['Time', 'Epoch_idx']),
     'influence': ('nobs', _FLOAT_TYPE, ['Time', 'Epoch_idx']),
     'k_vars': ('nobs', _INT_TYPE, ['Time']),
-    'model_class': (None, None, None),  # not a DataFrame
     'nobs': ('nobs', _INT_TYPE, ['Time']),
-    'params_not_obsi': ('nobs_loop', _FLOAT_TYPE, ['Time', 'Epoch_idx', None]),
     'resid_press': ('nobs', _FLOAT_TYPE, ['Time', 'Epoch_idx']),
     'resid_std': ('nobs', _FLOAT_TYPE, ['Time', 'Epoch_idx']),
     'resid_studentized_external': (
@@ -60,12 +44,6 @@ _OLS_INFLUENCE_ATTRS = {
     ),
     'resid_studentized_internal': ('nobs', _FLOAT_TYPE, ['Time', 'Epoch_idx']),
     'resid_var': ('nobs', _FLOAT_TYPE, ['Time', 'Epoch_idx']),
-    'results': (None, None, None),  # not a DataFrame
-    'save': (None, None, None),  # not a DataFrame
-    'sigma2_not_obsi': ('nobs_loop', _FLOAT_TYPE, ['Time', 'Epoch_idx']),
-    #'sigma_est': ('nobs', _FLOAT_TYPE, ['Time']),
-    'summary_frame': (None, None, None),  # not a DataFrame
-    'summary_table': (None, None, None),  # not a DataFrame
 }
 
 
@@ -78,9 +56,10 @@ def get_vifs(epochs, RHS):
         }
         return pd.Series(vifs)
 
-    tqdm.pandas(desc="Time")
-
-    return epochs._snapshots.progress_apply(get_single_vif, RHS=RHS)
+    # TPU hacked out 09/09/19 until tqdm.pandas issue is resolved
+    # tqdm.pandas(desc="Time")
+    # return epochs._snapshots.progress_apply(get_single_vif, RHS=RHS)
+    return epochs._snapshots.apply(get_single_vif, RHS=RHS)
 
 
 # ------------------------------------------------------------

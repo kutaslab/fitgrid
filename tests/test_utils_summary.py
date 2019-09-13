@@ -63,20 +63,28 @@ def test_summarize():
     """test main wrapper to scrape summaries from either lm or lmer grids"""
 
     # column sums ... guard against unexpected changes
-    lm_checksum = np.array([65721.957_801_9, 97108.199_717_59])
-    lmer_checksum = np.array([27917.386_516_15, 63191.613_344_82])
+    # lm_checksum = np.array([65721.957_801_9, 97108.199_717_59])
+    # lmer_checksum = np.array([27917.386_516_15, 63191.613_344_82])
+
+    lm_checksum = np.array([120_135.560_853_52, 172_375.489_486_64])
+    lmer_checksum = np.array([41756.165_766_74, 90723.291_317_1])
 
     # modelers and RHSs
     tests = {
         "lm": [
             "1 + continuous + categorical",
+            "0 + continuous + categorical",
             "1 + continuous",
+            "0 + continuous",
             "1 + categorical",
+            "0 + categorical",
             "1",
         ],
         "lmer": [
             "1 + continuous + (continuous | categorical)",
+            "0 + continuous + (continuous | categorical)",
             "1 + continuous + (1 | categorical)",
+            "0 + continuous + (1 | categorical)",
             "1 + (continuous | categorical)",
             "1 + (1 | categorical)",
         ],
@@ -98,6 +106,7 @@ def test_summarize():
             n_cores=N_CORES,
         )
 
+        assert RHSs == summaries_df.index.unique('model').to_list()
         assert summaries_df.index.names == INDEX_NAMES
         assert all(summaries_df.index.levels[-1] == KEY_LABELS)
         fitgrid.utils.summary._check_summary_df(summaries_df)
@@ -305,6 +314,7 @@ def test__get_AICs():
         "1 + continuous + categorical",
         "1 + continuous",
         "1 + categorical",
+        "0 + categorical",
     ]
 
     epochs_fg = _get_epochs_fg(seed=0)
@@ -319,6 +329,11 @@ def test__get_AICs():
             assert all(model_aic.apply(lambda x: len(np.unique(x))) == 1)
 
     aics = fitgrid.utils.summary._get_AICs(summaries_df)
+    assert (
+        RHSs
+        == summaries_df.index.unique('model').tolist()
+        == aics.index.unique('model').tolist()
+    )
 
     for (time, chan), tc_aics in aics.groupby(['Time', 'channel']):
         # mins at each time, channel
