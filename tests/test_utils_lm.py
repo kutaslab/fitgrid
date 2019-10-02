@@ -54,7 +54,7 @@ def test__OLS_INFLUENCE_ATTRS():
     lm_grid, infl = get_seeded_lm_grid_infl()
     infl_attrs = dir(infl)  # from the mothership
 
-    assert set(infl_attrs) == set(fgutil.lm._OLS_INFLUENCE_ATTRS.keys())
+    assert set(fgutil.lm._OLS_INFLUENCE_ATTRS.keys()).issubset(set(infl_attrs))
     for infl_attr, spec in fgutil.lm._OLS_INFLUENCE_ATTRS.items():
         calc, val_type = spec[0], spec[1]
         assert calc in [None, 'nobs', 'nobs_loop', 'nobs_k']
