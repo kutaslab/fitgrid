@@ -1,24 +1,34 @@
+{% set version = "0.4.5.dev" %}
+{% set np_pin = "1.16.4" %}
+{% set py_pin = "3.6" %}
+
 package:
     name: fitgrid
-    version: "0.4.4"
+    version: {{ version }}
 
 source:
-    path: ../
+    # path: ../
+    git_url: ../  # triggers GIT_X_Y env vars on TravisCI
 
 build:
+    # setting string embeds git short SHA in conda tarball name
     script: python setup.py install --single-version-externally-managed --record=record.txt
+    string: {{ environ.get('GIT_BUILD_STR', "no_tags_on_travis_br") }}  # github release builds are tagged
 
 requirements:
-    build:
-        - python
+    # build:
+    #    - python
+    host:
+        - python ={{ py_pin }}
+        - numpy <={{ np_pin }}
 
     run:
-        - python=3.6
+        - python ={{ py_pin }}
+        - numpy <={{ np_pin }}
         - rpy2
         - pymer4
         - r-lme4
         - r-lmerTest
-        - numpy<=1.16.4
         - scipy
         - pandas
         - matplotlib

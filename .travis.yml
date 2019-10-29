@@ -1,17 +1,24 @@
+env:
+    - PACKAGE_NAME: fitgrid  # for the conda_upload.sh deploy script
 language: minimal
-install:
+before_install:
     - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
     - bash miniconda.sh -b -p $HOME/miniconda
-    - export PATH="$HOME/miniconda/bin:$PATH"
+    - source $HOME/miniconda/etc/profile.d/conda.sh && conda activate
     - hash -r
     - conda config --set always_yes yes --set changeps1 no
+    - conda install -q conda-build conda-verify
     - conda info -a
-    - conda env create -f conda/environment.yml
-    - source activate fitgrid_compat
+install:
+    - conda build conda -c kutaslab  # for pymer4
+    - conda convert -p all /home/travis/miniconda/conda-bld/linux-64/fitgrid-*.tar.bz2 
+    - conda create --name fitgrid_env -c kutaslab pymer4 
+    - conda activate fitgrid_env  # so tests run in env as installed by conda
+    - conda install -c local fitgrid
+    - conda install black pytest-cov
     - conda list
     - lscpu
     - python -c 'import numpy; numpy.show_config()'
-    - pip install black
 script:
     - black --check --verbose -S --line-length=79 .
     - pytest --cov=fitgrid
@@ -20,17 +27,22 @@ after_success:
 before_deploy:
     - pip install sphinx sphinx_rtd_theme jupyter nbsphinx nbconvert!=5.4
     - conda install -c conda-forge pandoc
-    - pip install -e . # install fitgrid locally so it can be imported in the notebook
+    - pip install -e .  # install fitgrid locally so it can be imported in the notebook
     - conda list
     - cd docs
     - make html
     - touch build/html/.nojekyll
 deploy:
-    provider: pages
-    skip_cleanup: true
-    github_token: $GITHUB_TOKEN
-    keep-history: true
-    on:
-        branch: master
-    target_branch: gh-pages # that's the default anyway, just to be explicit
-    local_dir: docs/build/html
+    - provider: script
+      skip_cleanup: true
+      script: bash ./ci/conda_upload.sh
+      on:
+          all_branches: true
+    - provider: pages
+      skip_cleanup: true
+      github_token: $GITHUB_TOKEN
+      keep-history: true
+      on:
+          branch: master
+      target_branch: gh-pages  # that's the default anyway, just to be explicit
+      local_dir: docs/build/html
