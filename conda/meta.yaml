@@ -24,16 +24,17 @@ requirements:
 
     run:
         - python ={{ py_pin }}
-        - numpy <={{ np_pin }}
         - rpy2
         - pymer4
         - r-lme4
         - r-lmerTest
+        - numpy <={{ np_pin }}
         - scipy
         - pandas
         - matplotlib
         - statsmodels
         - pytables
+        - pyarrow
         - patsy
         - tqdm
 
