@@ -12,9 +12,9 @@ before_install:
 install:
     - conda build conda -c kutaslab  # for pymer4
     - conda convert -p all /home/travis/miniconda/conda-bld/linux-64/fitgrid-*.tar.bz2 
-    - conda create --name fitgrid_env -c kutaslab pymer4 
+    - conda create --name fitgrid_env -c kutaslab pymer4
     - conda activate fitgrid_env  # so tests run in env as installed by conda
-    - conda install -c local fitgrid
+    - conda install -c local fitgrid  # install after or conda chooses v0.2.2 !?
     - conda install black pytest-cov
     - conda list
     - lscpu
@@ -29,15 +29,18 @@ before_deploy:
     - conda install -c conda-forge pandoc
     - pip install -e .  # install fitgrid locally so it can be imported in the notebook
     - conda list
-    - cd docs
-    - make html
-    - touch build/html/.nojekyll
+    - make -C docs html
+    - touch docs/build/html/.nojekyll
+
 deploy:
     - provider: script
       skip_cleanup: true
       script: bash ./ci/conda_upload.sh
       on:
-          all_branches: true
+          all_branches: true  # to dry run uploads 
+          # tags: true  #  attempt on tagged releases only ... untested
+          # condition: $TRAVIS_BRANCH =~ ^v[0-9]+\.[0-9]+\.[0-9]+$  # ditto
+
     - provider: pages
       skip_cleanup: true
       github_token: $GITHUB_TOKEN
