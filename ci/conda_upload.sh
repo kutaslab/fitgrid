@@ -20,11 +20,11 @@ if [[ "$TRAVIS" != "true" || -z "$TRAVIS_BRANCH" || -z "${PACKAGE_NAME}" ]]; the
 fi
 
 # set the parent of conda-bld, the else isn't needed for TravisCI but 
-# simplifies local testing
-if [ $USER = "travis" ]; then
-    bld_prefix="/home/travis/miniconda"  # from the .travis.yml
-else
+# simplifies local testing. 
+if [ $USER != "travis" ]; then
     bld_prefix=${CONDA_PREFIX}
+else
+    bld_prefix="/home/travis/miniconda"  # from the .travis.yml
 fi
 
 # on TravisCI there should be a single linux-64 package tarball. insist
