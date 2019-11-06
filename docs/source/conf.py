@@ -63,8 +63,7 @@ extensions = [
 ]
 
 # nbsphinx_timeout = -1 # don't timeout
-# nbsphinx_timeout = 5 * 60  # lmer needs time to run in Tutorial
-nbsphinx_timeout = 5  # *ONLY* for debugging
+nbsphinx_timeout = 5 * 60  # lmer needs time to run in Tutorial
 
 # alias long urls to keep line length under control
 extlinks = {"sm_docs": ("https://www.statsmodels.org/stable/generated/%s", "")}

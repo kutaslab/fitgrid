@@ -14,24 +14,20 @@ if [[ -z ${CONDA_DEFAULT_ENV} ]]; then
 fi
 
 # meant for a TravisCI deploy environment but easily tricked into running locally
+# by setting these
 if [[ "$TRAVIS" != "true" || -z "$TRAVIS_BRANCH" || -z "${PACKAGE_NAME}" ]]; then
     echo "conda_upload.sh is meant to run on TravisCI"
     exit -2
 fi
 
-# set the parent of conda-bld, the else isn't needed for TravisCI but 
-# simplifies local testing. 
-if [ $USER != "travis" ]; then
-    bld_prefix=${CONDA_PREFIX}
-else
-    bld_prefix="/home/travis/miniconda"  # from the .travis.yml
-fi
+# as in .travis.yml or use bld_prefix=${CONDA_PREFIX} for local testing
+bld_prefix="/home/travis/miniconda"
 
 # on TravisCI there should be a single linux-64 package tarball. insist
 tarball=`/bin/ls -1 ${bld_prefix}/conda-bld/linux-64/${PACKAGE_NAME}-*-*.tar.bz2`
 n_tarballs=`echo "${tarball}" | wc -w`
 if (( $n_tarballs != 1 )); then
-    echo "found $n_tarballs package tarballs there must be exactly 1"
+    echo "found $n_tarballs $PACKAGE_NAME tarballs there must be exactly 1"
     echo "$tarball"
     exit -3
 fi
@@ -73,18 +69,17 @@ echo "is_release: $is_release"
 echo "conda_label: ${label_param}"
 echo "conda upload command: ${conda_cmd}"
 
-# if the token is in the ENV and this is a vN.N.N tagged commit
+# if the token is in the ENV
 #    attempt the upload 
 # else
 #    skip the upload and exit happy
 # 
 # conda upload knows the destination from the token
-#if [[ $ANACONDA_TOKEN != "[not_set]" && $is_release = "true" ]]; then
-
 
 if [[ $ANACONDA_TOKEN != "[not_set]" ]]; then
 
     echo "uploading to Anconda Cloud: $PACKAGE_NAME$ $version $TRAVIS_BRANCH $label_param ..."
+    conda install anaconda-client
     if ${conda_cmd}; then
     	echo "OK"
     else
