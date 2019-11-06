@@ -11,7 +11,7 @@ before_install:
     - conda info -a
 install:
     - conda build conda -c kutaslab  # for pymer4
-    - conda convert -p all /home/travis/miniconda/conda-bld/linux-64/fitgrid-*.tar.bz2 
+    - conda convert -p all /home/travis/miniconda/conda-bld/linux-64/fitgrid-*.tar.bz2
     - conda create --name fitgrid_env -c kutaslab pymer4
     - conda activate fitgrid_env  # so tests run in env as installed by conda
     - conda install -c local fitgrid  # install after or conda chooses v0.2.2 !?
@@ -31,15 +31,14 @@ before_deploy:
     - conda list
     - make -C docs html
     - touch docs/build/html/.nojekyll
-
 deploy:
     - provider: script
       skip_cleanup: true
       script: bash ./ci/conda_upload.sh
       on:
-          all_branches: true  # to dry run uploads 
-          # tags: true  #  attempt on tagged releases only ... untested
-          # condition: $TRAVIS_BRANCH =~ ^v[0-9]+\.[0-9]+\.[0-9]+$  # ditto
+          # all_branches: true  # for testing
+          tags: true            # restrict to vN.N.N tags
+          condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
 
     - provider: pages
       verbose: true
@@ -47,6 +46,20 @@ deploy:
       github_token: $GITHUB_TOKEN
       keep-history: true
       on:
-          branch: master
+          # all_branches: true  # for testing
+          tags: true
+          condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
       target_branch: gh-pages  # that's the default anyway, just to be explicit
       local_dir: docs/build/html
+
+    - provider: pypi
+      skip_cleanup: true
+      user: "__token__"
+      password: $PYPI_TOKEN
+      on:
+          # do NOT test PyPI on all_branches. file names work like
+          # UUIDs on PyPI, can be deleted but not freed. Use unique
+          # N.N.N.devN, aN, bN, rcN versions if you must test deploy
+          # to PyPI
+          tags: true
+          condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
