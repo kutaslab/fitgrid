@@ -36,9 +36,9 @@ deploy:
       skip_cleanup: true
       script: bash ./ci/conda_upload.sh
       on:
-          # all_branches: true  # for testing
-          tags: true            # restrict to vN.N.N tags
-          condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
+          all_branches: true  # for testing
+          # tags: true            # restrict to vN.N.N tags
+          # condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
 
     - provider: pages
       verbose: true
@@ -46,9 +46,9 @@ deploy:
       github_token: $GITHUB_TOKEN
       keep-history: true
       on:
-          # all_branches: true  # for testing
-          tags: true
-          condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
+          all_branches: true  # for testing
+          # tags: true
+          # condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
       target_branch: gh-pages  # that's the default anyway, just to be explicit
       local_dir: docs/build/html
 
@@ -61,5 +61,6 @@ deploy:
           # UUIDs on PyPI, can be deleted but not freed. Use unique
           # N.N.N.devN, aN, bN, rcN versions if you must test deploy
           # to PyPI
-          tags: true
-          condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
+          all_branches: true
+          # tags: true
+          # condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
