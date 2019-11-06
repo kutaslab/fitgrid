@@ -85,7 +85,6 @@ echo "conda upload command: ${conda_cmd}"
 if [[ $ANACONDA_TOKEN != "[not_set]" ]]; then
 
     echo "uploading to Anconda Cloud: $PACKAGE_NAME$ $version $TRAVIS_BRANCH $label_param ..."
-    conda install anaconda-client --verbose 
     if ${conda_cmd}; then
     	echo "OK"
     else
