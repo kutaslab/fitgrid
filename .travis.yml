@@ -36,7 +36,7 @@ deploy:
       skip_cleanup: true
       script: bash ./ci/conda_upload.sh
       on:
-          all_branches: true  # for testing
+          all_branches: true  # ok for testing Anaconda tarball names can be reused
           # tags: true            # restrict to vN.N.N tags
           # condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
 
@@ -46,9 +46,9 @@ deploy:
       github_token: $GITHUB_TOKEN
       keep-history: true
       on:
-          all_branches: true  # for testing
-          # tags: true
-          # condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
+          # update docs on vN.N.N release
+          tags: true
+          condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
       target_branch: gh-pages  # that's the default anyway, just to be explicit
       local_dir: docs/build/html
 
@@ -57,10 +57,9 @@ deploy:
       user: "__token__"
       password: $PYPI_TOKEN
       on:
-          # do NOT test PyPI on all_branches. file names work like
-          # UUIDs on PyPI, can be deleted but not freed. Use unique
+          # do NOT test PyPI on all_branches. file names are UUIDs
+          # on PyPI, can be deleted but not freed. Use unique
           # N.N.N.devN, aN, bN, rcN versions if you must test deploy
           # to PyPI
-          all_branches: true
-          # tags: true
-          # condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
+          tags: true
+          condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
