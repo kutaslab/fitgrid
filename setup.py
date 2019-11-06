@@ -47,7 +47,11 @@ setup(
     author='Thomas P. Urbach, Andrey Portnoy',
     author_email='turbach@ucsd.edu, aportnoy@ucsd.edu',
     url='https://github.com/kutaslab/fitgrid',
-    license='BSD-3-Clause',
+    classifiers=[
+        "Programming Language :: Python :: 3",
+        "License :: OSI Approved :: BSD License",
+        "Intended Audience :: Science/Research",
+    ],
     packages=find_packages(exclude=['tests']),
     install_requires=[
         'patsy',
