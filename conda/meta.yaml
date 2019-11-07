@@ -1,4 +1,4 @@
-{% set version = "0.4.6.dev0" %}
+{% set version = "0.4.6" %}
 {% set np_pin = "1.16.4" %}
 {% set py_pin = "3.6" %}
 

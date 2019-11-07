@@ -30,19 +30,20 @@ deploy:
       skip_cleanup: true
       script: bash ./ci/conda_upload.sh
       on:
-          # ok for testing, conda uploads can be deleted and file names reused
-          all_branches: true
-          # tags: true
-          # condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$  # match vN.N.N
+          # all branches ok for testing, conda uploads can be deleted and
+          # filenames reused. branches other than vN.N.N are --label pre_release
+          # all_branches: true
+          tags: true
+          condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$  # match vN.N.N
 
     # homegrown replacement for TravisCI gh_pages provider
     - provider: script
       skip_cleanup: true
       script: bash ./ci/ghpages_upload.sh
       on:
-          all_branches: true   # testing only
-          # tags: true
-          # condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
+          # all_branches: true   # testing only
+          tags: true
+          condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
 
     - provider: pypi
       skip_cleanup: true
