@@ -24,42 +24,35 @@ script:
     - pytest --cov=fitgrid
 after_success:
     - pip install codecov && codecov
-before_deploy:
-    - pip install sphinx sphinx_rtd_theme jupyter nbsphinx nbconvert!=5.4
-    - conda install -c conda-forge pandoc
-    - pip install -e .  # install fitgrid locally so it can be imported in the notebook
-    - conda list
-    - make -C docs html
-    - touch docs/build/html/.nojekyll
+# before_deploy:
 deploy:
     - provider: script
       skip_cleanup: true
       script: bash ./ci/conda_upload.sh
       on:
-          # all_branches: true  # for testing
-          tags: true            # restrict to vN.N.N tags
-          condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
+          # all branches ok for testing, conda uploads can be deleted and
+          # filenames reused. branches other than vN.N.N are --label pre_release
+          # all_branches: true
+          tags: true
+          condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$  # match vN.N.N
 
-    - provider: pages
-      verbose: true
+    # homegrown replacement for TravisCI gh_pages provider
+    - provider: script
       skip_cleanup: true
-      github_token: $GITHUB_TOKEN
-      keep-history: true
+      script: bash ./ci/ghpages_upload.sh
       on:
-          # all_branches: true  # for testing
+          # all_branches: true   # testing only
           tags: true
           condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
-      target_branch: gh-pages  # that's the default anyway, just to be explicit
-      local_dir: docs/build/html
 
     - provider: pypi
       skip_cleanup: true
       user: "__token__"
       password: $PYPI_TOKEN
       on:
-          # do NOT test PyPI on all_branches. file names work like
-          # UUIDs on PyPI, can be deleted but not freed. Use unique
-          # N.N.N.devN, aN, bN, rcN versions if you must test deploy
-          # to PyPI
+          # do NOT test PyPI on all_branches. file names are UUIDs
+          # in PyPI repo database, can be deleted but not freed. Use
+          # unique (disposable?) N.N.N.devN, aN, bN, rcN versions if
+          # you must test deploy to PyPI
           tags: true
           condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
