@@ -1,6 +1,6 @@
 [![Build status](https://travis-ci.org/kutaslab/fitgrid.svg?branch=master)](https://travis-ci.org/kutaslab/fitgrid)
 [![Coverage](https://codecov.io/gh/kutaslab/fitgrid/branch/master/graph/badge.svg)](https://codecov.io/gh/kutaslab/fitgrid)
-Zenodo badge here
+[![DOI](https://zenodo.org/badge/147436563.svg)](https://zenodo.org/badge/latestdoi/147436563)
 
 # fitgrid
 
