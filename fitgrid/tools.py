@@ -9,8 +9,8 @@ import glob
 import warnings
 
 MKL = 'mkl'
-OPENBLAS = 'openblas'
-
+# OPENBLAS = 'openblas'
+OPENBLAS = 'blas'  # to match libopenblas or libcblas
 
 def get_index_duplicates_table(df, level):
     """Return a string table of duplicate index values and their locations."""
@@ -132,24 +132,34 @@ def get_blas_linux(numpy_module):
     )
 
     output = ldd_result.stdout
+    # matching kind anywhere allows accidental matches in conda env name 
+    #if MKL in output:
+    #    kind = MKL
+    #elif OPENBLAS in output:
+    #    kind = OPENBLAS
+    #else:
+    #    return None
+    #
+    # pattern = PATTERN.format(kind)
+    # match = re.search(pattern, output, flags=re.MULTILINE)
+    # 
+    # if match:
+    #     path = match.groupdict()['path']
+    #     cdll = ctypes.CDLL(path)
+    #     return BLAS(cdll, kind)
+    # else:
+    #     return None
 
-    if MKL in output:
-        kind = MKL
-    elif OPENBLAS in output:
-        kind = OPENBLAS
-    else:
-        return None
+    kinds = [MKL, OPENBLAS]
+    for kind in kinds:
+        match = re.search(PATTERN.format(kind), output, flags=re.MULTILINE)
+        if match:
+            path = match.groupdict()['path']
+            cdll = ctypes.CDLL(path)
+            return BLAS(cdll, kind)
 
-    pattern = PATTERN.format(kind)
-    match = re.search(pattern, output, flags=re.MULTILINE)
-
-    if match:
-        path = match.groupdict()['path']
-        cdll = ctypes.CDLL(path)
-        return BLAS(cdll, kind)
-    else:
-        return None
-
+    # unknown kind
+    return None
 
 def get_blas(numpy_module):
     """Return BLAS object or None if neither MKL nor OpenBLAS is found."""
