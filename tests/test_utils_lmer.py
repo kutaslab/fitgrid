@@ -1,7 +1,7 @@
 from pathlib import Path
 import numpy as np
 import pandas as pd
-from .context import fitgrid, tpath
+from .context import fitgrid, tpath, FIT_RTOL
 
 # pytest evaluates tpath to the local tests directory
 
@@ -69,4 +69,5 @@ def test_get_lmer_dfbetas(tpath):
     )
     actual = dfbetas.loc[0, 'channel0'].unstack().astype(float)
 
-    assert np.allclose(actual, expected, atol=0)
+    # assert np.allclose(actual, expected, atol=0)
+    assert np.allclose(actual, expected, atol=0, rtol=FIT_RTOL)

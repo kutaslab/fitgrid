@@ -14,6 +14,11 @@ sys.path.insert(
 
 import fitgrid
 
+# LMER fits differ slightly depending on the build/env. Cap allowable
+# variationo like so
+#   np.allclose(actual, expected, atol=0, rtol=FIT_RTOL)
+FIT_RTOL = 0.002
+
 
 @pytest.fixture(scope="module")
 def tpath(request):

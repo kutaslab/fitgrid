@@ -6,6 +6,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 import fitgrid
 from fitgrid.utils.summary import INDEX_NAMES, KEY_LABELS, PER_MODEL_KEY_LABELS
+from .context import tpath, FIT_RTOL
 
 pd.set_option("display.width", 256)
 PARALLEL = True
@@ -67,8 +68,8 @@ def test_summarize():
     # lmer_checksum = np.array([27917.386_516_15, 63191.613_344_82])
 
     lm_checksum = np.array([120_135.560_853_52, 172_375.489_486_64])
-    lmer_blas_checksum = np.array([41756.165_766_74, 90723.291_317_1])
-    lmer_mkl_checksum = np.array([41748.779_227, 90712.637_260])
+    lmer_checksum = np.array([41748.779_227, 90712.637_260])  # mkl?
+    # lmer_checksum_2 = np.array([41756.165_766_74, 90723.291_317_1]) # blas
 
     # modelers and RHSs
     tests = {
@@ -114,19 +115,14 @@ def test_summarize():
 
         # verify checksums and select the modler
         if modler == 'lm':
-            assert np.allclose(summaries_df.apply(sum), lm_checksum)
+            assert np.allclose(summaries_df.apply(sum), lm_checksum, atol=0)
             modler_ = fitgrid.lm
         elif modler == 'lmer':
 
-            # check current blas lib
-            blas = fitgrid.tools.get_blas(np)
-            if blas.kind == 'mkl':
-                assert np.allclose(summaries_df.apply(sum), lmer_mkl_checksum)
-            elif blas.kind == 'blas':
-                assert np.allclose(summaries_df.apply(sum), lmer_blas_checksum)
-            elif blas.kind is None:
-                raise Exception('BLAS libraries not found, should be mkl or (open)blas')
-
+            # check the summary is correct for a known LMER build
+            assert np.allclose(
+                summaries_df.apply(sum), lmer_checksum, atol=0, rtol=FIT_RTOL
+            )
             modler_ = fitgrid.lmer
         else:
             raise ValueError('bad modler')
@@ -351,6 +347,8 @@ def test__get_AICs():
         assert np.allclose(
             tc_aics['AIC'].astype('float') - min,
             tc_aics['min_delta'].astype('float'),
+            atol=0,
+            rtol=FIT_RTOL,
         )
     return aics
 
