@@ -1,16 +1,36 @@
 import pytest
 import re
+import warnings
+import hashlib
 from numpy import log10
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 import fitgrid
 from fitgrid.utils.summary import INDEX_NAMES, KEY_LABELS, PER_MODEL_KEY_LABELS
-from .context import tpath, FIT_RTOL
+from .context import tpath, FIT_ATOL, FIT_RTOL
 
 pd.set_option("display.width", 256)
 PARALLEL = True
 N_CORES = 4
+
+# ------------------------------------------------------------
+# CSV summary files for epochs = _get_epochs(seed=0), built 
+# with these
+# versions on the conda default channel
+# r-lme4                    1.1_21            r36h29659fb_0
+# r-lmertest                3.1_0             r36h6115d3f_0  
+# r-matrix                  1.2_17            r36h96ca727_0  
+TEST_SUMMARIZE = {
+    'lm': {
+        'fname': 'tests/data/test_summarize_lm.tsv',
+        'md5sum': '43b6a8b0fc621f1b0ca0ea71270241ac'
+    },
+    'lmer': {
+        'fname': 'tests/data/test_summarize_lmer.tsv',
+        'md5sum': 'ee7721553cdcbe3c4a137e9ddc78ffba'
+    },
+}
 
 
 def _get_epochs_fg(seed=None):
@@ -63,13 +83,18 @@ def test__lmer_get_summaries_df():
 def test_summarize():
     """test main wrapper to scrape summaries from either lm or lmer grids"""
 
-    # column sums ... guard against unexpected changes
-    # lm_checksum = np.array([65721.957_801_9, 97108.199_717_59])
-    # lmer_checksum = np.array([27917.386_516_15, 63191.613_344_82])
+    for mdlr, finfo in TEST_SUMMARIZE.items():
+        with open(finfo['fname']) as stream:
+            md5sum = hashlib.md5(stream.read().encode('utf8')).hexdigest()
+            assert finfo['md5sum'] == md5sum
 
+    # column sums ... guard against unexpected changes
     lm_checksum = np.array([120_135.560_853_52, 172_375.489_486_64])
-    lmer_checksum = np.array([41748.779_227, 90712.637_260])  # mkl?
-    # lmer_checksum_2 = np.array([41756.165_766_74, 90723.291_317_1]) # blas
+
+    # DEPRECATED: for conda r-lme4 1.1_17, r-matrix 1.2_14
+    # lmer_checksum = np.array([41748.779_227, 90712.637_260])  #
+
+    lmer_checksum = np.array([41756.165_766_740_23, 90723.291_317_102_9])
 
     # modelers and RHSs
     tests = {
@@ -113,19 +138,62 @@ def test_summarize():
         assert all(summaries_df.index.levels[-1] == KEY_LABELS)
         fitgrid.utils.summary._check_summary_df(summaries_df)
 
-        # verify checksums and select the modler
+        aics = fitgrid.utils.summary._get_AICs(summaries_df)
+
+        # verify data and select the modler
         if modler == 'lm':
-            assert np.allclose(summaries_df.apply(sum), lm_checksum, atol=0)
+            # assert np.allclose(summaries_df.apply(sum), lm_checksum, atol=0)
             modler_ = fitgrid.lm
         elif modler == 'lmer':
-
-            # check the summary is correct for a known LMER build
-            assert np.allclose(
-                summaries_df.apply(sum), lmer_checksum, atol=0, rtol=FIT_RTOL
-            )
             modler_ = fitgrid.lmer
         else:
             raise ValueError('bad modler')
+
+        # read gold standard data 
+        expected = (
+            pd.read_csv(
+                TEST_SUMMARIZE[modler]['fname'],
+                sep='\t',
+            )
+            .set_index(summaries_df.index.names)
+        )
+
+
+        # check warnings ... these changed substantially for lme4 at some point
+        if not expected.query('key == "has_warning"').equals(summaries_df.query('key == "has_warning"')):
+            warnings.warn(f'{modler} has_warning values have changed')
+
+        expected_vals = expected.query('key != "has_warning"').copy()
+        expected_vals['val'] = 'expected'
+        expected_vals.set_index('val', append=True, inplace=True)
+
+        fit_vals = summaries_df.query('key != "has_warning"').copy()
+        fit_vals['val'] = 'fitted'
+        fit_vals.set_index('val', append=True, inplace=True)
+
+        test_vals = pd.concat([expected_vals, fit_vals])
+
+        for (model, beta, key), vals in test_vals.groupby(['model', 'beta', 'key']):
+            in_tol = np.isclose(
+                vals.query('val == "expected"'),
+                vals.query('val == "fitted"'),
+                atol=FIT_ATOL,
+                rtol=FIT_RTOL,
+            )
+            if in_tol.all():
+                continue
+                print(modler, model, beta, key, f'fitted vals within {FIT_ATOL} + {FIT_RTOL} * expected')
+            else:
+                # fail
+                msg = (
+                    f'\n------------------------------------------------------------\n'
+                    f'fitted vals out of tolerance: {FIT_ATOL} + {FIT_RTOL} * expected\n'
+                    f'{modler} {model} {beta} {key}\n'
+                    f'{in_tol}\n'
+                    f'{vals.unstack(-1)}\n'
+                    f'------------------------------------------------------------\n'
+                )
+                warnings.warn(msg)
 
         # ensure the one and only per-model values are broadcast
         # correctly across the betas within a model
@@ -335,6 +403,7 @@ def test__get_AICs():
             assert all(model_aic.apply(lambda x: len(np.unique(x))) == 1)
 
     aics = fitgrid.utils.summary._get_AICs(summaries_df)
+
     assert (
         RHSs
         == summaries_df.index.unique('model').tolist()
@@ -348,8 +417,8 @@ def test__get_AICs():
             tc_aics['AIC'].astype('float') - min,
             tc_aics['min_delta'].astype('float'),
             atol=0,
-            rtol=FIT_RTOL,
         )
+   
     return aics
 
 
