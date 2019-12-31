@@ -60,7 +60,7 @@ fi
 mkdir -p ${bld_prefix}/conda-convert/linux-64
 cp ${tarball} ${bld_prefix}/conda-convert/linux-64
 cd ${bld_prefix}/conda-convert
-conda convert --platform all linux-64/fitgrid*tar.bz2
+conda convert --platform all linux-64/${PACKAGE_NAME}*tar.bz2
 
 # POSIX trick sets $ANACONDA_TOKEN if unset or empty string 
 ANACONDA_TOKEN=${ANACONDA_TOKEN:-[not_set]}
