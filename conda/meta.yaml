@@ -1,5 +1,5 @@
 {% set version = "0.4.9dev0" %}
-{% set np_pin = "1.16.4" %}
+# {% set np_pin = "1.16.4" %}
 {% set py_pin = "3.6" %}
 
 package:
@@ -21,7 +21,7 @@ requirements:
     #    - python
     host:
         - python ={{ py_pin }}
-        - numpy <={{ np_pin }}
+        - numpy # <={{ np_pin }}
 
     run:
         - python ={{ py_pin }}
@@ -29,7 +29,7 @@ requirements:
         - pymer4
         - r-lme4
         - r-lmerTest
-        - numpy <={{ np_pin }}
+        - numpy # <={{ np_pin }}
         - scipy
         - pandas
         - matplotlib
