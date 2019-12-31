@@ -37,7 +37,6 @@ def test_blas_getter():
     import numpy
 
     blas = tools.get_blas(numpy)
-    # print('blas.kind: ', blas.kind, 'blas.cdll', blas.cdll)
 
     blas.set_n_threads(4)
     assert blas.get_n_threads() == 4

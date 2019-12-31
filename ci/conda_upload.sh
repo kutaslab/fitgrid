@@ -49,12 +49,11 @@ mmp=`echo $version | sed -n "s/\(\([0-9]\+\.\)\{1,2\}[0-9]\+\).*/\1/p"`
 # * is the tag vMajor.Minor.Patch (TravisCI treats tagged commits as a branch)?
 if [[ "${version}" = "$mmp" && $TRAVIS_BRANCH = v$mmp ]]; then
     is_release="true"
-    label_param="--label main"
+    label_param=""
 else
     is_release="false"
     label_param="--label pre_release"
 fi
-
 
 # build for multiple platforms ... who knows it might work
 mkdir -p ${bld_prefix}/conda-convert/linux-64
@@ -64,7 +63,6 @@ conda convert --platform all linux-64/${PACKAGE_NAME}*tar.bz2
 
 # POSIX trick sets $ANACONDA_TOKEN if unset or empty string 
 ANACONDA_TOKEN=${ANACONDA_TOKEN:-[not_set]}
-#conda_cmd="anaconda --token $ANACONDA_TOKEN upload ${tarball} ${label_param}"
 conda_cmd="anaconda --token $ANACONDA_TOKEN upload ./**/${PACKAGE_NAME}*.tar.bz2 ${label_param}"
 
 # thus far ...
