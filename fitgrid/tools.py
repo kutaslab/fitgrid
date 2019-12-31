@@ -75,78 +75,6 @@ class BLAS:
         return f'{kind} @ {n_threads} threads'
 
 
-# def get_blas_mac(numpy_module):
-
-#     COMMAND = 'otool'
-#     FLAGS = '-L'
-#     PATTERN = r'^\t@loader_path/(?P<path>.*{}.*) \(.*\)$'
-
-#     NUMPY_PATH = os.path.join(numpy_module.__path__[0], 'core')
-#     MULTIARRAY_PATH = glob.glob(
-#         os.path.join(NUMPY_PATH, '_multiarray_umath*.so')
-#     )[0]
-
-#     otool_result = subprocess.run(
-#         args=[COMMAND, FLAGS, MULTIARRAY_PATH],
-#         check=True,
-#         stdout=subprocess.PIPE,
-#         universal_newlines=True,
-#     )
-
-#     output = otool_result.stdout
-
-#     # TODO: can't scan entire output b.c. kind may be in conda env name
-#     if MKL in output:
-#         kind = MKL
-#     elif OPENBLAS in output:
-#         kind = OPENBLAS
-#     else:
-#         return None
-
-#     pattern = PATTERN.format(kind)
-#     match = re.search(pattern, output, flags=re.MULTILINE)
-
-#     if match:
-#         rel_path = match.groupdict()['path']
-#         abs_path = os.path.join(NUMPY_PATH, rel_path)
-#         cdll = ctypes.CDLL(abs_path)
-#         return BLAS(cdll, kind)
-#     else:
-#         return None
-
-
-# def get_blas_linux(numpy_module):
-
-#     COMMAND = 'ldd'
-#     PATTERN = r'^\t.*{}.* => (?P<path>.*) \(0x.*$'
-
-#     NUMPY_PATH = os.path.join(numpy_module.__path__[0], 'core')
-#     MULTIARRAY_PATH = glob.glob(
-#         os.path.join(NUMPY_PATH, '_multiarray_umath*.so')
-#     )[0]
-
-#     ldd_result = subprocess.run(
-#         args=[COMMAND, MULTIARRAY_PATH],
-#         check=True,
-#         stdout=subprocess.PIPE,
-#         universal_newlines=True,
-#     )
-
-#     output = ldd_result.stdout
-#     # can't scan kind in output b.c. kind may be in the env name,
-#     # e.g. MKL is in libopenblas.so.3 => /home/user/.conda/envs/mklab/ etc
-#     kinds = [MKL, OPENBLAS]
-#     for kind in kinds:
-#         match = re.search(PATTERN.format(kind), output, flags=re.MULTILINE)
-#         if match:
-#             path = match.groupdict()['path']
-#             cdll = ctypes.CDLL(path)
-#             return BLAS(cdll, kind)
-
-#     # unknown kind
-#     return None
-
-
 def get_blas_opsys(numpy_module, opsys):
 
     NUMPY_PATH = os.path.join(numpy_module.__path__[0], 'core')
@@ -163,9 +91,15 @@ def get_blas_opsys(numpy_module, opsys):
         COMMAND = 'otool'
         FLAGS = '-L'
         LDD_ARGS = [COMMAND, FLAGS, MULTIARRAY_PATH]
-        PATTERN = r'^\t@loader_path/(?P<path>.*{}.*) \(.*\)$'
+
+        # PATTERN = r'^\t@loader_path/(?P<path>.*{}.*) \(.*\)$'
+
+        # On my MacOS 10.13.6 I otools shows @rpath not @loader_path
+        # for the conda installed mkl. pytest test_tools.py passes
+        # on the Mac with the looser pattern.
+        PATTERN = r'^\t@.*path/(?P<path>.*{}.*) \(.*\)$'
     else:
-        # should be guarded by get_blas
+        # in case get_blas() lets it guard down
         raise ValueError(f'get_blas_opsys() does not support opsys={opsys}')
 
     ldd_result = subprocess.run(
@@ -177,8 +111,8 @@ def get_blas_opsys(numpy_module, opsys):
 
     output = ldd_result.stdout
 
-    # can't scan kind in output b.c. kind may be in the env name,
-    # e.g. MKL is in libopenblas.so.3 => /home/user/.conda/envs/mklab/ etc
+    # scanning kind in the whole output isn't reliable b.c. of the env name,
+    # e.g. libopenblas.so.3 => /home/user/.conda/envs/mklab_env37/...
     kinds = [MKL, OPENBLAS]
     for kind in kinds:
         match = re.search(PATTERN.format(kind), output, flags=re.MULTILINE)
