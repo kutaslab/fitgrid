@@ -1,4 +1,4 @@
-{% set version = "0.4.9dev0" %}
+{% set version = "0.4.9.dev0" %}
 # {% set np_pin = "1.16.4" %}
 {% set py_pin = "3.6" %}
 
@@ -21,7 +21,8 @@ requirements:
     #    - python
     host:
         - python ={{ py_pin }}
-        - numpy # <={{ np_pin }}
+        # - numpy <={{ np_pin }}
+        - numpy
 
     run:
         - python ={{ py_pin }}
@@ -29,7 +30,8 @@ requirements:
         - pymer4
         - r-lme4
         - r-lmerTest
-        - numpy # <={{ np_pin }}
+        # - numpy # <={{ np_pin }}
+        - numpy
         - scipy
         - pandas
         - matplotlib
