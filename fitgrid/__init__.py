@@ -8,4 +8,4 @@ from .io import (
 from .models import run_model, lm, lmer
 from . import utils, defaults
 
-__version__ = "0.4.8"
+__version__ = "0.4.9dev0"
