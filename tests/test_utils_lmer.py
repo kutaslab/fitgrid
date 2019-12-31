@@ -75,7 +75,11 @@ def test_get_lmer_dfbetas(tpath):
     if not in_tol.all():
         actual['val'] = 'actual'
         expected['val'] = 'expected'
-        for_display = pd.concat([actual, expected]).set_index("val", append=True).T.stack(0)
+        for_display = (
+            pd.concat([actual, expected])
+            .set_index("val", append=True)
+            .T.stack(0)
+        )
         warnings.warn(
             f'\n------------------------------------------------------------\n'
             f'calculated lmer_dfbetas out of tolerance: {FIT_ATOL} + {FIT_RTOL} * expected\n'
