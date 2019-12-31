@@ -15,20 +15,20 @@ PARALLEL = True
 N_CORES = 4
 
 # ------------------------------------------------------------
-# CSV summary files for epochs = _get_epochs(seed=0), built 
+# CSV summary files for epochs = _get_epochs(seed=0), built
 # with these
 # versions on the conda default channel
 # r-lme4                    1.1_21            r36h29659fb_0
-# r-lmertest                3.1_0             r36h6115d3f_0  
-# r-matrix                  1.2_17            r36h96ca727_0  
+# r-lmertest                3.1_0             r36h6115d3f_0
+# r-matrix                  1.2_17            r36h96ca727_0
 TEST_SUMMARIZE = {
     'lm': {
         'fname': 'tests/data/test_summarize_lm.tsv',
-        'md5sum': '43b6a8b0fc621f1b0ca0ea71270241ac'
+        'md5sum': '43b6a8b0fc621f1b0ca0ea71270241ac',
     },
     'lmer': {
         'fname': 'tests/data/test_summarize_lmer.tsv',
-        'md5sum': 'ee7721553cdcbe3c4a137e9ddc78ffba'
+        'md5sum': 'ee7721553cdcbe3c4a137e9ddc78ffba',
     },
 }
 
@@ -149,18 +149,15 @@ def test_summarize():
         else:
             raise ValueError('bad modler')
 
-        # read gold standard data 
-        expected = (
-            pd.read_csv(
-                TEST_SUMMARIZE[modler]['fname'],
-                sep='\t',
-            )
-            .set_index(summaries_df.index.names)
-        )
-
+        # read gold standard data
+        expected = pd.read_csv(
+            TEST_SUMMARIZE[modler]['fname'], sep='\t'
+        ).set_index(summaries_df.index.names)
 
         # check warnings ... these changed substantially for lme4 at some point
-        if not expected.query('key == "has_warning"').equals(summaries_df.query('key == "has_warning"')):
+        if not expected.query('key == "has_warning"').equals(
+            summaries_df.query('key == "has_warning"')
+        ):
             warnings.warn(f'{modler} has_warning values have changed')
 
         expected_vals = expected.query('key != "has_warning"').copy()
@@ -173,7 +170,9 @@ def test_summarize():
 
         test_vals = pd.concat([expected_vals, fit_vals])
 
-        for (model, beta, key), vals in test_vals.groupby(['model', 'beta', 'key']):
+        for (model, beta, key), vals in test_vals.groupby(
+            ['model', 'beta', 'key']
+        ):
             in_tol = np.isclose(
                 vals.query('val == "expected"'),
                 vals.query('val == "fitted"'),
@@ -182,7 +181,13 @@ def test_summarize():
             )
             if in_tol.all():
                 continue
-                print(modler, model, beta, key, f'fitted vals within {FIT_ATOL} + {FIT_RTOL} * expected')
+                print(
+                    modler,
+                    model,
+                    beta,
+                    key,
+                    f'fitted vals within {FIT_ATOL} + {FIT_RTOL} * expected',
+                )
             else:
                 # fail
                 msg = (
@@ -418,7 +423,7 @@ def test__get_AICs():
             tc_aics['min_delta'].astype('float'),
             atol=0,
         )
-   
+
     return aics
 
 

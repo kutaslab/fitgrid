@@ -133,8 +133,8 @@ class BLAS:
 #     )
 
 #     output = ldd_result.stdout
-#     # can't scan kind in output b.c. kind may be in the env name, 
-#     # e.g. MKL is in libopenblas.so.3 => /home/user/.conda/envs/mklab/ etc 
+#     # can't scan kind in output b.c. kind may be in the env name,
+#     # e.g. MKL is in libopenblas.so.3 => /home/user/.conda/envs/mklab/ etc
 #     kinds = [MKL, OPENBLAS]
 #     for kind in kinds:
 #         match = re.search(PATTERN.format(kind), output, flags=re.MULTILINE)
@@ -177,8 +177,8 @@ def get_blas_opsys(numpy_module, opsys):
 
     output = ldd_result.stdout
 
-    # can't scan kind in output b.c. kind may be in the env name, 
-    # e.g. MKL is in libopenblas.so.3 => /home/user/.conda/envs/mklab/ etc 
+    # can't scan kind in output b.c. kind may be in the env name,
+    # e.g. MKL is in libopenblas.so.3 => /home/user/.conda/envs/mklab/ etc
     kinds = [MKL, OPENBLAS]
     for kind in kinds:
         match = re.search(PATTERN.format(kind), output, flags=re.MULTILINE)
