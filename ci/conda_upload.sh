@@ -21,8 +21,8 @@ if [[ "$TRAVIS" != "true" || -z "$TRAVIS_BRANCH" || -z "${PACKAGE_NAME}" ]]; the
 fi
 
 # as in .travis.yml or use bld_prefix=${CONDA_PREFIX} for local testing
+# bld_prefix=${CONDA_PREFIX}
 bld_prefix="/home/travis/miniconda"
-bld_prefix=${CONDA_PREFIX}
 
 # on TravisCI there should be a single linux-64 package tarball. insist
 tarball=`/bin/ls -1 ${bld_prefix}/conda-bld/linux-64/${PACKAGE_NAME}-*-*.tar.bz2`

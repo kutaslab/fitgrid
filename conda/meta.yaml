@@ -23,7 +23,6 @@ requirements:
         - python ={{ py_pin }}
         - numpy <={{ np_pin }}
 
-
     run:
         - python ={{ py_pin }}
         - rpy2
