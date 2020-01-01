@@ -34,10 +34,11 @@ def test_blas_osys():
     import numpy
 
     if sys.platform.startswith('linux'):
-        tools.get_blas_osys(numpy, 'linux')
-
-    if sys.platform == 'darwin':
-        tools.get_blas_osys(numpy, 'darwin')
+        assert tools.get_blas_osys(numpy, 'linux') is not None
+    elif sys.platform == 'darwin':
+        assert tools.get_blas_osys(numpy, 'darwin') is not None
+    else:
+        assert tools.get_blas_osys(numpy, 'darwin') is None
 
 
 @pytest.mark.skipif(
