@@ -75,29 +75,29 @@ class BLAS:
         return f'{kind} @ {n_threads} threads'
 
 
-def get_blas_opsys(numpy_module, opsys):
+def get_blas_osys(numpy_module, osys):
 
     NUMPY_PATH = os.path.join(numpy_module.__path__[0], 'core')
     MULTIARRAY_PATH = glob.glob(
         os.path.join(NUMPY_PATH, '_multiarray_umath*.so')
     )[0]
 
-    if opsys == 'linux':
+    if osys == 'linux':
         COMMAND = 'ldd'
         LDD_ARGS = [COMMAND, MULTIARRAY_PATH]
         PATTERN = r'^\t.*{}.* => (?P<path>.*) \(0x.*$'
 
-    elif opsys == 'darwin':
+    elif osys == 'darwin':
         COMMAND = 'otool'
         FLAGS = '-L'
         LDD_ARGS = [COMMAND, FLAGS, MULTIARRAY_PATH]
 
         # PATTERN = r'^\t@loader_path/(?P<path>.*{}.*) \(.*\)$'
         # MacOS 10.13.6 otools shows @rpath not @loader_path
-        # for the conda installed mkl. 
+        # for the conda installed mkl.
         PATTERN = r'^\t@.*path/(?P<path>.*{}.*) \(.*\)$'
     else:
-        raise ValueError(f'get_blas_opsys() does not support opsys={opsys}')
+        raise ValueError(f'get_blas_osys() does not support osys={osys}')
 
     ldd_result = subprocess.run(
         args=LDD_ARGS,
@@ -127,10 +127,10 @@ def get_blas(numpy_module):
 
     if sys.platform.startswith('linux'):
         # return get_blas_linux(numpy_module)
-        return get_blas_opsys(numpy_module, 'linux')
+        return get_blas_osys(numpy_module, 'linux')
     elif sys.platform == 'darwin':
         # return get_blas_mac(numpy_module)
-        return get_blas_opsys(numpy_module, 'darwin')
+        return get_blas_osys(numpy_module, 'darwin')
 
     warnings.warn(
         f'Searching for BLAS libraries on {sys.platform} is not supported.'

@@ -28,6 +28,18 @@ def test_deduplicate_list():
     assert tools.deduplicate_list(l) == [1, 2, 3, 4]
 
 
+def test_blas_osys():
+
+    import sys
+    import numpy
+
+    if sys.platform.startswith('linux'):
+        tools.get_blas_osys(numpy, 'linux')
+
+    if sys.platform == 'darwin':
+        tools.get_blas_osys(numpy, 'darwin')
+
+
 @pytest.mark.skipif(
     'TRAVIS' in os.environ,
     reason='https://github.com/kutaslab/fitgrid/issues/86',
