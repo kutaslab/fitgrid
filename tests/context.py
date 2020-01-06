@@ -18,8 +18,10 @@ import fitgrid
 # variations like so
 #   np.allclose(actual, expected, atol=FIT_ATOL, rtol=FIT_RTOL)
 # atol comes into play for numbers < 1, rtol for numbers > 1
-FIT_ATOL = 0.001
-FIT_RTOL = 0.001
+#FIT_ATOL = 0.001
+# FIT_RTOL = 0.001
+FIT_ATOL = 1e-6
+FIT_RTOL = 1e-6
 
 
 @pytest.fixture(scope="module")
