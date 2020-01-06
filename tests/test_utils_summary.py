@@ -8,7 +8,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 import fitgrid
 from fitgrid.utils.summary import INDEX_NAMES, KEY_LABELS, PER_MODEL_KEY_LABELS
-from .context import tpath, FIT_ATOL, FIT_RTOL
+from .context import tpath, FIT_ATOL, FIT_RTOL, FIT_ATOL_FAIL, FIT_RTOL_FAIL
 
 pd.set_option("display.width", 256)
 PARALLEL = True
@@ -159,51 +159,73 @@ def test_summarize():
             raise ValueError('bad modler')
 
         # read gold standard summary data
-        expected = pd.read_csv(
+        expected_df = pd.read_csv(
             TEST_SUMMARIZE[modler]['fname'], sep='\t'
         ).set_index(summaries_df.index.names)
 
         # handle lme4 warnings separately, these changed substantially
         # at some point
-        if not expected.query('key == "has_warning"').equals(
+        if not expected_df.query('key == "has_warning"').equals(
             summaries_df.query('key == "has_warning"')
         ):
             warnings.warn(f'{modler} has_warning values have changed')
 
-        expected_vals = expected.query('key != "has_warning"').copy()
-        expected_vals['val'] = 'expected'
-        expected_vals.set_index('val', append=True, inplace=True)
+        actual_vals = summaries_df.query('key != "has_warning"').stack()
+        actual_vals.name = 'actual'
 
-        fit_vals = summaries_df.query('key != "has_warning"').copy()
-        fit_vals['val'] = 'fitted'
-        fit_vals.set_index('val', append=True, inplace=True)
+        expected_vals = expected_df.query('key != "has_warning"').stack()
+        expected_vals.name = 'expected'
 
-        test_vals = pd.concat([expected_vals, fit_vals])
+        deltas = abs(actual_vals - expected_vals)
+        deltas.name = 'abs_delta'
 
-        # verify values and warn of discrepancies
-        for (model, beta, key), vals in test_vals.groupby(
-            ['model', 'beta', 'key']
-        ):
+        oo_tol = ~np.isclose(
+            actual_vals, expected_vals, atol=FIT_ATOL, rtol=FIT_RTOL
+        )
 
-            # compare actual, expected
-            in_tol = np.isclose(
-                vals.query('val == "expected"'),
-                vals.query('val == "fitted"'),
-                atol=FIT_ATOL,
-                rtol=FIT_RTOL,
+        if oo_tol.any():
+
+            # check for fails
+            oo_tol_fail = ~np.isclose(
+                actual_vals,
+                expected_vals,
+                atol=FIT_ATOL_FAIL,
+                rtol=FIT_RTOL_FAIL,
+            )
+            fails = pd.DataFrame(
+                ['X' if x else '' for x in oo_tol_fail],
+                index=deltas.index,
+                columns=['fail'],
             )
 
-            # display if actual are not within tolerance
-            if not in_tol.all():
+            discrepancies = pd.concat(
+                [
+                    actual_vals[oo_tol],
+                    expected_vals[oo_tol],
+                    deltas[oo_tol],
+                    fails[oo_tol],
+                ],
+                axis=1,
+            ).sort_values(by='abs_delta', axis=0, ascending=True)
+
+            # dump long form
+            with pd.option_context('display.max_rows', None):
+                n_d = len(discrepancies)
+                n = len(oo_tol)
                 msg = (
                     f'\n------------------------------------------------------------\n'
-                    f'fitted vals out of tolerance: {FIT_ATOL} + {FIT_RTOL} * expected\n'
-                    f'{modler} {model} {beta} {key}\n'
-                    f'{in_tol}\n'
-                    f'{vals.unstack(-1)}\n'
+                    f'{n_d} / {n} fitted vals out of tolerance: +/- ({FIT_ATOL} + {FIT_RTOL} * expected)\n'
+                    f'{discrepancies}\n'
                     f'------------------------------------------------------------\n'
                 )
                 warnings.warn(msg)
+
+                if oo_tol_fail.any():
+                    fail_msg = (
+                        f'Fitted values marked X are too far out of tolerance '
+                        f'+/- ({FIT_ATOL} + {FIT_RTOL} * expected)'
+                    )
+                    raise Exception(fail_msg)
 
         # on to other checks ...
 

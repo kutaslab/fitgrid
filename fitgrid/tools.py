@@ -9,7 +9,7 @@ import glob
 import warnings
 
 MKL = 'mkl'
-OPENBLAS = 'blas'  # to match libopenblas or libcblas, was openblas
+BLAS = 'blas'  # matches libopenblas, libcblas
 
 
 def get_index_duplicates_table(df, level):
@@ -51,9 +51,9 @@ def deduplicate_list(lst):
 class BLAS:
     def __init__(self, cdll, kind):
 
-        if kind not in (MKL, OPENBLAS):
+        if kind not in (MKL, BLAS):
             raise ValueError(
-                f'kind must be {MKL} or {OPENBLAS}, got {kind} instead.'
+                f'kind must be {MKL} or {BLAS}, got {kind} instead.'
             )
 
         self.kind = kind
@@ -69,7 +69,7 @@ class BLAS:
     def __repr__(self):
         if self.kind == MKL:
             kind = 'MKL'
-        if self.kind == OPENBLAS:
+        if self.kind == BLAS:
             kind = 'OpenBLAS'
         n_threads = self.get_n_threads()
         return f'{kind} @ {n_threads} threads'
@@ -108,9 +108,7 @@ def get_blas_osys(numpy_module, osys):
 
     output = ldd_result.stdout
 
-    # scanning kind in the whole output isn't reliable b.c. of the env name,
-    # e.g. libopenblas.so.3 => /home/user/.conda/envs/mklab_env37/...
-    kinds = [MKL, OPENBLAS]
+    kinds = [MKL, BLAS]
     for kind in kinds:
         match = re.search(PATTERN.format(kind), output, flags=re.MULTILINE)
         if match:
