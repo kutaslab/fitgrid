@@ -28,6 +28,19 @@ def test_deduplicate_list():
     assert tools.deduplicate_list(l) == [1, 2, 3, 4]
 
 
+def test_blas_osys():
+
+    import sys
+    import numpy
+
+    if sys.platform.startswith('linux'):
+        assert tools.get_blas_osys(numpy, 'linux') is not None
+    elif sys.platform == 'darwin':
+        assert tools.get_blas_osys(numpy, 'darwin') is not None
+    else:
+        assert tools.get_blas_osys(numpy, 'darwin') is None
+
+
 @pytest.mark.skipif(
     'TRAVIS' in os.environ,
     reason='https://github.com/kutaslab/fitgrid/issues/86',

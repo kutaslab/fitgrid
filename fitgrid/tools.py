@@ -9,7 +9,7 @@ import glob
 import warnings
 
 MKL = 'mkl'
-OPENBLAS = 'openblas'
+BLAS = 'blas'  # matches libopenblas, libcblas
 
 
 def get_index_duplicates_table(df, level):
@@ -51,9 +51,9 @@ def deduplicate_list(lst):
 class BLAS:
     def __init__(self, cdll, kind):
 
-        if kind not in (MKL, OPENBLAS):
+        if kind not in (MKL, BLAS):
             raise ValueError(
-                f'kind must be {MKL} or {OPENBLAS}, got {kind} instead.'
+                f'kind must be {MKL} or {BLAS}, got {kind} instead.'
             )
 
         self.kind = kind
@@ -69,63 +69,38 @@ class BLAS:
     def __repr__(self):
         if self.kind == MKL:
             kind = 'MKL'
-        if self.kind == OPENBLAS:
+        if self.kind == BLAS:
             kind = 'OpenBLAS'
         n_threads = self.get_n_threads()
         return f'{kind} @ {n_threads} threads'
 
 
-def get_blas_mac(numpy_module):
-
-    COMMAND = 'otool'
-    FLAGS = '-L'
-    PATTERN = r'^\t@loader_path/(?P<path>.*{}.*) \(.*\)$'
+def get_blas_osys(numpy_module, osys):
 
     NUMPY_PATH = os.path.join(numpy_module.__path__[0], 'core')
     MULTIARRAY_PATH = glob.glob(
         os.path.join(NUMPY_PATH, '_multiarray_umath*.so')
     )[0]
 
-    otool_result = subprocess.run(
-        args=[COMMAND, FLAGS, MULTIARRAY_PATH],
-        check=True,
-        stdout=subprocess.PIPE,
-        universal_newlines=True,
-    )
+    if osys == 'linux':
+        COMMAND = 'ldd'
+        LDD_ARGS = [COMMAND, MULTIARRAY_PATH]
+        PATTERN = r'^\t.*{}.* => (?P<path>.*) \(0x.*$'
 
-    output = otool_result.stdout
+    elif osys == 'darwin':
+        COMMAND = 'otool'
+        FLAGS = '-L'
+        LDD_ARGS = [COMMAND, FLAGS, MULTIARRAY_PATH]
 
-    if MKL in output:
-        kind = MKL
-    elif OPENBLAS in output:
-        kind = OPENBLAS
+        # PATTERN = r'^\t@loader_path/(?P<path>.*{}.*) \(.*\)$'
+        # MacOS 10.13.6 otools shows @rpath not @loader_path
+        # for the conda installed mkl.
+        PATTERN = r'^\t@.*path/(?P<path>.*{}.*) \(.*\)$'
     else:
-        return None
-
-    pattern = PATTERN.format(kind)
-    match = re.search(pattern, output, flags=re.MULTILINE)
-
-    if match:
-        rel_path = match.groupdict()['path']
-        abs_path = os.path.join(NUMPY_PATH, rel_path)
-        cdll = ctypes.CDLL(abs_path)
-        return BLAS(cdll, kind)
-    else:
-        return None
-
-
-def get_blas_linux(numpy_module):
-
-    COMMAND = 'ldd'
-    PATTERN = r'^\t.*{}.* => (?P<path>.*) \(0x.*$'
-
-    NUMPY_PATH = os.path.join(numpy_module.__path__[0], 'core')
-    MULTIARRAY_PATH = glob.glob(
-        os.path.join(NUMPY_PATH, '_multiarray_umath*.so')
-    )[0]
+        raise ValueError(f'get_blas_osys() does not support osys={osys}')
 
     ldd_result = subprocess.run(
-        args=[COMMAND, MULTIARRAY_PATH],
+        args=LDD_ARGS,
         check=True,
         stdout=subprocess.PIPE,
         universal_newlines=True,
@@ -133,31 +108,27 @@ def get_blas_linux(numpy_module):
 
     output = ldd_result.stdout
 
-    if MKL in output:
-        kind = MKL
-    elif OPENBLAS in output:
-        kind = OPENBLAS
-    else:
-        return None
+    kinds = [MKL, BLAS]
+    for kind in kinds:
+        match = re.search(PATTERN.format(kind), output, flags=re.MULTILINE)
+        if match:
+            path = match.groupdict()['path']
+            cdll = ctypes.CDLL(path)
+            return BLAS(cdll, kind)
 
-    pattern = PATTERN.format(kind)
-    match = re.search(pattern, output, flags=re.MULTILINE)
-
-    if match:
-        path = match.groupdict()['path']
-        cdll = ctypes.CDLL(path)
-        return BLAS(cdll, kind)
-    else:
-        return None
+    # unknown kind
+    return None
 
 
 def get_blas(numpy_module):
     """Return BLAS object or None if neither MKL nor OpenBLAS is found."""
 
     if sys.platform.startswith('linux'):
-        return get_blas_linux(numpy_module)
+        # return get_blas_linux(numpy_module)
+        return get_blas_osys(numpy_module, 'linux')
     elif sys.platform == 'darwin':
-        return get_blas_mac(numpy_module)
+        # return get_blas_mac(numpy_module)
+        return get_blas_osys(numpy_module, 'darwin')
 
     warnings.warn(
         f'Searching for BLAS libraries on {sys.platform} is not supported.'

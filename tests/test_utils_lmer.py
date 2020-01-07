@@ -1,7 +1,8 @@
 from pathlib import Path
+import warnings
 import numpy as np
 import pandas as pd
-from .context import fitgrid, tpath
+from .context import fitgrid, tpath, FIT_ATOL, FIT_RTOL
 
 # pytest evaluates tpath to the local tests directory
 
@@ -69,4 +70,20 @@ def test_get_lmer_dfbetas(tpath):
     )
     actual = dfbetas.loc[0, 'channel0'].unstack().astype(float)
 
-    assert np.allclose(actual, expected, atol=0)
+    # assert np.allclose(actual, expected, atol=0)
+    in_tol = np.isclose(actual, expected, atol=FIT_ATOL, rtol=FIT_RTOL)
+    if not in_tol.all():
+        actual['val'] = 'actual'
+        expected['val'] = 'expected'
+        for_display = (
+            pd.concat([actual, expected])
+            .set_index("val", append=True)
+            .T.stack(0)
+        )
+        warnings.warn(
+            f'\n------------------------------------------------------------\n'
+            f'calculated lmer_dfbetas out of tolerance: {FIT_ATOL} + {FIT_RTOL} * expected\n'
+            f'{in_tol}\n'
+            f'{for_display}\n'
+            f'------------------------------------------------------------\n'
+        )

@@ -1,15 +1,54 @@
 import pytest
 import re
+import warnings
+import hashlib
 from numpy import log10
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 import fitgrid
 from fitgrid.utils.summary import INDEX_NAMES, KEY_LABELS, PER_MODEL_KEY_LABELS
+from .context import tpath, FIT_ATOL, FIT_RTOL, FIT_ATOL_FAIL, FIT_RTOL_FAIL
 
 pd.set_option("display.width", 256)
 PARALLEL = True
 N_CORES = 4
+
+# ------------------------------------------------------------
+# "new" LMER fit data files for epochs = _get_epochs(seed=0)
+#  after (late 2019) with Py36 releases of r-lme4, r-matrix
+#
+# numpy                     1.16.4           py36h7e9f1db_0
+# numpy-base                1.16.4           py36hde5b4d6_0
+# pandas                    0.25.3           py36he6710b0_0
+# pymer4                    0.6.0                    py36_0    kutaslab
+# python                    3.6.9                h265db76_0
+# r-lme4                    1.1_21            r36h29659fb_0
+# r-lmertest                3.1_0             r36h6115d3f_0
+# r-matrix                  1.2_17            r36h96ca727_0
+#
+# "old" checksums (2018ish) were for prior r-lme4, r-matrix releases
+#
+# numpy                     1.16.4           py36h7e9f1db_0
+# numpy-base                1.16.4           py36hde5b4d6_0
+# pandas                    0.25.3           py36he6710b0_0
+# pymer4                    0.6.0                    py36_0    kutaslab
+# python                    3.6.9                h265db76_0
+# r-lme4                    1.1_17           r351h29659fb_0
+# r-lmertest                3.0_1            r351h6115d3f_0
+# r-matrix                  1.2_14           r351h96ca727_0
+
+
+TEST_SUMMARIZE = {
+    'lm': {
+        'fname': 'tests/data/test_summarize_lm.tsv',
+        'md5sum': '43b6a8b0fc621f1b0ca0ea71270241ac',
+    },
+    'lmer': {
+        'fname': 'tests/data/test_summarize_lmer.tsv',
+        'md5sum': 'ee7721553cdcbe3c4a137e9ddc78ffba',
+    },
+}
 
 
 def _get_epochs_fg(seed=None):
@@ -60,14 +99,12 @@ def test__lmer_get_summaries_df():
 
 
 def test_summarize():
-    """test main wrapper to scrape summaries from either lm or lmer grids"""
+    """test main wrapper to scrape summaries lm and lmer grids"""
 
-    # column sums ... guard against unexpected changes
-    # lm_checksum = np.array([65721.957_801_9, 97108.199_717_59])
-    # lmer_checksum = np.array([27917.386_516_15, 63191.613_344_82])
-
-    lm_checksum = np.array([120_135.560_853_52, 172_375.489_486_64])
-    lmer_checksum = np.array([41756.165_766_74, 90723.291_317_1])
+    for mdlr, finfo in TEST_SUMMARIZE.items():
+        with open(finfo['fname']) as stream:
+            md5sum = hashlib.md5(stream.read().encode('utf8')).hexdigest()
+            assert finfo['md5sum'] == md5sum
 
     # modelers and RHSs
     tests = {
@@ -111,15 +148,86 @@ def test_summarize():
         assert all(summaries_df.index.levels[-1] == KEY_LABELS)
         fitgrid.utils.summary._check_summary_df(summaries_df)
 
-        # verify checksums and select the modler
+        aics = fitgrid.utils.summary._get_AICs(summaries_df)
+
+        # verify data and select the modler
         if modler == 'lm':
-            assert np.allclose(summaries_df.apply(sum), lm_checksum)
             modler_ = fitgrid.lm
         elif modler == 'lmer':
-            assert np.allclose(summaries_df.apply(sum), lmer_checksum)
             modler_ = fitgrid.lmer
         else:
             raise ValueError('bad modler')
+
+        # read gold standard summary data
+        expected_df = pd.read_csv(
+            TEST_SUMMARIZE[modler]['fname'], sep='\t'
+        ).set_index(summaries_df.index.names)
+
+        # handle lme4 warnings separately, these changed substantially
+        # at some point
+        if not expected_df.query('key == "has_warning"').equals(
+            summaries_df.query('key == "has_warning"')
+        ):
+            warnings.warn(f'{modler} has_warning values have changed')
+
+        actual_vals = summaries_df.query('key != "has_warning"').stack()
+        actual_vals.name = 'actual'
+
+        expected_vals = expected_df.query('key != "has_warning"').stack()
+        expected_vals.name = 'expected'
+
+        deltas = abs(actual_vals - expected_vals)
+        deltas.name = 'abs_delta'
+
+        oo_tol = ~np.isclose(
+            actual_vals, expected_vals, atol=FIT_ATOL, rtol=FIT_RTOL
+        )
+
+        if oo_tol.any():
+
+            # check for fails
+            oo_tol_fail = ~np.isclose(
+                actual_vals,
+                expected_vals,
+                atol=FIT_ATOL_FAIL,
+                rtol=FIT_RTOL_FAIL,
+            )
+            fails = pd.DataFrame(
+                ['X' if x else '' for x in oo_tol_fail],
+                index=deltas.index,
+                columns=['fail'],
+            )
+
+            discrepancies = pd.concat(
+                [
+                    actual_vals[oo_tol],
+                    expected_vals[oo_tol],
+                    deltas[oo_tol],
+                    fails[oo_tol],
+                ],
+                axis=1,
+            ).sort_values(by='abs_delta', axis=0, ascending=True)
+
+            # dump long form
+            with pd.option_context('display.max_rows', None):
+                n_d = len(discrepancies)
+                n = len(oo_tol)
+                msg = (
+                    f'\n------------------------------------------------------------\n'
+                    f'{n_d} / {n} fitted vals out of tolerance: +/- ({FIT_ATOL} + {FIT_RTOL} * expected)\n'
+                    f'{discrepancies}\n'
+                    f'------------------------------------------------------------\n'
+                )
+                warnings.warn(msg)
+
+                if oo_tol_fail.any():
+                    fail_msg = (
+                        f'Fitted values marked X are too far out of tolerance '
+                        f'+/- ({FIT_ATOL} + {FIT_RTOL} * expected)'
+                    )
+                    raise Exception(fail_msg)
+
+        # on to other checks ...
 
         # ensure the one and only per-model values are broadcast
         # correctly across the betas within a model
@@ -136,7 +244,7 @@ def test_summarize():
                     )
 
         # refit the models and check against slices of the summary stack
-        # ... guard against slicing-induced swizzled row indexes
+        # to guard against slicing-induced swizzled row indexes
         for rhs in RHSs:
             grid_fg = modler_(
                 epochs_fg,
@@ -329,6 +437,7 @@ def test__get_AICs():
             assert all(model_aic.apply(lambda x: len(np.unique(x))) == 1)
 
     aics = fitgrid.utils.summary._get_AICs(summaries_df)
+
     assert (
         RHSs
         == summaries_df.index.unique('model').tolist()
@@ -341,7 +450,9 @@ def test__get_AICs():
         assert np.allclose(
             tc_aics['AIC'].astype('float') - min,
             tc_aics['min_delta'].astype('float'),
+            atol=0,
         )
+
     return aics
 
 

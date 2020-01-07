@@ -14,6 +14,18 @@ sys.path.insert(
 
 import fitgrid
 
+# LMER fits differ slightly depending r-lme4 and r-matrix version. Test
+# with np.allclose(actual, expected, atol=FIT_ATOL, rtol=FIT_RTOL)
+# atol comes into play for numbers < 1, rtol for numbers > 1
+
+# throw warnings on these
+FIT_ATOL = 1e-6
+FIT_RTOL = 1e-6
+
+# fail on these
+FIT_ATOL_FAIL = 1e-2
+FIT_RTOL_FAIL = 1e-2
+
 
 @pytest.fixture(scope="module")
 def tpath(request):
