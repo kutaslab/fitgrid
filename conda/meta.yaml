@@ -1,6 +1,7 @@
 {% set version = "0.4.9" %}
 {% set np_pin = "1.16.4" %}
 {% set py_pin = "3.6" %}
+{% set pd_pin = "0.1.0" %} 
 
 package:
     name: fitgrid
@@ -31,7 +32,7 @@ requirements:
         - r-lmerTest
         - numpy <={{ np_pin }}
         - scipy
-        - pandas
+        - pandas <{{ pd_pin }}
         - matplotlib
         - statsmodels
         - pytables
