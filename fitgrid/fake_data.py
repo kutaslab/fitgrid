@@ -52,7 +52,6 @@ def generate(
     For example, the default ``n_epochs = 10`` and ``n_categories
     = 2`` produces 20 epochs, 10 per category.
     """
-
     df, channels = _generate(
         n_epochs, n_samples, n_categories, n_channels, time, epoch_id, seed
     )
