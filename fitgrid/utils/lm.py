@@ -46,7 +46,11 @@ _OLS_INFLUENCE_ATTRS = {
         _FLOAT_TYPE,
         ['_TIME', '_EPOCH_ID'],
     ),
-    'resid_studentized_internal': ('nobs', _FLOAT_TYPE, ['_TIME', '_EPOCH_ID']),
+    'resid_studentized_internal': (
+        'nobs',
+        _FLOAT_TYPE,
+        ['_TIME', '_EPOCH_ID'],
+    ),
     'resid_var': ('nobs', _FLOAT_TYPE, ['_TIME', '_EPOCH_ID']),
 }
 
@@ -128,17 +132,19 @@ def _get_diagnostic(lm_grid, diag, do_nobs_loop):
         raise TypeError(f"gridded {diag} dtype should be {infl_dtype}")
 
     # swap in grid values for diagnostic _TIME and _EPOCH_ID and check
-    
+
     _index_names = copy.copy(index_names)  # else _OLS_INFLUENCE is modified
     for idx, index_name in enumerate(_index_names):
         if index_name == "_TIME":
             _index_names[idx] = lm_grid.time
-        
+
         if index_name == "_EPOCH_ID":
             _index_names[idx] = lm_grid.epoch_index.name
 
     if not _index_names == attr_df.index.names:
-        import pdb; pdb.set_trace()
+        import pdb
+
+        pdb.set_trace()
         raise TypeError(
             f"_OLS_INFLUENCE_ATTRS thinks {diag} index names"
             f" should be {index_names} not {attr_df.index.names}"

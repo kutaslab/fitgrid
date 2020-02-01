@@ -10,6 +10,7 @@ N_CORES = 4  # for dev/testing
 _EPOCH_ID = fitgrid.defaults.EPOCH_ID
 _TIME = fitgrid.defaults.TIME
 
+
 def get_seeded_lm_grid_infl(
     n_epochs=10,
     n_samples=5,
@@ -44,6 +45,7 @@ def get_seeded_lm_grid_infl(
     infl = lm_grid.get_influence()
 
     return lm_grid, infl
+
 
 # define here and reuse in tests
 LMG, _ = get_seeded_lm_grid_infl()
@@ -189,7 +191,6 @@ def test__get_diagnostic(attr, do_nobs_loop):
     _ = fgutil.lm._get_diagnostic(lm_grid, attr, do_nobs_loop)
 
 
-
 @pytest.mark.parametrize(
     "lm_grid",
     [
@@ -279,13 +280,13 @@ def test_get_dfbetas():
 def test_get_cooks_distance():
 
     test_vals = {
-        "Time": [0, 0, 1, 2],
-        "Epoch_idx": [6, 14, 18, 3],
+        "time": [0, 0, 1, 2],
+        "epoch_id": [6, 14, 18, 3],
         "channel": ["channel0", "channel1", "channel1", "channel0"],
         'cooks_distance': [0.306540, 0.366846, 0.331196, 0.334759],
     }
     test_df = DataFrame.from_dict(test_vals).set_index(
-        ['Time', 'Epoch_idx', 'channel']
+        ['time', 'epoch_id', 'channel']
     )
 
     lm_grid, infl = get_seeded_lm_grid_infl()
@@ -293,6 +294,7 @@ def test_get_cooks_distance():
 
     crit_val = 0.3
     selected_df = fgutil.lm.filter_diagnostic(infl_df, "above", crit_val)
+    assert test_df.index.names == selected_df.index.names
     assert all(test_df.index == selected_df.index)
     assert all(test_df == selected_df)
 
@@ -300,14 +302,14 @@ def test_get_cooks_distance():
 def test_get_dffits_internal():
 
     test_vals = {
-        "Time": [0, 0, 2, 2],
-        "Epoch_idx": [6, 14, 3, 18],
+        "time": [0, 0, 2, 2],
+        "epoch_id": [6, 14, 3, 18],
         "channel": ["channel0", "channel1", "channel0", "channel1"],
         "dffits_internal": [0.958969, 1.049066, 1.002137, 0.943897],
     }
 
     test_df = DataFrame.from_dict(test_vals).set_index(
-        ['Time', 'Epoch_idx', 'channel']
+        ['time', 'epoch_id', 'channel']
     )
 
     lm_grid, infl = get_seeded_lm_grid_infl()
@@ -316,6 +318,7 @@ def test_get_dffits_internal():
     crit_val = 0.93
     selected_df = fgutil.lm.filter_diagnostic(infl_df, "above", crit_val)
 
+    assert test_df.index.names == selected_df.index.names
     assert all(test_df.index == selected_df.index)
     assert all(test_df == selected_df)
 
@@ -361,6 +364,3 @@ def test_filter_diagnostic_interval(b0, b1):
 
     if not all(diag_df.stack(-1) == concat([in_df, out_df]).sort_index()):
         raise ValueError("inside + outside != all")
-
-
-

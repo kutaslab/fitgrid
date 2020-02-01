@@ -1,8 +1,8 @@
 #: default epoch identifier
-EPOCH_ID = 'Epoch_idx'
+EPOCH_ID = 'epoch_id'
 
 #: default time identifier
-TIME = 'Time'
+TIME = 'time'
 
 #: default generic channel list
 CHANNELS = [

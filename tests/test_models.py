@@ -5,10 +5,12 @@ from .context import fitgrid
 from fitgrid.errors import FitGridError
 from fitgrid.fitgrid import LMFitGrid, LMERFitGrid
 
+_TIME = fitgrid.defaults.TIME
+
 
 def test_epochs_lm_bad_inputs():
 
-    epochs = fitgrid.generate()
+    epochs = fitgrid.generate(time=_TIME)
     with pytest.raises(FitGridError):
         fitgrid.lm(epochs, LHS=['bad_channel'], RHS='categorical')
 
@@ -16,7 +18,7 @@ def test_epochs_lm_bad_inputs():
 def test_lm_correctness():
     """Probe grid to check that correct results are in the right cells."""
 
-    epochs = fitgrid.generate(n_samples=10)
+    epochs = fitgrid.generate(n_samples=10, time=_TIME)
 
     RHS = 'continuous + categorical'
     grid = fitgrid.lm(epochs, RHS=RHS)
@@ -29,7 +31,7 @@ def test_lm_correctness():
     rsquared = grid.rsquared
     params = grid.params
 
-    table = epochs.table.reset_index().set_index('Time')
+    table = epochs.table.reset_index().set_index(_TIME)
 
     for timepoint in timepoints:
         for channel in channels:
@@ -42,7 +44,7 @@ def test_lm_correctness():
 def test_lm_correctness_parallel():
     """Probe grid to check that correct results are in the right cells."""
 
-    epochs = fitgrid.generate(n_samples=10)
+    epochs = fitgrid.generate(n_samples=10, time=_TIME)
 
     RHS = 'continuous + categorical'
     grid = fitgrid.lm(epochs, RHS=RHS, parallel=True, n_cores=2)
@@ -55,7 +57,7 @@ def test_lm_correctness_parallel():
     rsquared = grid.rsquared
     params = grid.params
 
-    table = epochs.table.reset_index().set_index('Time')
+    table = epochs.table.reset_index().set_index(_TIME)
 
     for timepoint in timepoints:
         for channel in channels:
@@ -103,7 +105,7 @@ def test_lmer_correctness():
 
     from pymer4 import Lmer
 
-    epochs = fitgrid.generate(n_samples=2, n_channels=2)
+    epochs = fitgrid.generate(n_samples=2, n_channels=2, time=_TIME)
 
     RHS = 'continuous + (continuous | categorical)'
     grid = fitgrid.lmer(epochs, RHS=RHS)
@@ -116,7 +118,7 @@ def test_lmer_correctness():
     coefs = grid.coefs
     aic = grid.AIC
 
-    table = epochs.table.reset_index().set_index('Time')
+    table = epochs.table.reset_index().set_index(_TIME)
 
     for timepoint in timepoints:
         for channel in channels:
@@ -138,7 +140,7 @@ def test_lmer_correctness_parallel():
 
     from pymer4 import Lmer
 
-    epochs = fitgrid.generate(n_samples=2, n_channels=2)
+    epochs = fitgrid.generate(n_samples=2, n_channels=2, time=_TIME)
 
     RHS = 'continuous + (continuous | categorical)'
     grid = fitgrid.lmer(epochs, RHS=RHS, parallel=True, n_cores=2)
@@ -151,7 +153,7 @@ def test_lmer_correctness_parallel():
     coefs = grid.coefs
     aic = grid.AIC
 
-    table = epochs.table.reset_index().set_index('Time')
+    table = epochs.table.reset_index().set_index(_TIME)
 
     for timepoint in timepoints:
         for channel in channels:

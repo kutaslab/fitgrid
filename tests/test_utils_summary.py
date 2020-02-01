@@ -10,6 +10,9 @@ import fitgrid
 from fitgrid.utils.summary import INDEX_NAMES, KEY_LABELS, PER_MODEL_KEY_LABELS
 from .context import tpath, FIT_ATOL, FIT_RTOL, FIT_ATOL_FAIL, FIT_RTOL_FAIL
 
+_EPOCH_ID = fitgrid.defaults.EPOCH_ID
+_TIME = fitgrid.defaults.TIME
+
 pd.set_option("display.width", 256)
 PARALLEL = True
 N_CORES = 4
@@ -38,64 +41,88 @@ N_CORES = 4
 # r-lmertest                3.0_1            r351h6115d3f_0
 # r-matrix                  1.2_14           r351h96ca727_0
 
-
+# gold standard data files
 TEST_SUMMARIZE = {
     'lm': {
         'fname': 'tests/data/test_summarize_lm.tsv',
-        'md5sum': '43b6a8b0fc621f1b0ca0ea71270241ac',
+        'md5sum': 'b3b16d7b44d3ce4591cfc07695e14a56',
     },
     'lmer': {
         'fname': 'tests/data/test_summarize_lmer.tsv',
-        'md5sum': 'ee7721553cdcbe3c4a137e9ddc78ffba',
+        'md5sum': 'c082d5fd2634992ae7f2fb381155f340',
     },
 }
 
+# ------------------------------------------------------------
+# pytest metafunc parametrization
+# ------------------------------------------------------------
+def pytest_generate_tests(metafunc):
 
-def _get_epochs_fg(seed=None):
+    # check figrid default epoch_id and time index names and others
+    if metafunc.function in [
+        test__lm_get_summaries_df,
+        test__lmer_get_summaries_df,
+    ]:
+        metafunc.parametrize(
+            "epoch_id,time",
+            [
+                (ep, ti)
+                for ep in [_EPOCH_ID, _EPOCH_ID + "_ALT"]
+                for ti in [_TIME, _TIME + "_ALT"]
+            ],
+        )
+
+
+def _get_epochs_fg(seed=None, epoch_id=_EPOCH_ID, time=_TIME):
     # pretend we are starting the pipeline with user epochs dataframe
 
     # generate fake data
     fake_epochs = fitgrid.generate(
-        n_samples=5, n_channels=2, n_categories=2, seed=seed
+        n_samples=5,
+        n_channels=2,
+        n_categories=2,
+        epoch_id=epoch_id,
+        time=time,
+        seed=seed,
     )
     epochs_df = fake_epochs.table
     chans = fake_epochs.channels
 
     # convert to fitgrid epochs object
     epochs_fg = fitgrid.epochs_from_dataframe(
-        epochs_df.reset_index().set_index(['Epoch_idx', 'Time']),
+        epochs_df.reset_index().set_index([epoch_id, time]),
         channels=chans,
-        epoch_id="Epoch_idx",
-        time='Time',
+        epoch_id=epoch_id,
+        time=time,
     )
 
     return epochs_fg
 
 
-def test__lm_get_summaries_df():
+def test__lm_get_summaries_df(epoch_id, time):
 
     fgrid_lm = fitgrid.lm(
-        _get_epochs_fg(),
+        _get_epochs_fg(epoch_id=epoch_id, time=time),
         RHS="1 + continuous + categorical",
         parallel=PARALLEL,
         n_cores=N_CORES,
     )
 
     summaries_df = fitgrid.utils.summary._lm_get_summaries_df(fgrid_lm)
-    fitgrid.utils.summary._check_summary_df(summaries_df)
+    fitgrid.utils.summary._check_summary_df(summaries_df, fgrid_lm)
 
 
-def test__lmer_get_summaries_df():
+def test__lmer_get_summaries_df(epoch_id, time):
 
     fgrid_lmer = fitgrid.lmer(
-        _get_epochs_fg(),
+        _get_epochs_fg(epoch_id=epoch_id, time=time),
         RHS="1 + continuous + (1 | categorical)",
         parallel=PARALLEL,
         n_cores=N_CORES,
     )
 
     summaries_df = fitgrid.utils.summary._lmer_get_summaries_df(fgrid_lmer)
-    fitgrid.utils.summary._check_summary_df(summaries_df)
+    fitgrid.utils.summary._check_summary_df(summaries_df, fgrid_lmer)
 
 
 def test_summarize():
@@ -144,9 +171,10 @@ def test_summarize():
         )
 
         assert RHSs == summaries_df.index.unique('model').to_list()
-        assert summaries_df.index.names == INDEX_NAMES
+        assert summaries_df.index.names[0] == epochs_fg.time
+        assert summaries_df.index.names[1:] == INDEX_NAMES[1:]
         assert all(summaries_df.index.levels[-1] == KEY_LABELS)
-        fitgrid.utils.summary._check_summary_df(summaries_df)
+        fitgrid.utils.summary._check_summary_df(summaries_df, epochs_fg)
 
         aics = fitgrid.utils.summary._get_AICs(summaries_df)
 
@@ -233,7 +261,9 @@ def test_summarize():
         # correctly across the betas within a model
         per_model_keys = ['AIC', 'SSresid', 'has_warning', 'logLike', 'sigma2']
         for pmk in per_model_keys:
-            for time, models in summaries_df.groupby('Time'):
+            for time, models in summaries_df.groupby(
+                summaries_df.index.names[0]
+            ):
                 for model, model_data in models.groupby('model'):
                     # each
                     assert all(
@@ -264,15 +294,17 @@ def test_summarize():
                 SE.insert(0, 'key', 'SE')
 
                 summary = pd.concat([Estimate, SE])
-                summary.index.names = ['Time', 'beta']
+                summary.index.names = [grid_fg.time, 'beta']
 
             elif modler == 'lmer':
                 summary = grid_fg.coefs.loc[pd.IndexSlice[:, :, param_keys], :]
-                summary.index.names = ['Time', 'beta', 'key']
+                summary.index.names = [grid_fg.time, 'beta', 'key']
 
             # add the model and index
             summary.insert(0, 'model', rhs)
-            summary = summary.reset_index().set_index(INDEX_NAMES)
+            summary = summary.reset_index().set_index(
+                [grid_fg.time] + INDEX_NAMES[1:]
+            )
 
             # slice the summary stack and check against the re-fitted grid
             for key, model_key in summaries_df.query('model==@rhs').groupby(
@@ -360,13 +392,13 @@ def test_summarize_lmer_kwargs(kw, est, aic):
     # what the fitgrid modeler returns
     lmer_fit = fitgrid.lmer(epochs_fg, LHS=LHS, RHS=RHS, **kw)
     lmer_fit_betas = lmer_fit.coefs
-    lmer_fit_betas.index.names = ['Time', 'beta', 'key']
+    lmer_fit_betas.index.names = [lmer_fit.time, 'beta', 'key']
 
     # what the summarize wrapper scrapes from the grid
     summaries_df = fitgrid.utils.summary.summarize(
         epochs_fg, "lmer", LHS=LHS, RHS=RHS, **kw
     )
-    fitgrid.utils.summary._check_summary_df(summaries_df)
+    fitgrid.utils.summary._check_summary_df(summaries_df, lmer_fit)
 
     # compare results
     summary_keys = set(summaries_df.index.unique('key'))
@@ -432,7 +464,7 @@ def test__get_AICs():
 
     # first check AIC summaries are OK
     # summaries_df is for a stack of models at each time
-    for time, aics in summaries_df.query('key=="AIC"').groupby('Time'):
+    for time, aics in summaries_df.query('key=="AIC"').groupby(epochs_fg.time):
         for model, model_aic in aics.groupby('model'):
             assert all(model_aic.apply(lambda x: len(np.unique(x))) == 1)
 
@@ -444,7 +476,7 @@ def test__get_AICs():
         == aics.index.unique('model').tolist()
     )
 
-    for (time, chan), tc_aics in aics.groupby(['Time', 'channel']):
+    for (time, chan), tc_aics in aics.groupby([epochs_fg.time, 'channel']):
         # mins at each time, channel
         min = tc_aics['AIC'].min()
         assert np.allclose(

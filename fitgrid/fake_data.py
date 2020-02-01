@@ -1,8 +1,11 @@
+import warnings
 import numpy as np
 import pandas as pd
-
 from .epochs import Epochs
 from . import defaults
+
+_TIME = defaults.TIME
+_EPOCH_ID = defaults.EPOCH_ID
 
 
 def generate(
@@ -10,8 +13,8 @@ def generate(
     n_samples=100,
     n_categories=2,
     n_channels=32,
-    time=defaults.TIME,
-    epoch_id=defaults.EPOCH_ID,
+    time=_TIME,
+    epoch_id=_EPOCH_ID,
     seed=None,
 ):
     """Return Epochs object with fake EEG data.
