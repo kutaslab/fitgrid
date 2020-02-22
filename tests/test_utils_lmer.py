@@ -2,15 +2,14 @@ from pathlib import Path
 import warnings
 import numpy as np
 import pandas as pd
-from .context import fitgrid, tpath, FIT_ATOL, FIT_RTOL
-
-# pytest evaluates tpath to the local tests directory
+from .context import fitgrid, FIT_ATOL, FIT_RTOL
+from fitgrid import DATA_DIR
 
 _TIME = fitgrid.defaults.TIME
 _EPOCH_ID = fitgrid.defaults.EPOCH_ID
 
 
-def test_get_lmer_dfbetas(tpath):
+def test_get_lmer_dfbetas():
 
     # the expected DFBETAS dataset was computed using the following code:
     """
@@ -20,8 +19,9 @@ def test_get_lmer_dfbetas(tpath):
     estex <- influence(model, 'categorical')
     write.csv(dfbetas(estex), 'dfbetas_test_values.csv')
     """
-    TEST_EPOCHS = Path.joinpath(tpath, 'data', 'epochs_to_test_dfbetas.csv')
-    TEST_DFBETAS = Path.joinpath(tpath, 'data', 'dfbetas_test_values.csv')
+
+    TEST_EPOCHS = DATA_DIR / "epochs_to_test_dfbetas.csv"
+    TEST_DFBETAS = DATA_DIR / "dfbetas_test_values.csv"
 
     expected = pd.read_csv(TEST_DFBETAS, index_col=0).T
 

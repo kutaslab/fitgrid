@@ -1,12 +1,12 @@
 import pytest
 import os
 from pathlib import Path
-from .context import fitgrid, tpath
-from fitgrid import defaults
+from .context import fitgrid
+from fitgrid import defaults, DATA_DIR
 
 
-def test__epochs_from_hdf(tpath):
-    TEST_FILE = Path.joinpath(tpath, 'data', 'fake_epochs.h5')
+def test__epochs_from_hdf():
+    TEST_FILE = DATA_DIR / 'fake_epochs.h5'
     channels = [f'channel{i}' for i in range(3)]
     fitgrid.epochs_from_hdf(
         TEST_FILE,
@@ -38,8 +38,8 @@ def test__epochs_from_dataframe_good_data():
     )
 
 
-def test__epochs_from_feather(tpath):
-    TEST_FILE = Path.joinpath(tpath, 'data', 'fake_epochs.feather')
+def test__epochs_from_feather():
+    TEST_FILE = DATA_DIR / "fake_epochs.feather"
     channels = [f'channel{i}' for i in range(32)]
     fitgrid.epochs_from_feather(
         TEST_FILE,

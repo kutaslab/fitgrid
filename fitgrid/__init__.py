@@ -1,3 +1,4 @@
+from pathlib import Path
 from .fake_data import generate
 from .io import (
     epochs_from_hdf,
@@ -9,3 +10,6 @@ from .models import run_model, lm, lmer
 from . import utils, defaults
 
 __version__ = "0.4.10"
+
+# for use by pytests and docs
+DATA_DIR = Path(__file__).parent / "data"
