@@ -708,7 +708,7 @@ def plot_betas(
             formula = fg_beta.index.get_level_values('model').unique()[0]
             assert isinstance(formula, str)
             # ax_beta[idx].set_title(f'{col} {beta}: {formula}')
-            ax_beta.set_title(f'{col} {beta}: {formula}')
+            ax_beta.set_title(f'{col} {beta}: {formula}', loc='left')
 
             figs.append(f)
 
