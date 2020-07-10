@@ -7,8 +7,9 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 import fitgrid
+from fitgrid import DATA_DIR
 from fitgrid.utils.summary import INDEX_NAMES, KEY_LABELS, PER_MODEL_KEY_LABELS
-from .context import tpath, FIT_ATOL, FIT_RTOL, FIT_ATOL_FAIL, FIT_RTOL_FAIL
+from .context import FIT_ATOL, FIT_RTOL, FIT_ATOL_FAIL, FIT_RTOL_FAIL
 
 _EPOCH_ID = fitgrid.defaults.EPOCH_ID
 _TIME = fitgrid.defaults.TIME
@@ -44,11 +45,11 @@ N_CORES = 4
 # gold standard data files
 TEST_SUMMARIZE = {
     'lm': {
-        'fname': 'tests/data/test_summarize_lm.tsv',
+        'fname': DATA_DIR / "test_summarize_lm.tsv",
         'md5sum': 'b3b16d7b44d3ce4591cfc07695e14a56',
     },
     'lmer': {
-        'fname': 'tests/data/test_summarize_lmer.tsv',
+        'fname': DATA_DIR / "test_summarize_lmer.tsv",
         'md5sum': 'c082d5fd2634992ae7f2fb381155f340',
     },
 }

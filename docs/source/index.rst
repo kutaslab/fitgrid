@@ -16,12 +16,14 @@ the Internet-of-Things.
 
 .. toctree::
     :hidden:
+    :glob:
 
     overview
-    Quickstart.ipynb
+    user_guide
     details
     reference
     installation
+    api
     bibliography
 
 

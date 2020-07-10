@@ -100,7 +100,6 @@ def _run_model(epochs, function, channels=None, parallel=False, n_cores=4):
     validate_LHS(epochs, channels)
 
     groups = tqdm(epochs._snapshots)
-
     processor = partial(
         process_key_and_group, function=function, channels=channels
     )
@@ -110,11 +109,13 @@ def _run_model(epochs, function, channels=None, parallel=False, n_cores=4):
         with tools.single_threaded(np):
             with Pool(n_cores) as pool:
                 results = pool.map(processor, groups, chunksize=chunksize)
+                
     else:
         results = map(processor, groups)
 
     grid = pd.concat(results, axis=1).T
     grid.index.name = epochs.time
+
     return grid  # dataframe, not FitGrid
 
 
@@ -170,9 +171,11 @@ def lm(epochs, LHS=None, RHS=None, parallel=False, n_cores=4, eval_env=4):
 def lmer_single(
     data, channel, RHS, family, conf_int, factors, permute, ordered, REML
 ):
+    import re
     from pymer4 import Lmer
 
     model = Lmer(channel + ' ~ ' + RHS, data=data, family=family)
+
     with redirect_stdout(StringIO()) as captured_stdout:
         model.fit(
             summarize=False,
@@ -183,19 +186,27 @@ def lmer_single(
             REML=REML,
         )
 
-    # lmer prints warnings, capture them and attach to the model object
+    # lmer prints warnings, capture them
     warning = captured_stdout.getvalue()
 
-    model.has_warning = True if warning else False
-    model.warning = warning
+    # in pymer4 <= 0.6 lmer warnings were not attached to the model object
+    # model.has_warning = True if warning else False
+    # model.warning = warning
 
-    captured_stdout.close()
+    # as of pymer4 0.7+ 
+    model.has_warning = True if len(model.warnings) > 0 else False
+
+    # captured_stdout.close()
 
     del model.data
     del model.design_matrix
     del model.model_obj
 
+    # return model.AIC
+    # return model._REML
+    # return model.__class__
     return model
+
 
 
 def lmer(

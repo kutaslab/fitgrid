@@ -25,8 +25,3 @@ FIT_RTOL = 1e-6
 # fail on these
 FIT_ATOL_FAIL = 1e-2
 FIT_RTOL_FAIL = 1e-2
-
-
-@pytest.fixture(scope="module")
-def tpath(request):
-    return Path(request.fspath).parent

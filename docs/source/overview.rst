@@ -108,7 +108,7 @@ resource for managing it.
 FitGrid 
 =======
 
-For an overview of the workflow see :doc:`Quickstart`
+For an overview of the workflow see :doc:`user_guide/quickstart`
 
 With one function call, FitGrid sweeps a model formula cross each of
 the timepoints x channels (in parallel on multiple CPU cores if

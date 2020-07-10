@@ -181,28 +181,38 @@ def design_matrix_is_constant(df, columns, time):
 
     Notes
     -----
+
     We check that from timepoint to timepoint, each epoch has the same value in
     a given column:
 
-                epoch1
-        ==============
-             A |    B
-        ==============
-             1      x
-             1      x
-             1      x
-             1      x
-             1      x
 
-                epoch2
-        ==============
-             A |    B
-        ==============
-             2      y
-             2      y
-             2      y
-             2      y
-             2      y
+    .. table:: epoch1
+       :widths: auto
+
+       === ===
+       A    B
+       === ===
+       1    x
+       1    x
+       1    x
+       1    x
+       1    x
+       === ===
+
+
+    .. table:: epoch2
+       :widths: auto
+
+       === ===
+       A    B
+       === ===
+       2    y
+       2    y
+       2    y
+       2    y
+       2    y
+       === ===
+
 
     This is helpful when performing linear regression on an epochs table where
     the predictors vary with epochs (as they are expected to) but stay constant

@@ -708,7 +708,7 @@ def plot_betas(
             formula = fg_beta.index.get_level_values('model').unique()[0]
             assert isinstance(formula, str)
             # ax_beta[idx].set_title(f'{col} {beta}: {formula}')
-            ax_beta.set_title(f'{col} {beta}: {formula}')
+            ax_beta.set_title(f'{col} {beta}: {formula}', loc='left')
 
             figs.append(f)
 
@@ -772,8 +772,22 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
     if figsize is None:
         figsize = (12, 8)
 
+    # set reasonable gridspec defaults if the user does not
+    gs_defaults = {'width_ratios': [0.46, 0.46, 0.015]}
+    if gridspec_kw is None:
+        gridspec_kw = gs_defaults
+    else:
+        for key, val in gs_defaults.items():
+            if key not in gridspec_kw.keys():
+                gridspec_kw[key] = val
+
     f, axs = plt.subplots(
-        nrows, 2, **kwargs, figsize=figsize, gridspec_kw=gridspec_kw
+        # nrows, 2, **kwargs, figsize=figsize, gridspec_kw=gridspec_kw
+        nrows,
+        3,
+        **kwargs,
+        figsize=figsize,
+        gridspec_kw=gridspec_kw,
     )
 
     for i, m in enumerate(models):
@@ -785,9 +799,11 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
         if len(models) == 1:
             traces = axs[0]
             heatmap = axs[1]
+            colorbar = axs[2]
         else:
             traces = axs[i, 0]
             heatmap = axs[i, 1]
+            colorbar = axs[i, 2]
 
         traces.set_title(f'aic min delta: {m}', loc='left')
         for c in channels:
@@ -808,7 +824,8 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
             traces.legend(loc='upper right', bbox_to_anchor=(-0.2, 1.0))
 
         aic_min_delta_bounds = [0, 2, 4, 7, 10]
-        for y in aic_min_delta_bounds:
+        # for y in aic_min_delta_bounds:
+        for y in aic_min_delta_bounds[1:]:
             traces.axhline(y=y, color='black', linestyle='dotted')
 
         # for heat map
@@ -865,6 +882,6 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
         yloc = mpl.ticker.IndexLocator(base=1, offset=0.5)
         heatmap.yaxis.set_major_locator(yloc)
         heatmap.set_yticklabels(_min_deltas.columns)
-        plt.colorbar(im, ax=heatmap, extend='max')
-
+        # plt.colorbar(im, ax=heatmap, extend='max')
+        colorbar = mpl.colorbar.Colorbar(colorbar, im, extend='max')
     return f, axs

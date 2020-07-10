@@ -3,10 +3,10 @@ import numpy as np
 import pandas as pd
 import uuid
 import os
-from .context import fitgrid, tpath
+from .context import fitgrid
 from fitgrid.errors import FitGridError
 from fitgrid.fitgrid import FitGrid, LMFitGrid, LMERFitGrid
-from fitgrid import tools, defaults
+from fitgrid import tools, defaults, DATA_DIR
 
 
 def test__correct_channels_in_fitgrid():
@@ -231,12 +231,12 @@ def test__smoke_plot_adj_rsquared():
     grid.plot_adj_rsquared()
 
 
-def test__save_load_grid_lm(tpath):
+def test__save_load_grid_lm():
 
     epochs = fitgrid.generate(n_samples=2, n_channels=2)
     grid = fitgrid.lm(epochs, RHS='categorical + continuous')
 
-    TEST_FILENAME = tpath / 'data' / str(uuid.uuid4())
+    TEST_FILENAME = DATA_DIR / str(uuid.uuid4())
     grid.save(TEST_FILENAME)
 
     loaded_grid = fitgrid.load_grid(TEST_FILENAME)
@@ -248,12 +248,12 @@ def test__save_load_grid_lm(tpath):
     os.remove(TEST_FILENAME)
 
 
-def test__save_load_grid_lmer(tpath):
+def test__save_load_grid_lmer():
 
     epochs = fitgrid.generate(n_samples=2, n_channels=1)
     grid = fitgrid.lmer(epochs, RHS='continuous + (continuous | categorical)')
 
-    TEST_FILENAME = str(tpath / 'data' / str(uuid.uuid4()))
+    TEST_FILENAME = DATA_DIR / str(uuid.uuid4())
     grid.save(TEST_FILENAME)
 
     loaded_grid = fitgrid.load_grid(TEST_FILENAME)

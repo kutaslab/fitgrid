@@ -167,6 +167,7 @@ def test_lmer_correctness_parallel():
                 # obj, but up to dtype they are still equal
                 check_dtype=False,
             )
+
             assert lmer.AIC == aic.loc[timepoint, channel]
 
 
