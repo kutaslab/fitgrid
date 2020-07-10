@@ -7,12 +7,17 @@ import fitgrid.utils as fgutil
 PARALLEL = False
 N_CORES = 4  # for dev/testing
 
+_EPOCH_ID = fitgrid.defaults.EPOCH_ID
+_TIME = fitgrid.defaults.TIME
+
 
 def get_seeded_lm_grid_infl(
-    n_samples=5,
     n_epochs=10,
-    n_channels=2,
+    n_samples=5,
     n_categories=2,
+    n_channels=2,
+    time=_TIME,
+    epoch_id=_EPOCH_ID,
     seed=0,
     parallel=True,
     n_cores=4,
@@ -22,8 +27,10 @@ def get_seeded_lm_grid_infl(
     epochs = fitgrid.generate(
         n_epochs=n_epochs,
         n_samples=n_samples,
-        n_channels=n_channels,
         n_categories=n_categories,
+        n_channels=n_channels,
+        time=time,
+        epoch_id=epoch_id,
         seed=seed,
     )
     RHS = 'continuous + categorical'
@@ -38,6 +45,15 @@ def get_seeded_lm_grid_infl(
     infl = lm_grid.get_influence()
 
     return lm_grid, infl
+
+
+# define here and reuse in tests
+LMG, _ = get_seeded_lm_grid_infl()
+LMG_ALT, _ = get_seeded_lm_grid_infl(
+    epoch_id=_EPOCH_ID + '_ALT', time=_TIME + '_ALT'
+)
+LMGX, _ = get_seeded_lm_grid_infl()
+LMGX.tester = []
 
 
 def test_smoke_get_vifs():
@@ -90,6 +106,14 @@ rest = [
     for att, spec in fgutil.lm._OLS_INFLUENCE_ATTRS.items()
     if spec[0] not in [None, 'nobs_loop']
     for tv in (True, False)
+]
+
+# for speed, check a subset of tests as in rest
+alt_indexes = [
+    pytest.param(lm_grid, att)
+    for lm_grid in [LMG, LMG_ALT]
+    for att, spec in fgutil.lm._OLS_INFLUENCE_ATTRS.items()
+    if spec[0] not in [None, 'nobs_loop']
 ]
 
 # ------------------------------------------------------------
@@ -147,6 +171,9 @@ def pytest_generate_tests(metafunc):
             not_imp + nobs_loop_false + nobs_loop_true + rest,
         )
 
+    if metafunc.function is test_alternate_index_cols:
+        metafunc.parametrize("lm_grid,attr", alt_indexes)
+
     # diagnostic filter function
     if metafunc.function is test_smoke_filter_diagnostic:
         metafunc.parametrize(
@@ -164,16 +191,11 @@ def test__get_diagnostic(attr, do_nobs_loop):
     _ = fgutil.lm._get_diagnostic(lm_grid, attr, do_nobs_loop)
 
 
-lmg, _ = get_seeded_lm_grid_infl()
-lmgx, _ = get_seeded_lm_grid_infl()
-lmgx.tester = []
-
-
 @pytest.mark.parametrize(
     "lm_grid",
     [
-        lmg,
-        pytest.param(lmgx, marks=pytest.mark.xfail(strict=True)),
+        LMG,
+        pytest.param(LMGX, marks=pytest.mark.xfail(strict=True)),
         pytest.param([], marks=pytest.mark.xfail(strict=True)),
     ],
 )
@@ -215,6 +237,11 @@ def test_get_diagnostic(attr, do_nobs_loop):
     assert sm_df is None or sm_df.shape == d_df.shape
 
 
+def test_alternate_index_cols(lm_grid, attr):
+    # default and non-default fitgrid.defaults EPOCH_ID, TIME
+    d_df, sm_df = fgutil.lm.get_diagnostic(lm_grid, attr)
+
+
 def Xtest_get_nobs_diagnostics_big_grid():
     # nobs diagnostics on a large dataset
     print('fitting a big grid ... be patient')
@@ -253,13 +280,13 @@ def test_get_dfbetas():
 def test_get_cooks_distance():
 
     test_vals = {
-        "Time": [0, 0, 1, 2],
-        "Epoch_idx": [6, 14, 18, 3],
+        "time": [0, 0, 1, 2],
+        "epoch_id": [6, 14, 18, 3],
         "channel": ["channel0", "channel1", "channel1", "channel0"],
         'cooks_distance': [0.306540, 0.366846, 0.331196, 0.334759],
     }
     test_df = DataFrame.from_dict(test_vals).set_index(
-        ['Time', 'Epoch_idx', 'channel']
+        ['time', 'epoch_id', 'channel']
     )
 
     lm_grid, infl = get_seeded_lm_grid_infl()
@@ -267,6 +294,7 @@ def test_get_cooks_distance():
 
     crit_val = 0.3
     selected_df = fgutil.lm.filter_diagnostic(infl_df, "above", crit_val)
+    assert test_df.index.names == selected_df.index.names
     assert all(test_df.index == selected_df.index)
     assert all(test_df == selected_df)
 
@@ -274,14 +302,14 @@ def test_get_cooks_distance():
 def test_get_dffits_internal():
 
     test_vals = {
-        "Time": [0, 0, 2, 2],
-        "Epoch_idx": [6, 14, 3, 18],
+        "time": [0, 0, 2, 2],
+        "epoch_id": [6, 14, 3, 18],
         "channel": ["channel0", "channel1", "channel0", "channel1"],
         "dffits_internal": [0.958969, 1.049066, 1.002137, 0.943897],
     }
 
     test_df = DataFrame.from_dict(test_vals).set_index(
-        ['Time', 'Epoch_idx', 'channel']
+        ['time', 'epoch_id', 'channel']
     )
 
     lm_grid, infl = get_seeded_lm_grid_infl()
@@ -290,6 +318,7 @@ def test_get_dffits_internal():
     crit_val = 0.93
     selected_df = fgutil.lm.filter_diagnostic(infl_df, "above", crit_val)
 
+    assert test_df.index.names == selected_df.index.names
     assert all(test_df.index == selected_df.index)
     assert all(test_df == selected_df)
 

@@ -1,3 +1,4 @@
+import copy
 import warnings
 import numpy as np
 import pandas as pd
@@ -22,28 +23,35 @@ from fitgrid.fitgrid import FitGrid
 #  nobs_loop = nobs re-fitting ... slow
 #  TPU 03/19
 # ------------------------------------------------------------
+
+# '_TIME' and '_EPOCH_ID' are used to compare indexes returned
+# by the diagnostics with with those in the grid.
 _FLOAT_TYPE = np.float64
 _INT_TYPE = np.int64
 _OLS_INFLUENCE_ATTRS = {
-    'cooks_distance': ('nobs', _FLOAT_TYPE, ['Time', None, 'Epoch_idx']),
-    'cov_ratio': ('nobs_loop', _FLOAT_TYPE, ['Time', 'Epoch_idx']),
-    'dfbetas': ('nobs_loop', _FLOAT_TYPE, ['Time', 'Epoch_idx', None]),
-    'dffits': ('nobs_loop', _FLOAT_TYPE, ['Time', None, 'Epoch_idx']),
-    'dffits_internal': ('nobs', _FLOAT_TYPE, ['Time', None, 'Epoch_idx']),
-    'ess_press': ('nobs', _FLOAT_TYPE, ['Time']),
-    'hat_matrix_diag': ('nobs', _FLOAT_TYPE, ['Time', 'Epoch_idx']),
-    'influence': ('nobs', _FLOAT_TYPE, ['Time', 'Epoch_idx']),
-    'k_vars': ('nobs', _INT_TYPE, ['Time']),
-    'nobs': ('nobs', _INT_TYPE, ['Time']),
-    'resid_press': ('nobs', _FLOAT_TYPE, ['Time', 'Epoch_idx']),
-    'resid_std': ('nobs', _FLOAT_TYPE, ['Time', 'Epoch_idx']),
+    'cooks_distance': ('nobs', _FLOAT_TYPE, ['_TIME', None, '_EPOCH_ID']),
+    'cov_ratio': ('nobs_loop', _FLOAT_TYPE, ['_TIME', '_EPOCH_ID']),
+    'dfbetas': ('nobs_loop', _FLOAT_TYPE, ['_TIME', '_EPOCH_ID', None]),
+    'dffits': ('nobs_loop', _FLOAT_TYPE, ['_TIME', None, '_EPOCH_ID']),
+    'dffits_internal': ('nobs', _FLOAT_TYPE, ['_TIME', None, '_EPOCH_ID']),
+    'ess_press': ('nobs', _FLOAT_TYPE, ['_TIME']),
+    'hat_matrix_diag': ('nobs', _FLOAT_TYPE, ['_TIME', '_EPOCH_ID']),
+    'influence': ('nobs', _FLOAT_TYPE, ['_TIME', '_EPOCH_ID']),
+    'k_vars': ('nobs', _INT_TYPE, ['_TIME']),
+    'nobs': ('nobs', _INT_TYPE, ['_TIME']),
+    'resid_press': ('nobs', _FLOAT_TYPE, ['_TIME', '_EPOCH_ID']),
+    'resid_std': ('nobs', _FLOAT_TYPE, ['_TIME', '_EPOCH_ID']),
     'resid_studentized_external': (
         'nobs_loop',
         _FLOAT_TYPE,
-        ['Time', 'Epoch_idx'],
+        ['_TIME', '_EPOCH_ID'],
     ),
-    'resid_studentized_internal': ('nobs', _FLOAT_TYPE, ['Time', 'Epoch_idx']),
-    'resid_var': ('nobs', _FLOAT_TYPE, ['Time', 'Epoch_idx']),
+    'resid_studentized_internal': (
+        'nobs',
+        _FLOAT_TYPE,
+        ['_TIME', '_EPOCH_ID'],
+    ),
+    'resid_var': ('nobs', _FLOAT_TYPE, ['_TIME', '_EPOCH_ID']),
 }
 
 
@@ -123,7 +131,20 @@ def _get_diagnostic(lm_grid, diag, do_nobs_loop):
     if actual_type is not infl_dtype:
         raise TypeError(f"gridded {diag} dtype should be {infl_dtype}")
 
-    if not index_names == attr_df.index.names:
+    # swap in grid values for diagnostic _TIME and _EPOCH_ID and check
+
+    _index_names = copy.copy(index_names)  # else _OLS_INFLUENCE is modified
+    for idx, index_name in enumerate(_index_names):
+        if index_name == "_TIME":
+            _index_names[idx] = lm_grid.time
+
+        if index_name == "_EPOCH_ID":
+            _index_names[idx] = lm_grid.epoch_index.name
+
+    if not _index_names == attr_df.index.names:
+        import pdb
+
+        pdb.set_trace()
         raise TypeError(
             f"_OLS_INFLUENCE_ATTRS thinks {diag} index names"
             f" should be {index_names} not {attr_df.index.names}"
