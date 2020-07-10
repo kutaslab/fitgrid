@@ -1,4 +1,4 @@
-Time	model	beta	key	channel0	channel1
+time	model	beta	key	channel0	channel1
 0	1 + continuous + (continuous | categorical)	(Intercept)	2.5_ci	-87.9956781645849	-29.393852404647234
 0	1 + continuous + (continuous | categorical)	(Intercept)	97.5_ci	220.13302463771896	187.8230304052954
 0	1 + continuous + (continuous | categorical)	(Intercept)	AIC	27.02373852070221	36.654193258782946

@@ -1,3 +1,4 @@
+import copy
 import warnings
 import re
 import numpy as np
@@ -8,7 +9,9 @@ import fitgrid
 
 # enforce some common structure for summary dataframes
 # scraped out of different fit objects.
-INDEX_NAMES = ['Time', 'model', 'beta', 'key']
+# _TIME is a place holder and replaced by the grid.time value on the fly
+
+INDEX_NAMES = ['_TIME', 'model', 'beta', 'key']
 
 # each model, beta combination has all these values,
 # some are per-beta, some are per-model
@@ -166,7 +169,7 @@ def summarize(
         )
 
     summary_df = pd.concat(summaries)
-    _check_summary_df(summary_df)
+    _check_summary_df(summary_df, epochs_fg)
 
     del summaries
 
@@ -186,15 +189,36 @@ def summarize(
 # ------------------------------------------------------------
 # private-ish summary helpers for scraping summary info from fits
 # ------------------------------------------------------------
-def _check_summary_df(summary_df):
-    # order matters
+def _check_summary_df(summary_df, fg_obj):
+    # check the fg_obj.time has propagated to the summary and the
+    # rest of the index is OK. fg_obj can be fitgrid.Epochs,
+    # LMGrid or LMERGrid, they all have a time attribute
+
+    assert any(
+        [
+            isinstance(fg_obj, fgtype)
+            for fgtype in [
+                fitgrid.epochs.Epochs,
+                fitgrid.fitgrid.LMFitGrid,
+                fitgrid.fitgrid.LMERFitGrid,
+            ]
+        ]
+    )
     if not (
-        summary_df.index.names == INDEX_NAMES
+        summary_df.index.names == [fg_obj.time] + INDEX_NAMES[1:]
         and all(summary_df.index.levels[-1] == KEY_LABELS)
     ):
         raise ValueError(
             "uh oh ... fitgrid summary dataframe bug, please post an issue"
         )
+
+
+def _update_INDEX_NAMES(lxgrid, index_names):
+    """use the grid time column name for the summary index"""
+    assert index_names[0] == '_TIME'
+    _index_names = copy.copy(index_names)
+    _index_names[0] = lxgrid.time
+    return _index_names
 
 
 def _lm_get_summaries_df(fg_ols, ci_alpha=0.05):
@@ -211,8 +235,8 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=0.05):
     Returns
     -------
     summaries_df : pd.DataFrame
-       index.names = [`Time`, `model`, `beta`, `key`]
-       columns are the `fg_ols` columns
+       index.names = [`_TIME`, `model`, `beta`, `key`] where
+       `_TIME` is the `fg_ols.time` and columns are the `fg_ols` columns
 
 
     Notes
@@ -221,6 +245,10 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=0.05):
     fitgrid.lmer._get_summaries_df()
 
     """
+
+    # set time column from the grid, always index.names[0]
+    _index_names = _update_INDEX_NAMES(fg_ols, INDEX_NAMES)
+    _time = _index_names[0]
 
     # grab and tidy the formula RHS
     rhs = fg_ols.tester.model.formula.split('~')[1].strip()
@@ -279,7 +307,9 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=0.05):
         pmv['beta'] = p
         pmvs.append(pmv)
 
-    pmvs = pd.concat(pmvs).reset_index().set_index(INDEX_NAMES)
+    pmvs = (
+        pd.concat(pmvs).reset_index().set_index(_index_names)
+    )  # INDEX_NAMES)
 
     # lookup the param_name specifc info for this bundle
     summaries = []
@@ -297,12 +327,14 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=0.05):
         if attr_vals is None:
             raise AttributeError(f"not found: {attr}")
 
-        attr_vals.index = attr_vals.index.rename(['Time', 'beta'])
+        attr_vals.index.set_names('beta', level=-1, inplace=True)
         attr_vals['model'] = rhs
         attr_vals['key'] = key
 
         # update list of beta bundles
-        summaries.append(attr_vals.reset_index().set_index(INDEX_NAMES))
+        summaries.append(
+            attr_vals.reset_index().set_index(_index_names)
+        )  # INDEX_NAMES))
 
     # special handling for confidence interval
     ci_bounds = [
@@ -311,17 +343,18 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=0.05):
     ]
     cis = fg_ols.conf_int(alpha=ci_alpha)
 
-    cis.index = cis.index.rename(['Time', 'beta', 'key'])
+    cis.index = cis.index.rename([_time, 'beta', 'key'])
     cis.index = cis.index.set_levels(ci_bounds, 'key')
     cis['model'] = rhs
-    summaries.append(cis.reset_index().set_index(INDEX_NAMES))
+
+    summaries.append(cis.reset_index().set_index(_index_names))
 
     summaries_df = pd.concat(summaries)
 
     # add the parmeter model info
     summaries_df = pd.concat([summaries_df, pmvs]).sort_index().astype(float)
 
-    _check_summary_df(summaries_df)
+    _check_summary_df(summaries_df, fg_ols)
 
     return summaries_df
 
@@ -343,8 +376,8 @@ def _lmer_get_summaries_df(fg_lmer):
         ranef_var = fg_lmer.ranef_var
 
         # set the None index names
-        assert ranef_var.index.names == ['Time', None, None]
-        ranef_var.index.names = ['Time', 'key', 'value']
+        assert ranef_var.index.names == [fg_lmer.time, None, None]
+        ranef_var.index.set_names([fg_lmer.time, 'key', 'value'], inplace=True)
 
         assert 'Residual' == ranef_var.index.get_level_values(1).unique()[-1]
         assert all(
@@ -360,13 +393,17 @@ def _lmer_get_summaries_df(fg_lmer):
 
         return sigma2
 
+    # set time column from the grid, always index.names[0]
+    _index_names = _update_INDEX_NAMES(fg_lmer, INDEX_NAMES)
+    _time = _index_names[0]
+
     # look these up directly
     pymer_attribs = ['AIC', 'has_warning', 'logLike']
 
     #  x=lmer_fg caclulate or extract from other attributes
     derived_attribs = {
         # fg_lmer.resid comes from pymer wrapping lme4 function resid(object)
-        'SSresid': lambda x: x.resid.groupby('Time').apply(
+        'SSresid': lambda x: x.resid.groupby(_time).apply(
             lambda y: np.sum(y ** 2)
         ),
         'sigma2': lambda x: scrape_sigma2(x),
@@ -379,7 +416,7 @@ def _lmer_get_summaries_df(fg_lmer):
     # coef estimates and stats ... these are 2-D
     summaries_df = fg_lmer.coefs.copy()  # don't mod the original
 
-    summaries_df.index.names = ['Time', 'beta', 'key']
+    summaries_df.index.names = [_time, 'beta', 'key']
     summaries_df = summaries_df.query("key != 'Sig'")  # drop the stars
     summaries_df.index = summaries_df.index.remove_unused_levels()
 
@@ -409,13 +446,12 @@ def _lmer_get_summaries_df(fg_lmer):
 
     summaries_df = (
         summaries_df.reset_index()
-        .set_index(INDEX_NAMES)
+        .set_index(_index_names)  # INDEX_NAMES)
         .sort_index()
         .astype(float)
     )
 
-    _check_summary_df(summaries_df)
-
+    _check_summary_df(summaries_df, fg_lmer)
     return summaries_df
 
 
@@ -467,7 +503,10 @@ def _get_AICs(summary_df):
 
     # calculate AIC_min for the fitted models at each time, channel
     AICs['min_delta'] = np.inf  # init to float
-    for time in AICs.index.get_level_values('Time').unique():
+
+    # time label is the first index level, may not be fitgrid.defaults.TIME
+    assert AICs.index.names == summary_df.index.names[:2] + ["channel"]
+    for time in AICs.index.get_level_values(0).unique():
         for chan in AICs.index.get_level_values('channel').unique():
             slicer = pd.IndexSlice[time, :, chan]
             AICs.loc[slicer, 'min_delta'] = AICs.loc[slicer, 'AIC'] - min(
@@ -558,6 +597,8 @@ def plot_betas(
 
     figs = list()
 
+    _time = summary_df.index.names[0]
+
     if isinstance(LHS, str):
         LHS = [LHS]
     assert all([isinstance(col, str) for col in LHS])
@@ -586,7 +627,7 @@ def plot_betas(
             fg_beta = (
                 summary_df.loc[pd.IndexSlice[:, :, beta], col]
                 .unstack(level='key')
-                .reset_index('Time')
+                .reset_index(_time)  # time label for this summary_df
             )
 
             # lmer SEs
@@ -598,7 +639,7 @@ def plot_betas(
             )
 
             fg_beta.plot(
-                x='Time',
+                x=_time,
                 y='Estimate',
                 # ax=ax_beta[idx],
                 ax=ax_beta,
@@ -609,7 +650,7 @@ def plot_betas(
 
             # ax_beta[idx].fill_between(
             ax_beta.fill_between(
-                x=fg_beta['Time'],
+                x=fg_beta[_time],
                 y1=fg_beta['mn+SE'],
                 y2=fg_beta['mn-SE'],
                 alpha=0.2,
@@ -620,7 +661,7 @@ def plot_betas(
             if df_func is not None:
                 fg_beta['DF_'] = fg_beta['DF'].apply(lambda x: df_func(x))
                 fg_beta.plot(
-                    x='Time', y='DF_', ax=ax_beta, label=f"{df_func}(df)"
+                    x=_time, y='DF_', ax=ax_beta, label=f"{df_func}(df)"
                 )
 
             if s is not None:
@@ -633,7 +674,7 @@ def plot_betas(
                 # optionally fetch FDR adjusted sig ps
                 sig_ps, crit_p = _do_fdr(fg_beta)
                 ax_beta.scatter(
-                    sig_ps['Time'],
+                    sig_ps[_time],
                     sig_ps['Estimate'],
                     color='black',
                     zorder=3,
@@ -646,7 +687,7 @@ def plot_betas(
                 warn_ma = np.ma.where(fg_beta['has_warning'] > 0)[0]
                 # ax_beta[idx].scatter(
                 ax_beta.scatter(
-                    fg_beta['Time'].iloc[warn_ma],
+                    fg_beta[_time].iloc[warn_ma],
                     fg_beta['Estimate'].iloc[warn_ma],
                     color='red',
                     zorder=4,
@@ -721,7 +762,7 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
 
 
     """
-
+    _time = summary_df.index.names[0]  # may differ from fitgrid.defaults.Time
     aics = _get_AICs(summary_df)  # long format
     models = aics.index.unique('model')
     channels = aics.index.unique('channel')
@@ -752,11 +793,11 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
         for c in channels:
             min_deltas = aics.loc[
                 pd.IndexSlice[:, m, c], ['min_delta', 'has_warning']
-            ].reset_index('Time')
-            traces.plot(min_deltas['Time'], min_deltas['min_delta'], label=c)
+            ].reset_index(_time)
+            traces.plot(min_deltas[_time], min_deltas['min_delta'], label=c)
             warn_ma = np.ma.where(min_deltas['has_warning'] > 0)
             traces.scatter(
-                min_deltas['Time'].iloc[warn_ma],
+                min_deltas[_time].iloc[warn_ma],
                 min_deltas['min_delta'].iloc[warn_ma],
                 color='red',
                 label=None,
