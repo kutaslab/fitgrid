@@ -1,7 +1,4 @@
 {% set version = "0.5.0.dev0" %}
-# {% set np_pin = "1.16.4" %}
-# {% set py_pin = "3.6" %}
-# {% set pd_pin = "1.0.0" %}
 
 package:
     name: fitgrid
@@ -21,23 +18,20 @@ requirements:
     # build:
     #    - python
     host:
-        - python  ##  ={{ py_pin }}
-        - numpy  ## <={{ np_pin }}
+        - python
+        - pip
+        # - numpy
 
     run:
-        - python  ##  ={{ py_pin }}
-        # - rpy2
-        - pymer4
-        # - r-lme4
-        # - r-lmerTest
-        - numpy   ## <={{ np_pin }}
-        - scipy
-        - pandas >=1.0   ## <{{ pd_pin }}
+        - python >=3.6
+        - pymer4 >=0.7
+        - pandas >=1.0
         - pyarrow >=1.0
-        - matplotlib
-        - statsmodels
+        - numpy
+        - scipy
         - pytables
-        - patsy
+        - statsmodels
+        - matplotlib
         - tqdm
 
 test:
