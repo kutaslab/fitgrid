@@ -7,6 +7,7 @@ before_install:
     - source $HOME/miniconda/etc/profile.d/conda.sh && conda activate
     - hash -r
     - conda config --set always_yes yes --set changeps1 no
+    - conda update -q conda
     - conda install -q conda-build conda-verify
     - conda info -a
 install:
@@ -17,8 +18,9 @@ install:
     # - conda install -c local fitgrid  # install after or conda chooses v0.2.2 !?
 
     # for 0.5.0
-    - conda build conda -c defaults -c conda-forge -c turbach/label/pre-release 
+    - conda build conda --python 3.7 -c turbach/label/pre-release -c defaults -c conda-forge
     - conda create -n fitgrid_env fitgrid -c local -c turbach/label/pre-release -c defaults -c conda-forge
+    - conda activate fitgrid_env
     - conda install black pytest-cov
     - conda list
     - lscpu

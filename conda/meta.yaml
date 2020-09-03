@@ -1,45 +1,45 @@
 {% set version = "0.5.0.dev0" %}
 
 package:
-    name: fitgrid
-    version: {{ version }}
+  name: fitgrid
+  version: {{ version }}
 
 source:
-    # path: ../
-    git_url: ../  # triggers GIT_X_Y env vars on TravisCI
+  # path: ../
+  git_url: ../  # triggers GIT_X_Y env vars on TravisCI
 
 build:
-    # setting string embeds git short SHA in conda tarball name
-    script: python setup.py install --single-version-externally-managed --record=record.txt
-    # github vN.N.N release builds are tagged with git short hash and conda build number, Travis deploys should be 0
-    string: {{ environ.get('GIT_BUILD_STR', "no_GIT_BUILD_STR") }}_{{ environ.get("PKG_BUILDNUM", "no_PKG_BUILDNUM") }}
+  # setting string embeds git short SHA in conda tarball name
+  # script: python setup.py install --single-version-externally-managed --record=record.txt
+  script: pip install . -vv --no-deps
+  # github vN.N.N release builds are tagged with git short hash and conda build number, Travis deploys should be 0
+  string: {{ environ.get('GIT_BUILD_STR', "no_GIT_BUILD_STR") }}_{{ environ.get("PKG_BUILDNUM", "no_PKG_BUILDNUM") }}
 
 requirements:
-    # build:
-    #    - python
-    host:
-        - python
-        - pip
-        # - numpy
+#  build:
 
-    run:
-        - python >=3.6
-        - pymer4 >=0.7
-        - pandas >=1.0
-        - pyarrow >=1.0
-        - numpy
-        - scipy
-        - pytables
-        - statsmodels
-        - matplotlib
-        - tqdm
+  host:
+    - python
+    - pip
+
+  run:
+    - python >=3.6
+    - pymer4
+    - statsmodels
+    - pandas
+    - numpy
+    - matplotlib
+    - scipy
+    - pyarrow >=1.0   # else picks up 0.15 from defaults
+    - pytables
+    - tqdm
 
 test:
-    imports:
-        - fitgrid
-        - pymer4
+  imports:
+    - fitgrid
+    - pymer4
 
 about:
-    home: https://github.com/kutaslab/fitgrid
-    license: BSD
-    license_file: LICENSE
+  home: https://github.com/kutaslab/fitgrid
+  license: BSD
+  license_file: LICENSE
