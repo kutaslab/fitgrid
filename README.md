@@ -4,7 +4,9 @@
 
 # fitgrid
 
-A Python library for modeling time-varying patterns of activity in sensor-array data streams on a 2-D grid.
+A Python library for regression modeling time-varying patterns of activity in sensor-array data streams on a 2-D grid.
+
+We gratefully acknowledge the support of grant NICHD 5R01HD022614 for the development of these routines.
 
 ## Documentation
 

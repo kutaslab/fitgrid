@@ -281,7 +281,7 @@ class FitGrid:
 
         # temp should be long form, columns have single level (channels
         # hopefully)
-        assert not isinstance(temp.columns, pd.core.index.MultiIndex)
+        assert not isinstance(temp.columns, pd.core.indexes.multi.MultiIndex)
 
         # we can only handle 2- or 3-dimensional
         assert temp.index.nlevels in (2, 3)

@@ -6,6 +6,10 @@ from numpy import log10
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+
+# import or else horrible deep .so errors during pytest ... why???
+from pymer4 import Lmer
+
 import fitgrid
 from fitgrid import DATA_DIR
 from fitgrid.utils.summary import INDEX_NAMES, KEY_LABELS, PER_MODEL_KEY_LABELS
@@ -115,13 +119,13 @@ def test__lm_get_summaries_df(epoch_id, time):
 
 def test__lmer_get_summaries_df(epoch_id, time):
 
+    epochs = _get_epochs_fg(epoch_id=epoch_id, time=time)
     fgrid_lmer = fitgrid.lmer(
         _get_epochs_fg(epoch_id=epoch_id, time=time),
         RHS="1 + continuous + (1 | categorical)",
         parallel=PARALLEL,
         n_cores=N_CORES,
     )
-
     summaries_df = fitgrid.utils.summary._lmer_get_summaries_df(fgrid_lmer)
     fitgrid.utils.summary._check_summary_df(summaries_df, fgrid_lmer)
 
@@ -146,12 +150,12 @@ def test_summarize():
             "1",
         ],
         "lmer": [
-            "1 + continuous + (continuous | categorical)",
-            "0 + continuous + (continuous | categorical)",
-            "1 + continuous + (1 | categorical)",
-            "0 + continuous + (1 | categorical)",
-            "1 + (continuous | categorical)",
-            "1 + (1 | categorical)",
+            "1+continuous+(continuous|categorical)",
+            "0+continuous+(continuous|categorical)",
+            "1+continuous+(1|categorical)",
+            "0+continuous+(1|categorical)",
+            "1+(continuous|categorical)",
+            "1+(1|categorical)",
         ],
     }
 
@@ -388,7 +392,8 @@ def test_summarize_lmer_kwargs(kw, est, aic):
     epochs_fg = _get_epochs_fg(seed=0)  # freeze data to test values
 
     LHS = epochs_fg.channels
-    RHS = "1 + (1 | categorical)"  # for fitgrid.lmer
+    RHS = "1 +(1 | categorical)"  # for fitgrid.lmer
+    RHS = re.sub("\s+", "", RHS)  # new for pymer4 7.0+
 
     # what the fitgrid modeler returns
     lmer_fit = fitgrid.lmer(epochs_fg, LHS=LHS, RHS=RHS, **kw)
@@ -410,6 +415,7 @@ def test_summarize_lmer_kwargs(kw, est, aic):
 
     # other grid.attr
     attr_keys = [key for key in summary_keys if key in dir(lmer_fit.tester)]
+
     for key in shared_keys.union(attr_keys):
 
         # these come from the coefs dataframe
@@ -445,8 +451,6 @@ def test_summarize_lmer_kwargs(kw, est, aic):
 
         if key == 'AIC':
             assert all(summarize_vals == aic)
-
-    pass
 
 
 def test__get_AICs():

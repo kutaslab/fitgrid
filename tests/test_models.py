@@ -73,9 +73,8 @@ def test_smoke_lmer():
     grid = fitgrid.lmer(epochs, RHS='(continuous | categorical)')
 
     assert isinstance(grid, LMERFitGrid)
-
     assert grid.has_warning.dtypes.all() == bool
-    assert grid.warning.dtypes.all() == object
+    assert grid.warnings.dtypes.all() == object
 
     grid.coefs
 
@@ -141,7 +140,6 @@ def test_lmer_correctness_parallel():
     from pymer4 import Lmer
 
     epochs = fitgrid.generate(n_samples=2, n_channels=2, time=_TIME)
-
     RHS = 'continuous + (continuous | categorical)'
     grid = fitgrid.lmer(epochs, RHS=RHS, parallel=True, n_cores=2)
 

@@ -402,16 +402,18 @@ def _lmer_get_summaries_df(fg_lmer):
 
     #  x=lmer_fg caclulate or extract from other attributes
     derived_attribs = {
-        # fg_lmer.resid comes from pymer wrapping lme4 function resid(object)
-        'SSresid': lambda x: x.resid.groupby(_time).apply(
-            lambda y: np.sum(y ** 2)
+        # since pymer4 7+ model.resid -> model.residuals, for Lmer
+        # these are residuals are rpy2 FloatVector objects that
+        # look like a pd.DataFrame to memoryview ... alrighty then.
+        "SSresid": lambda lmer: lmer.residuals.memoryview().applymap(
+            lambda x: (np.array(x.tolist()) ** 2).sum()
         ),
         'sigma2': lambda x: scrape_sigma2(x),
     }
 
     # grab and tidy the formulat RHS from the first grid cell
     rhs = fg_lmer.tester.formula.split('~')[1].strip()
-    rhs = re.sub(r"\s+", " ", rhs)
+    rhs = re.sub(r"\s+", "", rhs)
 
     # coef estimates and stats ... these are 2-D
     summaries_df = fg_lmer.coefs.copy()  # don't mod the original

@@ -109,7 +109,7 @@ def _run_model(epochs, function, channels=None, parallel=False, n_cores=4):
         with tools.single_threaded(np):
             with Pool(n_cores) as pool:
                 results = pool.map(processor, groups, chunksize=chunksize)
-                
+
     else:
         results = map(processor, groups)
 
@@ -193,7 +193,7 @@ def lmer_single(
     # model.has_warning = True if warning else False
     # model.warning = warning
 
-    # as of pymer4 0.7+ 
+    # as of pymer4 0.7+  model.warning -> model.warnings
     model.has_warning = True if len(model.warnings) > 0 else False
 
     # captured_stdout.close()
@@ -206,7 +206,6 @@ def lmer_single(
     # return model._REML
     # return model.__class__
     return model
-
 
 
 def lmer(
