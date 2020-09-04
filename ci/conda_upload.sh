@@ -55,11 +55,11 @@ mmp=`echo $version | sed -n "s/\(\([0-9]\+\.\)\{1,2\}[0-9]\+\).*/\1/p"`
 #         conda install fitgrid -c kutaslab
 #
 
-label_param="dry_run"
+label="dry_run"
 if [[ $TRAVIS_BRANCH = "dev" && "${version}" =~ ^${mmp}(.dev[0-9]+){0,1}$ ]]; then
-    label_param="pre-release"
+    label="pre-release"
 elif [[ "${version}" = "$mmp" && $TRAVIS_BRANCH = v$mmp ]]; then
-    label_param="main"
+    label="main"
 fi
 
 # build for multiple platforms ... who knows it might work
@@ -70,7 +70,7 @@ conda convert -p linux-64 -p osx-64 -p win-64 linux-64/${PACKAGE_NAME}*tar.bz2
 
 # POSIX trick sets $ANACONDA_TOKEN if unset or empty string 
 ANACONDA_TOKEN=${ANACONDA_TOKEN:-[not_set]}
-conda_cmd="anaconda --token $ANACONDA_TOKEN upload ./**/${PACKAGE_NAME}*.tar.bz2 --label ${label_param}"
+conda_cmd="anaconda --token $ANACONDA_TOKEN upload ./**/${PACKAGE_NAME}*.tar.bz2 --label ${label}"
 
 # thus far ...
 echo "conda meta.yaml version: $version"
@@ -79,8 +79,7 @@ echo "conda-bld: ${bld_prefix}/conda-bld/linux-64"
 echo "tarball: $tarball"
 echo "travis tag: $TRAVIS_TAG"
 echo "travis branch: $TRAVIS_BRANCH"
-echo "is_release: $is_release"
-echo "conda_label: ${label_param}"
+echo "conda_label: ${label}"
 echo "conda upload command: ${conda_cmd}"
 echo "platforms:"
 echo "$(ls ./**/${PACKAGE_NAME}*.tar.bz2)"
@@ -95,7 +94,7 @@ echo "$(ls ./**/${PACKAGE_NAME}*.tar.bz2)"
 #if [[ $ANACONDA_TOKEN != "[not_set]"  ]]; then
 if [[ $ANACONDA_TOKEN != "[not_set]" && ( $label = "main" || $label = "pre-release" ) ]]; then
 
-    echo "uploading to Anconda Cloud: $PACKAGE_NAME$ $version $TRAVIS_BRANCH $label_param ..."
+    echo "uploading to Anconda Cloud: $PACKAGE_NAME$ $version $TRAVIS_BRANCH $label ..."
     conda install anaconda-client
      if ${conda_cmd}; then
     	echo "OK"
