@@ -35,14 +35,7 @@ PER_MODEL_KEY_LABELS = ['AIC', 'SSresid', 'has_warning', 'logLike', 'sigma2']
 
 
 def summarize(
-    epochs_fg,
-    modeler,
-    LHS,
-    RHS,
-    parallel=True,
-    n_cores=4,
-    save_as=None,
-    **kwargs,
+    epochs_fg, modeler, LHS, RHS, parallel=True, n_cores=4, **kwargs,
 ):
     """Fit the data with one or more model formulas and return summary information.
 
@@ -72,10 +65,6 @@ def summarize(
     n_cores : int
        number of cores to use. See what works, but golden rule if running
        on a shared machine.
-
-    save_as : 2-ple of str, optional
-       write the summary dataframe to disk with
-       `pd.to_hdf(path, key, format='fixed')`
 
     **kwargs : key=value arguments passed to the modeler, optional
 
@@ -148,9 +137,8 @@ def summarize(
     else:
         raise ValueError("modeler must be 'lm' or 'lmer'")
 
-    # single formula -> singleton list
-    if isinstance(RHS, str):
-        RHS = [RHS]
+    # promote RHS scalar str to singleton list
+    RHS = np.atleast_1d(RHS).tolist()
 
     # loop through model formulas fitting and scraping summaries
     summaries = []
@@ -170,18 +158,6 @@ def summarize(
 
     summary_df = pd.concat(summaries)
     _check_summary_df(summary_df, epochs_fg)
-
-    del summaries
-
-    if save_as is not None:
-        try:
-            fname, group = save_as
-            summary_df.to_hdf(fname, group)
-        except Exception as fail:
-            warnings.warn(
-                f"save_as={save_as} failed: {fail}. You can try to "
-                "save the returned dataframe with pandas.to_hdf()"
-            )
 
     return summary_df
 

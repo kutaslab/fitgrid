@@ -11,13 +11,8 @@ before_install:
     - conda install -q conda-build conda-verify
     - conda info -a
 install:
-#    - conda build conda -c kutaslab  -# for pymer4
-#    - conda convert -p all /home/travis/miniconda/conda-bld/linux-64/fitgrid-*.tar.bz2
-    # - conda create --name fitgrid_env -c kutaslab pymer4
-    # - conda activate fitgrid_env  # so tests run in env as installed by conda
-    # - conda install -c local fitgrid  # install after or conda chooses v0.2.2 !?
 
-    # for 0.5.0
+    #  09/03/20 build w/ 3.7, conda dependency solver fails ugly w/ py3.8
     - conda build conda --python 3.7 -c turbach/label/pre-release -c defaults -c conda-forge
     - conda create -n fitgrid_env fitgrid -c local -c turbach/label/pre-release -c defaults -c conda-forge
     - conda activate fitgrid_env
@@ -36,11 +31,9 @@ deploy:
       skip_cleanup: true
       script: bash ./ci/conda_upload.sh
       on:
-          # all branches ok for testing, conda uploads can be deleted and
-          # filenames reused. branches other than vN.N.N are --label pre_release
-          # all_branches: true
-          tags: true
-          condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$  # match vN.N.N
+          # conda_upload.sh switches on the branch and version string for a
+          # dry run or upload to conda label pre-release or label main
+          all_branches: true
 
     # homegrown replacement for TravisCI gh_pages provider
     - provider: script
@@ -48,8 +41,7 @@ deploy:
       script: bash ./ci/ghpages_upload.sh
       on:
           # all_branches: true   # testing only
-          tags: true
-          condition: $TRAVIS_TAG =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
+          branch: master  # allow doc updates to master between tagged releases
 
     - provider: pypi
       skip_cleanup: true
