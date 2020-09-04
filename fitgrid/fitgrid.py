@@ -217,7 +217,9 @@ class FitGrid:
 
         # array-like, try converting to array and then Series/DataFrame
         if isinstance(tester, tuple) or isinstance(tester, list):
-            array_form = np.array(tester)
+            array_form = np.array(
+                tester, dtype="O"
+            )  # deprecated without dtype="O"
 
             if array_form.ndim == 1:
                 # Tidy 1-D are Series. Untidy 1-D may be broadcastable

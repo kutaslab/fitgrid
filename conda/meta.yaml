@@ -30,7 +30,7 @@ requirements:
     - numpy
     - matplotlib
     - scipy
-    - pyarrow >=1.0   # else picks up 0.15 from defaults
+    - pyarrow >=1.0   # else picks up conda main 0.15 of 09/03/20
     - pytables
     - tqdm
 

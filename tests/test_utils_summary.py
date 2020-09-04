@@ -53,8 +53,11 @@ TEST_SUMMARIZE = {
         'md5sum': 'b3b16d7b44d3ce4591cfc07695e14a56',
     },
     'lmer': {
-        'fname': DATA_DIR / "test_summarize_lmer.tsv",
-        'md5sum': 'c082d5fd2634992ae7f2fb381155f340',
+        # for v0.4.11
+        # 'fname': DATA_DIR / "test_summarize_lmer.v0.4.11.tsv",
+        # 'md5sum': 'c082d5fd2634992ae7f2fb381155f340',
+        'fname': DATA_DIR / "test_summarize_lmer.v0.5.0.tsv",
+        'md5sum': 'bdf5a0b8c0cb82004b2982cacd17ba89',
     },
 }
 
@@ -149,6 +152,7 @@ def test_summarize():
             "0 + categorical",
             "1",
         ],
+        # formula whitespace got clobbered in lme4/pymer4
         "lmer": [
             "1+continuous+(continuous|categorical)",
             "0+continuous+(continuous|categorical)",
@@ -201,8 +205,10 @@ def test_summarize():
         if not expected_df.query('key == "has_warning"').equals(
             summaries_df.query('key == "has_warning"')
         ):
-            warnings.warn(f'{modler} has_warning values have changed')
+            import pdb
 
+            pdb.set_trace()
+            warnings.warn(f'{modler} has_warning values have changed')
         actual_vals = summaries_df.query('key != "has_warning"').stack()
         actual_vals.name = 'actual'
 
@@ -393,7 +399,7 @@ def test_summarize_lmer_kwargs(kw, est, aic):
 
     LHS = epochs_fg.channels
     RHS = "1 +(1 | categorical)"  # for fitgrid.lmer
-    RHS = re.sub("\s+", "", RHS)  # new for pymer4 7.0+
+    RHS = re.sub(r"\s+", "", RHS)  # new for pymer4 7.0+
 
     # what the fitgrid modeler returns
     lmer_fit = fitgrid.lmer(epochs_fg, LHS=LHS, RHS=RHS, **kw)

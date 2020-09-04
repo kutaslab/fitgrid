@@ -861,10 +861,12 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
         norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
         im = heatmap.pcolormesh(
             _min_deltas.index,
-            np.arange(len(_min_deltas.columns) + 1),
+            # np.arange(len(_min_deltas.columns) + 1),
+            np.arange(len(_min_deltas.columns)),
             _min_deltas.T,
             cmap=cmap,
             norm=norm,
+            shading='nearest',
         )
 
         # fitter warnings mask
@@ -876,14 +878,14 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
         norm_ma = mpl.colors.BoundaryNorm(bounds_ma, cmap_ma.N)
         heatmap.pcolormesh(
             _has_warnings.index,
-            np.arange(len(_has_warnings.columns) + 1),
+            np.arange(len(_has_warnings.columns)),
             _has_warnings.T,
             cmap=cmap_ma,
             norm=norm_ma,
+            shading='nearest',
         )
-        yloc = mpl.ticker.IndexLocator(base=1, offset=0.5)
+        yloc = mpl.ticker.FixedLocator(np.arange(len(_min_deltas.columns)))
         heatmap.yaxis.set_major_locator(yloc)
         heatmap.set_yticklabels(_min_deltas.columns)
-        # plt.colorbar(im, ax=heatmap, extend='max')
         colorbar = mpl.colorbar.Colorbar(colorbar, im, extend='max')
     return f, axs
