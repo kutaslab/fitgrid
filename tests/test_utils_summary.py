@@ -135,14 +135,16 @@ def test__lmer_get_summaries_df(epoch_id, time):
     fitgrid.utils.summary._check_summary_df(summaries_df, fgrid_lmer)
 
 
-
+# summary.summarize args
 bad_epochs_mark = pytest.mark.xfail(reason=TypeError, strict=True)
+
+
 @pytest.mark.parametrize(
     "epoch_arg",
     [
         pytest.param(np.array([]), marks=bad_epochs_mark),
         pytest.param(pd.DataFrame(), marks=bad_epochs_mark),
-    ]
+    ],
 )
 def test_summarize_args(epoch_arg):
     """ test summary.summarize argument guards"""
