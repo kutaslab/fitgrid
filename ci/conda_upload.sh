@@ -21,7 +21,7 @@ if [[ "$TRAVIS" != "true" || -z "$TRAVIS_BRANCH" || -z "${PACKAGE_NAME}" ]]; the
 fi
 
 # as in .travis.yml or use bld_prefix=${CONDA_PREFIX} for local testing
-# bld_prefix=${CONDA_PREFIX}
+# bld_prefix="$HOME/miniconda3"
 bld_prefix="/home/travis/miniconda"
 
 # on TravisCI there should be a single linux-64 package tarball. insist
@@ -39,31 +39,38 @@ version=`echo $tarball | sed -n "s/.*${PACKAGE_NAME}-\(.\+\)-.*/\1/p"`
 # extract the numeric major.minor.patch portion of version, possibly empty
 mmp=`echo $version | sed -n "s/\(\([0-9]\+\.\)\{1,2\}[0-9]\+\).*/\1/p"`
 
-# Are we building a release version according to the convention that
-# releases are tagged vMajor.Minor.Release?
+# uploads to conda cloud work like this:
 #
-# * is $version = $mmp then version a strict numeric
-#   Major.Minor.Patch, not further decorated, e.g., with .dev this or
-#   rc that?
+# * github commits on branch dev w/ version M.N.P.devX, M.N.P.devX+1, ... upload
+#   to conda label pre-release. For testing do this:
 # 
-# * is the tag vMajor.Minor.Patch (TravisCI treats tagged commits as a branch)?
-if [[ "${version}" = "$mmp" && $TRAVIS_BRANCH = v$mmp ]]; then
-    is_release="true"
-    label_param=""
-else
-    is_release="false"
-    label_param="--label pre_release"
+#        conda install fitgrid -c kutaslab/label/pre-release
+#
+# * github commits on branch dev w/ version M.N.P *also* upload to pre-release, this
+#   is the final CI check before PR dev -> master for a stable release.
+#
+# * manual github release tagged vM.N.P on master branch upload to
+#   conda label main (and PyPI). This makes version M.N.P the default for
+#
+#         conda install fitgrid -c kutaslab
+#
+
+label_param="dry_run"
+if [[ $TRAVIS_BRANCH = "dev" && "${version}" =~ ^${mmp}(.dev[0-9]+){0,1}$ ]]; then
+    label_param="pre-release"
+elif [[ "${version}" = "$mmp" && $TRAVIS_BRANCH = v$mmp ]]; then
+    label_param="main"
 fi
 
 # build for multiple platforms ... who knows it might work
 mkdir -p ${bld_prefix}/conda-convert/linux-64
 cp ${tarball} ${bld_prefix}/conda-convert/linux-64
 cd ${bld_prefix}/conda-convert
-conda convert --platform all linux-64/${PACKAGE_NAME}*tar.bz2
+conda convert -p linux-64 -p osx-64 -p win-64 linux-64/${PACKAGE_NAME}*tar.bz2
 
 # POSIX trick sets $ANACONDA_TOKEN if unset or empty string 
 ANACONDA_TOKEN=${ANACONDA_TOKEN:-[not_set]}
-conda_cmd="anaconda --token $ANACONDA_TOKEN upload ./**/${PACKAGE_NAME}*.tar.bz2 ${label_param}"
+conda_cmd="anaconda --token $ANACONDA_TOKEN upload ./**/${PACKAGE_NAME}*.tar.bz2 --label ${label_param}"
 
 # thus far ...
 echo "conda meta.yaml version: $version"
@@ -78,18 +85,19 @@ echo "conda upload command: ${conda_cmd}"
 echo "platforms:"
 echo "$(ls ./**/${PACKAGE_NAME}*.tar.bz2)"
 
-# if the token is in the ENV
+# if the token is in the ENV and 
 #    attempt the upload 
 # else
 #    skip the upload and exit happy
 # 
 # conda upload knows the destination from the token
 
-if [[ $ANACONDA_TOKEN != "[not_set]" ]]; then
+#if [[ $ANACONDA_TOKEN != "[not_set]"  ]]; then
+if [[ $ANACONDA_TOKEN != "[not_set]" && ( $label = "main" || $label = "pre-release" ) ]]; then
 
     echo "uploading to Anconda Cloud: $PACKAGE_NAME$ $version $TRAVIS_BRANCH $label_param ..."
     conda install anaconda-client
-    if ${conda_cmd}; then
+     if ${conda_cmd}; then
     	echo "OK"
     else
     	echo "Failed"
