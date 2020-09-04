@@ -23,6 +23,7 @@ PARALLEL = True
 N_CORES = 4
 
 # ------------------------------------------------------------
+#
 # "new" LMER fit data files for epochs = _get_epochs(seed=0)
 #  after (late 2019) with Py36 releases of r-lme4, r-matrix
 #
@@ -49,12 +50,13 @@ N_CORES = 4
 # gold standard data files
 TEST_SUMMARIZE = {
     'lm': {
-        'fname': DATA_DIR / "test_summarize_lm.tsv",
+        # unchanged from v0.4.11 v0.5.0
+        'fname': DATA_DIR / "test_summarize_lm.v0.5.0.tsv",
         'md5sum': 'b3b16d7b44d3ce4591cfc07695e14a56',
     },
     'lmer': {
         # for v0.4.11
-        # 'fname': DATA_DIR / "test_summarize_lmer.v0.4.11.tsv",
+        # 'fname': DATA_DIR / "test_summarize_lmer.tsv",
         # 'md5sum': 'c082d5fd2634992ae7f2fb381155f340',
         'fname': DATA_DIR / "test_summarize_lmer.v0.5.0.tsv",
         'md5sum': 'bdf5a0b8c0cb82004b2982cacd17ba89',
