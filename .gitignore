@@ -23,4 +23,4 @@ notebooks
 .cache
 
 # Coverage files
-.coverage
+.coverage*
