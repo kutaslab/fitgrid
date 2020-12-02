@@ -34,7 +34,7 @@ install:
 
 script:
   # install and test py 3.x variants
-  - conda create -n pyenv_${PYV} python=${PYV} fitgrid -c local -c defaults -c conda-forge
+  - conda create -n pyenv_${PYV} python=${PYV} fitgrid -c local -c ejolly -c defaults -c conda-forge
   - conda activate pyenv_${PYV}
   - conda install black pytest pytest-cov
   - conda list
