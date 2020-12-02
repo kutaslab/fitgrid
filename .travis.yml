@@ -30,7 +30,7 @@ before_install:
 
 install:
   - conda install -q conda-build conda-verify
-  - conda build --python=${PYV} -c defaults -c conda-forge conda
+  - conda build --python=${PYV} -c defaults -c ejolly -c conda-forge conda
 
 script:
   # install and test py 3.x variants

@@ -47,9 +47,9 @@ mmp=`echo $version | sed -n "s/\(\([0-9]\+\.\)\{1,2\}[0-9]\+\).*/\1/p"`
 #        conda install fitgrid -c kutaslab/label/pre-release
 #
 # * github commits on branch dev w/ version M.N.P *also* upload to pre-release, this
-#   is the final CI check before PR dev -> master for a stable release.
+#   is the final CI check before PR dev -> main for a stable release.
 #
-# * manual github release tagged vM.N.P on master branch upload to
+# * manual github release tagged vM.N.P on main branch upload to
 #   conda label main (and PyPI). This makes version M.N.P the default for
 #
 #         conda install fitgrid -c kutaslab
