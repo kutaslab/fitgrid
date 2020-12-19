@@ -223,9 +223,6 @@ def test_summarize():
         if not expected_df.query('key == "has_warning"').equals(
             summaries_df.query('key == "has_warning"')
         ):
-            import pdb
-
-            pdb.set_trace()
             warnings.warn(f'{modler} has_warning values have changed')
         actual_vals = summaries_df.query('key != "has_warning"').stack()
         actual_vals.name = 'actual'

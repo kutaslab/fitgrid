@@ -1,8 +1,8 @@
-{% set version = "0.5.0.dev0" %}
+{% set data = load_setup_py_data() %}
 
 package:
   name: fitgrid
-  version: {{ version }}
+  version: {{ data.get('version') }}
 
 source:
   # path: ../
@@ -13,24 +13,26 @@ build:
   # script: python setup.py install --single-version-externally-managed --record=record.txt
   script: pip install . -vv --no-deps
   # github vN.N.N release builds are tagged with git short hash and conda build number, Travis deploys should be 0
-  string: {{ environ.get('GIT_BUILD_STR', "no_GIT_BUILD_STR") }}_{{ environ.get("PKG_BUILDNUM", "no_PKG_BUILDNUM") }}
+  string: py{{environ.get("CONDA_PY", "XX")}}{{environ.get("GIT_ABBREV_COMMIT", "no_git_abbrev_commit") }}_{{ environ.get("PKG_BUILDNUM", "no_pkg_buildnum") }}
 
 requirements:
 #  build:
-
+  build:
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
   host:
-    - python
+    - python {{ python }}
     - pip
-
   run:
-    - python >=3.6
+    - python {{ python }}
     - pymer4
     - statsmodels
-    - pandas
     - numpy
-    - matplotlib
     - scipy
-    - pyarrow >=1.0   # else picks up conda main 0.15 of 09/03/20
+    - pandas >=1.0
+    # 1.0.1 fights with pandas
+    - pyarrow >=1.0,!=1.0.1
+    - matplotlib
     - pytables
     - tqdm
 

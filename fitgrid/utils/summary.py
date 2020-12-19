@@ -378,12 +378,12 @@ def _lmer_get_summaries_df(fg_lmer):
 
     #  x=lmer_fg caclulate or extract from other attributes
     derived_attribs = {
-        # since pymer4 7+ model.resid -> model.residuals, for Lmer
-        # these are residuals are rpy2 FloatVector objects that
-        # look like a pd.DataFrame to memoryview ... alrighty then.
-        "SSresid": lambda lmer: lmer.residuals.memoryview().applymap(
-            lambda x: (np.array(x.tolist()) ** 2).sum()
-        ),
+        # since pymer4 0.7.1 the Lmer model.resid are renamed
+        # model.residuals and come back as a well-behaved
+        # dataframe of floats rather than rpy2 objects
+        "SSresid": lambda lmer: lmer.residuals.apply(lambda x: x ** 2)
+        .groupby([fg_lmer.time])
+        .sum(),
         'sigma2': lambda x: scrape_sigma2(x),
     }
 

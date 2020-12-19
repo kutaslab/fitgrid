@@ -1,0 +1,259 @@
+# Continous integration and deployment (CID) workflow
+#
+# T. Urbach 12/2020
+# 
+# - based on spudtr-cid.yml
+# - canonical package semantic version strings are M.N.P and M.N.P.devX
+# - job matrix runs on linux-64 for Python 3.6, 3.7, 3.8
+# - each py3X job builds, installs, pytests, and deploys its own conda py3X packages
+# - one py3X job deploys codecov, python package sdist, and docs
+# - cron runs daily to conda build, install, pytest the latest commit on default branch
+#
+# CI:
+#
+#   - conda build, install, and pytest the conda packages linux-64 py3[678]
+#   - conda convert py3[678] x [osx-64, win-64] (untested)
+#   - build sphinx docs
+#   - build python package sdist
+#
+# Deployment:
+#
+#   Development: package version M.N.P.devX on dev branch triggers
+#     - anaconda upload py3X x OS-64 tarballs to channel label /pre-release
+#     - twine python build/sdist to test.pypi.org
+#
+#   Stable release: version M.N.P on release tagged vM.N.P triggers
+#     - anaconda upload py3X x OS-64 tarballs to channel label /main
+#     - codecov
+#     - sphinx docs to gh-pages
+#     - twine python build/sdist to pypi.org
+#
+# Notes:
+#
+# Conda env wrangling. To run conda activate in bash shells, the conda
+#   shell.bash hook must be sourced. The usual "conda init bash"
+#   installs the hook in .bashrc which isn't consulted (or exits
+#   early) for the Actions non-interactive shells. One option is to
+#   re-install the hook each time it is needed in a run step like so:
+#
+#     - eval "$(conda shell.bash hook)"
+#     - conda activate myenv
+#
+#   The approach here is to install the hook in .profile_bash one time
+#   in the conda setup and run bash as a non-interactive login shell.
+#
+# Github releases. Github published releases generate a release and a
+#   push event. Pushed stable release tags are ignored to prevent
+#   double workflow runs.
+
+name: fitgrid
+on:
+  push:
+    branches: ['*']
+    tags-ignore:
+      - v[0-9].[0-9].[0-9]  # prevent double runs for vM.N.P releases
+  pull_request:
+  release:
+    types: [published]
+
+  schedule:
+    # min hour day month year. digit = when, / = step by, * = all
+    - cron: '0 0 */1 * *'
+
+env:
+  PACKAGE_NAME: fitgrid
+  DEPLOY_PY_VER: 3.8  # only this job deploys codecov, docs, sdist
+
+defaults:
+  run:
+    # login shell to source the conda hook in .bash_profile
+    shell:
+      bash -l {0}
+
+jobs:
+  fitgrid-cid:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        py_ver: [3.6, 3.7, 3.8]
+
+    env:
+      PY_VER: ${{ matrix.py_ver }}
+      CONDA_BLD_PATH: /tmp/ci_conda_bld
+      GH_PAGES_BRANCH: gh-pages-dev
+
+    outputs:
+      # tarballs are py3X job-specific
+      conda-tarball: ${{ steps.conda-bld.outputs.conda-tarball }}
+
+    steps:
+
+      # ------------------------------------------------------------
+      # 1. Install
+      - uses: actions/checkout@v2  # fetch the current commit, verified action
+
+      - name: conda setup
+        run: |
+          # short SHA gets baked into the conda package filename in conda/meta.yaml
+          echo "GIT_ABBREV_COMMIT=_g${GITHUB_SHA:0:8}" >> $GITHUB_ENV
+          wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+          bash miniconda.sh -b -p $HOME/miniconda
+          conda shell.bash hook >> ~/.bash_profile  # instead of conda init bash
+          mkdir -p $CONDA_BLD_PATH && rm miniconda.sh
+          source ~/.bash_profile && conda_activate
+          hash -r
+          conda config --set always_yes yes --set changeps1 no
+          conda config --set bld_path $CONDA_BLD_PATH
+          conda config --set allow_conda_downgrades true
+          conda install -q conda=4.9.0  # works on mkgpu1, 4.9.2 fails here DNDC
+          conda install -q conda-build conda-verify anaconda twine
+          conda info -a
+
+      # ------------------------------------------------------------
+      # 2. CI
+      - name: conda build --python=${{ env.PY_VER }} conda
+        id: conda-bld
+        run: |
+          conda build --python=$PY_VER -c defaults -c conda-forge -c ejolly conda
+          # filename is last line when conda build is chatty
+          tarball=$(conda build --python=$PY_VER conda --output | tail -1)
+          conda convert -p osx-64 -p win-64 -o $CONDA_BLD_PATH $tarball
+          echo "conda build tarball" $tarball
+          echo "::set-output name=conda-tarball::$tarball"
+
+      # black and pytest in the py3X conda env
+      - name: conda create env_${{ env.PY_VER }} python=${{ env.PY_VER }} ${{ env.PACKAGE_NAME}} and pytest
+        run: |
+          conda create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME -c local -c defaults -c conda-forge -c ejolly
+          conda activate env_$PY_VER
+          conda install -q black pytest pytest-cov
+          conda list
+          lscpu
+          python -c 'import numpy; numpy.show_config()'
+          black --check --verbose -S -l 79 .
+          pytest --cov=$PACKAGE_NAME # test as installed by conda
+
+      - name: build sphinx docs
+        if: ${{ matrix.py_ver == env.DEPLOY_PY_VER }}
+        run: |
+          conda activate env_$PY_VER  # required to run doc demos
+          conda install -q sphinx sphinx_rtd_theme jupyter nbsphinx "nbconvert!=5.4" -c defaults -c conda-forge
+          conda install -q pandoc -c conda-forge
+          make -C docs html
+          touch docs/build/html/.nojekyll
+
+      - name: build python package sdist
+        if: ${{ matrix.py_ver == env.DEPLOY_PY_VER }}
+        run: python setup.py sdist
+
+      # ------------------------------------------------------------
+      # 3. Deploy
+      #
+      # DEPLOY_TYPE selects conda, python package, and docs uploads
+      #
+      # for regex matching
+      # . canonical version strings are M.N.P.devX and M.N.P
+      # . tarballs are $CONDA_BLD_PATH/linux-64/PACKAGE_NAME-.+-py3[678]_g[a-z0-9]{8}.tar.bz2
+      # . pkg_version is entire M.N.P.devX version string
+      # . pkg_mnp is M.N.P only
+      - name: set DEPLOY_TYPE=<pre-release|main|no_deploy>
+        run: |
+
+          # lookup the conda tarball package version and M.N.P string (if any)
+          tarball=${{ steps.conda-bld.outputs.conda-tarball }}
+          pkg_version=`echo $tarball | sed -n "s/.*${PACKAGE_NAME}-\(.\+\)-.*/\1/p"`
+          pkg_mnp=`echo $pkg_version | sed -n "s/\(\([0-9]\+\.\)\{1,2\}[0-9]\+\).*/\1/p"`
+
+          # pre-release if package version is M.N.P.devX on dev branch
+          if [[ \
+            $GITHUB_REF =~ ^refs/heads/dev$ && \
+            $pkg_version =~ ^([0-9]+\.){2}[0-9]+(\.dev[0-9]+){0,1}$ \
+          ]]; then \
+            deploy_type="pre-release"; \
+          fi
+
+          # main if package version is M.N.P on release tag vM.N.P
+          if [[ \
+            $GITHUB_REF =~ ^refs/tags/v([0-9]+\.){2}[0-9]+$ && \
+            $pkg_version == $pkg_mnp \
+          ]]; then \
+            deploy_type="main"; \
+          fi
+
+          # else, default
+          deploy_type=${deploy_type:-no_deploy}
+
+          # set top-level env for uploads
+          echo "PKG_VERSION=${pkg_version}" >> $GITHUB_ENV
+          echo "PKG_MNP=${pkg_mnp}" >> $GITHUB_ENV
+          echo "DEPLOY_TYPE=${deploy_type}" >> $GITHUB_ENV
+
+          # logging
+          echo $PACKAGE_NAME $deploy_type $tarball $pkg_version $pkg_mnp
+
+      - name: >-
+          show ${{ env.PACKAGE_NAME }}
+          ${{ env.PKG_VERSION }}
+          env_${{ env.PY_VER }}
+          deploy_type=${{ env.DEPLOY_TYPE }}
+
+        run: |
+          conda activate env_$PY_VER
+          printenv | sort
+          conda list --explicit
+
+      - name: deploy conda package python ${{ matrix.py_ver}} ${{ env.DEPLOY_TYPE }}
+        if: ${{ env.DEPLOY_TYPE == 'pre-release' || env.DEPLOY_TYPE == 'main' }}
+        env:
+          ANACONDA_TOKEN: ${{ secrets.ANACONDA_TOKEN }}
+        run: >-
+          anaconda
+          -t "$ANACONDA_TOKEN"
+          upload $CONDA_BLD_PATH/**/${PACKAGE_NAME}*.tar.bz2
+          -l $DEPLOY_TYPE
+          --skip-existing
+
+      - name: deploy codecov
+        if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && env.DEPLOY_TYPE == 'main' }}
+        run: conda install -q codecov && codecov
+
+      - name: deploy sphinx docs to gh-pages
+        # if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && env.DEPLOY_TYPE == 'main' }}
+        if: ${{ matrix.py_ver == env.DEPLOY_PY_VER }}  # testing only
+        run: |
+          cd $GITHUB_WORKSPACE/docs/build/html  # wherever sphinx writes the html, repo specific
+          ls -lR
+          git init 
+          user_name="docs_${GITHUB_EVENT_NAME}_bot"
+          git config user.email "${user_name}@the.cloud.org"
+          git config user.name "$user_name"
+          git remote add origin "https://${user_name}:${{ secrets.github_token }}@github.com/${GITHUB_REPOSITORY}"
+          git checkout --orphan $GH_PAGES_BRANCH
+          git add -A .
+          git commit -a -m "deploy type $DEPLOY_TYPE python $DEPLOY_PY_VER"
+          git push -u origin $GH_PAGES_BRANCH --force
+
+      - name: deploy python package M.N.P.devX to test.pypi.org
+        if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && env.DEPLOY_TYPE == 'pre-release' }}
+        env:
+          TEST_PYPI_TOKEN: ${{ secrets.test_pypi_token }}
+        # trailing / on pypi repos is required
+        run: >-
+          twine upload
+          --repository-url https://test.pypi.org/legacy/
+          -u __token__
+          -p "$TEST_PYPI_TOKEN"
+          --skip-existing
+          dist/*
+
+      # upload to pypi.org last to avoid burning stable version strings
+      - name: deploy python package release vM.N.P to pypi.org
+        if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && env.DEPLOY_TYPE == 'main' }}
+        env:
+          FITGRID_PYPI_TOKEN: ${{ secrets.pypi_token }}
+        run: >-
+          twine upload
+          --repository-url https://pypi.org/
+          -u __token__
+          -p "$PYPI_TOKEN"
+          dist/*
