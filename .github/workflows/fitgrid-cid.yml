@@ -46,7 +46,7 @@
 #   push event. Pushed stable release tags are ignored to prevent
 #   double workflow runs.
 
-name: fitgrid-cid
+name: fitgrid
 on:
   push:
     branches: ['*']
@@ -71,7 +71,7 @@ defaults:
       bash -l {0}
 
 jobs:
-  conda-ci:
+  fitgrid-cid:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -130,7 +130,7 @@ jobs:
           conda list
           lscpu
           python -c 'import numpy; numpy.show_config()'
-          black --check --verbose .
+          black --check --verbose -S -l 79 .
           pytest --cov=$PACKAGE_NAME # test as installed by conda
 
       - name: build sphinx docs
