@@ -112,7 +112,7 @@ jobs:
       - name: conda build --python=${{ env.PY_VER }} conda
         id: conda-bld
         run: |
-          conda build --python=$PY_VER -c ejolly -c defaults -c conda-forge conda
+          conda build --python=$PY_VER -c defaults -c conda-forge -c ejolly conda
           # filename is last line when conda build is chatty
           tarball=$(conda build --python=$PY_VER conda --output | tail -1)
           conda convert -p osx-64 -p win-64 -o $CONDA_BLD_PATH $tarball
@@ -120,13 +120,7 @@ jobs:
           echo "::set-output name=conda-tarball::$tarball"
 
       # black and pytest in the py3X conda env
-      - name: >-
-          conda create -n
-          env_${{ env.PY_VER }}
-          python=${{ env.PY_VER }}
-          ${{ env.PACKAGE_NAME}}
-          -c local -c defaults -c conda-forge
-
+      - name: conda create env_${{ env.PY_VER }} python=${{ env.PY_VER }} ${{ env.PACKAGE_NAME}} and pytest
         run: |
           conda create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME -c local -c defaults -c conda-forge
           conda activate env_$PY_VER
@@ -134,7 +128,7 @@ jobs:
           conda list
           lscpu
           python -c 'import numpy; numpy.show_config()'
-          black --check --verbose -S -l 79 .
+          black --check --verbose .
           pytest --cov=$PACKAGE_NAME # test as installed by conda
 
       - name: build sphinx docs
