@@ -104,6 +104,8 @@ jobs:
           hash -r
           conda config --set always_yes yes --set changeps1 no
           conda config --set bld_path $CONDA_BLD_PATH
+          conda config --set allow_conda_downgrades true
+          conda install -q conda=4.9.0  # works on mkgpu1, 4.9.2 fails here DNDC
           conda install -q conda-build conda-verify anaconda twine
           conda info -a
 
@@ -122,7 +124,7 @@ jobs:
       # black and pytest in the py3X conda env
       - name: conda create env_${{ env.PY_VER }} python=${{ env.PY_VER }} ${{ env.PACKAGE_NAME}} and pytest
         run: |
-          conda create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME -c local -c defaults -c conda-forge
+          conda create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME -c local -c defaults -c conda-forge -c ejolly
           conda activate env_$PY_VER
           conda install -q black pytest pytest-cov
           conda list
