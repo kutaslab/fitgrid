@@ -59,11 +59,37 @@ extensions = [
     'sphinx.ext.githubpages',
     'sphinx.ext.viewcode',
     'sphinx.ext.extlinks',
-    'nbsphinx',
+    # 'nbsphinx',
+    "sphinx_gallery.gen_gallery",
+
 ]
 
 # nbsphinx_timeout = -1 # don't timeout
-nbsphinx_timeout = 5 * 60  # lmer needs time to run in Tutorial
+# nbsphinx_timeout = 5 * 60  # lmer needs time to run in Tutorial
+
+napoleon_google_docstring = False
+napoleon_use_param = False
+napoleon_use_ivar = True
+
+# TPU added sphinx gallery
+sphinx_gallery_conf = {
+    # source dirs
+    "examples_dirs": [
+        "user_guide",
+        "gallery/1_epochs_data",
+        "gallery/2_model_fitting",
+        "gallery/3_model_comparison",
+    ],
+    # generated output dirs
+    "gallery_dirs": [
+        "user_guide_sg", 
+        "gallery_sg/1_epochs_data"
+        "gallery_sg/2_model_fitting",
+        "gallery_sg/3_model_comparison",
+    ],
+    "filename_pattern": "/[a-zA-Z]+",  # execute all *.py not just default plot_*.py
+}
+
 
 # alias long urls to keep line length under control
 extlinks = {"sm_docs": ("https://www.statsmodels.org/stable/generated/%s", "")}

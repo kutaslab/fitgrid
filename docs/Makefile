@@ -22,3 +22,13 @@ help:
 api-rst:
 	ls source/api_docs
 	sphinx-apidoc -e -f -o source/api_docs ../fitgrid
+
+clean:
+	rm -rf $(BUILDDIR)/*
+	rm -rf gallery_sg/* 
+
+html-noplot:
+	$(SPHINXBUILD) -D plot_gallery=0 -b html $(ALLSPHINXOPTS) $(SOURCEDIR) $(BUILDDIR)/html
+	@echo
+	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
+

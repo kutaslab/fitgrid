@@ -20,6 +20,7 @@ the Internet-of-Things.
 
     overview
     user_guide
+    gallery
     details
     reference
     installation
