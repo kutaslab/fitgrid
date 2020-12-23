@@ -25,7 +25,7 @@ api-rst:
 
 clean:
 	rm -rf $(BUILDDIR)/*
-	rm -rf gallery_sg/* 
+	rm -rf source/auto_gallery/*
 
 html-noplot:
 	$(SPHINXBUILD) -D plot_gallery=0 -b html $(ALLSPHINXOPTS) $(SOURCEDIR) $(BUILDDIR)/html

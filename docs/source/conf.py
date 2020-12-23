@@ -82,10 +82,10 @@ sphinx_gallery_conf = {
     ],
     # generated output dirs
     "gallery_dirs": [
-        "user_guide_sg", 
-        "gallery_sg/1_epochs_data"
-        "gallery_sg/2_model_fitting",
-        "gallery_sg/3_model_comparison",
+        "auto_user_guide", 
+        "auto_gallery/1_epochs_data",
+        "auto_gallery/2_model_fitting",
+        "auto_gallery/3_model_comparison",
     ],
     "filename_pattern": "/[a-zA-Z]+",  # execute all *.py not just default plot_*.py
 }
