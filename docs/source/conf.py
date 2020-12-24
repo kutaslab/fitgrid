@@ -82,7 +82,7 @@ sphinx_gallery_conf = {
     ],
     # generated output dirs
     "gallery_dirs": [
-        "auto_user_guide", 
+        "auto_user_guide",
         "auto_gallery/1_epochs_data",
         "auto_gallery/2_model_fitting",
         "auto_gallery/3_model_comparison",

@@ -1,32 +1,63 @@
-"""
-.. _quickstart:
+""".. _quickstart:
 
 Quickstart
 ==========
+
+fitgrid sweeps a linear model across a 2D grid of cells where each
+cell holds the data values . The values in the grid cells are the
+data to be modeled ("scores", "observations", "response variable",
+"independent variable") and may vary from cell to cell. 
+
+
+.. image:: ../_static/fitgrid_summary.png
+
+
+("regressors", "predictors", "independent variables "right hand side") 
+
+The axes of the 2-D cell grid are time (row) x sensor
+(column). Stepping along the rows and looking across the columns give
+a temporal snapshot of the buckets of data delivered by the sensors at
+that time.
+
+across the columns at at given time gives 
+
+The model is held constant only the data in the grid cell buckets
+varies.
+
+For the intended application, 
+
+Each cell contains a bucket of data to 
+
+Data modeling with fitgrid recruits the same model formulae as the
+``lm`` and ``lme4::lmer`` packages in R and the and the
+``statsmodels.formula.api`` and ``patsy`` modules in Python, e.e.,g
+``~ a * b`` and ``~ 1 + a + b + (a | c)`` and fitting them in R with
+the `lm` and ``lme4::lmer`` libraries or in Python with the
+``statsmodels.formula.api`` and ``patsy``.
+
 """
 
 #!/usr/bin/env python
 # coding: utf-8
 
+# %%
+# 
+
 # # Workflow
 
-# The `fitgrid` data modeling workflow consists of 4 steps:
-# 
-# 1. Prepare your dataset as a `pandas.DataFrame`
-# 2. Load your dataset into fitgrid, which creates an `Epochs` object.
-# 3. Run a model on the `Epochs`, which creates a `FitGrid`.
-# 4. Query the `FitGrid` for the model fit information estimates and diagnostic information at each sample and stream.
-# 
-# The commands below are in Python and are executed in Jupyter, but any Python environment will work. We recommend Jupyter Lab, Jupyter Notebook, or IPython.
-
-# In[2]:
-
+# The `fitgrid` data modeling workflow is four steps:
+#
+# 1. Prepare 2-D epochs of multi-channel time series data as a `pandas.DataFrame`, each epoch indexed uniquely and all time-stamped the same.
+# 2. Convert the data to `fitgrid.Epochs` object for modeling.
+# 3. Fit an OLS or LME model to the data to create a channel x time grid of model fit objects, the "fitgrid". 
+# 4. Query the fitgrid the fitgrid to get the corresponding channel x time grid of model fit attributes: coefficient estimates, residual error, model diagnostics, etc.
+#
 
 import fitgrid
 
-
-# ## Prepare your dataset
-# 
+# %%
+# 1. Prepare the dataset
+#
 # `fitgrid` assumes you are modeling "epochs", i.e., fixed-length segments of time-stamped data streams ("channels").
 # 
 # Prepare your dataset as a `pandas.DataFrame` layed out in a long rows x narrow columns format with the response and predictor variables as the named columns and the data values ("observations") in rows.
@@ -55,9 +86,6 @@ import fitgrid
 #     * all have the same 3 time stamps `0, 100, 200`
 # 
 
-# In[1]:
-
-
 import numpy as np
 import pandas as pd
 n_timestamps = 3
@@ -83,8 +111,8 @@ my_data = pd.DataFrame(
 my_data.set_index(['epochs', 'times'], inplace=True)
 my_data
 
-
-# ## 2. Load your dataset into fitgrid
+# %%
+# 2. Load your epochs data into fitgrid
 # 
 # `fitgrid` can load your dataframe directly from the Python workspace or from a file.
 # 
@@ -94,10 +122,7 @@ my_data
 # 2. which index column is the time identifier
 # 3. which columns are the response variable(s) to model
 
-# ### 2.1 Example: Load a dataset from the Python workspace
-
-# In[ ]:
-
+# The data may be read from a dataframe file or in memory
 
 # feed the toy dataset to fitgrid
 epochs_fg = fitgrid.epochs_from_dataframe(
@@ -107,15 +132,9 @@ epochs_fg = fitgrid.epochs_from_dataframe(
     channels=['data_y1', 'data_y2']
 )
 
-
-# Now you have a fitgrid epochs table
-
-# In[ ]:
-
-
 epochs_fg
 
-
+# %%
 # ### 2.2 Load a dataset from an HDF5 file
 # 
 # The file `example.h5` was saved with `pandas.to_hdf()`. 
@@ -160,12 +179,13 @@ epochs_fg = fitgrid.epochs_from_hdf(
 
 epochs_fg
 
-
+# %%
 # ### 2.3 Load a dataset from a feather format file
 # 
 # See `fitgrid` Reference
-# 
+#
 
+# %%
 # ## 3. Run a model
 # 
 # Once the epochs are loaded, `fitgrid` fits a model (formula) at each time point and channel and captures the results in 2-D grid (time x channels).
@@ -182,8 +202,6 @@ epochs_fg
 # ### 3.1 Ordinary least squares
 # 
 # To run linear regression on the epochs, use the `lm` function. This calls `statsmodels.ols` under the hood.
-
-# In[ ]:
 
 
 lm_grid = fitgrid.lm(
@@ -211,38 +229,43 @@ lm_grid = fitgrid.lm(
 # )
 # ```
 
+# %%
 # ### 3.2 linear mixed effects
 
 # Similarly, to model linear mixed effects use the `lmer` function. This calls `lme4::lmer()` under the hood.
 
-# In[ ]:
-
-
-# get_ipython().run_cell_magic('time', '', "\nlmer_grid = fitgrid.lmer(\n    epochs_fg,\n    RHS='continuous + (continuous | categorical)'\n)")
-
+# import pdb; pdb.set_trace()
+# lmer_grid = fitgrid.lmer(
+#     epochs_fg,
+#     RHS='continuous + (continuous | categorical)'
+# )
 
 # ### 3.3 Multicore parallel processing
 # 
-# With lmer especially, it may be useful to run your model with multiple
-# processes to speed it up.
-# 
-# This can be achieved by setting ``parallel`` to
-# ``True`` and ``n_cores`` to the desired value (defaults to 4) as follows.
-# 
-# The performance benefits depend on your hardware. A laptop usually has 4 cores, a good workstation may have 8, a high performance server may have dozens. If working on a shared system it is rude (and unproductive) to hog cores.
+# A modern laptop
+# typically has 4 CPU cores, a good desktop workstation may have 8, a high
+# performance server may have dozens or more. 
+# With lmer especially, it may be useful to take advantage of multiple
+# cores and fit models with parallel processes to speed up processing 
+# by setting  ``parallel`` to  ``True`` and ``n_cores`` to the desired value (defaults to 4)
+#  like so:
 
-# In[ ]:
+# lmer_grid = fitgrid.lmer(
+#     epochs_fg,
+#     RHS='continuous + (continuous | categorical)',
+#     parallel=True,
+#     n_cores=4
+# )
 
-
-# get_ipython().run_cell_magic('time', '', "\nlmer_grid = fitgrid.lmer(\n    epochs_fg,\n    RHS='continuous + (continuous | categorical)', \n    parallel=True,\n    n_cores=4)")
-
+# The performance benefits or costs depend on the specifics your hardware and the size of the job,
+# increasing the cores may not be is not always faster and when working on a shared system it is rude to hog too many cores.
 
 # ## 4. Working with the grid
 # 
 # 
 # ``FitGrid`` objects, like `lm_grid` or `lmer_grid` above, can be queried for attributes just like a
 # ``fit`` object returned by ``statsmodels`` or ``lmer`` (see Overview Doing Statistics in Python for more
-# background), for example:
+# background). 
 # 
 # **Hint**: If you are using an interactive environment like Jupyter Notebook or IPython,
 #   you can use tab completion to see what attributes are available:
@@ -252,30 +275,22 @@ lm_grid = fitgrid.lm(
 # lm_grid.<TAB>
 # ```
 
-# ### 4.1 Examples
-# 
-# #### Beta estimates
+# %%
+# 4.1 Examples
 
-# In[ ]:
-
+# #### Grid (channel x time) of coefficient estimates (:math:`\beta_{i}`)
 
 betas = lm_grid.params
 betas.head(6)
 
 
-# ####  Adjusted $R^2$
-
-# In[ ]:
-
+# %%
+# Grid (channel x time) of adjusted :math:`R^{2}`:
 
 rsquared_adj = lm_grid.rsquared_adj
 rsquared_adj.head(6)
 
-
-# #### Cook's distance
-
-# In[ ]:
-
+# #### Cook's distance (OLS models only)
 
 influence = lm_grid.get_influence()
 cooks_distance = influence.cooks_distance
@@ -287,14 +302,9 @@ cooks_distance.head()
 # Calling an attribute of a `FitGrid` objects returns either a pandas `DataFrame` of the
 # appropriate shape or another `FitGrid` object:
 
-# In[ ]:
-
 
 # this is a dataframe
 lm_grid.params.head()
-
-
-# In[ ]:
 
 
 # this is a FitGrid
@@ -307,38 +317,21 @@ lm_grid.get_influence()
 
 # ### 4.3 Slicing the grid
 # 
-# In addition, slicing on a `FitGrid` can be performed to produce a smaller grid
-# of the shape you want. Suppose you want to only look at a certain channel
-# within a given time interval. You can slice as follows:
+# In addition, slicing on a `FitGrid` can be performed to produce a
+# smaller grid of the shape you want. Suppose you want to only look at
+# a certain channel within a given time interval. You can slice using
+# the colon "range" operator as usual in python and pandas. As in
+# pandas (but not python) the upper bound is **included** in the
+# range. The grid channels can also be sliced by name or list of names
 
-# In[ ]:
-
-
-smaller_grid = lm_grid[25:75, 'channel0']
-smaller_grid
-
-
-# Or multiple channels:
-
-# In[ ]:
-
-
-smaller_grid = lm_grid[25:75, ['channel0', 'channel1']]
-smaller_grid
-
-
-# To include all timepoints or all channels, use a colon:
-
-# In[ ]:
-
-
-# all channels within certain timeframe
+# time stamps 25 to 75, all channels
 lm_grid[25:75, :]
 
+# time stamps 25 to 75, two channels
+lm_grid[25:75, ['channel0', 'channel1']]
 
-# In[ ]:
+# time stamps 25 to 75, one channel
+lm_grid[25:75, 'channel0']
 
-
-# all timepoints, two channels
+# all time stamps, two channels 
 lm_grid[:, ['channel0', 'channel1']]
-
