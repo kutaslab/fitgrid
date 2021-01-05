@@ -94,6 +94,7 @@ class Epochs:
         self.table = table
         self._snapshots = snapshots
         self.epoch_index = tools.get_first_group(snapshots).index.copy()
+        self.time_index = pd.Index([time for time, _ in snapshots], name=time)
 
     def distances(self):
         """Return scaled Euclidean distances of epochs from the "mean" epoch.

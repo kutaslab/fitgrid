@@ -16,8 +16,9 @@ def generate(
     time=_TIME,
     epoch_id=_EPOCH_ID,
     seed=None,
+    return_type="epochs"
 ):
-    """Return Epochs object with fake EEG data.
+    """Return Epochs object or pandas.DataFrame with fake EEG data.
 
     Parameters
     ----------
@@ -38,12 +39,14 @@ def generate(
         vary from run to run. Set `seed` to a 32-bit unsigned
         integer to generate the same fake data run to run.
         See numpy.random.RandomState for details.
+    return_type : str {epochs, dataframe}
+        return fitgrid.Epochs or the fitgrid.Epochs.table dataframe
 
 
     Returns
     -------
-    epochs : Epochs object
-        Epochs object containing simulated EEG data.
+    epochs : fitgrid.Epochs or pandas.DataFrame
+        Epochs object or just the data
 
     Notes
     -----
@@ -58,7 +61,13 @@ def generate(
     df, channels = _generate(
         n_epochs, n_samples, n_categories, n_channels, time, epoch_id, seed
     )
-    return Epochs(df, time=time, epoch_id=epoch_id, channels=channels)
+    epochs_fg = Epochs(df, time=time, epoch_id=epoch_id, channels=channels)
+    if return_type == "epochs":
+        return epochs_fg
+    elif return_type == "dataframe":
+        return epochs_fg.table.reset_index()
+    else:
+        raise ValueError("return_type must be 'epochs' or 'dataframe'")
 
 
 def _generate(

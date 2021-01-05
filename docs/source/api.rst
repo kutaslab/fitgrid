@@ -1,8 +1,8 @@
 .. _api:
 
-===
-API
-===
+=============
+API Reference
+=============
 
 * :ref:`genindex`
 * :ref:`modindex`

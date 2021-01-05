@@ -1,3 +1,3 @@
-Preparing epochs data
-=====================
+Epochs data
+===========
 

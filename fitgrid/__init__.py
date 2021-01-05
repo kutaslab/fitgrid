@@ -1,3 +1,4 @@
+from os import environ
 from pathlib import Path
 from .fake_data import generate
 from .io import (
@@ -13,3 +14,4 @@ __version__ = "0.5.0.dev1"
 
 # for use by pytests and docs
 DATA_DIR = Path(__file__).parent / "data"
+

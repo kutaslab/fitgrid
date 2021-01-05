@@ -1,5 +1,7 @@
-"""NOAA tides and weather
-=========================
+""".. _noaa_epochs:
+
+NOAA tides and weather epochs
+=============================
 
 This example wrangles about 10 years of somewhat messy hourly NOAA
 `meteorological observations 
@@ -9,10 +11,15 @@ and `water levels
 into tidy `pandas.DataFrame` of time-stamped epochs ready to
 load as `fitgrid.Epochs` for modeling.
  
-1. Groom separate NOAA ocean water level and atmospheric observation data files and merge into a single time-stamped `pandas.DataFrame`.
+1. Groom separate NOAA ocean water level and atmospheric observation
+data files and merge into a single time-stamped `pandas.DataFrame`.
 
 2. Add a column of event tags that mark the `high_tide` time-locking events of interest.
-3. Snip the time-series apart into fixed length epochs and construct a new column of time-stamps in each epoch with the `high_tide` event of interest at time=0.
+
+3. Snip the time-series apart into fixed length epochs and construct a
+new column of time-stamps in each epoch with the `high_tide` event of
+interest at time=0.
+
 4. Export the epochs data frame to save for later use in `fitgrid`
 
 Data Source: 
@@ -30,19 +37,14 @@ and the `NOAA Glossary
 
 """
 
-#!/usr/bin/env python
-# coding: utf-8
-
-from pathlib import Path
 import numpy as np
 import pandas as pd
-from pandas.plotting import register_matplotlib_converters
 from matplotlib import pyplot as plt
-plt.style.use("seaborn-bright")
-rc_colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
-
 import fitgrid as fg
 from fitgrid import DATA_DIR
+
+plt.style.use("seaborn-bright")
+rc_colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
 
 np.random.seed(512)
 
@@ -56,7 +58,7 @@ for pkg in [fg, np, pd]:
 # %%
 # Clean and merge tide and weather data
 # -------------------------------------
-# 
+#
 # The `tides` variable is the hourly water level measurements. The
 # original `date` and `time_(gmt)` columns are converted to a
 # `pandas.Datetime` and serve as the index for merging the water level
@@ -66,7 +68,7 @@ for pkg in [fg, np, pd]:
 tides = pd.concat(
     [
         pd.read_csv(tide_f, na_values='-')
-        for tide_f 
+        for tide_f
         in WDIR.glob('*msl_wl.csv')
     ]
 ).drop(["Predicted (ft)", "Preliminary (ft)"], axis=1)
@@ -82,10 +84,9 @@ tides['date_time_gmt'] = pd.to_datetime(
 # add local time at Scripps from the GMT
 tides.insert(
     1,
-    'hour_pst', 
-   (tides['date_time_gmt'] + pd.Timedelta(hours=-8)).dt.time.astype(str)
+    'hour_pst',
+    (tides['date_time_gmt'] + pd.Timedelta(hours=-8)).dt.time.astype(str)
 )
-
 
 # drop unused columns
 tides = (
@@ -94,15 +95,14 @@ tides = (
     .drop(['date', 'time_(gmt)'], axis=1)
 )
 
-tides.rename(columns={"verified_(ft)": "water_level"},inplace=True)
+tides.rename(columns={"verified_(ft)": "water_level"}, inplace=True)
 
 tides.set_index("date_time_gmt", inplace=True)
 print(tides)
 
 
 # %%
-# 
-# The `metobs` are hourly meteorological observations from the same NOAA station.
+# `metobs` are hourly meteorological observations from the same NOAA station.
 metobs = pd.concat(
    [
         pd.read_csv(tide_f, na_values='-')
@@ -117,7 +117,7 @@ metobs.columns = [
 ]
 metobs['date_time_gmt'] = pd.to_datetime(metobs.date_time)
 metobs = metobs.drop(
-    ["windspeed", "dir", "gusts", "relhum", "vis", "date_time"], 
+    ["windspeed", "dir", "gusts", "relhum", "vis", "date_time"],
     axis=1
 )[["date_time_gmt", "baro", "at"]]
 
@@ -126,25 +126,26 @@ metobs.rename(
     columns={
         "baro": "mm_hg",
         "at": "air_temp"
-    }, 
+    },
     inplace=True
 )
 
 print(metobs)
 
 
-# %% 
-# The `data` pandas.DataFrame has the time-aligned tide and atmospheric observations, merged 
-# on their datetime stamp. Missing data `NaN` in either set of observations triggers exclusion of the entire row.
+# %%
+# The `data` pandas.DataFrame has the time-aligned tide and
+# atmospheric observations, merged on their datetime stamp. Missing
+# data `NaN` in either set of observations triggers exclusion of the
+# entire row.
 
 data = tides.join(metobs, on='date_time_gmt').dropna().reset_index()
 
 # standardize the observations
 for col in ["water_level", "mm_hg", "air_temp"]:
-    col_z = col + "_z"
     data[col + "_z"] = (data[col] - data[col].mean()) / data[col].std()
-    
-# add a column of standard normal noise
+
+# add a column of standard normal random values for comparison
 data["std_noise_z"] = np.random.normal(loc=-0, scale=1.0, size=len(data))
 print(data)
 
@@ -256,15 +257,6 @@ ax.scatter(
     aug_01_07_11.water_level_z[aug_01_07_11.high_tide == True],
     color='red',
     s=100,
-    zorder=3
-    
-)
-
-ax.scatter(
-    aug_01_07_11.date_time_gmt[aug_01_07_11.high_tide == True],
-    aug_01_07_11.water_level_z[aug_01_07_11.high_tide == True],
-    color='red',
-    s=100,
     zorder=3,
     label="high tide"
     
@@ -291,16 +283,17 @@ for day, (_, ht) in enumerate(aug_01_07_11[aug_01_07_11.high_tide == True].iterr
         if day == 5:
             ax.annotate(
                 xy=(ht.date_time_gmt + pd.Timedelta(hours=1), 2.),
-                s=("Highlight indicates epoch bounds. Overlapping epochs\n"
-                   "are legal but the observations are duplicated. This\n"
-                   "will increase the epochs data size and may violate\n"
-                   "modeling assumptions. This is not checked."
+                s=(
+                    "Highlight indicates epoch bounds. Overlapping epochs\n"
+                    "are legal but the observations are duplicated. This\n"
+                    "will increase the epochs data size and may violate\n"
+                    "modeling assumptions. This is not checked."
                 ),
-                size=12,            
+                size=12,
             )
 
 
-ax.set_title(f"One week of standardized hourly water levels {dt_start} - {dt_stop} at La Jolla, CA ");
+ax.set_title(f"One week of standardized hourly water levels {dt_start} - {dt_stop} at La Jolla, CA ")
 ax.legend()
 f.tight_layout()
 
