@@ -101,7 +101,7 @@ def _run_model(epochs, function, channels=None, parallel=False, n_cores=4):
     validate_LHS(epochs, channels)
 
     # no tdqm in generated sphinx docs
-    groups = tqdm(epochs._snapshots, disable=("/sphinx-build" in environ["_"]))
+    groups = tqdm(epochs._snapshots, disable=("sphinx-build" in environ["_"]))
     processor = partial(
         process_key_and_group, function=function, channels=channels
     )
