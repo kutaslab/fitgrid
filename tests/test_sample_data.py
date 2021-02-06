@@ -1,6 +1,7 @@
 import pytest
 from fitgrid import sample_data, DATA_DIR
 
+
 def test_get_file():
 
     test_f = "sub000p3.h5"

@@ -16,20 +16,22 @@ returned as a `pandas.DataFrame` or another `FitGrid`
 
 import fitgrid
 
-epochs_df = fitgrid.generate(n_samples=6, n_channels=4, return_type="dataframe")
+epochs_df = fitgrid.generate(
+    n_samples=6, n_channels=4, return_type="dataframe"
+)
 epochs_df.set_index(["epoch_id", "time"], inplace=True)
 epochs_fg = fitgrid.epochs_from_dataframe(
     epochs_df,
     epoch_id="epoch_id",
     time="time",
-    channels=["channel0", "channel1"]
+    channels=["channel0", "channel1"],
 )
 
 # %%
 # Ordinary least squares (OLS)
 # ----------------------------
-# 
-# These models are specified with `patsy` Python formulas like `lm` in R. The 
+#
+# These models are specified with `patsy` Python formulas like `lm` in R. The
 # results come back from `statsmodels`
 lm_grid = fitgrid.lm(epochs_fg, RHS='1 + categorical + continuous')
 
@@ -49,19 +51,19 @@ for param, vals in params.groupby("params"):
     ax.set_title(param)
 
 
-
 # %%
 # Linear mixed effects (LMER)
 # ---------------------------
-# 
+#
 # These models are specified with `lme4::lmer` R formulas and the results come back
 # as `pymer4` objects from the `lmer results`.
 
-# %% 
+# %%
 # Fit a mixed-effects model with `lme4::lmer` via `pymer4`
-lmer_grid = fitgrid.lmer(epochs_fg, RHS='1 + continuous + (continuous | categorical)')
+lmer_grid = fitgrid.lmer(
+    epochs_fg, RHS='1 + continuous + (continuous | categorical)'
+)
 
 # %%
-# Query and display some lme4::lmer fit results 
+# Query and display some lme4::lmer fit results
 lmer_grid.coefs
-

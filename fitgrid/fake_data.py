@@ -16,7 +16,7 @@ def generate(
     time=_TIME,
     epoch_id=_EPOCH_ID,
     seed=None,
-    return_type="epochs"
+    return_type="epochs",
 ):
     """Return Epochs object or pandas.DataFrame with fake EEG data.
 

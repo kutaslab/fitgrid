@@ -22,7 +22,7 @@ measures may be computed in a similar manner.
 """
 
 # %%
-# Prepare sample data 
+# Prepare sample data
 # -------------------
 
 import pandas as pd
@@ -37,15 +37,17 @@ p3_epochs_df = pd.read_feather(DATA_DIR / "sub000p3.ms1500.epochs.feather")
 p3_epochs_df = p3_epochs_df.query("stim != 'cal'")
 
 # look up the data QC flags and select the good epochs
-good_epochs = p3_epochs_df.query("match_time == 0 and log_flags == 0")["epoch_id"]
+good_epochs = p3_epochs_df.query("match_time == 0 and log_flags == 0")[
+    "epoch_id"
+]
 p3_epochs_df = p3_epochs_df.query("epoch_id in @good_epochs")
 
 # rename the time stamp column
 p3_epochs_df.rename(columns={"match_time": "time_ms"}, inplace=True)
 
 # select columns of interest for modeling
-indices = ["epoch_id", "time_ms"] 
-predictors = ["stim", "tone"]  # categorical with 2 levels: standard, target 
+indices = ["epoch_id", "time_ms"]
+predictors = ["stim", "tone"]  # categorical with 2 levels: standard, target
 channels = ["MiPf", "MiCe", "MiPa", "MiOc"]  # midline electrodes
 p3_epochs_df = p3_epochs_df[indices + predictors + channels]
 
@@ -55,7 +57,10 @@ p3_epochs_df.set_index(["epoch_id", "time_ms"], inplace=True)
 # "baseline", i.e., center each epoch on the 200 ms pre-stimulus interval
 centered = []
 for epoch_id, vals in p3_epochs_df.groupby("epoch_id"):
-    centered.append(vals[channels] - vals[channels].query("time_ms >= -200 and time_ms < 0").mean())
+    centered.append(
+        vals[channels]
+        - vals[channels].query("time_ms >= -200 and time_ms < 0").mean()
+    )
 p3_epochs_df[channels] = pd.concat(centered)
 
 # slice epochs down to a shorter interval
@@ -66,10 +71,7 @@ p3_epochs_df
 # Ingest as `fitgrid.Epochs`
 # --------------------------
 p3_epochs_fg = fg.epochs_from_dataframe(
-    p3_epochs_df,
-    epoch_id="epoch_id",
-    time="time_ms",
-    channels=channels
+    p3_epochs_df, epoch_id="epoch_id", time="time_ms", channels=channels
 )
 
 
@@ -77,9 +79,9 @@ p3_epochs_fg = fg.epochs_from_dataframe(
 # Model summaries
 # ---------------
 #
-# The `fitgrid.utils.summarize` function is a convenience wrapper that fits 
+# The `fitgrid.utils.summarize` function is a convenience wrapper that fits
 # a list of models and collects a few key summary measures into
-# a single dataframe indexed by model, beta estimate, and the measure. 
+# a single dataframe indexed by model, beta estimate, and the measure.
 # It supports OLS and LME model fitting and the summaries are
 # returned are in the same format.
 #
@@ -100,11 +102,7 @@ rhss_T = [
 from fitgrid.utils.summary import summarize
 
 lm_summary_T = summarize(
-    p3_epochs_fg,
-    modeler="lm",
-    RHS=rhss_T,
-    LHS=channels,
-    parallel=False,
+    p3_epochs_fg, modeler="lm", RHS=rhss_T, LHS=channels, parallel=False
 )
 lm_summary_T
 
@@ -129,7 +127,7 @@ lm_summary_T
 # (right column) show the same data in different ways.  Higher
 # amplitude line plots and corresponding darker shades of blue in the
 # raster plot indicate that the model's AIC is higher than the best
-# candidate in the set.  
+# candidate in the set.
 #
 # **Prestimulus.** Prior to stimulus onset at time = 0, the more
 # parsimonious models (bottom three rows) have systematically lower
@@ -151,7 +149,8 @@ lm_summary_T
 #
 
 from fitgrid.utils.summary import plot_AICmin_deltas
-fig, axs = plot_AICmin_deltas(lm_summary_T, figsize=(12,12))
+
+fig, axs = plot_AICmin_deltas(lm_summary_T, figsize=(12, 12))
 fig.tight_layout()
 for ax_row in range(len(axs)):
     axs[ax_row, 0].set(ylim=(0, 50))
@@ -159,27 +158,19 @@ for ax_row in range(len(axs)):
 # %%
 # Likelihood Ratio
 # ----------------
-# 
+#
 # This example fits a full and reduced
 # model, computes and then visualizes the time course of likelihood ratios
 # with a few lines of code.
 
 # %%
 # Fit the full model. The log likelihood dataframe is returned by querying the `FitGrid`.
-lmg_full = fg.lm(
-    p3_epochs_fg,
-    RHS="1 + stim + tone + stim:tone",
-    LHS=channels
-)
+lmg_full = fg.lm(p3_epochs_fg, RHS="1 + stim + tone + stim:tone", LHS=channels)
 lmg_full.llf
 
 # %%
 # Fit the reduced model likewise.
-lmg_reduced = fg.lm(
-    p3_epochs_fg,
-    RHS="1 + stim + tone",
-    LHS=channels
-)
+lmg_reduced = fg.lm(p3_epochs_fg, RHS="1 + stim + tone", LHS=channels)
 lmg_reduced.llf
 
 # %%
@@ -193,17 +184,17 @@ likelihood_ratio
 # goodness-of-fit as given by the likelihood except around 300 - 375 ms poststimulus,
 # largest over central scalp (MiCe).
 
-fig, ax = plt.subplots(figsize=(12,3))
+fig, ax = plt.subplots(figsize=(12, 3))
 
 # render
 im = ax.imshow(likelihood_ratio.T, interpolation="none", aspect=16)
 cb = fig.colorbar(im, ax=ax)
 
 # label
-ax.set_title("Likelihood ratio");
+ax.set_title("Likelihood ratio")
 ax.set(xlabel="Time (ms)", ylabel="Channel")
 
-xtick_labels = range(-200, 600, 100)                    
+xtick_labels = range(-200, 600, 100)
 ax.set_xticks([likelihood_ratio.index.get_loc(tick) for tick in xtick_labels])
 ax.set_xticklabels(xtick_labels)
 

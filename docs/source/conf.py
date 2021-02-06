@@ -60,7 +60,6 @@ extensions = [
     'sphinx.ext.extlinks',
     # 'nbsphinx',
     "sphinx_gallery.gen_gallery",
-
 ]
 
 # nbsphinx_timeout = -1 # don't timeout
@@ -71,10 +70,11 @@ napoleon_use_param = False
 napoleon_use_ivar = True
 
 # ------------------------------------------------------------
-# sphinx gallery config TPU 
+# sphinx gallery config TPU
 from sphinx_gallery.scrapers import matplotlib_scraper
-class fg_matplotlib_scraper(object):
 
+
+class fg_matplotlib_scraper(object):
     def __repr__(self):
         return self.__class__.__name__
 
@@ -82,10 +82,11 @@ class fg_matplotlib_scraper(object):
         # bbox_inches="tight" or .png gallery images have excessive margins
         return matplotlib_scraper(*args, bbox_inches="tight", **kwargs)
 
+
 sphinx_gallery_conf = {
     # source dirs
     "examples_dirs": [
-        #"user_guide",
+        # "user_guide",
         "gallery",
         "gallery/1_epochs_data",
         "gallery/2_model_fitting",
@@ -102,10 +103,9 @@ sphinx_gallery_conf = {
     # execute all *.py (not default plot_*.py)
     "filename_pattern": "[a-zA-Z]+.py",
     # or ... select files individally to speed up execution for preview
-    #"filename_pattern": "getting_started.py",  
-    "image_scrapers": (fg_matplotlib_scraper(), ),
-
-     # or set to https://kutaslab.github.io/fitgrid/ to reduce notebook size
+    # "filename_pattern": "getting_started.py",
+    "image_scrapers": (fg_matplotlib_scraper(),),
+    # or set to https://kutaslab.github.io/fitgrid/ to reduce notebook size
     "notebook_images": True,
 }
 # ------------------------------------------------------------

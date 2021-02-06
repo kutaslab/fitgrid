@@ -16,6 +16,7 @@ P5_1500_FEATHER = "sub000p50.ms1500.epochs.feather"
 WR_1500_FEATHER = "sub000wr.ms1500.epochs.feather"
 PM_1500_FEATHER = "sub000pm.ms1500.epochs.feather"
 
+
 def _download(filename, url=DATA_URL):
     """download filename from repo url to fitgrid/data/ 
 

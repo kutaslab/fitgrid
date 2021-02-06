@@ -60,7 +60,7 @@ epochs_df = fg.generate(
     n_categories=2,  # number of category levels
     n_channels=4,  # number of data channels
     seed=1,
-    return_type="dataframe"
+    return_type="dataframe",
 )
 
 # convert the epoch and time stamp columns to a pandas.MultiIndex
@@ -69,7 +69,7 @@ epochs_df  # display
 
 
 # %%
-# A real epochs data set is typically much larger but the format is the same 
+# A real epochs data set is typically much larger but the format is the same
 # as illustrated here with sample EEG data that `fitgrid` downloads from
 # `Zenodo <https://zenodo.org/record/4099632#.YAMXh5NKj6Mzenodo>`_.
 #
@@ -78,7 +78,7 @@ epochs_df  # display
 # The EEG recording has already been snipped into
 # into 1.5 second segments and time stamped with the stimulus events at time = 0.
 # The experimental predictor variable data columns have been added in alignment
-# with the individual epochs. 
+# with the individual epochs.
 
 import pandas as pd
 from fitgrid import DATA_DIR, sample_data
@@ -115,7 +115,9 @@ p3_epochs_df = pd.read_feather(DATA_DIR / "sub000p3.ms1500.epochs.feather")
 p3_epochs_df = p3_epochs_df.query("stim in ['standard', 'target']")
 
 # look up the data QC flags and select the good epochs
-good_epochs = p3_epochs_df.query("match_time == 0 and log_flags == 0")["epoch_id"]
+good_epochs = p3_epochs_df.query("match_time == 0 and log_flags == 0")[
+    "epoch_id"
+]
 p3_epochs_df = p3_epochs_df.query("epoch_id in @good_epochs")
 
 # the original time stamp column name is obscure, rename for clarity
@@ -123,13 +125,13 @@ p3_epochs_df.rename(columns={"match_time": "time_ms"}, inplace=True)
 
 # select columns of interest for modeling
 indices = ["epoch_id", "time_ms"]
-predictors = ["stim", "tone"]  # stim=standard, target; tone=hi, lo 
+predictors = ["stim", "tone"]  # stim=standard, target; tone=hi, lo
 channels = ["MiPf", "MiCe", "MiPa", "MiOc"]  # midline electrodes
 p3_epochs_df = p3_epochs_df[indices + predictors + channels]
 
 # %%
 # .. note::
-# 
+#
 #    The `epoch_id` and `time` indices must be present in the
 #    dataframe index (`pandas.MultiIndex`) when loading the
 #    `fitgrid.Epochs` in the next step. They are also handy
@@ -142,7 +144,9 @@ p3_epochs_df.set_index(["epoch_id", "time_ms"], inplace=True)
 # "baseline", i.e., center each epoch, each channel on its pre-stimulus interval mean
 centered = []
 for epoch_id, vals in p3_epochs_df.groupby("epoch_id"):
-    centered.append(vals[channels] - vals[channels].query("time_ms < 0").mean())
+    centered.append(
+        vals[channels] - vals[channels].query("time_ms < 0").mean()
+    )
 p3_epochs_df[channels] = pd.concat(centered)
 
 # done ...
@@ -163,24 +167,21 @@ p3_epochs_fg = fg.epochs_from_dataframe(
     p3_epochs_df,
     epoch_id="epoch_id",
     time="time_ms",
-    channels = ["MiPf", "MiCe", "MiPa", "MiOc"],
+    channels=["MiPf", "MiCe", "MiPa", "MiOc"],
 )
 p3_epochs_fg
 
-# %% 
+# %%
 # 3. Fit a model
 # ==============
 #
 # Once the `fg.Epochs` are in place, `fitgrid.lm` and `fitgrid.lmer` methods
-# sweep a model formula across the epoch data at each time and channel and capture the model fits. 
+# sweep a model formula across the epoch data at each time and channel and capture the model fits.
 #
 # Here the `patsy` formula :math:`\sim \mathsf{1 +
 # stim}` is used for OLS model fitting with `statsmodels`.
 
-lmg_1_stim = fg.lm(
-    p3_epochs_fg,
-    RHS="1 + stim",
-)
+lmg_1_stim = fg.lm(p3_epochs_fg, RHS="1 + stim")
 
 # %%
 # The times and channels of the `fitgrid.Epochs` define the `fitgrid.FitGrid` dimensions. Each cell contains
@@ -191,7 +192,7 @@ lmg_1_stim = fg.lm(
 lmg_1_stim
 
 # %%
-# **Model formulas: good news, bad news.** The good news is 
+# **Model formulas: good news, bad news.** The good news is
 # you can easily do or not do whatever you like to specify models with
 # the `patsy` and `lme4::lmer` formula syntax. The formulas are passed
 # through to the fitting algorithms and the results returned are
@@ -224,8 +225,8 @@ lmg_1_stim
 # 4. Using the `FitGrid[times, channels]`
 # =======================================
 #
-# When `statsmodels` fits an OLS model it returns a Python object 
-# loaded with much useful information (see 
+# When `statsmodels` fits an OLS model it returns a Python object
+# loaded with much useful information (see
 # `statsmodels Regression Results <https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.RegressionResults.html>`_).
 # The same is true of model fit objects returned by `pymer4` after
 # running `lme4::lmer` in R, albeit with some differences in the
@@ -287,15 +288,15 @@ lmg_1_stim.nobs.astype(int)
 
 # %%
 # .. note::
-# 
+#
 #    If you are using an interactive environment like Jupyter Notebook or iPython
 #    you can type `lmg_1_stim.` and press <TAB> to pop up a list of available attributes.
-# 
+#
 
 # %%
 # Slice by time and channel
 # -------------------------
-# 
+#
 # The fitted grid can be sliced down to a smaller grid of times and channels using
 # familiar `pandas.DataFrame` index slicing with labels and the ``:`` range
 # operator. As in `pandas` (but not Python) the range includes the upper bound.
@@ -311,7 +312,7 @@ lmg_1_stim[-100:300, :].llf
 # %%
 # Query model structure
 # ---------------------
-# 
+#
 # Besides the fit results, fit objects contain model information that can be queried.
 # This example reaches into one cell of the `FitGrid` at time=0 and channel=MiPa and pulls out
 # the treatment coded design matrix (model right hand side) and column labels for inspection.
@@ -322,7 +323,6 @@ lmg_1_stim[0, "MiPa"].model.exog_names.unstack(-2)
 
 # %%
 lmg_1_stim[0, "MiPa"].model.exog.unstack(-1)
-
 
 
 # %%
@@ -367,6 +367,7 @@ def line_plot(grid_df, title, units=None, **kwargs):
     fig.tight_layout()
     return fig, ax
 
+
 # %%
 # **Plot parameter estimates.** The :math:`\hat{\beta}` over time are
 # regression ERPs ([SmiKut2015]_).
@@ -406,8 +407,12 @@ for param, vals in params_df.groupby("params"):
     # add SE bands
     for cdx, chan in enumerate(channels):
         lco = line_colors[cdx]
-        bse = bse_df.query("params==@param")[chan]  # look up rse this param, chan
-        ax.fill_between(times, vals[chan] - bse, vals[chan] + bse, alpha=.1, color=lco)
+        bse = bse_df.query("params==@param")[
+            chan
+        ]  # look up rse this param, chan
+        ax.fill_between(
+            times, vals[chan] - bse, vals[chan] + bse, alpha=0.1, color=lco
+        )
 
     ax.axhline(0, color="lightgray", lw=1, zorder=0)
     ax.axvline(0, color="gray", lw=1, zorder=1)
@@ -417,33 +422,37 @@ for param, vals in params_df.groupby("params"):
 # %%
 for param, vals in params_df.groupby("params"):
     vals.reset_index('params', drop=True, inplace=True)
-    title_str =  "Model: 1 + stim\n" + r"$\hat{\beta}$ " + f"{param}"
+    title_str = "Model: 1 + stim\n" + r"$\hat{\beta}$ " + f"{param}"
     fig, ax = heatmap_plot(vals, title_str, vmin=-9, vmax=9)
 
 
 # %%
-# More examples 
+# More examples
 # -------------
-# 
+#
 # **Query** various fit measures and parameter estimates
 
 ssr_lmg_1_stim = lmg_1_stim.ssr  # residual sum of squares
 llf_1_stim = lmg_1_stim.llf  # log likelihood
 aic_1_stim = lmg_1_stim.aic  # Akiake Information Criterion
 
-params_1_stim = lmg_1_stim.params  # estimated parameters (a.k.a. weights, coefficients, betas)
+params_1_stim = (
+    lmg_1_stim.params
+)  # estimated parameters (a.k.a. weights, coefficients, betas)
 tvals_1_stim = lmg_1_stim.tvalues  # t-values
 pvals_1_stim = lmg_1_stim.pvalues  # p-values
 bse_lmg_1_stim = lmg_1_stim.bse  # param standard errors
-rse_lmg_1_stim = lmg_1_stim.HC0_se  # robust param standard errors (one version)
+rse_lmg_1_stim = (
+    lmg_1_stim.HC0_se
+)  # robust param standard errors (one version)
 
 # set parameter pd.MultiIndex names for convenient slicing
 for attr_df in [
-        params_1_stim,
-        tvals_1_stim,
-        pvals_1_stim,
-        bse_lmg_1_stim,
-        rse_lmg_1_stim
+    params_1_stim,
+    tvals_1_stim,
+    pvals_1_stim,
+    bse_lmg_1_stim,
+    rse_lmg_1_stim,
 ]:
     attr_df.index.set_names(["time_ms", "params"], inplace=True)
 
@@ -455,10 +464,7 @@ for attr_df in [
 # estimated intercept :math:`\hat\beta_{0}` is average ERP for all trials,
 # collapsed across the stimulus conditions.
 
-lmg_1 = fg.lm(
-    p3_epochs_fg,
-    RHS="1",
-)
+lmg_1 = fg.lm(p3_epochs_fg, RHS="1")
 
 params_1 = lmg_1.params
 params_1.index.set_names(["time_ms", "params"], inplace=True)
@@ -469,22 +475,26 @@ aic_1 = lmg_1.aic
 
 # %%
 plot_chans = ["MiPf", "MiPa", "MiCe", "MiOc"]
-colors = [prop["color"] for prop in mpl.rc_params()["axes.prop_cycle"]]  # lookup colors
+colors = [
+    prop["color"] for prop in mpl.rc_params()["axes.prop_cycle"]
+]  # lookup colors
 
 for param, vals in params_1[plot_chans].groupby("params"):
     vals.reset_index('params', inplace=True)
     times = vals.index.to_numpy()
     _, ax = line_plot(
-        vals, 
+        vals,
         "Model: ~ 1 \n" + r"$\hat{\beta}$ " + f"{param} (+/- 1 robust SE)",
     )
     # add SE
     for cdx, chan in enumerate(plot_chans):
         color = colors[cdx]
- 
+
         se = rse_lmg_1_stim.query("params==@param")[chan]
-        ax.fill_between(times, vals[chan] - se, vals[chan] + se, alpha=.1, color=color)
-    
+        ax.fill_between(
+            times, vals[chan] - se, vals[chan] + se, alpha=0.1, color=color
+        )
+
     ax.axhline(0, color="lightgray", lw=1, zorder=0)
     ax.axvline(0, color="gray", lw=1, zorder=1)
     ax.set(ylim=(-15, 15))
@@ -492,9 +502,9 @@ for param, vals in params_1[plot_chans].groupby("params"):
 
 # %%
 # **Compare models full** :math:`\sim 1 + stim` **vs. reduced** :math:`\sim 1`
-# 
+#
 # Comparing log likelihood and AIC is useful for evaluating, diagnosing and
-# interpreting model fit. 
+# interpreting model fit.
 #
 # The full and reduced model likelihoods heatmaps are barely distinguishable. This
 # is unsurprising since the stimulus variable accounts for only a small fraction of the overall
@@ -504,26 +514,26 @@ heatmap_plot(
     lmg_1_stim.llf,
     r"Log Likelihood Full Model$\mathsf{\sim 1 + stim}$",
     vmin=-1800,
-    vmax=-1200
+    vmax=-1200,
 )
 
 heatmap_plot(
     lmg_1.llf,
     r"Log Likelihood Reduced Model$\mathsf{\sim 1}$",
     vmin=-1800,
-    vmax=-1200
+    vmax=-1200,
 )
 
 # %%
 # However, the likelihood ratio (= difference of log
-# likelihoods) shows that the stimulus predictor does account for variability 
+# likelihoods) shows that the stimulus predictor does account for variability
 # in a way that generally aligns with the time course and channels of the post-stimulus positive
-# stimulus effect. 
+# stimulus effect.
 #
 
 title_str = r"Likelihood Ratio: Models $\frac{\mathsf{\sim 1 + stim}}{\mathsf{\sim 1}}$"
 heatmap_plot(lmg_1_stim.llf - lmg_1.llf, title_str)
-_, ax = line_plot(lmg_1_stim.llf - lmg_1.llf, title_str);
+_, ax = line_plot(lmg_1_stim.llf - lmg_1.llf, title_str)
 ax.set(ylabel="Likelihood Ratio")
 
 # %%
@@ -531,14 +541,23 @@ ax.set(ylabel="Likelihood Ratio")
 # measures may also be used to compare and evaulate larger sets of models, not just pairs, e.g.,
 # [BurAnd2004]_.
 
-title_str = r"AIC $\Delta = AIC_{\mathsf{\sim 1}} - AIC_{\mathsf{\sim 1 + stim}}$"
+title_str = (
+    r"AIC $\Delta = AIC_{\mathsf{\sim 1}} - AIC_{\mathsf{\sim 1 + stim}}$"
+)
 heatmap_plot(lmg_1.aic - lmg_1_stim.aic, title_str)
 
 _, ax = line_plot(lmg_1.aic - lmg_1_stim.aic, title_str)
-ax.set(ylabel=r"AIC $\Delta$");
+ax.set(ylabel=r"AIC $\Delta$")
 yticks = [-2, 0, 2, 4, 7, 10]
-ax.set_yticks(yticks);
-ax.hlines(yticks, xmin=times[0], xmax=times[-1], color="lightgray", lw=1.0, ls="dotted")
+ax.set_yticks(yticks)
+ax.hlines(
+    yticks,
+    xmin=times[0],
+    xmax=times[-1],
+    color="lightgray",
+    lw=1.0,
+    ls="dotted",
+)
 
 # %%
 # **Time domain average ERPs:** :math:`\mathsf{\sim 0 + stim}`
@@ -547,10 +566,7 @@ ax.hlines(yticks, xmin=times[0], xmax=times[-1], color="lightgray", lw=1.0, ls="
 # For this model, :math:`\beta_0 X_0 + \beta_1 X_1 + e`, the estimated coefficients :math:`\hat\beta_{i}` are the
 # average of the trials in each condition, i.e., identical to the sum-and-divide time-domain average ERP.
 
-lmg_0_stim = fg.lm(
-    p3_epochs_fg,
-    RHS="0 + stim",
-)
+lmg_0_stim = fg.lm(p3_epochs_fg, RHS="0 + stim")
 print(type(lmg_0_stim))
 params_0_stim = lmg_0_stim.params
 rse_0_stim = lmg_0_stim.HC0_se
@@ -561,7 +577,9 @@ for attr_df in [params_0_stim, rse_0_stim]:
 
 # %%
 plot_chans = ["MiPf", "MiPa", "MiCe", "MiOc"]
-colors = [prop["color"] for prop in mpl.rc_params()["axes.prop_cycle"]]  # lookup colors
+colors = [
+    prop["color"] for prop in mpl.rc_params()["axes.prop_cycle"]
+]  # lookup colors
 
 # rERPs = model parameter estimates over time
 for param, vals in params_0_stim[plot_chans].groupby("params"):
@@ -570,13 +588,17 @@ for param, vals in params_0_stim[plot_chans].groupby("params"):
     condition = param.replace("stim[", "").replace("]", "").upper()
     _, ax = line_plot(
         vals,
-        "Model: ~ 0 + stim\n" + r"OLS $\hat{\beta}$ " + f"{param} = average ERP ({condition})",
+        "Model: ~ 0 + stim\n"
+        + r"OLS $\hat{\beta}$ "
+        + f"{param} = average ERP ({condition})",
     )
     # add SE
     for cdx, chan in enumerate(plot_chans):
         color = colors[cdx]
         se = rse_0_stim.query("params==@param")[chan]
-        ax.fill_between(times, vals[chan] - se, vals[chan] + se, alpha=.1, color=color)
+        ax.fill_between(
+            times, vals[chan] - se, vals[chan] + se, alpha=0.1, color=color
+        )
 
     ax.axhline(0, color="lightgray", lw=1, zorder=0)
     ax.axvline(0, color="gray", lw=1, zorder=1)
@@ -587,18 +609,18 @@ for param, vals in params_0_stim[plot_chans].groupby("params"):
 # %%
 # 5. Next steps
 # =============
-# 
+#
 #
 # Linear mixed-effects with `lme4::lmer`
 # --------------------------------------
-# 
+#
 # Linear mixed-effects models can be fit to epochs data with
 # `fitgrid.lmer` and model formulas from the `lme4::lmer` R library.
 # The `FitGrid` is populated with the `lmer` fit results and sliced
 # and accessed the same way as the OLS grids. The mixed-effects fits
 # are much slower in general so parallel processing on multicore
 # hardware is likely a practical necessity.
-# 
+#
 # .. code-block::
 #
 #    lmeg = fg.lmer(
@@ -612,10 +634,10 @@ for param, vals in params_0_stim[plot_chans].groupby("params"):
 # Multicore parallel acceleration
 # -------------------------------
 #
-# A good desktop workstation may 8 cores, a high performance compute node may have dozens or more. 
+# A good desktop workstation may 8 cores, a high performance compute node may have dozens or more.
 # With `lmer` modeling especially, it may be useful to take advantage of multiple
 # cores and fit models with parallel processes to speed up processing though
-# the performance impact depends on the system and size of the job and parallel jobs may run more slowly. 
+# the performance impact depends on the system and size of the job and parallel jobs may run more slowly.
 #
 # Run parallel processes by setting  ``parallel`` to  ``True`` and ``n_cores`` to the desired value (defaults to 4)
 # like so:

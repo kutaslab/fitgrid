@@ -10,7 +10,7 @@ Average ERPs with `fitgrid`
 # ordinary least squares regression modeling by selecting the
 # appropriate categorical predictor variable coding with the `patsy`
 # formula language. The results are identical to the addition,
-# subtraction of average ERP waveforms without programming 
+# subtraction of average ERP waveforms without programming
 # ad hoc algebraic manipulations.
 
 # %%
@@ -28,15 +28,17 @@ p3_epochs_df = pd.read_feather(DATA_DIR / "sub000p3.ms1500.epochs.feather")
 p3_epochs_df = p3_epochs_df.query("stim in ['standard', 'target', 'cal']")
 
 # look up the data QC flags and select the good epochs
-good_epochs = p3_epochs_df.query("match_time == 0 and log_flags == 0")["epoch_id"]
+good_epochs = p3_epochs_df.query("match_time == 0 and log_flags == 0")[
+    "epoch_id"
+]
 p3_epochs_df = p3_epochs_df.query("epoch_id in @good_epochs")
 
 # rename the time stamp column
 p3_epochs_df.rename(columns={"match_time": "time_ms"}, inplace=True)
 
 # select columns of interest for modeling
-indices = ["epoch_id", "time_ms"] 
-predictors = ["stim"]  # categorical with 2 levels: standard, target 
+indices = ["epoch_id", "time_ms"]
+predictors = ["stim"]  # categorical with 2 levels: standard, target
 channels = ["MiPf", "MiCe", "MiPa", "MiOc"]  # midline electrodes
 p3_epochs_df = p3_epochs_df[indices + predictors + channels]
 
@@ -46,18 +48,18 @@ p3_epochs_df.set_index(["epoch_id", "time_ms"], inplace=True)
 # "baseline", i.e., center each epoch on the 200 ms pre-stimulus interval
 centered = []
 for epoch_id, vals in p3_epochs_df.groupby("epoch_id"):
-    centered.append(vals[channels] - vals[channels].query("time_ms >= -200 and time_ms < 0").mean())
+    centered.append(
+        vals[channels]
+        - vals[channels].query("time_ms >= -200 and time_ms < 0").mean()
+    )
 p3_epochs_df[channels] = pd.concat(centered)
 
 # load data into fitgrid.Epochs
 p3_epochs_fg = fg.epochs_from_dataframe(
-    p3_epochs_df,
-    epoch_id="epoch_id",
-    time="time_ms",
-    channels=channels
+    p3_epochs_df, epoch_id="epoch_id", time="time_ms", channels=channels
 )
 
-#%% 
+#%%
 # average ERPs by condition: :math:`\sim \mathsf{0 + stim}`
 # ---------------------------------------------------------
 #
@@ -68,12 +70,9 @@ p3_epochs_fg = fg.epochs_from_dataframe(
 # coding for one categorical variable with two levels.
 
 # %%
-lmg_0_stim = fg.lm(
-    p3_epochs_fg,
-    RHS="0 + stim",
-)
+lmg_0_stim = fg.lm(p3_epochs_fg, RHS="0 + stim")
 
- 
+
 # %%
 # Parameter estimates = Smith & Kutas (2015) regression ERPs
 beta_hats = lmg_0_stim.params
@@ -104,7 +103,7 @@ for beta_hat, vals in beta_hats.groupby("beta_hats"):
         xlabel="Time (ms)",
         xlim=(times[0], times[-1]),
         ylabel=r"$\mu$V",
-        ylim=(-15, 15)
+        ylim=(-15, 15),
     )
     ax.axhline(0, color="lightgray", lw=1)
     ax.axvline(0, color="gray", lw=1)
@@ -112,12 +111,9 @@ for beta_hat, vals in beta_hats.groupby("beta_hats"):
     for jdx, chan in enumerate(vals.columns):
         ax.plot(times, vals[chan], label=chan)
         ax.fill_between(
-            times,
-            vals[chan] - bse[chan],
-            vals[chan] + bse[chan],
-            alpha=.2
+            times, vals[chan] - bse[chan], vals[chan] + bse[chan], alpha=0.2
         )
-    ax.legend(loc=(1.05, .5))
+    ax.legend(loc=(1.05, 0.5))
 
 
 # %%
@@ -133,11 +129,7 @@ for beta_hat, vals in beta_hats.groupby("beta_hats"):
 from patsy import demo_data, dmatrix
 
 cat_2 = demo_data("a", nlevels=3, min_rows=8)
-dmatrix(
-    "0 + a",
-    data=cat_2,
-    return_type="dataframe"
-)
+dmatrix("0 + a", data=cat_2, return_type="dataframe")
 
 # %%
 # For EEG data, the "means of the data at each level of the categorical variable"
@@ -155,5 +147,3 @@ lmg_0_stim[0, "MiPa"].model.exog_names.unstack(-2)
 
 # %%
 lmg_0_stim[0, "MiPa"].model.exog.unstack(-1)
-
-

@@ -66,11 +66,7 @@ for pkg in [fg, np, pd]:
 
 # read and tidy the NOAA water level .csv data files
 tides = pd.concat(
-    [
-        pd.read_csv(tide_f, na_values='-')
-        for tide_f
-        in WDIR.glob('*msl_wl.csv')
-    ]
+    [pd.read_csv(tide_f, na_values='-') for tide_f in WDIR.glob('*msl_wl.csv')]
 ).drop(["Predicted (ft)", "Preliminary (ft)"], axis=1)
 
 # sanitize the column names
@@ -78,22 +74,18 @@ tides.columns = [col.lower().replace(" ", "_") for col in tides.columns]
 
 # make gmt date times usable
 tides['date_time_gmt'] = pd.to_datetime(
-        tides['date'] + ' ' + tides["time_(gmt)"]
-    )
+    tides['date'] + ' ' + tides["time_(gmt)"]
+)
 
 # add local time at Scripps from the GMT
 tides.insert(
     1,
     'hour_pst',
-    (tides['date_time_gmt'] + pd.Timedelta(hours=-8)).dt.time.astype(str)
+    (tides['date_time_gmt'] + pd.Timedelta(hours=-8)).dt.time.astype(str),
 )
 
 # drop unused columns
-tides = (
-    tides
-    .sort_values('date_time_gmt')
-    .drop(['date', 'time_(gmt)'], axis=1)
-)
+tides = tides.sort_values('date_time_gmt').drop(['date', 'time_(gmt)'], axis=1)
 
 tides.rename(columns={"verified_(ft)": "water_level"}, inplace=True)
 
@@ -104,31 +96,18 @@ print(tides)
 # %%
 # `metobs` are hourly meteorological observations from the same NOAA station.
 metobs = pd.concat(
-   [
-        pd.read_csv(tide_f, na_values='-')
-        for tide_f
-        in WDIR.glob('*met.csv')
-    ]
+    [pd.read_csv(tide_f, na_values='-') for tide_f in WDIR.glob('*met.csv')]
 )
 metobs.columns = [
-    col.strip().lower().replace(" ", "_")
-    for col
-    in metobs.columns
+    col.strip().lower().replace(" ", "_") for col in metobs.columns
 ]
 metobs['date_time_gmt'] = pd.to_datetime(metobs.date_time)
 metobs = metobs.drop(
-    ["windspeed", "dir", "gusts", "relhum", "vis", "date_time"],
-    axis=1
+    ["windspeed", "dir", "gusts", "relhum", "vis", "date_time"], axis=1
 )[["date_time_gmt", "baro", "at"]]
 
 metobs.set_index("date_time_gmt", inplace=True)
-metobs.rename(
-    columns={
-        "baro": "mm_hg",
-        "at": "air_temp"
-    },
-    inplace=True
-)
+metobs.rename(columns={"baro": "mm_hg", "at": "air_temp"}, inplace=True)
 
 print(metobs)
 
@@ -150,7 +129,7 @@ data["std_noise_z"] = np.random.normal(loc=-0, scale=1.0, size=len(data))
 print(data)
 
 # %%
-# set time=0 at high tide 
+# set time=0 at high tide
 # -----------------------
 #
 # The fixed length "epochs" are defined as intervals around the time=0
@@ -163,11 +142,11 @@ print(data)
 data['high_tide'] = (
     np.r_[
         False,
-        data.water_level_z[1:].to_numpy() > data.water_level_z[:-1].to_numpy()
-    ] & 
-    np.r_[
-        data.water_level_z[:-1].to_numpy() > data.water_level_z[1:].to_numpy(), 
-        False
+        data.water_level_z[1:].to_numpy() > data.water_level_z[:-1].to_numpy(),
+    ]
+    & np.r_[
+        data.water_level_z[:-1].to_numpy() > data.water_level_z[1:].to_numpy(),
+        False,
     ]
 )
 
@@ -176,8 +155,8 @@ print(data[data['high_tide'] == True])
 
 # %%
 # Define the epoch parameters: fixed-length duration, time-stamps, and epoch index.
-# 
-# In this example, the epoch duration is 11 hours, beginning 3 hours before the high tides time lock event at time stamp = 0. 
+#
+# In this example, the epoch duration is 11 hours, beginning 3 hours before the high tides time lock event at time stamp = 0.
 #
 # 1. Fixed-length duration. This is the same for all epochs
 #    in the data. In this example, the epoch is 11 hours, i.e., 11 measurements.#
@@ -188,19 +167,19 @@ print(data[data['high_tide'] == True])
 #    2, 3, 4, 5, 6, 7,`.
 #
 # 3. Assign each epoch an integer index that uniquely identifies
-#    it. The indexes can be gappy but there can be no duplicates. In this 
+#    it. The indexes can be gappy but there can be no duplicates. In this
 #    example the epoch index is a simple counter from 0 to the number of epochs - 1.
-#  
-# 
+#
+#
 #
 
 # 1. duration defined by the interval before and after the time lock event
-pre, post = 3, 8 
+pre, post = 3, 8
 
 # 2. sequential time stamps
-hrs = list(range(0 - pre, post))  
+hrs = list(range(0 - pre, post))
 
-# 3. epoch index is a counter for the high tide events. 
+# 3. epoch index is a counter for the high tide events.
 n_obs = len(data)
 ht_idxs = np.where(data.high_tide)[0]
 
@@ -214,8 +193,10 @@ epoch_bounds = [
 
 epochs = []
 for start, stop in epoch_bounds:
-    epoch = data.iloc[start:stop, :].copy()   # slice the epoch interval from the original data
-    epoch['epoch_id'] = len(epochs)           # construct
+    epoch = data.iloc[
+        start:stop, :
+    ].copy()  # slice the epoch interval from the original data
+    epoch['epoch_id'] = len(epochs)  # construct
     epoch['time'] = hrs
     epochs.append(epoch)
 
@@ -231,13 +212,13 @@ aug_01_07_11 = data.query(
 )
 print(aug_01_07_11)
 
-f, ax = plt.subplots(figsize=(12,8))
+f, ax = plt.subplots(figsize=(12, 8))
 ax.set(ylim=(-3, 3))
 ax.plot(
     aug_01_07_11.date_time_gmt,
     aug_01_07_11.water_level_z,
     lw=2,
-    alpha=.25,
+    alpha=0.25,
     ls='-',
     marker='.',
     markersize=10,
@@ -249,7 +230,7 @@ ax.plot(
     aug_01_07_11.water_level_z,
     marker='.',
     markersize=10,
-    lw=0
+    lw=0,
 )
 
 ax.scatter(
@@ -258,11 +239,12 @@ ax.scatter(
     color='red',
     s=100,
     zorder=3,
-    label="high tide"
-    
+    label="high tide",
 )
 
-for day, (_, ht) in enumerate(aug_01_07_11[aug_01_07_11.high_tide == True].iterrows()):
+for day, (_, ht) in enumerate(
+    aug_01_07_11[aug_01_07_11.high_tide == True].iterrows()
+):
     txt = ax.annotate(
         str(ht.hour_pst),
         (ht.date_time_gmt, ht.water_level_z),
@@ -282,7 +264,7 @@ for day, (_, ht) in enumerate(aug_01_07_11[aug_01_07_11.high_tide == True].iterr
         )
         if day == 5:
             ax.annotate(
-                xy=(ht.date_time_gmt + pd.Timedelta(hours=1), 2.),
+                xy=(ht.date_time_gmt + pd.Timedelta(hours=1), 2.0),
                 s=(
                     "Highlight indicates epoch bounds. Overlapping epochs\n"
                     "are legal but the observations are duplicated. This\n"
@@ -293,7 +275,9 @@ for day, (_, ht) in enumerate(aug_01_07_11[aug_01_07_11.high_tide == True].iterr
             )
 
 
-ax.set_title(f"One week of standardized hourly water levels {dt_start} - {dt_stop} at La Jolla, CA ")
+ax.set_title(
+    f"One week of standardized hourly water levels {dt_start} - {dt_stop} at La Jolla, CA "
+)
 ax.legend()
 f.tight_layout()
 
@@ -302,5 +286,3 @@ f.tight_layout()
 
 # export time-stamped epochs for loading into fitgrid.Epochs
 epochs_df.reset_index().to_feather(DATA_DIR / "CO-OPS_9410230.feather")
-
-

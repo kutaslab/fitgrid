@@ -5,7 +5,7 @@ EEG sample epochs
 
 # %%
 # These are the EEG data used in :ref:`getting_started`
-# 
+#
 # **Experimental design.** These data are single-trial EEG epochs
 # recorded at 250 digital samples per second from one individual in an
 # auditory "oddball" paradigm.  The stimuli are a random
@@ -31,7 +31,9 @@ p3_epochs_df = pd.read_feather(DATA_DIR / "sub000p3.ms1500.epochs.feather")
 p3_epochs_df = p3_epochs_df.query("stim in ['standard', 'target']")
 
 # look up the data QC flags and select the good epochs
-good_epochs = p3_epochs_df.query("match_time == 0 and log_flags == 0")["epoch_id"]
+good_epochs = p3_epochs_df.query("match_time == 0 and log_flags == 0")[
+    "epoch_id"
+]
 p3_epochs_df = p3_epochs_df.query("epoch_id in @good_epochs")
 
 # the original time stamp column name is obscure, rename for clarity
@@ -39,7 +41,7 @@ p3_epochs_df.rename(columns={"match_time": "time_ms"}, inplace=True)
 
 # select columns of interest for modeling
 indices = ["epoch_id", "time_ms"]
-predictors = ["stim", "tone"]  # stim=standard, target; tone=hi, lo 
+predictors = ["stim", "tone"]  # stim=standard, target; tone=hi, lo
 channels = ["MiPf", "MiCe", "MiPa", "MiOc"]  # midline electrodes
 p3_epochs_df = p3_epochs_df[indices + predictors + channels]
 
@@ -49,7 +51,9 @@ p3_epochs_df.set_index(["epoch_id", "time_ms"], inplace=True)
 # "baseline", i.e., center each epoch on the pre-stimulus interval
 centered = []
 for epoch_id, vals in p3_epochs_df.groupby("epoch_id"):
-    centered.append(vals[channels] - vals[channels].query("time_ms < 0").mean())
+    centered.append(
+        vals[channels] - vals[channels].query("time_ms < 0").mean()
+    )
 p3_epochs_df[channels] = pd.concat(centered)
 
 # done ...
@@ -58,7 +62,7 @@ p3_epochs_df
 
 # %%
 # These time-domain average ERPs can be computed with `fitgrid`, see :ref:`average_erps`.
-fig, axs = plt.subplots(2, 1, figsize=(8,8))
+fig, axs = plt.subplots(2, 1, figsize=(8, 8))
 for axi, (condition, vals) in enumerate(p3_epochs_df.groupby("stim")):
     vals.groupby("time_ms").mean().plot(ax=axs[axi])
     axs[axi].set_title(f"{condition}")
