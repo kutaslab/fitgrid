@@ -7,6 +7,12 @@ Bibliography
        lme4. Journal of Statistical Software, 67(1),
        1-48.<doi:10.18637/jss.v067.i01>.
 
+.. [Berger1930] Berger, H. (1930). Electroencephalogram of man
+      (P. Gloor, Trans.). In P. Gloor (Ed.), Hans Berger on the
+      Electroencephalogram of Man. The Fourteen Original Reports on
+      the Human Electroencephalogram. 1969. Electroencephalography and
+      Clinical Neurophysiology, supplement 28. New York: Elsevier.
+
 .. [BurAnd2004] Burnham, K. P., & Anderson, D. R. (2004). Multimodel
        inference - understanding AIC and BIC in model
        selection. Sociological Methods & Research, 33(2),
@@ -40,7 +46,7 @@ Bibliography
        influential data in mixed effects models.  R journal, 4(2),
        38-47.
 
-.. [SmiKut2015a] Smith, N. J., & Kutas, M. (2015). Regression-based
+.. [SmiKut2015] Smith, N. J., & Kutas, M. (2015). Regression-based
        estimation of ERP waveforms: I. The rERP
        framework. Psychophysiology. doi:10.1111/psyp.12317. `[PubMed
        open access]
