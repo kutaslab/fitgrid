@@ -134,10 +134,11 @@ jobs:
           pytest --cov=$PACKAGE_NAME # test as installed by conda
 
       - name: build sphinx docs
-        if: ${{ matrix.py_ver == env.DEPLOY_PY_VER }}
+        # if: ${{ matrix.py_ver == env.DEPLOY_PY_VER }}
         run: |
           conda activate env_$PY_VER  # required to run doc demos
-          conda install -q sphinx sphinx_rtd_theme jupyter nbsphinx "nbconvert!=5.4" -c defaults -c conda-forge
+          # conda install -q sphinx sphinx_rtd_theme jupyter nbsphinx "nbconvert!=5.4" -c defaults -c conda-forge
+          conda install -q sphinx sphinx_rtd_theme sphinx-gallery -c defaults -c conda-forge
           conda install -q pandoc -c conda-forge
           make -C docs html
           touch docs/build/html/.nojekyll
