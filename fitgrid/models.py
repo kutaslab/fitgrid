@@ -47,7 +47,9 @@ def process_key_and_group(key_and_group, function, channels):
     return pd.Series(results, name=key)
 
 
-def run_model(epochs, function, channels=None, parallel=False, n_cores=4, quiet=False):
+def run_model(
+    epochs, function, channels=None, parallel=False, n_cores=4, quiet=False
+):
     """Run an arbitrary model on the epochs.
 
     Parameters
@@ -90,12 +92,19 @@ def run_model(epochs, function, channels=None, parallel=False, n_cores=4, quiet=
     """
 
     _grid = _run_model(
-        epochs, function, channels=channels, parallel=parallel, n_cores=n_cores, quiet=quiet
+        epochs,
+        function,
+        channels=channels,
+        parallel=parallel,
+        n_cores=n_cores,
+        quiet=quiet,
     )
     return FitGrid(_grid, epochs.epoch_index, epochs.time)
 
 
-def _run_model(epochs, function, channels=None, parallel=False, n_cores=4, quiet=False):
+def _run_model(
+    epochs, function, channels=None, parallel=False, n_cores=4, quiet=False
+):
 
     if channels is None:
         channels = epochs.channels
@@ -127,7 +136,15 @@ def lm_single(data, channel, RHS, eval_env):
     return ols(formula, data, eval_env=eval_env).fit()
 
 
-def lm(epochs, LHS=None, RHS=None, parallel=False, n_cores=4, quiet=False, eval_env=4):
+def lm(
+    epochs,
+    LHS=None,
+    RHS=None,
+    parallel=False,
+    n_cores=4,
+    quiet=False,
+    eval_env=4,
+):
     """Run ordinary least squares linear regression on the epochs.
 
     Parameters
@@ -226,7 +243,7 @@ def lmer(
     REML=True,
     parallel=False,
     n_cores=4,
-    quiet=False
+    quiet=False,
 ):
     """Fit lme4 linear mixed model by interfacing with R.
 
@@ -289,7 +306,12 @@ def lmer(
         REML=REML,
     )
     _grid = _run_model(
-        epochs, function, channels=LHS, parallel=parallel, n_cores=n_cores, quiet=quiet
+        epochs,
+        function,
+        channels=LHS,
+        parallel=parallel,
+        n_cores=n_cores,
+        quiet=quiet,
     )
 
     return LMERFitGrid(_grid, epochs.epoch_index, epochs.time)

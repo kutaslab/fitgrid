@@ -51,7 +51,7 @@ Column names may be chosen freely (epoch and time index column
 names default to `epoch_id`, `time`).
 
 **Notes:** The index column names default to `epoch_id` and `time` but
-any column maybe be designated as the epoch or time index, provided
+any column may be designated as the epoch or time index, provided
 the conditions are met. Standard practice is to sequence the rows so
 time stamps are nested within epochs. Event-relative epochs are
 generally time-stamped so the event is at time=0 but this is not a
@@ -294,7 +294,7 @@ as the original data multiplied by the number of model parameters
 which may overload memory and measures that require on
 leave-one-observation-out model refitting take intractably long for
 large data sets. A minimal effort is made to guard the user from known
-trouble but the general policy is `fitgrid` stays out out of the way
+trouble but the general policy is `fitgrid` stays out of the way
 so you can try what you want. If it works great, if it chokes, that's
 the nature of the beast you are modeling.
 

@@ -61,8 +61,7 @@ for param, vals in params.groupby("params"):
 # %%
 # Fit a mixed-effects model with `lme4::lmer` via `pymer4`
 lmer_grid = fitgrid.lmer(
-    epochs_fg, RHS='1 + continuous + (continuous | categorical)',
-    quiet=True
+    epochs_fg, RHS='1 + continuous + (continuous | categorical)', quiet=True
 )
 
 # %%

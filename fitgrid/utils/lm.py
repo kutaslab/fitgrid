@@ -55,7 +55,7 @@ _OLS_INFLUENCE_ATTRS = {
 }
 
 
-def get_vifs(epochs, RHS):
+def get_vifs(epochs, RHS, quiet=False):
     def get_single_vif(group, RHS):
         dmatrix = patsy.dmatrix(formula_like=RHS, data=group)
         vifs = {
@@ -64,8 +64,7 @@ def get_vifs(epochs, RHS):
         }
         return pd.Series(vifs)
 
-    # TPU hacked out 09/09/19 until tqdm.pandas issue is resolved
-    # tqdm.pandas(desc="Time")
+    tqdm.pandas(desc="Time", disable=quiet)
     # return epochs._snapshots.progress_apply(get_single_vif, RHS=RHS)
     return epochs._snapshots.apply(get_single_vif, RHS=RHS)
 

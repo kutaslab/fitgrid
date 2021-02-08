@@ -203,7 +203,7 @@ lmg_1_stim
 # *standard* is the reference level "control", and *target* is the
 # "treatment. In this instance, the more compact formula :math:`\sim
 # \mathsf{stim}` is exactly equivalent :math:`\mathsf{\sim 1 + stim}`
-# in the sense they both map to same design matrix ("right hand
+# in the sense that they both generate the same design matrix ("right hand
 # side"). `fitgrid` doesn't care either way and will return the fits for
 # whatever model formula you pass in. The bad news is that you need to
 # know something about this kind of thing, i.e., how the user-friendly `patsy` and
@@ -634,7 +634,7 @@ for param, vals in params_0_stim[plot_chans].groupby("params"):
 # Multicore parallel acceleration
 # -------------------------------
 #
-# A good desktop workstation may 8 cores, a high performance compute node may have dozens or more.
+# A good desktop workstation may have 8 cores, a high performance compute node may have dozens or more.
 # With `lmer` modeling especially, it may be useful to take advantage of multiple
 # cores and fit models with parallel processes to speed up processing though
 # the performance impact depends on the system and size of the job and parallel jobs may run more slowly.
@@ -662,7 +662,7 @@ for param, vals in params_0_stim[plot_chans].groupby("params"):
 #
 # To reduce memory demands when fitting and comparing sets of models,
 # `fitgrid` provides a convenience function `fitgrid.utils.summarize`
-# that iteratively fits a series of models and scrapes seleted results
+# that iteratively fits a series of models and scrapes selected results
 # into lightweight summary data frame with key fit results for model
 # interpretation and comparison and a few helper functions for
 # plotting the summary results. See :ref:`guide_summaries`.
@@ -675,5 +675,5 @@ for param, vals in params_0_stim[plot_chans].groupby("params"):
 # information, this can be accessed in the `FitGrid` like any other
 # attributes. In practice, however, doing so may be intractably slow
 # or memory intensive.  There are a few `fitgrid` convenience
-# utilities for diagnostics (see :ref:`diagnostics`) though is an area
+# utilities for diagnostics (see :ref:`diagnostics`) though it is an area
 # that needs more work.

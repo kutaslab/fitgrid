@@ -45,8 +45,8 @@ Event-related Potentials, [LucKap2011]_.
 regression ERPs
 ===============
 
-In 2015 Smith and Kutas published a seminal paper ([SmiKut15a]_) noting
-that that the average of a set of values, :math:`y`, is identical to
+In 2015 Smith and Kutas published a seminal paper ([SmiKut15]_) noting
+that the average of a set of values, :math:`y`, is identical to
 the estimated constant, :math:`\hat{\beta}_{0}` for the linear model
 
 .. math::
@@ -109,7 +109,7 @@ is designed to contain it.
 The `fitgrid` package allows researchers generally familiar with
 regression modeling and model specification formulas in Python
 (`statsmodels.formula.api` via `patsy`) or R (`lm`, `lme4`,
-`lmerTest`) to use these tools to readily and reproducible fit
+`lmerTest`) to use these tools to readily and reproducibly fit
 ordinary least squares and linear mixed-effects regression models of 
 multichannel event-related time series recordings, at scale, with
 a few lines of scripted Python. 
@@ -213,7 +213,7 @@ or::
 
     pvalues = lm_grid.pvalues
 
-The crux of the approach concieved and implemented by Andrey Portnoy
+The crux of the approach conceived and implemented by Andrey Portnoy
 is that ``lm_grid``, a ``FitGrid`` object, can be queried for the
 exact same attributes as a regular ``statsmodels`` ``fit`` object as
 above.
