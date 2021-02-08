@@ -29,6 +29,7 @@ html-noexec:
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
+# cleaning auto_gallery triggers re-running all sphinx-gallery scripts
 clean:
 	rm -rf $(BUILDDIR)/*
 	rm -rf source/auto_gallery/*

@@ -33,7 +33,7 @@ epochs_fg = fitgrid.epochs_from_dataframe(
 #
 # These models are specified with `patsy` Python formulas like `lm` in R. The
 # results come back from `statsmodels`
-lm_grid = fitgrid.lm(epochs_fg, RHS='1 + categorical + continuous')
+lm_grid = fitgrid.lm(epochs_fg, RHS='1 + categorical + continuous', quiet=True)
 
 # %%
 # Query and display OLS parameters
@@ -61,7 +61,8 @@ for param, vals in params.groupby("params"):
 # %%
 # Fit a mixed-effects model with `lme4::lmer` via `pymer4`
 lmer_grid = fitgrid.lmer(
-    epochs_fg, RHS='1 + continuous + (continuous | categorical)'
+    epochs_fg, RHS='1 + continuous + (continuous | categorical)',
+    quiet=True
 )
 
 # %%
