@@ -51,8 +51,8 @@ the channels are searched for compatible packages from left to right.
    and install `fitgrid` along with any other conda packages you want
    to run in one fell swoop. The conda installer cannot see into the
    future. If you install packages one by one, the versions you get
-   will be compatible with what you have already installed but maybe
-   not with what you want to install next.
+   will be compatible with what you have already installed but may not 
+   be compatible with what you want to install next.
  
 
 -------------

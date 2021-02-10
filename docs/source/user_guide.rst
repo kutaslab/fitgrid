@@ -1,4 +1,4 @@
-.. user_guide:
+.. _user_guide:
 
 ##########
 User Guide
@@ -39,7 +39,7 @@ Data Format
 - `epoch_id`: integer
 - `time`: integer
 - a set of channel data columns: numeric
-- a set of predictor variable columns: numeric, string
+- a set of predictor variable columns: numeric, string, boolean
 
 Each epoch must have a unique integer identifier in the `epoch_id`
 column. Gaps are OK, duplicates are not.

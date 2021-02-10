@@ -148,7 +148,7 @@ mixed effects models are shipped out of Python and into R via Eshin Jolly's
 `pymer4 <https://github.com/kmerkmer/pymer>`_ interface [Jolly19]_ and fit with
 `lme4::lmer
 <https://cran.r-project.org/web/packages/lme4/index.html>`_ (see
-[BatMaeBolWal2015]_).
+[BatesEtAl2015]_).
 
 For illustration with `patsy` and `statsmodels`, suppose you have a
 pandas DataFrame ``data`` with independent variables ``x`` and ``a``,

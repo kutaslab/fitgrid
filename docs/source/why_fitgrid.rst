@@ -13,39 +13,40 @@ In the late 1920's Berger demonstrated that some of the human brain
 activity related to external stimulation and internal mental events
 could be measured at the surface of the scalp as tiny time-varying
 electrical potential waveforms on the order of tens of microvolts
-peak-to-peak, the human electroencephalogram (EEG). In the early 1950s
-Dawson presented a demonstration that even tinier brain responses to
-external stimulation that were too small to be seen by the naked eye
-in the EEG could, however, be observed by repeating the stimulation
-multiple times, aligning fixed-length segments ("epochs") of the EEG
-recordings to the onset of the stimulus and summing the recordings
-together at each time-point ([Dawson1951]_, [Dawson1954]_). The idea
-of aggregating several noisy measurements so the pluses and minuses of
-random variation cancel to yield a better estimate the "true" value of
-the sum or mean was already well-known. The conceptual breakthrough
-for EEG data analysis that Dawson credited to Hunt was to sweep the
-familiar noise-reduction trick along the time-aligned EEG epochs to
-supress larger variation in the EEG (noise) and reveal the time course
-of the much smaller brain response (signal) to the stimulation, a
-waveform on the order of microvolts peak-to-peak. Laboratory
-experiments in subsequent decades found that the Hunt-Dawson
-aggregation procedure could reveal a variety systematic brain
-responses before, during, and after sensory stimulation, motor
-responses, and internal mental events. With the advance of computer
-hardware and software, oscilloscopic sweep averagers were replaced by
-analog-to-digital conversion and sum-and-divide averaging in software
-on general purpose computers. Since the 1970s, this discrete time
-series average event-related brain potential (ERP) has been a
-cornerstone of experimental EEG research on human sensation,
-perception, and cognition. For a compendium see the Oxford Handbook of
-Event-related Potentials, [LucKap2011]_.
+peak-to-peak, the human electroencephalogram (EEG) [Berger1930]_. In
+the early 1950s Dawson presented a demonstration that even tinier
+brain responses to external stimulation that were too small to be seen
+by the naked eye in the EEG could, however, be observed by repeating
+the stimulation multiple times, aligning fixed-length segments
+("epochs") of the EEG recordings to the onset of the stimulus and
+summing the recordings together at each time-point ([Dawson1951]_,
+[Dawson1954]_). The idea of aggregating several noisy measurements so
+the pluses and minuses of random variation cancel to yield a better
+estimate the "true" value of the sum or mean was already
+well-known. The conceptual breakthrough for EEG data analysis that
+Dawson credited to Hunt was to sweep the familiar noise-reduction
+trick along the time-aligned EEG epochs to supress larger variation in
+the EEG (noise) and reveal the time course of the much smaller brain
+response (signal) to the stimulation, a waveform on the order of
+microvolts peak-to-peak. Laboratory experiments in subsequent decades
+found that the Hunt-Dawson aggregation procedure could reveal a
+variety systematic brain responses before, during, and after sensory
+stimulation, motor responses, and internal mental events. With the
+advance of computer hardware and software, oscilloscopic sweep
+averagers were replaced by analog-to-digital conversion and
+sum-and-divide averaging in software on general purpose
+computers. Since the 1970s, this discrete time series average
+event-related brain potential (ERP) has been a cornerstone of
+experimental EEG research on human sensation, perception, and
+cognition. For a compendium see the Oxford Handbook of Event-related
+Potentials, [LucKap2011]_.
 
 
 ===============
 regression ERPs
 ===============
 
-In 2015 Smith and Kutas published a seminal paper ([SmiKut15]_) noting
+In 2015 Smith and Kutas published a seminal paper ([SmiKut2015]_) noting
 that the average of a set of values, :math:`y`, is identical to
 the estimated constant, :math:`\hat{\beta}_{0}` for the linear model
 
@@ -55,17 +56,20 @@ the estimated constant, :math:`\hat{\beta}_{0}` for the linear model
 
 fit by minimizing squared error (ordinary least squares). They pointed
 out that this makes the average ERP a special case of sweeping a
-linear regression model along the EEG and generalized this to
-more complex multiple regression models,
+linear regression model along the EEG at time, *t*, and
+generalized this to more complex multiple regression models,
 
 .. math::
 
-   y = \beta_{0} + \beta_{1}X_{1} \ldots \beta_{n}X_{i} + e
+   y(t) = \beta_{0}(t) + \beta_{1}X_{1}(t) \ldots \beta_{n}X_{i}(t) + e(t)
 
 Sweeping any such model along the EEG time point by time point
 likewise produces time series of estimates for the intercept and
 regressor coefficients, the :math:`\hat{\beta}_{i}` they dubbed the
-"regression ERP" (rERP) waveforms.
+"regression ERP" (rERP) waveforms. More generally it produces a time
+series for each of the the model estimates and derived quantities,
+such as coefficient standard errors, residuals, :math:`R^2`, likelihood,
+Akiake's information criterion, and so forth.
 
 This insight extends sum-and-divide Hunt-Dawson aggregation and embeds
 event-related EEG data analysis in a general framework for
@@ -146,7 +150,7 @@ mixed effects models are shipped out of Python and into R via Eshin Jolly's
 `pymer4 <https://github.com/kmerkmer/pymer>`_ interface [Jolly19]_ and fit with
 `lme4::lmer
 <https://cran.r-project.org/web/packages/lme4/index.html>`_ (see
-[BatMaeBolWal2015]_).
+[BatesEtAl2015]_).
 
 For illustration with `patsy` and `statsmodels`, suppose you have a
 pandas DataFrame ``data`` with independent variables ``x`` and ``a``,

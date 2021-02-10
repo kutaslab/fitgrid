@@ -18,7 +18,7 @@ The basic `fitgrid` modeling workflow is four steps:
 #. Prepare a 2-D vertical stack of fixed-length epochs as
    `pandas.DataFrame`. **Rows** = observations, indexed for epoch and time.
    **Columns** = data channels (numeric) and model predictor
-   variables (numeric, string). See :ref:`epochs_data_format` for
+   variables (numeric, string, boolean). See :ref:`epochs_data_format` for
    details.
 
 #. Load the data into a `fitgrid.Epochs` object for modeling.
@@ -40,7 +40,7 @@ The basic `fitgrid` modeling workflow is four steps:
 # 1. Prepare epochs data
 # ======================
 #
-# `fitgrid` assumes you are modeling epochs, i.e., fixed-length #
+# `fitgrid` assumes you are modeling epochs, i.e., fixed-length 
 # segments of typically multi-channel digital data, time stamped, and
 # collected in a tidy `pandas.DataFrame` (see
 # :ref:`epochs_data_format` for details).
@@ -114,14 +114,14 @@ p3_epochs_df = pd.read_feather(DATA_DIR / "sub000p3.ms1500.epochs.feather")
 # select the experimental stimulus trials for modeling
 p3_epochs_df = p3_epochs_df.query("stim in ['standard', 'target']")
 
-# look up the data QC flags and select the good epochs
-good_epochs = p3_epochs_df.query("match_time == 0 and log_flags == 0")[
+# rename the time stamp column
+p3_epochs_df.rename(columns={"match_time": "time_ms"}, inplace=True)
+
+# data QC flags are set on the stimulus events, look up and select the good epochs
+good_epochs = p3_epochs_df.query("time_ms == 0 and log_flags == 0")[
     "epoch_id"
 ]
 p3_epochs_df = p3_epochs_df.query("epoch_id in @good_epochs")
-
-# the original time stamp column name is obscure, rename for clarity
-p3_epochs_df.rename(columns={"match_time": "time_ms"}, inplace=True)
 
 # select columns of interest for modeling
 indices = ["epoch_id", "time_ms"]
@@ -135,13 +135,13 @@ p3_epochs_df = p3_epochs_df[indices + predictors + channels]
 #    The `epoch_id` and `time` indices must be present in the
 #    dataframe index (`pandas.MultiIndex`) when loading the
 #    `fitgrid.Epochs` in the next step. They are also handy
-#    for single trial and time series data wrangling
+#    for general purpose epoch and time series data wrangling
 #    e.g., with `pandas.DataFrame.groupby` as shown here.
 
 # set the epoch and time column index for fg.Epochs
 p3_epochs_df.set_index(["epoch_id", "time_ms"], inplace=True)
 
-# "baseline", i.e., center each epoch, each channel on its pre-stimulus interval mean
+# "baseline", i.e., center each epoch, each channel, on its pre-stimulus interval mean
 centered = []
 for epoch_id, vals in p3_epochs_df.groupby("epoch_id"):
     centered.append(
@@ -175,11 +175,21 @@ p3_epochs_fg
 # 3. Fit a model
 # ==============
 #
-# Once the `fg.Epochs` are in place, `fitgrid.lm` and `fitgrid.lmer` methods
-# sweep a model formula across the epoch data at each time and channel and capture the model fits.
+# Once the `fg.Epochs` are in place, `fitgrid.lm` and `fitgrid.lmer`
+# methods sweep a model formula across the epoch data at each time and
+# channel and capture the model fits.  The model formulas are those
+# already in wide use Python and R. For ordinary least squares (OLS)
+# fitgrid uses `patsy <https://patsy.readthedocs.io/en/latest>`_
+# formulas which work like `lm` formulas in R when fit with the
+# `statsmodels.formula.api`. For linear mixed-effects regression
+# models (LME), fitgrid uses `lme4::lmer <https://cran.r-project.org/web/packages/lme4/index.html>`_ 
+# formulas. Under
+# the hood, the LME formulas are passed from Python to R and the
+# `lme4::lmer` fits returned back to Python and `fitgrid` via `pymer4
+# <http://eshinjolly.com/pymer4>`_ ([Jolly2018]_).
 #
-# Here the `patsy` formula :math:`\sim \mathsf{1 +
-# stim}` is used for OLS model fitting with `statsmodels`.
+# Here the `patsy` formula :math:`\sim \mathsf{1 + stim}` is used for 
+# OLS model fitting with `statsmodels`.
 
 lmg_1_stim = fg.lm(p3_epochs_fg, RHS="1 + stim")
 
