@@ -1,3 +1,5 @@
+.. _bibliograpy:
+
 ============
 Bibliography
 ============
@@ -20,6 +22,8 @@ Research reports using `fitgrid`
       National Academy of
       Sciences, 201922028. https://doi.org/10.1073/pnas.1922028117
 
+
+.. _references:
 
 References
 ----------
@@ -76,9 +80,6 @@ References
        influential data in mixed effects models.  R journal, 4(2),
        38-47.
 
-.. [Smith2020] Smith, N. J., patsy - Describing statistical models in
-       Python. Documentation: <https://patsy.readthedocs.io>.
-
 .. [R2020] R Core Team (2020). R: A language and environment for
       statistical computing. R Foundation for Statistical Computing,
       Vienna, Austria.  URL: <https://www.R-project.org>.
@@ -93,3 +94,7 @@ References
       framework. Psychophysiology. doi:10.1111/psyp.12317. `[PubMed
       open access]
       <https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5308234/>`_
+
+.. [Smith2020] Smith, N. J., patsy - Describing statistical models in
+       Python. Documentation: <https://patsy.readthedocs.io>.
+

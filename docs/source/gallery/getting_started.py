@@ -4,16 +4,17 @@
 Getting Started
 ###############
 
-**TL; DR** conda install fitgrid and `jupyter` into a fresh conda
-virtual environment (see :ref:`here
+**TL; DR** conda install `fitgrid` and `jupyter` into a fresh conda
+virtual environment (shown :ref:`here
 <conda_install_fitgrid>`). Download this document as Jupyter notebook
 and run it. Read the notes, explore the output. Prerequisites: a
-working knowledge of conda virtual environments, regression modeling
-with formulas :math:`\mathsf{\sim ~ 1 + a + b + a:b}` in Python or R,
+working knowledge of conda and virtual environments, regression modeling
+with formulas like :math:`\mathsf{\sim ~ 1 + a + b + a:b}` in Python or R,
 and a bit of general purpose Python and `pandas`.
 
 
-The basic `fitgrid` modeling workflow is four steps:
+With multichannel digital recordings in hand, the basic `fitgrid`
+modeling workflow is four steps:
 
 #. Prepare a 2-D vertical stack of fixed-length epochs as
    `pandas.DataFrame`. **Rows** = observations, indexed for epoch and time.

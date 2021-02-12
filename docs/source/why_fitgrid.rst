@@ -85,7 +85,7 @@ Modeling: fit, diagnose, compare, evaluate, revise, repeat
 These days specifying and fitting a linear regression model is a
 matter of organizing the data into a table of rows (observations) and
 columns (variables), typing a model specification formula like
-:math:`1 + a + b + a:b` and pressing Enter. While **fitting** a model is
+:math:`\mathsf{1 + a + b + a:b}` and pressing Enter. While **fitting** a model is
 relatively easy and mechanical, **modeling**, by contrast, is a laborious
 process that iterates cycles of data quality control, fitting,
 data diagnosis, model evaluation, comparison, and selection with numerous
@@ -119,23 +119,23 @@ multichannel event-related time series recordings, at scale, with
 a few lines of scripted Python. 
 
 With one function call, `fitgrid` sweeps a model formula across the
-data at each of the timepoints x channels (in parallel on multiple CPU
+data observations at each time and channel (in parallel on multiple CPU
 cores if supported by hardware) and collects the resulting fit objects
-returned by `statsmodels.ols` and `lme4::lmer` via `pymer4` in a
-single time x Channel `FitGrid` Python object. 
+returned by `statsmodels.ols` or `lme4::lmer` via `pymer4` in a
+single `FitGrid[times, channels]` Python object. 
 
-The grid can be sliced by time and channel like a dataframe,
-`FitGrid[times, channels]` and fit results for the grid are accessed
-with the same familiar syntax as a single fit object. These results
-include the time-series of coefficient estimates comprising the
-regression ERPs, including, but not restricted to, the Hunt-Dawson
-ERP.  Equally important for modeling, the results also include
+The `FitGrid` can be sliced by time and channel like a dataframe, and
+the results for a fit attribute are queried for the entire grid with
+the same syntax as single fit: ``results = FitGrid.<attr>``. The
+results include the time-series of coefficient estimates comprising
+the regression ERPs, including, but not restricted to, the special 
+case average ERP.  Equally important for modeling, the results also include
 everything else in the bundle of information comprising the fit object
 such as coefficient standard errors, model log likelihood, Akiake's
-information criterion, model and error mean squares, and so
-forth. The results are returned as tidy Time x Channel dataframes
-for easy visualization and analysis in Python and data interchange
-across scientific computing platforms as illustrated in
+information criterion, model and error mean squares, and so forth. The
+results are returned as tidy Time x Channel dataframes for handy
+visualization and analysis in Python and data interchange across
+scientific computing platforms as illustrated in
 :ref:`getting_started` and the :ref:`examples_gallery`.
 
 
@@ -147,7 +147,7 @@ Ordinary least squares models are fit in Python using the
 `statsmodels`_ statstics package and the `patsy
 <https://patsy.readthedocs.io/en/latest/>`_ formula language. Linear
 mixed effects models are shipped out of Python and into R via Eshin Jolly's
-`pymer4 <https://github.com/kmerkmer/pymer>`_ interface [Jolly19]_ and fit with
+`pymer4 <https://github.com/kmerkmer/pymer>`_ interface [Jolly2018]_, and fit with
 `lme4::lmer
 <https://cran.r-project.org/web/packages/lme4/index.html>`_ (see
 [BatesEtAl2015]_).
@@ -257,8 +257,8 @@ The exact same approach works in ``fitgrid``::
 Although the origins of `fitgrid` are in EEG data analysis, `fitgrid`
 can also be used with sensor array time-series data from other domains
 where event-related signal averaging and and regression modeling is
-appropriate. The :ref:`Examples Gallery` uses hourly NOAA tide and
-atmospheric data to illustrate an outdated but instructive example
-model for detecting lunar tides in the atmosphere that Dawson
-attributes to Laplace.
+appropriate. The :ref:`examples_gallery` includes hourly NOAA tide and
+atmospheric data to illustrate event-related time-domain aggregation
+to detect lunar atmospheric tides, an approach first attempted by 
+Laplace in the early 19th century [LinCha1969]_.
 
