@@ -50,17 +50,18 @@ Laplace's (unsuccessful) 19th century attempt to isolate small but
 regular lunar atmospheric tides among the much larger irregular
 pressure fluctuations [@LinCha1969]. Hunt-Dawson time-domain averaging
 was a breakthrough. In subsequent decades, laboratory experiments
-showed that sweeping a sum-and-divide-by-$n$ averager across $n$
-time-aligned EEG recordings revealed transient and steady-state brain
-responses down to fractions of a microvolt at frequencies up to 100 Hz
-before, during, and after a wide range of sensory stimulation, motor
-responses, and internal mental events. Oscilloscopic sweep averagers
-gave way to multichannel analog-to-digital data acquisition and
-sum-and-divide averaging in software on general purpose
-computers. Since the 1970s, the discrete time series average
-event-related brain potential (ERP) has been a cornerstone of
-experimental brain research on human sensation, perception, and
-cognition [@LucKap2013].
+showed that whereas EEG is typically around 25 - 75 $\mu$V peak to
+peak, for $n$ on the order of 10 to 1000, sweeping a
+sum-and-divide-by-$n$ averager across the time-aligned EEG recordings
+revealed transient and steady-state brain responses down to fractions
+of a microvolt over a wide range of frequencies before, during, and
+after sensory stimulation, motor responses, and internal mental
+events. Oscilloscopic sweep averagers gave way to multichannel
+analog-to-digital data acquisition and sum-and-divide averaging in
+software on general purpose computers. Since the 1970s, the resulting
+*discrete time-domain average event-related brain potential* or ERP
+has been a cornerstone of experimental brain research on human
+sensation, perception, and cognition [@LucKap2013].
 
 In a seminal paper, Smith and Kutas noted that the average of a set of
 values, $y$, is identical to the estimated constant, $\hat{\beta}_{0}$
@@ -75,19 +76,19 @@ for the intercept and each regressor coefficient, the
 $\hat{\beta}_{0}(t), \hat{\beta}_{1}(t), \ldots, \hat{\beta}_{p}(t)$
 they dubbed regression ERP (rERP) waveforms.  This holds for
 straight-line fits ("slope" rERPs) as well as models of curvilinear
-relations between a predictor variable and the data, e.g., spline
-regression [@SmiKut2015b]. Still more generally, the approach produces
-time series for all the basic and derived quantities of the fitted
-model: parameter estimates and their standard errors, residuals,
-residual error, likelihood, Akiake's information criterion (AI), and
-so forth.
+relationship, e.g., via spline regression [@SmiKut2015b]. Still more
+generally, the approach produces time series for all the basic and
+derived quantities of the fitted model: parameter estimates and their
+standard errors, residuals, residual error, likelihood, Akiake's
+information criterion (AI), and so forth.
 
 The insight that sum-and-divide averaging is special case of
-regression modeling encourages a shift in perspective from Hunt-Dawson
-signal detection to the general framework of applied regression for
-fitting, evaluating, and comparing a range of models to account for
-systematic variation in the time course of EEG responses. With this
-shift, however, comes a new problem.
+regression modeling encourages a shift in perspective from
+Laplace-Hunt-Dawson "needle in a haystack" signal detection to the
+general framework of applied regression for fitting, evaluating, and
+comparing a range of models to account for systematic variation in the
+time course of EEG responses. With this shift, however, comes a new
+problem.
 
 
 # Statement of need
@@ -97,18 +98,17 @@ current scientific computing platform. Informative modeling, by
 contrast, is a laborious process that iterates cycles of data quality
 control, fitting, data diagnosis, model evaluation, comparison,
 selection, and interpretation with numerous decision points that
-require thought and judgment along the way.
+require thought and judgment.
 
 Modeling digitized multichannel EEG data as regression ERPs at each
 time point and data channel multiplies the iterative cycles in a
 combinatorial explosion of times $\times$ channels $\times$ models
-$\times$ comparisons. For example, at a digital sampling rate of 250
-samples per second, there are 750 time points in 3 seconds of EEG
-data. For 32 EEG channels, this makes 750 timepoints x 32 channels =
-24,000 data sets.  To fit three candidate models requires
-72,000 separate model fits where the size of the data set might range
-anywhere from a few dozens of observations for a single subject to
-tens of thousands of observations for a large scale
+$\times$ comparisons. For instance, at a digital sampling rate of 250
+samples per second, in 3 seconds of 32-channel EEG data there are
+24,000 data sets (= 3 $\times$ 250 $\times$ 32). To fit three candidate
+models requires 72,000 separate model fits, where the size of each data
+set might range anywhere from a few dozens of observations for a
+single subject to tens of thousands of observations for a large scale
 experiment. Nothing can prevent the combinatorial explosion; `fitgrid`
 is designed to contain it.
 
@@ -119,19 +119,19 @@ toolboxes written for MATLAB such as EEGLAB [@DelMak2004], FieldTrip
 modeling, e.g., @EhiDim2019.  Like open-source scientific computing
 generally, Python and R have been gaining traction for EEG and MEG
 analysis, as in MNE Python @GramfortEtAl2013 and for regression ERPs
-in R, @TreNew2015. Nevertheless, for rERP modeling in the Python
-ecosystem, widely accessible implementations in Python remain limited.
-Development of N. J. Smith's promising rERPy Python package for ERP
-and rERP analysis appears to have halted around Python 2.6 or 2.7. MNE
-Python implements a `linear_regression` function for computing rERP
-coefficients on continuous data as described in @SmiKut2015b but not
-time series of OLS or mixed-effects model fits.
+in R, @TreNew2015. Nevertheless, widely accessible implementations for
+rERP modeling in the Python remain limited.  Development of
+N. J. Smith's promising rERPy Python package for ERP and rERP analysis
+appears to have halted at Python 2.6 or 2.7. MNE Python implements
+a `linear_regression` function for computing rERP coefficients on
+continuous data as described in @SmiKut2015b but not time series of
+OLS or mixed-effects model fits.
 
 # fitgrid
 
 
 `fitgrid` is intended to fill this gap and make rERP modeling as
-in @SmiKut2015a accessible to researchers with a working knowledge of
+in @SmiKut2015 accessible to researchers with a working knowledge of
 scripted data analysis in Python and the symbolic formulae such as
 $\mathsf{\sim 1 + a + b + a:b}$ and $\mathsf{\sim 1 + a*b + (a|s) +
 (a|i) }$ deriving from `S` [@ChaHas1991; @BecCha1984] and currently in
