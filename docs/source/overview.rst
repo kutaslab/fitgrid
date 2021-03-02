@@ -145,7 +145,7 @@ Ordinary least squares models are fit in Python using the
 `statsmodels`_ statstics package and the `patsy
 <https://patsy.readthedocs.io/en/latest/>`_ formula language. Linear
 mixed effects models are shipped out of Python and into R via Eshin Jolly's
-`pymer4 <https://github.com/ejolly/pymer4>`_ interface [Jolly18]_ and fit with
+`pymer4 <https://github.com/ejolly/pymer4>`_ interface [Jolly2018]_ and fit with
 `lme4::lmer
 <https://cran.r-project.org/web/packages/lme4/index.html>`_ (see
 [BatMaeBolWal2015]_).
