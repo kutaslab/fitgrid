@@ -45,7 +45,7 @@ Event-related Potentials, [LucKap2011]_.
 regression ERPs
 ===============
 
-In 2015 Smith and Kutas published a seminal paper ([SmiKut15]_) noting
+In 2015 Smith and Kutas published a seminal paper ([SmiKut2015]_) noting
 that the average of a set of values, :math:`y`, is identical to
 the estimated constant, :math:`\hat{\beta}_{0}` for the linear model
 
@@ -132,7 +132,7 @@ information criterion, model and error mean squares, and so
 forth. The results are returned as tidy Time x Channel dataframes
 for easy visualization and analysis in Python and data interchange
 across scientific computing platforms as illustrated in
-:ref:`getting_started` and the :ref:`examples_gallery`.
+:ref:`getting_started` and the :ref:`gallery`.
 
 
 ==============================
@@ -143,7 +143,7 @@ Ordinary least squares models are fit in Python using the
 `statsmodels`_ statstics package and the `patsy
 <https://patsy.readthedocs.io/en/latest/>`_ formula language. Linear
 mixed effects models are shipped out of Python and into R via Eshin Jolly's
-`pymer4 <https://github.com/kmerkmer/pymer>`_ interface [Jolly19]_ and fit with
+`pymer4 <https://github.com/ejolly/pymer4>`_ interface [Jolly2018]_ and fit with
 `lme4::lmer
 <https://cran.r-project.org/web/packages/lme4/index.html>`_ (see
 [BatMaeBolWal2015]_).

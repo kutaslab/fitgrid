@@ -27,6 +27,9 @@ Bibliography
        and Clinical Neurophysiology, 6(1),
        65-84. doi:10.1016/0013-4694(54)90007-3
 
+.. [Jolly2018] Jolly, (2018). Pymer4: Connecting R and Python for Linear Mixed
+       Modeling. Journal of Open Source Software, 3(31), 862,
+       https://doi.org/10.21105/joss.00862
 
 .. [LinCha1969] Lindzen, R. S., & Chapman, S. (1969). Atmospheric
        tides. Space science reviews, 10(1), 3-188.
