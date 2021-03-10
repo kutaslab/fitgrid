@@ -103,7 +103,7 @@ sphinx_gallery_conf = {
     # execute all *.py (not default plot_*.py)
     "filename_pattern": "[a-zA-Z]+.py",
     # or ... select files individally to speed up execution for preview
-    # "filename_pattern": "getting_started.py",
+    # "filename_pattern": ".*/quickstart.py",
     "image_scrapers": (fg_matplotlib_scraper(),),
     # or set to https://kutaslab.github.io/fitgrid/ to reduce notebook size
     "notebook_images": True,

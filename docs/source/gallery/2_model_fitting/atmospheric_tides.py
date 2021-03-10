@@ -5,13 +5,12 @@
 
 Dawson introduced the summation procedure for detecting tiny but
 regular time-varying brain responses to stimulation embedded in the
-irregular fluctuations of background EEG ([Dawson1954]_), noting that the 
-idea of aggregating noisy measurements was already well known. As an
-example, he pointed to Laplace's early 19th century attempt to detect
-tiny but regular lunar gravitational pressure tides in the atmosphere
-embedded in the larger fluctuations of barometric pressure driven by
-other factors, e.g., solar warming, weather systems, seasonal
-variation.
+irregular fluctuations of background EEG ([Dawson1954]_). He noted
+that the idea of aggregating noisy measurements was already well known
+and pointed to Laplace's early 19th century attempt to detect tiny but
+regular lunar gravitational pressure tides in the atmosphere, embedded
+in the larger fluctuations of barometric pressure driven by other
+factors, e.g., solar warming, weather systems, seasonal variation.
 
 The subject of atmospheric lunar tides is complex and has a rich
 scientific history ([LinCha1969]_).  This example it is not a

@@ -1,4 +1,4 @@
-.. _bibliograpy:
+.. _bibliography:
 
 ============
 Bibliography

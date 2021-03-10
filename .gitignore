@@ -1,6 +1,8 @@
 # TODOs files
 *.todo
 
+**/.DS_Store
+
 # emacs previous version
 *~
 

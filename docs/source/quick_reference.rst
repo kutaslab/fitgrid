@@ -1,6 +1,3 @@
-#########
-Reference
-#########
 
 This is a list of tools available in ``fitgrid``.
 
@@ -8,17 +5,11 @@ This is a list of tools available in ``fitgrid``.
    :noindex:
 
 
-===============
-Data generation
-===============
 
-``fitgrid`` has a built-in function that generates data and creates ``Epochs``:
-
-.. autofunction:: generate
-   :noindex:
+.. _data_ingestion:
 
 ==============
-Data ingestion
+Data Ingestion
 ==============
 
 Functions that read epochs tables and create ``Epochs`` and load ``FitGrid``
@@ -32,6 +23,20 @@ objects.
 
 .. autofunction:: load_grid
    :noindex:
+
+
+
+.. _data_simulation:
+
+===============
+Data Simulation
+===============
+
+``fitgrid`` has a built-in function that generates data and creates ``Epochs``:
+
+.. autofunction:: generate
+   :noindex:
+
 
 ==================
 ``Epochs`` methods
@@ -59,8 +64,10 @@ Model running
 ``FitGrid`` methods
 ===================
 
+
 .. autofunction:: fitgrid.fitgrid.FitGrid.save
    :noindex:
+
 
 =====================
 ``LMFitGrid`` methods

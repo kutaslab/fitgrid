@@ -1,8 +1,8 @@
-.. _why_fitgrid:
+. _about_fitgrid:
 
-##############
-Why `fitgrid`?
-##############
+###############
+About `fitgrid`
+###############
 
 
 ============================
@@ -132,11 +132,11 @@ the regression ERPs, including, but not restricted to, the special
 case average ERP.  Equally important for modeling, the results also include
 everything else in the bundle of information comprising the fit object
 such as coefficient standard errors, model log likelihood, Akiake's
-information criterion, model and error mean squares, and so
-forth. The results are returned as tidy Time x Channel dataframes
-for easy visualization and analysis in Python and data interchange
-across scientific computing platforms as illustrated in
-:ref:`getting_started` and the :ref:`gallery`.
+information criterion, model and error mean squares, and so forth. The
+results are returned as tidy Time x Channel dataframes for handy
+visualization and analysis in Python and data interchange across
+scientific computing platforms as illustrated in
+:ref:`workflow` and the :ref:`gallery`.
 
 ==============================
 `fitgrid` Design: How it works
@@ -257,7 +257,7 @@ The exact same approach works in ``fitgrid``::
 Although the origins of `fitgrid` are in EEG data analysis, `fitgrid`
 can also be used with sensor array time-series data from other domains
 where event-related signal averaging and and regression modeling is
-appropriate. The :ref:`examples_gallery` includes hourly NOAA tide and
+appropriate. The :ref:`gallery` includes hourly NOAA tide and
 atmospheric data to illustrate event-related time-domain aggregation
 to detect lunar atmospheric tides, an approach first attempted by 
 Laplace in the early 19th century [LinCha1969]_.
