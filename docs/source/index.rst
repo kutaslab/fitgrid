@@ -25,14 +25,14 @@ reproducibly with familiar tools and minimal programming in Python
 data analysis workflows.
 
 For a summary of the problem `fitgrid` solves, why it is worth
-solving, and how it is solved, see the :ref:`why_fitgrid`. The
-:ref:`getting_started` section outlines and illustrates the `fitgrid`
+solving, and how it is solved, see the :ref:`about_fitgrid`. The
+:ref:`workflow` section outlines and illustrates the `fitgrid`
 analysis workflow with executable examples. The :ref:`user_guide`
 provides additional information about specific topics including how
 the OLS models are fit in Python `statsmodels` [SeaSkiPer2010]_ and
 the LMER models are fit in R (`lme4::lmer`, `lmerTest`
 [KuzBroChr2017]_) via `pymer4` [Jolly2018]_ under the hood. The
-:ref:`examples_gallery` contains executable `fitgrid` vignettes with
+:ref:`gallery` contains executable `fitgrid` vignettes with
 simulated data, experimental EEG recordings, and NOAA tide and
 atmospheric observations. The examples can be downloaded as Python
 scripts or Jupyter notebooks thanks to `sphinx-gallery
@@ -46,9 +46,9 @@ listing of `fitgrid` classes, methods, attributes, and functions.  The
     :hidden:
     :glob:
 
-    why_fitgrid
+    about_fitgrid
     installation
-    auto_gallery/getting_started
+    auto_gallery/quickstart
     user_guide
     gallery
     api

@@ -1,6 +1,5 @@
 """.. _workflow:
 
-
 Workflow Outline
 ################
 

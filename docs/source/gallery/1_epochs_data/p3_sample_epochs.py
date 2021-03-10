@@ -4,7 +4,7 @@ EEG sample epochs
 """
 
 # %%
-# These are the EEG data used in :ref:`getting_started`
+# These are the EEG data used in :ref:`workflow`
 #
 # **Experimental design.** These data are single-trial EEG epochs
 # recorded at 250 digital samples per second from one individual in an
@@ -22,6 +22,7 @@ EEG sample epochs
 from matplotlib import pyplot as plt
 import pandas as pd
 from fitgrid import DATA_DIR, sample_data
+
 
 # download the epochs data and read into a pd.DataFrame
 sample_data.get_file("sub000p3.ms1500.epochs.feather")

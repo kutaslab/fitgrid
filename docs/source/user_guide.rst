@@ -1,14 +1,16 @@
 .. _user_guide:
 
+
+.. module:: fitgrid
+   :noindex:
+
+
 ##########
 User Guide
 ##########
 
-TL;DR These are notes, pointers, and highlights. For "how to" and use
-cases see the :ref:`examples_gallery`.
-
-.. module:: fitgrid
-   :noindex:
+TL;DR These are notes and highlights. For usage see
+the :ref:`workflow`, :ref:`gallery`, and :ref:`api`
 
 
 ================
@@ -29,9 +31,9 @@ uniquely identify the epoch and time of the data row.
 
 .. _epochs_data_format:
 
------------
-Data Format
------------
+------
+Format
+------
 
 **Specification:** Data for `fitgrid` modeling should be prepared as a single
 `pandas.Dataframe` with these columns and data types:
@@ -65,45 +67,25 @@ chart and time-stamped relative to an experimental event.
 .. image:: _static/eeg_epochs.png
 
 
----------
-Ingestion
----------
+--------------------------------------
+:ref:`Data Ingestion <data_ingestion>`
+--------------------------------------
 
 Rows and columns epochs data can be loaded into a `fitgrid.Epochs`
 object from a `pandas.DataFrame` in memory or read from files in
-feather or HDF5 format (for details see
-`pandas.read_feather <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_feather.html>`_
-and `pandas.read_hdf <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_hdf.html>`_).
+feather or HDF5 format. 
+
+For details on these data formats see `pandas.read_feather
+<https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_feather.html>`_
+and `pandas.read_hdf
+<https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_hdf.html>`_).
 
 
-.. autofunction:: epochs_from_dataframe
-   :noindex:
+-----------------------------------------
+:ref:`Data Simulation <data_simulation>`.
+-----------------------------------------
 
-.. autofunction:: epochs_from_hdf
-   :noindex:
-
-.. autofunction:: epochs_from_feather
-   :noindex:
-
-
-----------
-Simulation
-----------
-
-``fitgrid`` has a built-in function that generates data and creates ``Epochs`` data for testing:
-
-.. autofunction:: generate
-   :noindex:
-
-.. 
-   ==================
-   ``Epochs`` methods
-   ==================
-
-   Models and plotting.
-
-   .. autofunction:: fitgrid.epochs.Epochs.plot_averages
-      :noindex:
+``fitgrid`` has a built-in function that generates data and creates ``Epochs`` data for testing.
 
 
 
@@ -112,43 +94,39 @@ Fitting a model
 ===============
 
 
-The following methods populate the `FitGrid[time, channel]` object
+The following methods populate the `FitGrid[time, channel]` object.
 with `statsmodels` results for OLS model fits and `lme4::lmer` for
-linear mixed-effects fits.
+linear mixed-effects fits. 
+
+* Ordinary least squares: :py:meth:`fitgrid.lm`
 
 
---------------------------------------
-Ordinary least squares (`statsmodels`)
---------------------------------------
+  .. code-block:: python
+
+     lm_grid = fitgrid.lm(
+         epochs_fg,
+         RHS='1 + categorical + continuous'
+     )
 
 
-.. autofunction:: fitgrid.lm
-   :noindex:
+
+* Linear mixed-effects: :py:meth:`fitgrid.lmer`
+
+  .. code-block:: python
+
+     lmer_grid = fitgrid.lmer(
+         epochs_fg,
+         RHS='1 + continuous + (continuous | categorical)'
+     )
 
 
------------------------------------
-Linear mixed-effects (`lme4::lmer`)
------------------------------------
 
-
-.. autofunction:: fitgrid.lmer
-   :noindex:
-
-
----------------------------
-User-defined (experimental)
----------------------------
-
-
-.. autofunction:: fitgrid.run_model
-   :noindex:
-
+* User-defined (experimental): :py:meth:`fitgrid.run_model`
 
 
 ============================
 The `FitGrid[time, channel]`
 ============================
-
 
 
 --------------------------
@@ -161,10 +139,9 @@ The range includes the upper bound.
 
 .. code-block:: python
 
-   lmg_1_stim[:, ["MiCe", "MiPa"]]
-   lmg_1_stim[-100:300, :]
-   lmg_1_stim[0, "MiPa"]
- 
+   lm_grid[:, ["MiCe", "MiPa"]]
+   lm_grid[-100:300, :]
+   lm_grid[0, "MiPa"]
 
 
 --------------
@@ -178,9 +155,8 @@ queried the same way.
 
 .. code-block:: python
 
-   lmg_1_stim.params
-   lmg_1_stim.llf
-
+   lmg_grid.params
+   lmg_grid.llf
 
 
 ----------------
@@ -189,24 +165,17 @@ Slice and access
 
 .. code-block:: python
 
-   lmg_1_stim[-100:300, ["MiCe", "MiPa"].params
+   lm_grid[-100:300, ["MiCe", "MiPa"].params
 
 
 ---------------------
 ``LMFitGrid`` methods
 ---------------------
 
-Plotting and statistics.
-
-.. autofunction:: fitgrid.fitgrid.LMFitGrid.influential_epochs
-   :noindex:
-
-.. autofunction:: fitgrid.fitgrid.LMFitGrid.plot_betas
-   :noindex:
-
-.. autofunction:: fitgrid.fitgrid.LMFitGrid.plot_adj_rsquared
-   :noindex:
-
+The fitted OLS grid provides time-series plots of selected model
+results: estimated coefficients :py:meth:`fitgrid.lm.plot_betas` and
+adjusted :math:`R^2` :py:meth:`fitgrid.lm.plot_adj_rsquared` (see also
+:py:meth:`fitgrid.utils` for additional model summary wrappers).
 
 
 ========================
@@ -231,14 +200,6 @@ Later you can reload the ``grid``::
     grid = fitgrid.load_grid('lmer_results')
 
 
-.. autofunction:: fitgrid.fitgrid.FitGrid.save
-   :noindex:
-
-
-.. autofunction:: load_grid
-   :noindex:
-
-
 .. warning::
 
    Fitted grids are saved and loaded with Python `pickle` which is not
@@ -251,8 +212,8 @@ Later you can reload the ``grid``::
    the dataframe to a standard data interchange format.
 
 
-.. _guide_summaries:
 
+.. _guide_summaries:
 
 ===============================
 Model comparisons and summaries
@@ -266,18 +227,8 @@ comparison. Unlike the primary `FitGrid`, the summary dataframe format
 is the same for `fitgrid.lm` and `fitgrid.lmer`. Some helper functions
 are available for visualizing selected summary results.
 
-.. autofunction:: fitgrid.utils.summary.summarize
-   :noindex:
-
-.. autofunction:: fitgrid.utils.summary.plot_betas
-   :noindex:
-
-.. autofunction:: fitgrid.utils.summary.plot_AICmin_deltas
-   :noindex:
-
 
 .. _diagnostics:
-
 
 ================================
 Model and data diagnostics (WIP)
@@ -306,30 +257,6 @@ support for mixed-effects modeling in Python rather than expand further
 into the R ecosystem.
 
 
---------------
-lm diagnostics
---------------
-
-.. autofunction:: fitgrid.utils.lm.list_diagnostics
-   :noindex:
-
-.. autofunction:: fitgrid.utils.lm.get_diagnostic
-   :noindex:
-
-.. autofunction:: fitgrid.utils.lm.filter_diagnostic
-   :noindex:
-
-.. autofunction:: fitgrid.utils.lm.get_vifs
-   :noindex:
-
-
-----------------
-lmer diagnostics
-----------------
-
-.. autofunction:: fitgrid.utils.lmer.get_lmer_dfbetas
-   :noindex:
-
 
 ========================
 `fitgrid` under the hood
@@ -350,25 +277,35 @@ directly, because we use `lme4` (indirectly).
 Multicore model fitting
 -----------------------
 
-On a multicore machine, model fitting can be parallelized to achieve a
-significant speedup. ``fitgrid.lm`` uses ``statsmodels`` under the hood to fit
-a linear least squares model, which in turn employs ``numpy`` for calculations.
-``numpy`` itself depends on linear algebra libraries that might be configured
-to use multiple threads by default. This means that on a 48 core machine,
-common linear algebra calculations might use 24 cores automatically, without
-any explicit parallelization. So when you explicitly parallelize your
-calculations using Python processes (say 4 of them), each process might start
-24 threads. In this situation, 96 CPU bound threads are wrestling each other
-for time on the 48 core CPU. This is called oversubscription and results in
-*slower* computations.
+On a multicore machine, it may be possible to significantly speed 
+fitting by computing the models in parallel. ``fitgrid.lm`` uses
+``statsmodels`` under the hood to fit a linear least squares model,
+which in turn employs ``numpy`` for calculations.  ``numpy`` itself
+depends on linear algebra libraries that might be configured to use
+multiple threads by default. This means that on a 48 core machine,
+common linear algebra calculations might use 24 cores automatically,
+without any explicit parallelization. So when you explicitly
+parallelize your calculations using Python processes (say 4 of them),
+each process might start 24 threads. In this situation, 96 CPU bound
+threads are wrestling each other for time on the 48 core CPU. This is
+called oversubscription and results in *slower* computations.
 
-To deal with this when running ``fitgrid.lm``, we try to instruct the linear
-algebra libraries your ``numpy`` distribution depends on to only use a single
-thread in every computation. This then lets you control the number of CPU cores
-being used by setting the ``n_cores`` parameter in ``fitgrid.lm``.
+To deal with this when running ``fitgrid.lm``, we try to instruct the
+linear algebra libraries your ``numpy`` distribution depends on to
+only use a single thread in every computation. This then lets you
+control the number of CPU cores being used by setting the ``n_cores``
+parameter in :py:meth:`fitgrid.lm` and :py:meth:`fitgrid.lmer`. 
 
-If you are using your own 8-core laptop, you might want to use all cores, so
-set something like ``n_cores=7``. On a shared machine, it's a good idea to run
-on half or 3/4 of the cores if no one else is running heavy computations.
+If you are using your own 8-core laptop, you might want to use all
+cores, so set something like ``n_cores=7``. On a shared machine, it's
+a good idea to run on half or 3/4 of the cores if no one else is
+running heavy computations. 
 
-
+Note that fitgrid parallel processing counts the "logical" cores
+available to the operating system and this may differ from the number
+of physical cores, depending on the system hardware and setting, e.g.,
+Intel CPUs with hyperthreading enabled. The Python package
+`psutil <https://psutil.readthedocs.io/en/latest/>`_ and
+``psutil.cpu_count(logical=True)`` and
+``psutil.cpu_count(logical=False)`` may be useful for interrogating
+the system about the available resources.
