@@ -1,0 +1,2628 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Workflow Outline &mdash; fitgrid 0.5.0.dev1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-rendered-html.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Epochs data" href="1_epochs_data/index.html" />
+    <link rel="prev" title="Examples Gallery" href="../gallery.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> fitgrid
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../about_fitgrid.html">About <cite>fitgrid</cite></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide.html">User Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../gallery.html">Examples Gallery</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Workflow Outline</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#prepare-epochs-data">1. Prepare epochs data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#load-into-fitgrid-epochs">2. Load into <cite>fitgrid.Epochs</cite></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fit-a-model">3. Fit a model</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#using-the-fitgrid-times-channels">4. Using the <cite>FitGrid[times, channels]</cite></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#query-fit-results">Query fit results</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#slice-by-time-and-channel">Slice by time and channel</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#query-model-structure">Query model structure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#visualize">Visualize</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#more-examples">More examples</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#next-steps">5. Next steps</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#linear-mixed-effects-with-lme4-lmer">Linear mixed-effects with <cite>lme4::lmer</cite></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#multicore-parallel-acceleration">Multicore parallel acceleration</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#model-sets-and-comparisons">Model sets and comparisons</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#model-and-data-diagnostics">Model and data diagnostics</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="1_epochs_data/index.html">Epochs data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="2_model_fitting/index.html">Model fitting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="3_model_comparison/index.html">Model comparison</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">fitgrid</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../gallery.html">Examples Gallery</a> &raquo;</li>
+        
+      <li>Workflow Outline</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-auto-gallery-workflow-py"><span class="std std-ref">here</span></a>
+to download the full example code</p>
+</div>
+<div class="sphx-glr-example-title section" id="workflow-outline">
+<span id="workflow"></span><span id="sphx-glr-auto-gallery-workflow-py"></span><h1>Workflow Outline<a class="headerlink" href="#workflow-outline" title="Permalink to this headline">¶</a></h1>
+<p><strong>TL; DR</strong> conda install <cite>fitgrid</cite> and <cite>jupyter</cite> into a fresh conda
+virtual environment (shown <a class="reference internal" href="../installation.html#conda-install-fitgrid"><span class="std std-ref">here</span></a>). Download this document as Jupyter notebook
+and run it. Read the notes, explore the output. Prerequisites: a
+working knowledge of conda and virtual environments, regression modeling
+with formulas like <span class="math notranslate nohighlight">\(\mathsf{\sim ~ 1 + a + b + a:b}\)</span> in Python or R,
+and a bit of general purpose Python and <cite>pandas</cite>.</p>
+<p>With multichannel digital recordings in hand, the basic <cite>fitgrid</cite>
+modeling workflow is four steps:</p>
+<ol class="arabic simple">
+<li><p>Prepare a 2-D vertical stack of fixed-length epochs as
+<cite>pandas.DataFrame</cite>. <strong>Rows</strong> = observations, indexed for epoch and time.
+<strong>Columns</strong> = data channels (numeric) and model predictor
+variables (numeric, string, boolean). See <a class="reference internal" href="../user_guide.html#epochs-data-format"><span class="std std-ref">Format</span></a> for
+details.</p></li>
+<li><p>Load the data into a <cite>fitgrid.Epochs</cite> object for modeling.</p></li>
+<li><p>Specify and fit ordinary least squares or linear mixed-effects
+model formula to populate the <cite>FitGrid[times, channels]</cite> object
+with the fit results.  For OLS models use the <cite>patsy</cite> formula
+syntax which works like <cite>lm</cite> formulas in R. For mixed-effects
+models use the <cite>lme4::lmer</cite> R formula syntax.</p></li>
+<li><p>Query and slice the <cite>FitGrid[times, channels]</cite> to fetch tidy time x
+channel dataframes of model fit results: coefficient estimates,
+residual error, model diagnostics, etc. for visualization and
+analysis.</p></li>
+</ol>
+<div class="section" id="prepare-epochs-data">
+<h2>1. Prepare epochs data<a class="headerlink" href="#prepare-epochs-data" title="Permalink to this headline">¶</a></h2>
+<p><cite>fitgrid</cite> assumes you are modeling epochs, i.e., fixed-length
+segments of typically multi-channel digital data, time stamped, and
+collected in a tidy <cite>pandas.DataFrame</cite> (see
+<a class="reference internal" href="../user_guide.html#epochs-data-format"><span class="std std-ref">Format</span></a> for details).</p>
+<p>Here is a small complete simulated data set with four epochs and
+three time points per epoch. As required by the format
+specification, the <cite>epoch_id</cite> indices are unique and the <cite>time</cite>
+indices are all the same within each epoch. There are two predictor
+variable columns (<cite>categorical</cite>, <cite>continuous</cite>) and four data channel</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">fitgrid</span> <span class="k">as</span> <span class="nn">fg</span>
+
+<span class="c1"># fitgrid&#39;s built-in epoch data simulator</span>
+<span class="n">epochs_df</span> <span class="o">=</span> <span class="n">fg</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span>
+    <span class="n">n_epochs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>  <span class="c1"># number of epochs per category level</span>
+    <span class="n">n_samples</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>  <span class="c1"># number of time stamps per epoch</span>
+    <span class="n">n_categories</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>  <span class="c1"># number of category levels</span>
+    <span class="n">n_channels</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>  <span class="c1"># number of data channels</span>
+    <span class="n">seed</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">return_type</span><span class="o">=</span><span class="s2">&quot;dataframe&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># convert the epoch and time stamp columns to a pandas.MultiIndex</span>
+<span class="n">epochs_df</span> <span class="o">=</span> <span class="n">epochs_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;epoch_id&quot;</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">])</span>
+<span class="n">epochs_df</span>  <span class="c1"># display</span>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>categorical</th>
+      <th>continuous</th>
+      <th>channel0</th>
+      <th>channel1</th>
+      <th>channel2</th>
+      <th>channel3</th>
+    </tr>
+    <tr>
+      <th>epoch_id</th>
+      <th>time</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="3" valign="top">0</th>
+      <th>0</th>
+      <td>cat0</td>
+      <td>0.417022</td>
+      <td>9.571173</td>
+      <td>-33.018575</td>
+      <td>-20.615181</td>
+      <td>1.524233</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>cat0</td>
+      <td>0.720324</td>
+      <td>-7.481111</td>
+      <td>34.341711</td>
+      <td>-25.356169</td>
+      <td>-19.109869</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>cat0</td>
+      <td>0.000114</td>
+      <td>43.863238</td>
+      <td>27.047722</td>
+      <td>-20.137384</td>
+      <td>5.727465</td>
+    </tr>
+    <tr>
+      <th rowspan="3" valign="top">1</th>
+      <th>0</th>
+      <td>cat1</td>
+      <td>0.302333</td>
+      <td>-61.804221</td>
+      <td>15.074830</td>
+      <td>-0.379938</td>
+      <td>63.007654</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>cat1</td>
+      <td>0.146756</td>
+      <td>-9.672516</td>
+      <td>27.025678</td>
+      <td>-33.519310</td>
+      <td>3.604769</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>cat1</td>
+      <td>0.092339</td>
+      <td>-11.521631</td>
+      <td>-20.511836</td>
+      <td>7.032471</td>
+      <td>18.516093</td>
+    </tr>
+    <tr>
+      <th rowspan="3" valign="top">2</th>
+      <th>0</th>
+      <td>cat0</td>
+      <td>0.186260</td>
+      <td>34.013083</td>
+      <td>-3.686707</td>
+      <td>49.794065</td>
+      <td>9.005110</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>cat0</td>
+      <td>0.345561</td>
+      <td>-32.996738</td>
+      <td>-28.073083</td>
+      <td>22.261325</td>
+      <td>-10.567495</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>cat0</td>
+      <td>0.396767</td>
+      <td>-5.172846</td>
+      <td>-8.036642</td>
+      <td>-5.755067</td>
+      <td>-34.275546</td>
+    </tr>
+    <tr>
+      <th rowspan="3" valign="top">3</th>
+      <th>0</th>
+      <td>cat1</td>
+      <td>0.538817</td>
+      <td>-26.335753</td>
+      <td>15.910664</td>
+      <td>-26.628869</td>
+      <td>-10.480282</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>cat1</td>
+      <td>0.419195</td>
+      <td>1.266412</td>
+      <td>-20.749823</td>
+      <td>-22.414749</td>
+      <td>-6.266827</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>cat1</td>
+      <td>0.685220</td>
+      <td>17.484456</td>
+      <td>-11.902606</td>
+      <td>50.773638</td>
+      <td>17.598696</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+<br />
+<br /><p>A real epochs data set is typically much larger but the format is the same
+as illustrated here with sample EEG data that <cite>fitgrid</cite> downloads from
+<a class="reference external" href="https://zenodo.org/record/4099632#.YAMXh5NKj6Mzenodo">Zenodo</a>.</p>
+<img alt="../_images/eeg_events.png" src="../_images/eeg_events.png" />
+<p>The EEG recording has already been snipped into
+into 1.5 second segments and time stamped with the stimulus events at time = 0.
+The experimental predictor variable data columns have been added in alignment
+with the individual epochs.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">fitgrid</span> <span class="kn">import</span> <span class="n">DATA_DIR</span><span class="p">,</span> <span class="n">sample_data</span>
+
+<span class="c1"># download the epochs data and read into a pd.DataFrame</span>
+<span class="n">sample_data</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span><span class="s2">&quot;sub000p3.ms1500.epochs.feather&quot;</span><span class="p">)</span>
+<span class="n">p3_epochs_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_feather</span><span class="p">(</span><span class="n">DATA_DIR</span> <span class="o">/</span> <span class="s2">&quot;sub000p3.ms1500.epochs.feather&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Experimental design.</strong> These data are single-trial EEG epochs
+recorded at 250 digital samples per second from one individual in an
+auditory “oddball” paradigm.  The stimuli are a random sequence of
+high and low pitched tones (<em>tone</em>: <em>hi</em>, <em>lo</em>) that are frequent or
+infrequent (<em>stim</em>: <em>standard</em>, <em>target</em>). Stimulus trials are
+presented in two blocks: the <em>hi</em> tones are the infrequent targets
+in the first block and frequent standards in the second.  The task
+is to respond to the infrequent tones.  In this type of paradigm,
+the average potentials recorded over central and posterior scalp
+after about 300 ms post-stimulus are typically more positive going
+for the rare targets than for the frequent standards, a P300 ERP
+effect. More information about these and other sample data may be found at <a class="reference external" href="https://eeg-workshops.github.io/mkpy_data_examples">mkpy data examples</a>.</p>
+<p><strong>Data wrangling.</strong> As with any data analysis pipeline, the epochs
+data must be quality controlled and groomed to final form before
+modeling. <cite>fitgrid</cite> ingests tidy <cite>pandas.DataFrames</cite> directly which
+allows for convenient data preparation with other <cite>pandas</cite>-aware
+toolboxes and easy data interchange with other EEG data processing
+platforms.  A smattering of <cite>pandas</cite> data transforms are illustrated
+here.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># select the experimental stimulus trials for modeling</span>
+<span class="n">p3_epochs_df</span> <span class="o">=</span> <span class="n">p3_epochs_df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;stim in [&#39;standard&#39;, &#39;target&#39;]&quot;</span><span class="p">)</span>
+
+<span class="c1"># rename the time stamp column</span>
+<span class="n">p3_epochs_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;match_time&quot;</span><span class="p">:</span> <span class="s2">&quot;time_ms&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># data QC flags are set on the stimulus events, look up and select the good epochs</span>
+<span class="n">good_epochs</span> <span class="o">=</span> <span class="n">p3_epochs_df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;time_ms == 0 and log_flags == 0&quot;</span><span class="p">)[</span><span class="s2">&quot;epoch_id&quot;</span><span class="p">]</span>
+<span class="n">p3_epochs_df</span> <span class="o">=</span> <span class="n">p3_epochs_df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;epoch_id in @good_epochs&quot;</span><span class="p">)</span>
+
+<span class="c1"># select columns of interest for modeling</span>
+<span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;epoch_id&quot;</span><span class="p">,</span> <span class="s2">&quot;time_ms&quot;</span><span class="p">]</span>
+<span class="n">predictors</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;stim&quot;</span><span class="p">,</span> <span class="s2">&quot;tone&quot;</span><span class="p">]</span>  <span class="c1"># stim=standard, target; tone=hi, lo</span>
+<span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MiPf&quot;</span><span class="p">,</span> <span class="s2">&quot;MiCe&quot;</span><span class="p">,</span> <span class="s2">&quot;MiPa&quot;</span><span class="p">,</span> <span class="s2">&quot;MiOc&quot;</span><span class="p">]</span>  <span class="c1"># midline electrodes</span>
+<span class="n">p3_epochs_df</span> <span class="o">=</span> <span class="n">p3_epochs_df</span><span class="p">[</span><span class="n">indices</span> <span class="o">+</span> <span class="n">predictors</span> <span class="o">+</span> <span class="n">channels</span><span class="p">]</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <cite>epoch_id</cite> and <cite>time</cite> indices must be present in the
+dataframe index (<cite>pandas.MultiIndex</cite>) when loading the
+<cite>fitgrid.Epochs</cite> in the next step. They are also handy
+for general purpose epoch and time series data wrangling
+e.g., with <cite>pandas.DataFrame.groupby</cite> as shown here.</p>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># set the epoch and time column index for fg.Epochs</span>
+<span class="n">p3_epochs_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;epoch_id&quot;</span><span class="p">,</span> <span class="s2">&quot;time_ms&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># &quot;baseline&quot;, i.e., center each epoch, each channel, on its pre-stimulus interval mean</span>
+<span class="n">centered</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">epoch_id</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">p3_epochs_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;epoch_id&quot;</span><span class="p">):</span>
+    <span class="n">centered</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">vals</span><span class="p">[</span><span class="n">channels</span><span class="p">]</span> <span class="o">-</span> <span class="n">vals</span><span class="p">[</span><span class="n">channels</span><span class="p">]</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;time_ms &lt; 0&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="p">)</span>
+<span class="n">p3_epochs_df</span><span class="p">[</span><span class="n">channels</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">centered</span><span class="p">)</span>
+
+<span class="c1"># done ...</span>
+<span class="n">p3_epochs_df</span>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>stim</th>
+      <th>tone</th>
+      <th>MiPf</th>
+      <th>MiCe</th>
+      <th>MiPa</th>
+      <th>MiOc</th>
+    </tr>
+    <tr>
+      <th>epoch_id</th>
+      <th>time_ms</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="5" valign="top">0</th>
+      <th>-748</th>
+      <td>target</td>
+      <td>hi</td>
+      <td>-6.157753</td>
+      <td>-25.526524</td>
+      <td>-44.994408</td>
+      <td>-23.116379</td>
+    </tr>
+    <tr>
+      <th>-744</th>
+      <td>target</td>
+      <td>hi</td>
+      <td>-8.157753</td>
+      <td>-32.354649</td>
+      <td>-48.095970</td>
+      <td>-20.686691</td>
+    </tr>
+    <tr>
+      <th>-740</th>
+      <td>target</td>
+      <td>hi</td>
+      <td>-7.157753</td>
+      <td>-31.596836</td>
+      <td>-40.935814</td>
+      <td>-16.553879</td>
+    </tr>
+    <tr>
+      <th>-736</th>
+      <td>target</td>
+      <td>hi</td>
+      <td>-12.157753</td>
+      <td>-30.837070</td>
+      <td>-35.212181</td>
+      <td>-14.124190</td>
+    </tr>
+    <tr>
+      <th>-732</th>
+      <td>target</td>
+      <td>hi</td>
+      <td>-8.657753</td>
+      <td>-24.260899</td>
+      <td>-26.385033</td>
+      <td>-13.397628</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th rowspan="5" valign="top">391</th>
+      <th>732</th>
+      <td>standard</td>
+      <td>hi</td>
+      <td>-21.056150</td>
+      <td>-5.361887</td>
+      <td>4.670756</td>
+      <td>1.208691</td>
+    </tr>
+    <tr>
+      <th>736</th>
+      <td>standard</td>
+      <td>hi</td>
+      <td>-15.056150</td>
+      <td>0.708426</td>
+      <td>10.639506</td>
+      <td>7.521191</td>
+    </tr>
+    <tr>
+      <th>740</th>
+      <td>standard</td>
+      <td>hi</td>
+      <td>-21.556150</td>
+      <td>-4.857981</td>
+      <td>4.912944</td>
+      <td>4.364941</td>
+    </tr>
+    <tr>
+      <th>744</th>
+      <td>standard</td>
+      <td>hi</td>
+      <td>-23.056150</td>
+      <td>-4.350168</td>
+      <td>4.912944</td>
+      <td>7.036816</td>
+    </tr>
+    <tr>
+      <th>748</th>
+      <td>standard</td>
+      <td>hi</td>
+      <td>-24.556150</td>
+      <td>-4.096262</td>
+      <td>4.194194</td>
+      <td>8.497753</td>
+    </tr>
+  </tbody>
+</table>
+<p>125250 rows × 6 columns</p>
+</div>
+</div>
+<br />
+<br /></div>
+<div class="section" id="load-into-fitgrid-epochs">
+<h2>2. Load into <cite>fitgrid.Epochs</cite><a class="headerlink" href="#load-into-fitgrid-epochs" title="Permalink to this headline">¶</a></h2>
+<p>The <cite>fitgrid.Epochs</cite> object is a lightweight wrapper around the
+epochs data that streamlines data validation and model fitting under
+the hood. The original epochs data are readily available in the
+<cite>fitgrid.Epochs.table</cite> if needed.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">p3_epochs_fg</span> <span class="o">=</span> <span class="n">fg</span><span class="o">.</span><span class="n">epochs_from_dataframe</span><span class="p">(</span>
+    <span class="n">p3_epochs_df</span><span class="p">,</span>
+    <span class="n">epoch_id</span><span class="o">=</span><span class="s2">&quot;epoch_id&quot;</span><span class="p">,</span>
+    <span class="n">time</span><span class="o">=</span><span class="s2">&quot;time_ms&quot;</span><span class="p">,</span>
+    <span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;MiPf&quot;</span><span class="p">,</span> <span class="s2">&quot;MiCe&quot;</span><span class="p">,</span> <span class="s2">&quot;MiPa&quot;</span><span class="p">,</span> <span class="s2">&quot;MiOc&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+<span class="n">p3_epochs_fg</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;fitgrid.epochs.Epochs object at 0x7f9b9d908c70&gt;
+</pre></div>
+</div>
+</div>
+<div class="section" id="fit-a-model">
+<h2>3. Fit a model<a class="headerlink" href="#fit-a-model" title="Permalink to this headline">¶</a></h2>
+<p>Once the <cite>fg.Epochs</cite> are in place, <cite>fitgrid.lm</cite> and <cite>fitgrid.lmer</cite>
+methods sweep a model formula across the epoch data at each time and
+channel and capture the model fits.  The model formulas are those
+already in wide use Python and R. For ordinary least squares (OLS)
+fitgrid uses <a class="reference external" href="https://patsy.readthedocs.io/en/latest">patsy</a>
+formulas which work like <cite>lm</cite> formulas in R when fit with the
+<cite>statsmodels.formula.api</cite>. For linear mixed-effects regression
+models (LME), fitgrid uses <a class="reference external" href="https://cran.r-project.org/web/packages/lme4/index.html">lme4::lmer</a>
+formulas. Under
+the hood, the LME formulas are passed from Python to R and the
+<cite>lme4::lmer</cite> fits returned back to Python and <cite>fitgrid</cite> via <a class="reference external" href="http://eshinjolly.com/pymer4">pymer4</a> (<a class="reference internal" href="../bibliography.html#jolly2018" id="id1"><span>[Jolly2018]</span></a>).</p>
+<p>Here the <cite>patsy</cite> formula <span class="math notranslate nohighlight">\(\sim \mathsf{1 + stim}\)</span> is used for
+OLS model fitting with <cite>statsmodels</cite>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lmg_1_stim</span> <span class="o">=</span> <span class="n">fg</span><span class="o">.</span><span class="n">lm</span><span class="p">(</span><span class="n">p3_epochs_fg</span><span class="p">,</span> <span class="n">RHS</span><span class="o">=</span><span class="s2">&quot;1 + stim&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>  0%|          | 0/375 [00:00&lt;?, ?it/s]
+  1%|1         | 4/375 [00:00&lt;00:09, 37.29it/s]
+  2%|2         | 9/375 [00:00&lt;00:09, 39.83it/s]
+  3%|3         | 13/375 [00:00&lt;00:09, 39.71it/s]
+  5%|4         | 17/375 [00:00&lt;00:09, 39.25it/s]
+  6%|5         | 21/375 [00:00&lt;00:09, 38.91it/s]
+  7%|6         | 25/375 [00:00&lt;00:08, 38.94it/s]
+  8%|8         | 30/375 [00:00&lt;00:08, 39.81it/s]
+  9%|9         | 34/375 [00:00&lt;00:08, 39.86it/s]
+ 10%|#         | 39/375 [00:00&lt;00:08, 39.67it/s]
+ 11%|#1        | 43/375 [00:01&lt;00:08, 38.91it/s]
+ 13%|#2        | 47/375 [00:01&lt;00:08, 38.97it/s]
+ 14%|#3        | 52/375 [00:01&lt;00:08, 39.67it/s]
+ 15%|#4        | 56/375 [00:01&lt;00:08, 39.72it/s]
+ 16%|#6        | 60/375 [00:01&lt;00:07, 39.77it/s]
+ 17%|#7        | 65/375 [00:01&lt;00:07, 40.08it/s]
+ 19%|#8        | 70/375 [00:01&lt;00:07, 39.57it/s]
+ 20%|##        | 75/375 [00:01&lt;00:07, 40.09it/s]
+ 21%|##1       | 80/375 [00:02&lt;00:07, 38.16it/s]
+ 23%|##2       | 85/375 [00:02&lt;00:07, 38.96it/s]
+ 24%|##4       | 90/375 [00:02&lt;00:07, 39.53it/s]
+ 25%|##5       | 95/375 [00:02&lt;00:07, 39.99it/s]
+ 27%|##6       | 100/375 [00:02&lt;00:06, 40.72it/s]
+ 28%|##8       | 105/375 [00:02&lt;00:06, 40.73it/s]
+ 29%|##9       | 110/375 [00:02&lt;00:06, 41.06it/s]
+ 31%|###       | 115/375 [00:02&lt;00:06, 41.11it/s]
+ 32%|###2      | 120/375 [00:03&lt;00:06, 41.04it/s]
+ 33%|###3      | 125/375 [00:03&lt;00:06, 40.38it/s]
+ 35%|###4      | 130/375 [00:03&lt;00:06, 40.55it/s]
+ 36%|###6      | 135/375 [00:03&lt;00:05, 40.87it/s]
+ 37%|###7      | 140/375 [00:03&lt;00:05, 41.14it/s]
+ 39%|###8      | 145/375 [00:03&lt;00:05, 41.49it/s]
+ 40%|####      | 150/375 [00:03&lt;00:05, 41.18it/s]
+ 41%|####1     | 155/375 [00:03&lt;00:05, 41.26it/s]
+ 43%|####2     | 160/375 [00:03&lt;00:05, 41.30it/s]
+ 44%|####4     | 165/375 [00:04&lt;00:05, 41.06it/s]
+ 45%|####5     | 170/375 [00:04&lt;00:04, 41.46it/s]
+ 47%|####6     | 175/375 [00:04&lt;00:04, 41.52it/s]
+ 48%|####8     | 180/375 [00:04&lt;00:04, 41.58it/s]
+ 49%|####9     | 185/375 [00:04&lt;00:04, 41.55it/s]
+ 51%|#####     | 190/375 [00:04&lt;00:04, 41.46it/s]
+ 52%|#####2    | 195/375 [00:04&lt;00:04, 41.43it/s]
+ 53%|#####3    | 200/375 [00:04&lt;00:04, 40.48it/s]
+ 55%|#####4    | 205/375 [00:05&lt;00:04, 40.16it/s]
+ 56%|#####6    | 210/375 [00:05&lt;00:04, 39.94it/s]
+ 57%|#####7    | 215/375 [00:05&lt;00:03, 40.08it/s]
+ 59%|#####8    | 220/375 [00:05&lt;00:03, 40.23it/s]
+ 60%|######    | 225/375 [00:05&lt;00:03, 40.26it/s]
+ 61%|######1   | 230/375 [00:05&lt;00:03, 40.01it/s]
+ 63%|######2   | 235/375 [00:05&lt;00:03, 40.56it/s]
+ 64%|######4   | 240/375 [00:05&lt;00:03, 40.47it/s]
+ 65%|######5   | 245/375 [00:06&lt;00:03, 40.71it/s]
+ 67%|######6   | 250/375 [00:06&lt;00:03, 40.51it/s]
+ 68%|######8   | 255/375 [00:06&lt;00:02, 40.64it/s]
+ 69%|######9   | 260/375 [00:06&lt;00:02, 40.48it/s]
+ 71%|#######   | 265/375 [00:06&lt;00:02, 40.82it/s]
+ 72%|#######2  | 270/375 [00:06&lt;00:02, 41.22it/s]
+ 73%|#######3  | 275/375 [00:06&lt;00:02, 40.80it/s]
+ 75%|#######4  | 280/375 [00:06&lt;00:02, 40.35it/s]
+ 76%|#######6  | 285/375 [00:07&lt;00:02, 40.20it/s]
+ 77%|#######7  | 290/375 [00:07&lt;00:02, 40.15it/s]
+ 79%|#######8  | 295/375 [00:07&lt;00:01, 40.17it/s]
+ 80%|########  | 300/375 [00:07&lt;00:01, 39.74it/s]
+ 81%|########1 | 304/375 [00:07&lt;00:01, 39.62it/s]
+ 82%|########2 | 309/375 [00:07&lt;00:01, 40.18it/s]
+ 84%|########3 | 314/375 [00:07&lt;00:01, 39.59it/s]
+ 85%|########5 | 319/375 [00:07&lt;00:01, 40.26it/s]
+ 86%|########6 | 324/375 [00:08&lt;00:01, 40.25it/s]
+ 88%|########7 | 329/375 [00:08&lt;00:01, 40.15it/s]
+ 89%|########9 | 334/375 [00:08&lt;00:01, 40.49it/s]
+ 90%|######### | 339/375 [00:08&lt;00:00, 41.09it/s]
+ 92%|#########1| 344/375 [00:08&lt;00:00, 40.59it/s]
+ 93%|#########3| 349/375 [00:08&lt;00:00, 41.06it/s]
+ 94%|#########4| 354/375 [00:08&lt;00:00, 39.82it/s]
+ 96%|#########5| 359/375 [00:08&lt;00:00, 39.99it/s]
+ 97%|#########7| 364/375 [00:09&lt;00:00, 39.91it/s]
+ 98%|#########8| 368/375 [00:09&lt;00:00, 39.09it/s]
+ 99%|#########9| 373/375 [00:09&lt;00:00, 39.77it/s]
+100%|##########| 375/375 [00:09&lt;00:00, 40.29it/s]
+</pre></div>
+</div>
+<p>The times and channels of the <cite>fitgrid.Epochs</cite> define the <cite>fitgrid.FitGrid</cite> dimensions. Each cell contains
+the OLS fit object. In this example, there are 375 <span class="math notranslate nohighlight">\(\times\)</span> 4 = 1,500 fits in all.</p>
+<img alt="../_images/FitGrid_375x4.png" src="../_images/FitGrid_375x4.png" />
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lmg_1_stim</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>375 by 4 LMFitGrid of type &lt;class &#39;statsmodels.regression.linear_model.RegressionResultsWrapper&#39;&gt;.
+</pre></div>
+</div>
+<p><strong>Model formulas: good news, bad news.</strong> The good news is
+you can easily do or not do whatever you like to specify models with
+the <cite>patsy</cite> and <cite>lme4::lmer</cite> formula syntax. The formulas are passed
+through to the fitting algorithms and the results returned are
+captured in the <cite>FitGrid</cite>. For instance <cite>patsy</cite> follows
+long-standing R formula behavior and includes a
+constant (intercept) in the model and treatment codes categorical predictors like
+<span class="math notranslate nohighlight">\(\mathsf{stim}\)</span> by default. The alphabetically sorted first condition,
+<em>standard</em> is the reference level “control”, and <em>target</em> is the
+“treatment. In this instance, the more compact formula <span class="math notranslate nohighlight">\(\sim
+\mathsf{stim}\)</span> is exactly equivalent <span class="math notranslate nohighlight">\(\mathsf{\sim 1 + stim}\)</span>
+in the sense that they both generate the same design matrix (“right hand
+side”). <cite>fitgrid</cite> doesn’t care either way and will return the fits for
+whatever model formula you pass in. The bad news is that you need to
+know something about this kind of thing, i.e., how the user-friendly <cite>patsy</cite> and
+<cite>lme4::lmer</cite> model formulas map onto the model design matrices that
+are actually fit under the hood. This is generally true
+for using these formula languages in any application so there is no
+additional learning overhead for <cite>fitgrid</cite>. For OLS formulas see
+N. J. Smith’s excellent <cite>patsy</cite> documentation, <a class="reference external" href="https://patsy.readthedocs.io/en/latest/categorical-coding.html">Coding categorical
+data</a>
+and <a class="reference external" href="https://patsy.readthedocs.io/en/latest/formulas.html">How formulas work</a>. For
+<cite>lme4::lmer</cite> formulas see <strong>Section 2. Formula module</strong> in
+<a class="reference internal" href="../bibliography.html#batesetal2015" id="id2"><span>[BatesEtAl2015]</span></a>.</p>
+</div>
+<div class="section" id="using-the-fitgrid-times-channels">
+<h2>4. Using the <cite>FitGrid[times, channels]</cite><a class="headerlink" href="#using-the-fitgrid-times-channels" title="Permalink to this headline">¶</a></h2>
+<p>When <cite>statsmodels</cite> fits an OLS model it returns a Python object
+loaded with much useful information (see
+<a class="reference external" href="https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.RegressionResults.html">statsmodels Regression Results</a>).
+The same is true of model fit objects returned by <cite>pymer4</cite> after
+running <cite>lme4::lmer</cite> in R, albeit with some differences in the
+terminology and available information. The key point is that
+whatever <cite>statsmodels</cite> knows about OLS fits, the <cite>FitGrid</cite> also
+knows at each time and channel.</p>
+<p>And <cite>statsmodels</cite> knows a lot:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pprint</span> <span class="k">as</span> <span class="nn">pp</span>
+
+<span class="n">pp</span><span class="o">.</span><span class="n">pprint</span><span class="p">(</span><span class="nb">dir</span><span class="p">(</span><span class="n">lmg_1_stim</span><span class="p">))</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[&#39;HC0_se&#39;,
+ &#39;HC1_se&#39;,
+ &#39;HC2_se&#39;,
+ &#39;HC3_se&#39;,
+ &#39;_HCCM&#39;,
+ &#39;_abat_diagonal&#39;,
+ &#39;_cache&#39;,
+ &#39;_data_attr&#39;,
+ &#39;_data_in_cache&#39;,
+ &#39;_get_robustcov_results&#39;,
+ &#39;_is_nested&#39;,
+ &#39;_use_t&#39;,
+ &#39;_wexog_singular_values&#39;,
+ &#39;aic&#39;,
+ &#39;bic&#39;,
+ &#39;bse&#39;,
+ &#39;centered_tss&#39;,
+ &#39;compare_f_test&#39;,
+ &#39;compare_lm_test&#39;,
+ &#39;compare_lr_test&#39;,
+ &#39;condition_number&#39;,
+ &#39;conf_int&#39;,
+ &#39;conf_int_el&#39;,
+ &#39;cov_HC0&#39;,
+ &#39;cov_HC1&#39;,
+ &#39;cov_HC2&#39;,
+ &#39;cov_HC3&#39;,
+ &#39;cov_kwds&#39;,
+ &#39;cov_params&#39;,
+ &#39;cov_type&#39;,
+ &#39;df_model&#39;,
+ &#39;df_resid&#39;,
+ &#39;eigenvals&#39;,
+ &#39;el_test&#39;,
+ &#39;ess&#39;,
+ &#39;f_pvalue&#39;,
+ &#39;f_test&#39;,
+ &#39;fittedvalues&#39;,
+ &#39;fvalue&#39;,
+ &#39;get_influence&#39;,
+ &#39;get_prediction&#39;,
+ &#39;get_robustcov_results&#39;,
+ &#39;influential_epochs&#39;,
+ &#39;initialize&#39;,
+ &#39;k_constant&#39;,
+ &#39;llf&#39;,
+ &#39;load&#39;,
+ &#39;model&#39;,
+ &#39;mse_model&#39;,
+ &#39;mse_resid&#39;,
+ &#39;mse_total&#39;,
+ &#39;nobs&#39;,
+ &#39;normalized_cov_params&#39;,
+ &#39;outlier_test&#39;,
+ &#39;params&#39;,
+ &#39;plot_adj_rsquared&#39;,
+ &#39;plot_betas&#39;,
+ &#39;predict&#39;,
+ &#39;pvalues&#39;,
+ &#39;remove_data&#39;,
+ &#39;resid&#39;,
+ &#39;resid_pearson&#39;,
+ &#39;rsquared&#39;,
+ &#39;rsquared_adj&#39;,
+ &#39;save&#39;,
+ &#39;save&#39;,
+ &#39;scale&#39;,
+ &#39;ssr&#39;,
+ &#39;summary&#39;,
+ &#39;summary2&#39;,
+ &#39;t_test&#39;,
+ &#39;t_test_pairwise&#39;,
+ &#39;tvalues&#39;,
+ &#39;uncentered_tss&#39;,
+ &#39;use_t&#39;,
+ &#39;wald_test&#39;,
+ &#39;wald_test_terms&#39;,
+ &#39;wresid&#39;]
+</pre></div>
+</div>
+<div class="section" id="query-fit-results">
+<h3>Query fit results<a class="headerlink" href="#query-fit-results" title="Permalink to this headline">¶</a></h3>
+<p>In Python, the information in a single <cite>statsmodels</cite> fit object is accessed with the usual Python <code class="docutils literal notranslate"><span class="pre">&lt;object&gt;.&lt;name&gt;</span></code> syntax.
+The corresponding information in the FitGrid is accessed the same way. The results are returned in a tidy
+time x channel dataframe or another <cite>FitGrid</cite> object that
+makes it easy to visualize and analyze how the model fit attributes vary over
+time and among the different data channels.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Look before you leap when querying the grid. If your data set is
+large and you query the entire grid for results or model attributes that involve the
+number of observations, e.g., residuals or
+the design matrix, you will get back dataframes or <cite>FitGrid</cite> objects at
+least as large as your epochs data (time x channel) and for more
+complex models with categorical variables and interaction
+effects, perhaps many times larger. If you ask <cite>fitgrid</cite> to do
+something that will swamp your computer memory, it will.</p>
+</div>
+<p><strong>Parameter estimates</strong> i.e., Smith &amp; Kutas (2015) regression ERPs</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lmg_1_stim</span><span class="o">.</span><span class="n">params</span>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>MiPf</th>
+      <th>MiCe</th>
+      <th>MiPa</th>
+      <th>MiOc</th>
+    </tr>
+    <tr>
+      <th>time_ms</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="2" valign="top">-748</th>
+      <th>Intercept</th>
+      <td>0.109282</td>
+      <td>0.696762</td>
+      <td>1.515409</td>
+      <td>1.326050</td>
+    </tr>
+    <tr>
+      <th>stim[T.target]</th>
+      <td>-1.181772</td>
+      <td>-0.990758</td>
+      <td>0.150699</td>
+      <td>-0.606789</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">-744</th>
+      <th>Intercept</th>
+      <td>0.178925</td>
+      <td>0.826652</td>
+      <td>1.756546</td>
+      <td>1.674351</td>
+    </tr>
+    <tr>
+      <th>stim[T.target]</th>
+      <td>-1.251414</td>
+      <td>-0.910561</td>
+      <td>-0.147937</td>
+      <td>-1.152934</td>
+    </tr>
+    <tr>
+      <th>-740</th>
+      <th>Intercept</th>
+      <td>0.162853</td>
+      <td>0.631908</td>
+      <td>1.743079</td>
+      <td>1.643298</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>740</th>
+      <th>stim[T.target]</th>
+      <td>3.696403</td>
+      <td>-5.168126</td>
+      <td>1.485546</td>
+      <td>6.102576</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">744</th>
+      <th>Intercept</th>
+      <td>-4.185361</td>
+      <td>0.473903</td>
+      <td>-1.168932</td>
+      <td>-1.947963</td>
+    </tr>
+    <tr>
+      <th>stim[T.target]</th>
+      <td>3.381390</td>
+      <td>-4.702868</td>
+      <td>1.686295</td>
+      <td>5.703556</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">748</th>
+      <th>Intercept</th>
+      <td>-3.992504</td>
+      <td>0.575766</td>
+      <td>-1.010459</td>
+      <td>-1.750909</td>
+    </tr>
+    <tr>
+      <th>stim[T.target]</th>
+      <td>3.762607</td>
+      <td>-3.834425</td>
+      <td>2.393401</td>
+      <td>5.750426</td>
+    </tr>
+  </tbody>
+</table>
+<p>750 rows × 4 columns</p>
+</div>
+</div>
+<br />
+<br /><p><strong>Parameter estimate standard errors</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lmg_1_stim</span><span class="o">.</span><span class="n">bse</span>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>MiPf</th>
+      <th>MiCe</th>
+      <th>MiPa</th>
+      <th>MiOc</th>
+    </tr>
+    <tr>
+      <th>time_ms</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="2" valign="top">-748</th>
+      <th>Intercept</th>
+      <td>1.742788</td>
+      <td>0.809416</td>
+      <td>0.833638</td>
+      <td>0.713185</td>
+    </tr>
+    <tr>
+      <th>stim[T.target]</th>
+      <td>4.334319</td>
+      <td>2.013020</td>
+      <td>2.073261</td>
+      <td>1.773692</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">-744</th>
+      <th>Intercept</th>
+      <td>1.754761</td>
+      <td>0.817119</td>
+      <td>0.850462</td>
+      <td>0.714704</td>
+    </tr>
+    <tr>
+      <th>stim[T.target]</th>
+      <td>4.364095</td>
+      <td>2.032177</td>
+      <td>2.115101</td>
+      <td>1.777472</td>
+    </tr>
+    <tr>
+      <th>-740</th>
+      <th>Intercept</th>
+      <td>1.783380</td>
+      <td>0.831498</td>
+      <td>0.861130</td>
+      <td>0.718637</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>740</th>
+      <th>stim[T.target]</th>
+      <td>2.781796</td>
+      <td>2.121423</td>
+      <td>2.348166</td>
+      <td>2.113293</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">744</th>
+      <th>Intercept</th>
+      <td>1.100398</td>
+      <td>0.851261</td>
+      <td>0.941740</td>
+      <td>0.837078</td>
+    </tr>
+    <tr>
+      <th>stim[T.target]</th>
+      <td>2.736693</td>
+      <td>2.117090</td>
+      <td>2.342111</td>
+      <td>2.081817</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">748</th>
+      <th>Intercept</th>
+      <td>1.104763</td>
+      <td>0.853895</td>
+      <td>0.941035</td>
+      <td>0.831397</td>
+    </tr>
+    <tr>
+      <th>stim[T.target]</th>
+      <td>2.747548</td>
+      <td>2.123641</td>
+      <td>2.340357</td>
+      <td>2.067686</td>
+    </tr>
+  </tbody>
+</table>
+<p>750 rows × 4 columns</p>
+</div>
+</div>
+<br />
+<br /><p><strong>Parameter</strong> <em>t</em> <strong>values</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lmg_1_stim</span><span class="o">.</span><span class="n">tvalues</span>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>MiPf</th>
+      <th>MiCe</th>
+      <th>MiPa</th>
+      <th>MiOc</th>
+    </tr>
+    <tr>
+      <th>time_ms</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="2" valign="top">-748</th>
+      <th>Intercept</th>
+      <td>0.062705</td>
+      <td>0.860821</td>
+      <td>1.817826</td>
+      <td>1.859336</td>
+    </tr>
+    <tr>
+      <th>stim[T.target]</th>
+      <td>-0.272655</td>
+      <td>-0.492175</td>
+      <td>0.072687</td>
+      <td>-0.342105</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">-744</th>
+      <th>Intercept</th>
+      <td>0.101965</td>
+      <td>1.011667</td>
+      <td>2.065403</td>
+      <td>2.342718</td>
+    </tr>
+    <tr>
+      <th>stim[T.target]</th>
+      <td>-0.286752</td>
+      <td>-0.448072</td>
+      <td>-0.069943</td>
+      <td>-0.648637</td>
+    </tr>
+    <tr>
+      <th>-740</th>
+      <th>Intercept</th>
+      <td>0.091317</td>
+      <td>0.759963</td>
+      <td>2.024177</td>
+      <td>2.286688</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>740</th>
+      <th>stim[T.target]</th>
+      <td>1.328783</td>
+      <td>-2.436160</td>
+      <td>0.632641</td>
+      <td>2.887709</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">744</th>
+      <th>Intercept</th>
+      <td>-3.803498</td>
+      <td>0.556707</td>
+      <td>-1.241246</td>
+      <td>-2.327097</td>
+    </tr>
+    <tr>
+      <th>stim[T.target]</th>
+      <td>1.235575</td>
+      <td>-2.221384</td>
+      <td>0.719990</td>
+      <td>2.739701</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">748</th>
+      <th>Intercept</th>
+      <td>-3.613902</td>
+      <td>0.674281</td>
+      <td>-1.073774</td>
+      <td>-2.105985</td>
+    </tr>
+    <tr>
+      <th>stim[T.target]</th>
+      <td>1.369442</td>
+      <td>-1.805590</td>
+      <td>1.022665</td>
+      <td>2.781092</td>
+    </tr>
+  </tbody>
+</table>
+<p>750 rows × 4 columns</p>
+</div>
+</div>
+<br />
+<br /><p><strong>Model log likelihood</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lmg_1_stim</span><span class="o">.</span><span class="n">llf</span>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>MiPf</th>
+      <th>MiCe</th>
+      <th>MiPa</th>
+      <th>MiOc</th>
+    </tr>
+    <tr>
+      <th>time_ms</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>-748</th>
+      <td>-1599.464631</td>
+      <td>-1343.310503</td>
+      <td>-1353.159034</td>
+      <td>-1301.035318</td>
+    </tr>
+    <tr>
+      <th>-744</th>
+      <td>-1601.751371</td>
+      <td>-1346.474007</td>
+      <td>-1359.832371</td>
+      <td>-1301.746250</td>
+    </tr>
+    <tr>
+      <th>-740</th>
+      <td>-1607.154826</td>
+      <td>-1352.300581</td>
+      <td>-1363.995983</td>
+      <td>-1303.579119</td>
+    </tr>
+    <tr>
+      <th>-736</th>
+      <td>-1608.634978</td>
+      <td>-1347.604313</td>
+      <td>-1356.672990</td>
+      <td>-1293.004616</td>
+    </tr>
+    <tr>
+      <th>-732</th>
+      <td>-1607.273366</td>
+      <td>-1341.103740</td>
+      <td>-1350.276509</td>
+      <td>-1292.799803</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>732</th>
+      <td>-1450.651299</td>
+      <td>-1371.821368</td>
+      <td>-1407.664663</td>
+      <td>-1372.307257</td>
+    </tr>
+    <tr>
+      <th>736</th>
+      <td>-1451.351070</td>
+      <td>-1360.297510</td>
+      <td>-1396.868798</td>
+      <td>-1363.201989</td>
+    </tr>
+    <tr>
+      <th>740</th>
+      <td>-1451.346381</td>
+      <td>-1360.829253</td>
+      <td>-1394.746054</td>
+      <td>-1359.546736</td>
+    </tr>
+    <tr>
+      <th>744</th>
+      <td>-1445.886664</td>
+      <td>-1360.146236</td>
+      <td>-1393.883681</td>
+      <td>-1354.534586</td>
+    </tr>
+    <tr>
+      <th>748</th>
+      <td>-1447.208928</td>
+      <td>-1361.178159</td>
+      <td>-1393.633427</td>
+      <td>-1352.259827</td>
+    </tr>
+  </tbody>
+</table>
+<p>375 rows × 4 columns</p>
+</div>
+</div>
+<br />
+<br /><p><strong>Model AIC</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lmg_1_stim</span><span class="o">.</span><span class="n">aic</span>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>MiPf</th>
+      <th>MiCe</th>
+      <th>MiPa</th>
+      <th>MiOc</th>
+    </tr>
+    <tr>
+      <th>time_ms</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>-748</th>
+      <td>3202.929263</td>
+      <td>2690.621005</td>
+      <td>2710.318069</td>
+      <td>2606.070636</td>
+    </tr>
+    <tr>
+      <th>-744</th>
+      <td>3207.502743</td>
+      <td>2696.948014</td>
+      <td>2723.664741</td>
+      <td>2607.492501</td>
+    </tr>
+    <tr>
+      <th>-740</th>
+      <td>3218.309651</td>
+      <td>2708.601161</td>
+      <td>2731.991966</td>
+      <td>2611.158238</td>
+    </tr>
+    <tr>
+      <th>-736</th>
+      <td>3221.269956</td>
+      <td>2699.208625</td>
+      <td>2717.345980</td>
+      <td>2590.009231</td>
+    </tr>
+    <tr>
+      <th>-732</th>
+      <td>3218.546733</td>
+      <td>2686.207479</td>
+      <td>2704.553018</td>
+      <td>2589.599606</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>732</th>
+      <td>2905.302599</td>
+      <td>2747.642736</td>
+      <td>2819.329326</td>
+      <td>2748.614514</td>
+    </tr>
+    <tr>
+      <th>736</th>
+      <td>2906.702141</td>
+      <td>2724.595019</td>
+      <td>2797.737596</td>
+      <td>2730.403978</td>
+    </tr>
+    <tr>
+      <th>740</th>
+      <td>2906.692761</td>
+      <td>2725.658506</td>
+      <td>2793.492108</td>
+      <td>2723.093473</td>
+    </tr>
+    <tr>
+      <th>744</th>
+      <td>2895.773328</td>
+      <td>2724.292473</td>
+      <td>2791.767361</td>
+      <td>2713.069172</td>
+    </tr>
+    <tr>
+      <th>748</th>
+      <td>2898.417856</td>
+      <td>2726.356318</td>
+      <td>2791.266854</td>
+      <td>2708.519654</td>
+    </tr>
+  </tbody>
+</table>
+<p>375 rows × 4 columns</p>
+</div>
+</div>
+<br />
+<br /><p><strong>Number of observations per grid cell</strong> i.e., the number of epochs being modeled</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lmg_1_stim</span><span class="o">.</span><span class="n">nobs</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>MiPf</th>
+      <th>MiCe</th>
+      <th>MiPa</th>
+      <th>MiOc</th>
+    </tr>
+    <tr>
+      <th>time_ms</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>-748</th>
+      <td>334</td>
+      <td>334</td>
+      <td>334</td>
+      <td>334</td>
+    </tr>
+    <tr>
+      <th>-744</th>
+      <td>334</td>
+      <td>334</td>
+      <td>334</td>
+      <td>334</td>
+    </tr>
+    <tr>
+      <th>-740</th>
+      <td>334</td>
+      <td>334</td>
+      <td>334</td>
+      <td>334</td>
+    </tr>
+    <tr>
+      <th>-736</th>
+      <td>334</td>
+      <td>334</td>
+      <td>334</td>
+      <td>334</td>
+    </tr>
+    <tr>
+      <th>-732</th>
+      <td>334</td>
+      <td>334</td>
+      <td>334</td>
+      <td>334</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>732</th>
+      <td>334</td>
+      <td>334</td>
+      <td>334</td>
+      <td>334</td>
+    </tr>
+    <tr>
+      <th>736</th>
+      <td>334</td>
+      <td>334</td>
+      <td>334</td>
+      <td>334</td>
+    </tr>
+    <tr>
+      <th>740</th>
+      <td>334</td>
+      <td>334</td>
+      <td>334</td>
+      <td>334</td>
+    </tr>
+    <tr>
+      <th>744</th>
+      <td>334</td>
+      <td>334</td>
+      <td>334</td>
+      <td>334</td>
+    </tr>
+    <tr>
+      <th>748</th>
+      <td>334</td>
+      <td>334</td>
+      <td>334</td>
+      <td>334</td>
+    </tr>
+  </tbody>
+</table>
+<p>375 rows × 4 columns</p>
+</div>
+</div>
+<br />
+<br /><div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you are using an interactive environment like Jupyter Notebook or iPython
+you can type <cite>lmg_1_stim.</cite> and press &lt;TAB&gt; to pop up a list of available attributes.</p>
+</div>
+</div>
+<div class="section" id="slice-by-time-and-channel">
+<h3>Slice by time and channel<a class="headerlink" href="#slice-by-time-and-channel" title="Permalink to this headline">¶</a></h3>
+<p>The fitted grid can be sliced down to a smaller grid of times and channels using
+familiar <cite>pandas.DataFrame</cite> index slicing with labels and the <code class="docutils literal notranslate"><span class="pre">:</span></code> range
+operator. As in <cite>pandas</cite> (but not Python) the range includes the upper bound.</p>
+<p><strong>Parameter estimates, all times, two channels</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lmg_1_stim</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;MiPf&quot;</span><span class="p">,</span> <span class="s2">&quot;MiPa&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">params</span>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>MiPf</th>
+      <th>MiPa</th>
+    </tr>
+    <tr>
+      <th>time_ms</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="2" valign="top">-748</th>
+      <th>Intercept</th>
+      <td>0.109282</td>
+      <td>1.515409</td>
+    </tr>
+    <tr>
+      <th>stim[T.target]</th>
+      <td>-1.181772</td>
+      <td>0.150699</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">-744</th>
+      <th>Intercept</th>
+      <td>0.178925</td>
+      <td>1.756546</td>
+    </tr>
+    <tr>
+      <th>stim[T.target]</th>
+      <td>-1.251414</td>
+      <td>-0.147937</td>
+    </tr>
+    <tr>
+      <th>-740</th>
+      <th>Intercept</th>
+      <td>0.162853</td>
+      <td>1.743079</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>740</th>
+      <th>stim[T.target]</th>
+      <td>3.696403</td>
+      <td>1.485546</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">744</th>
+      <th>Intercept</th>
+      <td>-4.185361</td>
+      <td>-1.168932</td>
+    </tr>
+    <tr>
+      <th>stim[T.target]</th>
+      <td>3.381390</td>
+      <td>1.686295</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">748</th>
+      <th>Intercept</th>
+      <td>-3.992504</td>
+      <td>-1.010459</td>
+    </tr>
+    <tr>
+      <th>stim[T.target]</th>
+      <td>3.762607</td>
+      <td>2.393401</td>
+    </tr>
+  </tbody>
+</table>
+<p>750 rows × 2 columns</p>
+</div>
+</div>
+<br />
+<br /><p><strong>Log likelihood from -100 to 300 ms, all channels</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lmg_1_stim</span><span class="p">[</span><span class="o">-</span><span class="mi">100</span><span class="p">:</span><span class="mi">300</span><span class="p">,</span> <span class="p">:]</span><span class="o">.</span><span class="n">llf</span>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>MiPf</th>
+      <th>MiCe</th>
+      <th>MiPa</th>
+      <th>MiOc</th>
+    </tr>
+    <tr>
+      <th>time_ms</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>-100</th>
+      <td>-1356.925863</td>
+      <td>-1289.471325</td>
+      <td>-1330.455335</td>
+      <td>-1298.089756</td>
+    </tr>
+    <tr>
+      <th>-96</th>
+      <td>-1349.032696</td>
+      <td>-1295.167515</td>
+      <td>-1331.068318</td>
+      <td>-1312.084420</td>
+    </tr>
+    <tr>
+      <th>-92</th>
+      <td>-1353.260465</td>
+      <td>-1302.090980</td>
+      <td>-1336.881148</td>
+      <td>-1329.071935</td>
+    </tr>
+    <tr>
+      <th>-88</th>
+      <td>-1353.456726</td>
+      <td>-1310.384752</td>
+      <td>-1344.357556</td>
+      <td>-1333.771045</td>
+    </tr>
+    <tr>
+      <th>-84</th>
+      <td>-1346.919034</td>
+      <td>-1305.551377</td>
+      <td>-1343.953339</td>
+      <td>-1343.846322</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>284</th>
+      <td>-1399.203094</td>
+      <td>-1372.272381</td>
+      <td>-1380.968771</td>
+      <td>-1338.619438</td>
+    </tr>
+    <tr>
+      <th>288</th>
+      <td>-1399.592031</td>
+      <td>-1368.037118</td>
+      <td>-1374.887853</td>
+      <td>-1352.015048</td>
+    </tr>
+    <tr>
+      <th>292</th>
+      <td>-1404.400821</td>
+      <td>-1371.220324</td>
+      <td>-1374.413941</td>
+      <td>-1355.388335</td>
+    </tr>
+    <tr>
+      <th>296</th>
+      <td>-1401.927584</td>
+      <td>-1373.227508</td>
+      <td>-1370.487670</td>
+      <td>-1360.517199</td>
+    </tr>
+    <tr>
+      <th>300</th>
+      <td>-1401.217751</td>
+      <td>-1367.321502</td>
+      <td>-1362.711704</td>
+      <td>-1352.752984</td>
+    </tr>
+  </tbody>
+</table>
+<p>101 rows × 4 columns</p>
+</div>
+</div>
+<br />
+<br /></div>
+<div class="section" id="query-model-structure">
+<h3>Query model structure<a class="headerlink" href="#query-model-structure" title="Permalink to this headline">¶</a></h3>
+<p>Besides the fit results, fit objects contain model information that can be queried.
+This example reaches into one cell of the <cite>FitGrid</cite> at time=0 and channel=MiPa and pulls out
+the treatment coded design matrix (model right hand side) and column labels for inspection.</p>
+<p>Here is the design matrix and its column names</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lmg_1_stim</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;MiPa&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">exog_names</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="o">-</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead tr th {
+        text-align: left;
+    }
+
+    .dataframe thead tr:last-of-type th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr>
+      <th></th>
+      <th></th>
+      <th colspan="2" halign="left">MiPa</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+    </tr>
+    <tr>
+      <th>time_ms</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <th>0</th>
+      <td>Intercept</td>
+      <td>stim[T.target]</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+<br />
+<br /><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lmg_1_stim</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;MiPa&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">exog</span><span class="o">.</span><span class="n">unstack</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/fitgrid/fitgrid/fitgrid/fitgrid.py:302: FutureWarning: inplace is deprecated and will be removed in a future version.
+  temp.index.set_levels(self.epoch_index, level=i, inplace=True)
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead tr th {
+        text-align: left;
+    }
+
+    .dataframe thead tr:last-of-type th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr>
+      <th></th>
+      <th></th>
+      <th colspan="2" halign="left">MiPa</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+    </tr>
+    <tr>
+      <th>time_ms</th>
+      <th>epoch_id</th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="11" valign="top">0</th>
+      <th>0</th>
+      <td>1.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1.0</td>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>387</th>
+      <td>1.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>388</th>
+      <td>1.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>389</th>
+      <td>1.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>390</th>
+      <td>1.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>391</th>
+      <td>1.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>334 rows × 2 columns</p>
+</div>
+</div>
+<br />
+<br /></div>
+<div class="section" id="visualize">
+<h3>Visualize<a class="headerlink" href="#visualize" title="Permalink to this headline">¶</a></h3>
+<p>The grid query dataframes are readily visualized with <cite>matplotlib</cite> and <cite>pandas</cite> or similiar.
+Here are simple heatmap and line plotting functions for illustration.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span> <span class="k">as</span> <span class="nn">mpl</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+
+
+<span class="k">def</span> <span class="nf">heatmap_plot</span><span class="p">(</span><span class="n">grid_df</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Time (ms)&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Channel&quot;</span><span class="p">)</span>
+    <span class="n">xtick_labels</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">700</span><span class="p">,</span> <span class="mi">800</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([</span><span class="n">grid_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span><span class="n">tick</span><span class="p">)</span> <span class="k">for</span> <span class="n">tick</span> <span class="ow">in</span> <span class="n">xtick_labels</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">xtick_labels</span><span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">grid_df</span><span class="o">.</span><span class="n">columns</span><span class="p">)))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">grid_df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+    <span class="n">im</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">grid_df</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="n">aspect</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">cb</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">units</span><span class="p">:</span>
+        <span class="n">cb</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">units</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">grid_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;white&#39;</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span>
+
+
+<span class="k">def</span> <span class="nf">line_plot</span><span class="p">(</span><span class="n">grid_df</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">units</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ylabel</span><span class="o">=</span><span class="n">units</span><span class="p">)</span>
+    <span class="n">grid_df</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span>
+</pre></div>
+</div>
+<p><strong>Plot parameter estimates.</strong> The <span class="math notranslate nohighlight">\(\hat{\beta}\)</span> over time are
+regression ERPs (<a class="reference internal" href="../bibliography.html#smikut2015" id="id3"><span>[SmiKut2015]</span></a>).</p>
+<p>Note that in this model, <span class="math notranslate nohighlight">\(\beta_0 \mathbf{1} + \beta_1 X_1 + e\)</span>,
+the categorical stimulus variable is treatment coded, so the
+estimated intercept rERP <span class="math notranslate nohighlight">\(\hat{\beta_0}\)</span> is the average ERP
+for the frequent standard tones, i.e., the “reference” or “control”
+condition. The estimated coefficient rERP
+<span class="math notranslate nohighlight">\(\hat{\beta}_{\mathsf{stim[T.target]}}\)</span> quantifies the effect
+of the stimulus “treatment” relative to the “control”, i.e., the
+average difference ERP between the standard and target.</p>
+<p>The parameter line plot figure shows a positive effect of about
+<span class="math notranslate nohighlight">\(5 - 10 \mu\mathsf{V}\)</span> between 300 and 400 ms over central
+scalp and sustained over posterior scalp, consistent with the P300
+ERP effect typical for this oddball paradigm. The heatmap shows the
+same data, the positive effect appears as the brighter yellow bands.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">params_df</span> <span class="o">=</span> <span class="n">lmg_1_stim</span><span class="o">.</span><span class="n">params</span>
+<span class="n">bse_df</span> <span class="o">=</span> <span class="n">lmg_1_stim</span><span class="o">.</span><span class="n">bse</span>
+
+<span class="c1"># name index columns for convenient slicing</span>
+<span class="k">for</span> <span class="n">grid_df</span> <span class="ow">in</span> <span class="p">[</span><span class="n">params_df</span><span class="p">,</span> <span class="n">bse_df</span><span class="p">]:</span>
+    <span class="n">grid_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">set_names</span><span class="p">([</span><span class="s2">&quot;time_ms&quot;</span><span class="p">,</span> <span class="s2">&quot;params&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># look up the default line colors</span>
+<span class="n">line_colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">prop</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">mpl</span><span class="o">.</span><span class="n">rc_params</span><span class="p">()[</span><span class="s2">&quot;axes.prop_cycle&quot;</span><span class="p">]]</span>
+
+<span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">params_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">):</span>
+    <span class="n">vals</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="s1">&#39;params&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">vals</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">line_plot</span><span class="p">(</span>
+        <span class="n">vals</span><span class="p">,</span>
+        <span class="s2">&quot;Model: 1 + stim</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="sa">r</span><span class="s2">&quot;$\hat{\beta}$ &quot;</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2"> (+/- 1 robust SE)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># add SE bands</span>
+    <span class="k">for</span> <span class="n">cdx</span><span class="p">,</span> <span class="n">chan</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">channels</span><span class="p">):</span>
+        <span class="n">lco</span> <span class="o">=</span> <span class="n">line_colors</span><span class="p">[</span><span class="n">cdx</span><span class="p">]</span>
+        <span class="n">bse</span> <span class="o">=</span> <span class="n">bse_df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;params==@param&quot;</span><span class="p">)[</span>
+            <span class="n">chan</span>
+        <span class="p">]</span>  <span class="c1"># look up rse this param, chan</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span>
+            <span class="n">times</span><span class="p">,</span> <span class="n">vals</span><span class="p">[</span><span class="n">chan</span><span class="p">]</span> <span class="o">-</span> <span class="n">bse</span><span class="p">,</span> <span class="n">vals</span><span class="p">[</span><span class="n">chan</span><span class="p">]</span> <span class="o">+</span> <span class="n">bse</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">lco</span>
+        <span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;lightgray&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img alt="Model: 1 + stim $\hat{\beta}$ Intercept (+/- 1 robust SE)" class="sphx-glr-multi-img" src="../_images/sphx_glr_workflow_001.png" />
+</li>
+<li><img alt="Model: 1 + stim $\hat{\beta}$ stim[T.target] (+/- 1 robust SE)" class="sphx-glr-multi-img" src="../_images/sphx_glr_workflow_002.png" />
+</li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">params_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">):</span>
+    <span class="n">vals</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="s1">&#39;params&#39;</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">title_str</span> <span class="o">=</span> <span class="s2">&quot;Model: 1 + stim</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="sa">r</span><span class="s2">&quot;$\hat{\beta}$ &quot;</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">heatmap_plot</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="n">title_str</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mi">9</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">9</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img alt="Model: 1 + stim $\hat{\beta}$ Intercept" class="sphx-glr-multi-img" src="../_images/sphx_glr_workflow_003.png" />
+</li>
+<li><img alt="Model: 1 + stim $\hat{\beta}$ stim[T.target]" class="sphx-glr-multi-img" src="../_images/sphx_glr_workflow_004.png" />
+</li>
+</ul>
+</div>
+<div class="section" id="more-examples">
+<h3>More examples<a class="headerlink" href="#more-examples" title="Permalink to this headline">¶</a></h3>
+<p><strong>Query</strong> various fit measures and parameter estimates</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ssr_lmg_1_stim</span> <span class="o">=</span> <span class="n">lmg_1_stim</span><span class="o">.</span><span class="n">ssr</span>  <span class="c1"># residual sum of squares</span>
+<span class="n">llf_1_stim</span> <span class="o">=</span> <span class="n">lmg_1_stim</span><span class="o">.</span><span class="n">llf</span>  <span class="c1"># log likelihood</span>
+<span class="n">aic_1_stim</span> <span class="o">=</span> <span class="n">lmg_1_stim</span><span class="o">.</span><span class="n">aic</span>  <span class="c1"># Akiake Information Criterion</span>
+
+<span class="n">params_1_stim</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">lmg_1_stim</span><span class="o">.</span><span class="n">params</span>
+<span class="p">)</span>  <span class="c1"># estimated parameters (a.k.a. weights, coefficients, betas)</span>
+<span class="n">tvals_1_stim</span> <span class="o">=</span> <span class="n">lmg_1_stim</span><span class="o">.</span><span class="n">tvalues</span>  <span class="c1"># t-values</span>
+<span class="n">pvals_1_stim</span> <span class="o">=</span> <span class="n">lmg_1_stim</span><span class="o">.</span><span class="n">pvalues</span>  <span class="c1"># p-values</span>
+<span class="n">bse_lmg_1_stim</span> <span class="o">=</span> <span class="n">lmg_1_stim</span><span class="o">.</span><span class="n">bse</span>  <span class="c1"># param standard errors</span>
+<span class="n">rse_lmg_1_stim</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">lmg_1_stim</span><span class="o">.</span><span class="n">HC0_se</span>
+<span class="p">)</span>  <span class="c1"># robust param standard errors (one version)</span>
+
+<span class="c1"># set parameter pd.MultiIndex names for convenient slicing</span>
+<span class="k">for</span> <span class="n">attr_df</span> <span class="ow">in</span> <span class="p">[</span>
+    <span class="n">params_1_stim</span><span class="p">,</span>
+    <span class="n">tvals_1_stim</span><span class="p">,</span>
+    <span class="n">pvals_1_stim</span><span class="p">,</span>
+    <span class="n">bse_lmg_1_stim</span><span class="p">,</span>
+    <span class="n">rse_lmg_1_stim</span><span class="p">,</span>
+<span class="p">]:</span>
+    <span class="n">attr_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">set_names</span><span class="p">([</span><span class="s2">&quot;time_ms&quot;</span><span class="p">,</span> <span class="s2">&quot;params&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Drop the predictor variable and fit the intercept only model:</strong> <span class="math notranslate nohighlight">\(\sim \mathsf{1}\)</span></p>
+<p>For the intercept only model, <span class="math notranslate nohighlight">\(\beta_0 \mathbf{1} + e\)</span>, the
+estimated intercept <span class="math notranslate nohighlight">\(\hat\beta_{0}\)</span> is average ERP for all trials,
+collapsed across the stimulus conditions.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lmg_1</span> <span class="o">=</span> <span class="n">fg</span><span class="o">.</span><span class="n">lm</span><span class="p">(</span><span class="n">p3_epochs_fg</span><span class="p">,</span> <span class="n">RHS</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">)</span>
+
+<span class="n">params_1</span> <span class="o">=</span> <span class="n">lmg_1</span><span class="o">.</span><span class="n">params</span>
+<span class="n">params_1</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">set_names</span><span class="p">([</span><span class="s2">&quot;time_ms&quot;</span><span class="p">,</span> <span class="s2">&quot;params&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ssr_lmg_1</span> <span class="o">=</span> <span class="n">lmg_1</span><span class="o">.</span><span class="n">ssr</span>
+<span class="n">llf_1</span> <span class="o">=</span> <span class="n">lmg_1</span><span class="o">.</span><span class="n">llf</span>
+<span class="n">aic_1</span> <span class="o">=</span> <span class="n">lmg_1</span><span class="o">.</span><span class="n">aic</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>  0%|          | 0/375 [00:00&lt;?, ?it/s]
+  2%|1         | 6/375 [00:00&lt;00:06, 55.01it/s]
+  3%|3         | 13/375 [00:00&lt;00:05, 60.81it/s]
+  5%|5         | 20/375 [00:00&lt;00:05, 60.81it/s]
+  7%|7         | 27/375 [00:00&lt;00:05, 62.48it/s]
+  9%|9         | 34/375 [00:00&lt;00:05, 61.20it/s]
+ 11%|#         | 41/375 [00:00&lt;00:05, 62.05it/s]
+ 13%|#2        | 48/375 [00:00&lt;00:05, 61.87it/s]
+ 15%|#4        | 55/375 [00:00&lt;00:05, 61.98it/s]
+ 17%|#6        | 62/375 [00:01&lt;00:05, 62.20it/s]
+ 18%|#8        | 69/375 [00:01&lt;00:04, 62.65it/s]
+ 20%|##        | 76/375 [00:01&lt;00:04, 63.97it/s]
+ 22%|##2       | 83/375 [00:01&lt;00:04, 63.95it/s]
+ 24%|##4       | 90/375 [00:01&lt;00:04, 64.41it/s]
+ 26%|##5       | 97/375 [00:01&lt;00:04, 61.88it/s]
+ 28%|##7       | 104/375 [00:01&lt;00:04, 63.37it/s]
+ 30%|##9       | 111/375 [00:01&lt;00:04, 63.51it/s]
+ 31%|###1      | 118/375 [00:01&lt;00:04, 63.33it/s]
+ 33%|###3      | 125/375 [00:01&lt;00:03, 64.59it/s]
+ 35%|###5      | 132/375 [00:02&lt;00:03, 65.46it/s]
+ 37%|###7      | 139/375 [00:02&lt;00:03, 65.08it/s]
+ 39%|###8      | 146/375 [00:02&lt;00:03, 64.78it/s]
+ 41%|####      | 153/375 [00:02&lt;00:03, 64.49it/s]
+ 43%|####2     | 160/375 [00:02&lt;00:03, 64.93it/s]
+ 45%|####4     | 167/375 [00:02&lt;00:03, 64.91it/s]
+ 46%|####6     | 174/375 [00:02&lt;00:03, 64.45it/s]
+ 48%|####8     | 181/375 [00:02&lt;00:02, 65.06it/s]
+ 50%|#####     | 188/375 [00:02&lt;00:02, 65.29it/s]
+ 52%|#####2    | 195/375 [00:03&lt;00:02, 65.87it/s]
+ 54%|#####3    | 202/375 [00:03&lt;00:02, 65.31it/s]
+ 56%|#####5    | 209/375 [00:03&lt;00:02, 65.62it/s]
+ 58%|#####7    | 216/375 [00:03&lt;00:02, 65.44it/s]
+ 59%|#####9    | 223/375 [00:03&lt;00:02, 65.85it/s]
+ 61%|######1   | 230/375 [00:03&lt;00:02, 63.36it/s]
+ 63%|######3   | 237/375 [00:03&lt;00:02, 63.27it/s]
+ 65%|######5   | 244/375 [00:03&lt;00:02, 63.51it/s]
+ 67%|######6   | 251/375 [00:03&lt;00:01, 63.77it/s]
+ 69%|######8   | 258/375 [00:04&lt;00:01, 63.36it/s]
+ 71%|#######   | 265/375 [00:04&lt;00:01, 63.87it/s]
+ 73%|#######2  | 272/375 [00:04&lt;00:01, 63.85it/s]
+ 74%|#######4  | 279/375 [00:04&lt;00:01, 62.77it/s]
+ 76%|#######6  | 286/375 [00:04&lt;00:01, 63.32it/s]
+ 78%|#######8  | 293/375 [00:04&lt;00:01, 63.52it/s]
+ 80%|########  | 300/375 [00:04&lt;00:01, 63.96it/s]
+ 82%|########1 | 307/375 [00:04&lt;00:01, 64.54it/s]
+ 84%|########3 | 314/375 [00:04&lt;00:00, 64.74it/s]
+ 86%|########5 | 321/375 [00:05&lt;00:00, 65.46it/s]
+ 87%|########7 | 328/375 [00:05&lt;00:00, 66.03it/s]
+ 89%|########9 | 335/375 [00:05&lt;00:00, 66.32it/s]
+ 91%|#########1| 342/375 [00:05&lt;00:00, 65.97it/s]
+ 93%|#########3| 349/375 [00:05&lt;00:00, 64.67it/s]
+ 95%|#########4| 356/375 [00:05&lt;00:00, 64.38it/s]
+ 97%|#########6| 363/375 [00:05&lt;00:00, 64.33it/s]
+ 99%|#########8| 370/375 [00:05&lt;00:00, 64.45it/s]
+100%|##########| 375/375 [00:05&lt;00:00, 64.00it/s]
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plot_chans</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MiPf&quot;</span><span class="p">,</span> <span class="s2">&quot;MiPa&quot;</span><span class="p">,</span> <span class="s2">&quot;MiCe&quot;</span><span class="p">,</span> <span class="s2">&quot;MiOc&quot;</span><span class="p">]</span>
+<span class="n">colors</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">prop</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">mpl</span><span class="o">.</span><span class="n">rc_params</span><span class="p">()[</span><span class="s2">&quot;axes.prop_cycle&quot;</span><span class="p">]</span>
+<span class="p">]</span>  <span class="c1"># lookup colors</span>
+
+<span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">params_1</span><span class="p">[</span><span class="n">plot_chans</span><span class="p">]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">):</span>
+    <span class="n">vals</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="s1">&#39;params&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">vals</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">line_plot</span><span class="p">(</span>
+        <span class="n">vals</span><span class="p">,</span>
+        <span class="s2">&quot;Model: ~ 1 </span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="sa">r</span><span class="s2">&quot;$\hat{\beta}$ &quot;</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2"> (+/- 1 robust SE)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># add SE</span>
+    <span class="k">for</span> <span class="n">cdx</span><span class="p">,</span> <span class="n">chan</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">plot_chans</span><span class="p">):</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">colors</span><span class="p">[</span><span class="n">cdx</span><span class="p">]</span>
+
+        <span class="n">se</span> <span class="o">=</span> <span class="n">rse_lmg_1_stim</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;params==@param&quot;</span><span class="p">)[</span><span class="n">chan</span><span class="p">]</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span>
+            <span class="n">times</span><span class="p">,</span> <span class="n">vals</span><span class="p">[</span><span class="n">chan</span><span class="p">]</span> <span class="o">-</span> <span class="n">se</span><span class="p">,</span> <span class="n">vals</span><span class="p">[</span><span class="n">chan</span><span class="p">]</span> <span class="o">+</span> <span class="n">se</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span>
+        <span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;lightgray&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="Model: ~ 1  $\hat{\beta}$ Intercept (+/- 1 robust SE)" class="sphx-glr-single-img" src="../_images/sphx_glr_workflow_005.png" />
+<p><strong>Compare models full</strong> <span class="math notranslate nohighlight">\(\sim 1 + stim\)</span> <strong>vs. reduced</strong> <span class="math notranslate nohighlight">\(\sim 1\)</span></p>
+<p>Comparing log likelihood and AIC is useful for evaluating, diagnosing and
+interpreting model fit.</p>
+<p>The full and reduced model likelihoods heatmaps are barely distinguishable. This
+is unsurprising since the stimulus variable accounts for only a small fraction of the overall
+variability in the EEG.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">heatmap_plot</span><span class="p">(</span>
+    <span class="n">lmg_1_stim</span><span class="o">.</span><span class="n">llf</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;Log Likelihood Full Model$\mathsf{\sim 1 + stim}$&quot;</span><span class="p">,</span>
+    <span class="n">vmin</span><span class="o">=-</span><span class="mi">1800</span><span class="p">,</span>
+    <span class="n">vmax</span><span class="o">=-</span><span class="mi">1200</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">heatmap_plot</span><span class="p">(</span>
+    <span class="n">lmg_1</span><span class="o">.</span><span class="n">llf</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;Log Likelihood Reduced Model$\mathsf{\sim 1}$&quot;</span><span class="p">,</span>
+    <span class="n">vmin</span><span class="o">=-</span><span class="mi">1800</span><span class="p">,</span>
+    <span class="n">vmax</span><span class="o">=-</span><span class="mi">1200</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img alt="Log Likelihood Full Model$\mathsf{\sim 1 + stim}$" class="sphx-glr-multi-img" src="../_images/sphx_glr_workflow_006.png" />
+</li>
+<li><img alt="Log Likelihood Reduced Model$\mathsf{\sim 1}$" class="sphx-glr-multi-img" src="../_images/sphx_glr_workflow_007.png" />
+</li>
+</ul>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>(&lt;Figure size 800x400 with 2 Axes&gt;, &lt;AxesSubplot:title={&#39;center&#39;:&#39;Log Likelihood Reduced Model$\\mathsf{\\sim 1}$&#39;}, xlabel=&#39;Time (ms)&#39;, ylabel=&#39;Channel&#39;&gt;)
+</pre></div>
+</div>
+<p>However, the likelihood ratio (= difference of log
+likelihoods) shows that the stimulus predictor does account for variability
+in a way that generally aligns with the time course and channels of the post-stimulus positive
+stimulus effect.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">title_str</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;Likelihood Ratio: Models $\frac{\mathsf{\sim 1 + stim}}{\mathsf{\sim 1}}$&quot;</span>
+<span class="n">heatmap_plot</span><span class="p">(</span><span class="n">lmg_1_stim</span><span class="o">.</span><span class="n">llf</span> <span class="o">-</span> <span class="n">lmg_1</span><span class="o">.</span><span class="n">llf</span><span class="p">,</span> <span class="n">title_str</span><span class="p">)</span>
+<span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">line_plot</span><span class="p">(</span><span class="n">lmg_1_stim</span><span class="o">.</span><span class="n">llf</span> <span class="o">-</span> <span class="n">lmg_1</span><span class="o">.</span><span class="n">llf</span><span class="p">,</span> <span class="n">title_str</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Likelihood Ratio&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img alt="Likelihood Ratio: Models $\frac{\mathsf{\sim 1 + stim}}{\mathsf{\sim 1}}$" class="sphx-glr-multi-img" src="../_images/sphx_glr_workflow_008.png" />
+</li>
+<li><img alt="Likelihood Ratio: Models $\frac{\mathsf{\sim 1 + stim}}{\mathsf{\sim 1}}$" class="sphx-glr-multi-img" src="../_images/sphx_glr_workflow_009.png" />
+</li>
+</ul>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[Text(24.0, 0.5, &#39;Likelihood Ratio&#39;)]
+</pre></div>
+</div>
+<p>For this pair-wise model comparison, AIC tells the same story as the likelihood ratio. AIC
+measures may also be used to compare and evaulate larger sets of models, not just pairs, e.g.,
+<a class="reference internal" href="../bibliography.html#burand2004" id="id4"><span>[BurAnd2004]</span></a>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">title_str</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="sa">r</span><span class="s2">&quot;AIC $\Delta = AIC_{\mathsf{\sim 1}} - AIC_{\mathsf{\sim 1 + stim}}$&quot;</span>
+<span class="p">)</span>
+<span class="n">heatmap_plot</span><span class="p">(</span><span class="n">lmg_1</span><span class="o">.</span><span class="n">aic</span> <span class="o">-</span> <span class="n">lmg_1_stim</span><span class="o">.</span><span class="n">aic</span><span class="p">,</span> <span class="n">title_str</span><span class="p">)</span>
+
+<span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">line_plot</span><span class="p">(</span><span class="n">lmg_1</span><span class="o">.</span><span class="n">aic</span> <span class="o">-</span> <span class="n">lmg_1_stim</span><span class="o">.</span><span class="n">aic</span><span class="p">,</span> <span class="n">title_str</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ylabel</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;AIC $\Delta$&quot;</span><span class="p">)</span>
+<span class="n">yticks</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">10</span><span class="p">]</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="n">yticks</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">hlines</span><span class="p">(</span>
+    <span class="n">yticks</span><span class="p">,</span>
+    <span class="n">xmin</span><span class="o">=</span><span class="n">times</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+    <span class="n">xmax</span><span class="o">=</span><span class="n">times</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">&quot;lightgray&quot;</span><span class="p">,</span>
+    <span class="n">lw</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+    <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;dotted&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img alt="AIC $\Delta = AIC_{\mathsf{\sim 1}} - AIC_{\mathsf{\sim 1 + stim}}$" class="sphx-glr-multi-img" src="../_images/sphx_glr_workflow_010.png" />
+</li>
+<li><img alt="AIC $\Delta = AIC_{\mathsf{\sim 1}} - AIC_{\mathsf{\sim 1 + stim}}$" class="sphx-glr-multi-img" src="../_images/sphx_glr_workflow_011.png" />
+</li>
+</ul>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;matplotlib.collections.LineCollection object at 0x7f9b8e8065b0&gt;
+</pre></div>
+</div>
+<p><strong>Time domain average ERPs:</strong> <span class="math notranslate nohighlight">\(\mathsf{\sim 0 + stim}\)</span></p>
+<p>Suppressing the model intercept triggers “dummy” (indicator) coded categorical predictor variables.
+For this model, <span class="math notranslate nohighlight">\(\beta_0 X_0 + \beta_1 X_1 + e\)</span>, the estimated coefficients <span class="math notranslate nohighlight">\(\hat\beta_{i}\)</span> are the
+average of the trials in each condition, i.e., identical to the sum-and-divide time-domain average ERP.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lmg_0_stim</span> <span class="o">=</span> <span class="n">fg</span><span class="o">.</span><span class="n">lm</span><span class="p">(</span><span class="n">p3_epochs_fg</span><span class="p">,</span> <span class="n">RHS</span><span class="o">=</span><span class="s2">&quot;0 + stim&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">lmg_0_stim</span><span class="p">))</span>
+<span class="n">params_0_stim</span> <span class="o">=</span> <span class="n">lmg_0_stim</span><span class="o">.</span><span class="n">params</span>
+<span class="n">rse_0_stim</span> <span class="o">=</span> <span class="n">lmg_0_stim</span><span class="o">.</span><span class="n">HC0_se</span>
+
+<span class="k">for</span> <span class="n">attr_df</span> <span class="ow">in</span> <span class="p">[</span><span class="n">params_0_stim</span><span class="p">,</span> <span class="n">rse_0_stim</span><span class="p">]:</span>
+    <span class="n">attr_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">set_names</span><span class="p">([</span><span class="s2">&quot;time_ms&quot;</span><span class="p">,</span> <span class="s2">&quot;params&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>  0%|          | 0/375 [00:00&lt;?, ?it/s]
+  1%|1         | 4/375 [00:00&lt;00:10, 35.59it/s]
+  2%|2         | 8/375 [00:00&lt;00:09, 37.85it/s]
+  3%|3         | 12/375 [00:00&lt;00:09, 38.44it/s]
+  4%|4         | 16/375 [00:00&lt;00:09, 38.96it/s]
+  5%|5         | 20/375 [00:00&lt;00:09, 38.22it/s]
+  6%|6         | 24/375 [00:00&lt;00:09, 38.20it/s]
+  8%|7         | 29/375 [00:00&lt;00:08, 39.37it/s]
+  9%|9         | 34/375 [00:00&lt;00:08, 40.06it/s]
+ 10%|#         | 39/375 [00:00&lt;00:08, 40.05it/s]
+ 11%|#1        | 43/375 [00:01&lt;00:08, 39.84it/s]
+ 13%|#2        | 47/375 [00:01&lt;00:08, 39.82it/s]
+ 14%|#3        | 51/375 [00:01&lt;00:08, 39.47it/s]
+ 15%|#4        | 55/375 [00:01&lt;00:08, 39.60it/s]
+ 16%|#5        | 59/375 [00:01&lt;00:07, 39.51it/s]
+ 17%|#6        | 63/375 [00:01&lt;00:08, 38.88it/s]
+ 18%|#7        | 67/375 [00:01&lt;00:07, 39.08it/s]
+ 19%|#8        | 71/375 [00:01&lt;00:07, 38.94it/s]
+ 20%|##        | 76/375 [00:01&lt;00:07, 39.30it/s]
+ 22%|##1       | 81/375 [00:02&lt;00:07, 39.53it/s]
+ 23%|##2       | 85/375 [00:02&lt;00:07, 39.58it/s]
+ 24%|##4       | 90/375 [00:02&lt;00:07, 40.21it/s]
+ 25%|##5       | 95/375 [00:02&lt;00:06, 40.27it/s]
+ 27%|##6       | 100/375 [00:02&lt;00:06, 39.58it/s]
+ 28%|##7       | 104/375 [00:02&lt;00:07, 38.69it/s]
+ 29%|##8       | 108/375 [00:02&lt;00:06, 38.45it/s]
+ 30%|##9       | 112/375 [00:02&lt;00:06, 38.85it/s]
+ 31%|###       | 116/375 [00:02&lt;00:06, 38.85it/s]
+ 32%|###2      | 120/375 [00:03&lt;00:06, 39.03it/s]
+ 33%|###3      | 125/375 [00:03&lt;00:06, 39.46it/s]
+ 34%|###4      | 129/375 [00:03&lt;00:06, 39.01it/s]
+ 35%|###5      | 133/375 [00:03&lt;00:06, 39.13it/s]
+ 37%|###6      | 137/375 [00:03&lt;00:06, 38.94it/s]
+ 38%|###7      | 141/375 [00:03&lt;00:06, 38.73it/s]
+ 39%|###8      | 146/375 [00:03&lt;00:05, 38.56it/s]
+ 40%|####      | 150/375 [00:03&lt;00:05, 38.67it/s]
+ 41%|####1     | 155/375 [00:03&lt;00:05, 39.23it/s]
+ 43%|####2     | 160/375 [00:04&lt;00:05, 39.52it/s]
+ 44%|####3     | 164/375 [00:04&lt;00:05, 39.61it/s]
+ 45%|####5     | 169/375 [00:04&lt;00:05, 39.85it/s]
+ 46%|####6     | 174/375 [00:04&lt;00:05, 40.10it/s]
+ 48%|####7     | 179/375 [00:04&lt;00:04, 39.81it/s]
+ 49%|####9     | 184/375 [00:04&lt;00:04, 40.02it/s]
+ 50%|#####     | 189/375 [00:04&lt;00:04, 40.26it/s]
+ 52%|#####1    | 194/375 [00:04&lt;00:04, 40.12it/s]
+ 53%|#####3    | 199/375 [00:05&lt;00:04, 40.47it/s]
+ 54%|#####4    | 204/375 [00:05&lt;00:04, 40.57it/s]
+ 56%|#####5    | 209/375 [00:05&lt;00:04, 39.75it/s]
+ 57%|#####7    | 214/375 [00:05&lt;00:04, 39.48it/s]
+ 58%|#####8    | 218/375 [00:05&lt;00:04, 39.10it/s]
+ 59%|#####9    | 222/375 [00:05&lt;00:03, 39.13it/s]
+ 60%|######    | 226/375 [00:05&lt;00:03, 38.76it/s]
+ 61%|######1   | 230/375 [00:05&lt;00:03, 38.79it/s]
+ 62%|######2   | 234/375 [00:05&lt;00:03, 38.94it/s]
+ 63%|######3   | 238/375 [00:06&lt;00:03, 38.99it/s]
+ 65%|######4   | 242/375 [00:06&lt;00:03, 38.90it/s]
+ 66%|######5   | 246/375 [00:06&lt;00:03, 38.96it/s]
+ 67%|######6   | 250/375 [00:06&lt;00:03, 39.11it/s]
+ 68%|######7   | 254/375 [00:06&lt;00:03, 39.16it/s]
+ 69%|######8   | 258/375 [00:06&lt;00:03, 38.18it/s]
+ 70%|######9   | 262/375 [00:06&lt;00:02, 38.25it/s]
+ 71%|#######   | 266/375 [00:06&lt;00:02, 37.95it/s]
+ 72%|#######2  | 270/375 [00:06&lt;00:02, 38.26it/s]
+ 73%|#######3  | 274/375 [00:06&lt;00:02, 38.55it/s]
+ 74%|#######4  | 279/375 [00:07&lt;00:02, 39.16it/s]
+ 75%|#######5  | 283/375 [00:07&lt;00:02, 39.33it/s]
+ 77%|#######6  | 288/375 [00:07&lt;00:02, 39.82it/s]
+ 78%|#######7  | 292/375 [00:07&lt;00:02, 39.08it/s]
+ 79%|#######9  | 297/375 [00:07&lt;00:01, 39.42it/s]
+ 81%|########  | 302/375 [00:07&lt;00:01, 39.73it/s]
+ 82%|########1 | 307/375 [00:07&lt;00:01, 39.92it/s]
+ 83%|########3 | 312/375 [00:07&lt;00:01, 40.15it/s]
+ 85%|########4 | 317/375 [00:08&lt;00:01, 40.23it/s]
+ 86%|########5 | 322/375 [00:08&lt;00:01, 40.38it/s]
+ 87%|########7 | 327/375 [00:08&lt;00:01, 39.44it/s]
+ 89%|########8 | 332/375 [00:08&lt;00:01, 39.83it/s]
+ 90%|########9 | 337/375 [00:08&lt;00:00, 39.94it/s]
+ 91%|######### | 341/375 [00:08&lt;00:00, 39.20it/s]
+ 92%|#########2| 346/375 [00:08&lt;00:00, 39.73it/s]
+ 93%|#########3| 350/375 [00:08&lt;00:00, 39.01it/s]
+ 95%|#########4| 355/375 [00:09&lt;00:00, 39.56it/s]
+ 96%|#########5| 359/375 [00:09&lt;00:00, 39.31it/s]
+ 97%|#########6| 363/375 [00:09&lt;00:00, 39.10it/s]
+ 98%|#########7| 367/375 [00:09&lt;00:00, 38.94it/s]
+ 99%|#########8| 371/375 [00:09&lt;00:00, 38.93it/s]
+100%|##########| 375/375 [00:09&lt;00:00, 38.98it/s]
+100%|##########| 375/375 [00:09&lt;00:00, 39.30it/s]
+&lt;class &#39;fitgrid.fitgrid.LMFitGrid&#39;&gt;
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">plot_chans</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MiPf&quot;</span><span class="p">,</span> <span class="s2">&quot;MiPa&quot;</span><span class="p">,</span> <span class="s2">&quot;MiCe&quot;</span><span class="p">,</span> <span class="s2">&quot;MiOc&quot;</span><span class="p">]</span>
+<span class="n">colors</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">prop</span><span class="p">[</span><span class="s2">&quot;color&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">prop</span> <span class="ow">in</span> <span class="n">mpl</span><span class="o">.</span><span class="n">rc_params</span><span class="p">()[</span><span class="s2">&quot;axes.prop_cycle&quot;</span><span class="p">]</span>
+<span class="p">]</span>  <span class="c1"># lookup colors</span>
+
+<span class="c1"># rERPs = model parameter estimates over time</span>
+<span class="k">for</span> <span class="n">param</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">params_0_stim</span><span class="p">[</span><span class="n">plot_chans</span><span class="p">]</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">):</span>
+    <span class="n">vals</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="s1">&#39;params&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="n">vals</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="n">condition</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;stim[&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">line_plot</span><span class="p">(</span>
+        <span class="n">vals</span><span class="p">,</span>
+        <span class="s2">&quot;Model: ~ 0 + stim</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="o">+</span> <span class="sa">r</span><span class="s2">&quot;OLS $\hat{\beta}$ &quot;</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">param</span><span class="si">}</span><span class="s2"> = average ERP (</span><span class="si">{</span><span class="n">condition</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># add SE</span>
+    <span class="k">for</span> <span class="n">cdx</span><span class="p">,</span> <span class="n">chan</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">plot_chans</span><span class="p">):</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">colors</span><span class="p">[</span><span class="n">cdx</span><span class="p">]</span>
+        <span class="n">se</span> <span class="o">=</span> <span class="n">rse_0_stim</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;params==@param&quot;</span><span class="p">)[</span><span class="n">chan</span><span class="p">]</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span>
+            <span class="n">times</span><span class="p">,</span> <span class="n">vals</span><span class="p">[</span><span class="n">chan</span><span class="p">]</span> <span class="o">-</span> <span class="n">se</span><span class="p">,</span> <span class="n">vals</span><span class="p">[</span><span class="n">chan</span><span class="p">]</span> <span class="o">+</span> <span class="n">se</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span>
+        <span class="p">)</span>
+
+    <span class="n">ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;lightgray&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="s2">&quot;upper left&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img alt="Model: ~ 0 + stim OLS $\hat{\beta}$ stim[standard] = average ERP (STANDARD)" class="sphx-glr-multi-img" src="../_images/sphx_glr_workflow_012.png" />
+</li>
+<li><img alt="Model: ~ 0 + stim OLS $\hat{\beta}$ stim[target] = average ERP (TARGET)" class="sphx-glr-multi-img" src="../_images/sphx_glr_workflow_013.png" />
+</li>
+</ul>
+</div>
+</div>
+<div class="section" id="next-steps">
+<h2>5. Next steps<a class="headerlink" href="#next-steps" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="linear-mixed-effects-with-lme4-lmer">
+<h3>Linear mixed-effects with <cite>lme4::lmer</cite><a class="headerlink" href="#linear-mixed-effects-with-lme4-lmer" title="Permalink to this headline">¶</a></h3>
+<p>Linear mixed-effects models can be fit to epochs data with
+<cite>fitgrid.lmer</cite> and model formulas from the <cite>lme4::lmer</cite> R library.
+The <cite>FitGrid</cite> is populated with the <cite>lmer</cite> fit results and sliced
+and accessed the same way as the OLS grids. The mixed-effects fits
+are much slower in general so parallel processing on multicore
+hardware is likely a practical necessity.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lmeg</span> <span class="o">=</span> <span class="n">fg</span><span class="o">.</span><span class="n">lmer</span><span class="p">(</span>
+    <span class="n">epochs_fg</span><span class="p">,</span>
+    <span class="n">RHS</span><span class="o">=</span><span class="s2">&quot;1 + a + (a | subid) + (a | itemid),</span>
+    <span class="n">paralell</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">n_cores</span><span class="o">=</span><span class="mi">12</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="multicore-parallel-acceleration">
+<h3>Multicore parallel acceleration<a class="headerlink" href="#multicore-parallel-acceleration" title="Permalink to this headline">¶</a></h3>
+<p>A good desktop workstation may have 8 cores, a high performance compute node may have dozens or more.
+With <cite>lmer</cite> modeling especially, it may be useful to take advantage of multiple
+cores and fit models with parallel processes to speed up processing though
+the performance impact depends on the system and size of the job and parallel jobs may run more slowly.</p>
+<p>Run parallel processes by setting  <code class="docutils literal notranslate"><span class="pre">parallel</span></code> to  <code class="docutils literal notranslate"><span class="pre">True</span></code> and <code class="docutils literal notranslate"><span class="pre">n_cores</span></code> to the desired value (defaults to 4)
+like so:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">lmg</span> <span class="o">=</span> <span class="n">fg</span><span class="o">.</span><span class="n">lm</span><span class="p">(</span>
+    <span class="n">epochs_fg</span><span class="p">,</span>
+    <span class="n">RHS</span><span class="o">=</span><span class="s2">&quot;1 + a + b + a:b&quot;</span><span class="p">,</span>
+    <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">n_cores</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>When working on a shared system it is rude to hog too many cores.</p>
+</div>
+</div>
+<div class="section" id="model-sets-and-comparisons">
+<h3>Model sets and comparisons<a class="headerlink" href="#model-sets-and-comparisons" title="Permalink to this headline">¶</a></h3>
+<p>To reduce memory demands when fitting and comparing sets of models,
+<cite>fitgrid</cite> provides a convenience function <cite>fitgrid.utils.summarize</cite>
+that iteratively fits a series of models and scrapes selected results
+into lightweight summary data frame with key fit results for model
+interpretation and comparison and a few helper functions for
+plotting the summary results. See <a class="reference internal" href="../user_guide.html#guide-summaries"><span class="std std-ref">Model comparisons and summaries</span></a>.</p>
+</div>
+<div class="section" id="model-and-data-diagnostics">
+<h3>Model and data diagnostics<a class="headerlink" href="#model-and-data-diagnostics" title="Permalink to this headline">¶</a></h3>
+<p>When the native Python and R fit results include diagnostic
+information, this can be accessed in the <cite>FitGrid</cite> like any other
+attributes. In practice, however, doing so may be intractably slow
+or memory intensive.  There are a few <cite>fitgrid</cite> convenience
+utilities for diagnostics (see <a class="reference internal" href="../user_guide.html#diagnostics"><span class="std std-ref">Model and data diagnostics (WIP)</span></a>) though it is an area
+that needs more work.</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  36.993 seconds)</p>
+<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-gallery-workflow-py">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/73f1e05b2e8640a556223829056bfa1e/workflow.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">workflow.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../_downloads/362eef82a51193891af302c4e344050a/workflow.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">workflow.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="1_epochs_data/index.html" class="btn btn-neutral float-right" title="Epochs data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../gallery.html" class="btn btn-neutral float-left" title="Examples Gallery" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

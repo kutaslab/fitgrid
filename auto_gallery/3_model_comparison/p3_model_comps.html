@@ -1,0 +1,1429 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>AIC and likelihood ratio model comparison &mdash; fitgrid 0.5.0.dev1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-rendered-html.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="API" href="../../api.html" />
+    <link rel="prev" title="Model comparison" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> fitgrid
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about_fitgrid.html">About <cite>fitgrid</cite></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gallery.html">Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">fitgrid</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../gallery.html">Examples Gallery</a> &raquo;</li>
+        
+          <li><a href="index.html">Model comparison</a> &raquo;</li>
+        
+      <li>AIC and likelihood ratio model comparison</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-auto-gallery-3-model-comparison-p3-model-comps-py"><span class="std std-ref">here</span></a>
+to download the full example code</p>
+</div>
+<div class="sphx-glr-example-title section" id="aic-and-likelihood-ratio-model-comparison">
+<span id="sphx-glr-auto-gallery-3-model-comparison-p3-model-comps-py"></span><h1>AIC and likelihood ratio model comparison<a class="headerlink" href="#aic-and-likelihood-ratio-model-comparison" title="Permalink to this headline">¶</a></h1>
+<p>There are many approaches to comparing models and evaluating relative
+goodness-of-fit. The <cite>FitGrid[time, channe]</cite> query mechanism is
+designed to streamline the computations for whatever approach is
+deemed appropriate for the research question at hand..</p>
+<p>The AIC example demonstrates the <cite>fitgrid.utils.summarize</cite> function, a
+convenience wrapper that fits a list of models and returns key summary
+information for each as an indexed data frame. The summary may be
+passed to a function for visualizing the AIC
+<span class="math notranslate nohighlight">\(\mathsf{\Delta_{min}}\)</span> model comparison (<a class="reference internal" href="../../bibliography.html#burand2004" id="id1"><span>[BurAnd2004]</span></a>) as
+shown, or processed by custom user routines as needed.</p>
+<p>For cases where the summary information is insufficient, the
+likelihood ratio example illustrates how to compute and visualize a
+model comparison measure derived from the original fitted grids. Other
+measures may be computed in a similar manner.</p>
+<div class="section" id="prepare-sample-data">
+<h2>Prepare sample data<a class="headerlink" href="#prepare-sample-data" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">fitgrid</span> <span class="k">as</span> <span class="nn">fg</span>
+<span class="kn">from</span> <span class="nn">fitgrid</span> <span class="kn">import</span> <span class="n">DATA_DIR</span><span class="p">,</span> <span class="n">sample_data</span>
+
+<span class="n">sample_data</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span><span class="s2">&quot;sub000p3.ms1500.epochs.feather&quot;</span><span class="p">)</span>
+<span class="n">p3_epochs_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_feather</span><span class="p">(</span><span class="n">DATA_DIR</span> <span class="o">/</span> <span class="s2">&quot;sub000p3.ms1500.epochs.feather&quot;</span><span class="p">)</span>
+
+<span class="c1"># drop calibration pulses for these examples</span>
+<span class="n">p3_epochs_df</span> <span class="o">=</span> <span class="n">p3_epochs_df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;stim != &#39;cal&#39;&quot;</span><span class="p">)</span>
+
+<span class="c1"># look up the data QC flags and select the good epochs</span>
+<span class="n">good_epochs</span> <span class="o">=</span> <span class="n">p3_epochs_df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;match_time == 0 and log_flags == 0&quot;</span><span class="p">)[</span>
+    <span class="s2">&quot;epoch_id&quot;</span>
+<span class="p">]</span>
+<span class="n">p3_epochs_df</span> <span class="o">=</span> <span class="n">p3_epochs_df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;epoch_id in @good_epochs&quot;</span><span class="p">)</span>
+
+<span class="c1"># rename the time stamp column</span>
+<span class="n">p3_epochs_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;match_time&quot;</span><span class="p">:</span> <span class="s2">&quot;time_ms&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># select columns of interest for modeling</span>
+<span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;epoch_id&quot;</span><span class="p">,</span> <span class="s2">&quot;time_ms&quot;</span><span class="p">]</span>
+<span class="n">predictors</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;stim&quot;</span><span class="p">,</span> <span class="s2">&quot;tone&quot;</span><span class="p">]</span>  <span class="c1"># categorical with 2 levels: standard, target</span>
+<span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MiPf&quot;</span><span class="p">,</span> <span class="s2">&quot;MiCe&quot;</span><span class="p">,</span> <span class="s2">&quot;MiPa&quot;</span><span class="p">,</span> <span class="s2">&quot;MiOc&quot;</span><span class="p">]</span>  <span class="c1"># midline electrodes</span>
+<span class="n">p3_epochs_df</span> <span class="o">=</span> <span class="n">p3_epochs_df</span><span class="p">[</span><span class="n">indices</span> <span class="o">+</span> <span class="n">predictors</span> <span class="o">+</span> <span class="n">channels</span><span class="p">]</span>
+
+<span class="c1"># set the epoch and time column index for fg.Epochs</span>
+<span class="n">p3_epochs_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;epoch_id&quot;</span><span class="p">,</span> <span class="s2">&quot;time_ms&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># &quot;baseline&quot;, i.e., center each epoch on the 200 ms pre-stimulus interval</span>
+<span class="n">centered</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">epoch_id</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">p3_epochs_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;epoch_id&quot;</span><span class="p">):</span>
+    <span class="n">centered</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">vals</span><span class="p">[</span><span class="n">channels</span><span class="p">]</span>
+        <span class="o">-</span> <span class="n">vals</span><span class="p">[</span><span class="n">channels</span><span class="p">]</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;time_ms &gt;= -200 and time_ms &lt; 0&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="p">)</span>
+<span class="n">p3_epochs_df</span><span class="p">[</span><span class="n">channels</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">centered</span><span class="p">)</span>
+
+<span class="c1"># slice epochs down to a shorter interval</span>
+<span class="n">p3_epochs_df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;time_ms &gt;= -200 and time_ms &lt;= 600&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">p3_epochs_df</span>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>stim</th>
+      <th>tone</th>
+      <th>MiPf</th>
+      <th>MiCe</th>
+      <th>MiPa</th>
+      <th>MiOc</th>
+    </tr>
+    <tr>
+      <th>epoch_id</th>
+      <th>time_ms</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="5" valign="top">0</th>
+      <th>-200</th>
+      <td>target</td>
+      <td>hi</td>
+      <td>-0.380001</td>
+      <td>20.450624</td>
+      <td>29.704453</td>
+      <td>21.073549</td>
+    </tr>
+    <tr>
+      <th>-196</th>
+      <td>target</td>
+      <td>hi</td>
+      <td>0.119999</td>
+      <td>19.700624</td>
+      <td>28.266953</td>
+      <td>17.432924</td>
+    </tr>
+    <tr>
+      <th>-192</th>
+      <td>target</td>
+      <td>hi</td>
+      <td>-3.880001</td>
+      <td>11.106874</td>
+      <td>18.485703</td>
+      <td>11.112612</td>
+    </tr>
+    <tr>
+      <th>-188</th>
+      <td>target</td>
+      <td>hi</td>
+      <td>-1.380001</td>
+      <td>11.106874</td>
+      <td>14.891953</td>
+      <td>6.261050</td>
+    </tr>
+    <tr>
+      <th>-184</th>
+      <td>target</td>
+      <td>hi</td>
+      <td>3.119999</td>
+      <td>9.075624</td>
+      <td>9.641953</td>
+      <td>3.343081</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th rowspan="5" valign="top">391</th>
+      <th>584</th>
+      <td>standard</td>
+      <td>hi</td>
+      <td>-27.759998</td>
+      <td>-19.758007</td>
+      <td>-14.340283</td>
+      <td>-3.182412</td>
+    </tr>
+    <tr>
+      <th>588</th>
+      <td>standard</td>
+      <td>hi</td>
+      <td>-27.759998</td>
+      <td>-24.312695</td>
+      <td>-23.644970</td>
+      <td>-8.283975</td>
+    </tr>
+    <tr>
+      <th>592</th>
+      <td>standard</td>
+      <td>hi</td>
+      <td>-19.259998</td>
+      <td>-13.181836</td>
+      <td>-14.102002</td>
+      <td>2.649619</td>
+    </tr>
+    <tr>
+      <th>596</th>
+      <td>standard</td>
+      <td>hi</td>
+      <td>-19.259998</td>
+      <td>-13.687696</td>
+      <td>-15.293408</td>
+      <td>-0.510537</td>
+    </tr>
+    <tr>
+      <th>600</th>
+      <td>standard</td>
+      <td>hi</td>
+      <td>-22.259998</td>
+      <td>-12.423047</td>
+      <td>-12.670362</td>
+      <td>-1.239053</td>
+    </tr>
+  </tbody>
+</table>
+<p>67134 rows × 6 columns</p>
+</div>
+</div>
+<br />
+<br /></div>
+<div class="section" id="ingest-as-fitgrid-epochs">
+<h2>Ingest as <cite>fitgrid.Epochs</cite><a class="headerlink" href="#ingest-as-fitgrid-epochs" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">p3_epochs_fg</span> <span class="o">=</span> <span class="n">fg</span><span class="o">.</span><span class="n">epochs_from_dataframe</span><span class="p">(</span>
+    <span class="n">p3_epochs_df</span><span class="p">,</span> <span class="n">epoch_id</span><span class="o">=</span><span class="s2">&quot;epoch_id&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="s2">&quot;time_ms&quot;</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="n">channels</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="model-summaries">
+<h2>Model summaries<a class="headerlink" href="#model-summaries" title="Permalink to this headline">¶</a></h2>
+<p>The <cite>fitgrid.utils.summarize</cite> function is a convenience wrapper that fits
+a list of models and collects a few key summary measures into
+a single dataframe indexed by model, beta estimate, and the measure.
+It supports OLS and LME model fitting and the summaries are
+returned are in the same format.</p>
+<p>This experimental design is a fully crossed 2 (stim: standard, target)
+<span class="math notranslate nohighlight">\(\times\)</span> 2 (tone: hi, lo). The predictors are treatment coded (<cite>patsy</cite> default).</p>
+<p>Here is a stack of 5 models to summarize and compare:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">rhss_T</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;1 + stim + tone + stim:tone&quot;</span><span class="p">,</span>  <span class="c1"># long form of &quot;stim * tone&quot;</span>
+    <span class="s2">&quot;1 + stim + tone&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;1 + stim&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;1 + tone&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fitgrid.utils.summary</span> <span class="kn">import</span> <span class="n">summarize</span>
+
+<span class="n">lm_summary_T</span> <span class="o">=</span> <span class="n">summarize</span><span class="p">(</span>
+    <span class="n">p3_epochs_fg</span><span class="p">,</span> <span class="n">modeler</span><span class="o">=</span><span class="s2">&quot;lm&quot;</span><span class="p">,</span> <span class="n">RHS</span><span class="o">=</span><span class="n">rhss_T</span><span class="p">,</span> <span class="n">LHS</span><span class="o">=</span><span class="n">channels</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+<span class="n">lm_summary_T</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>  0%|          | 0/201 [00:00&lt;?, ?it/s]
+  1%|1         | 3/201 [00:00&lt;00:07, 26.85it/s]
+  3%|2         | 6/201 [00:00&lt;00:07, 27.85it/s]
+  4%|4         | 9/201 [00:00&lt;00:06, 27.93it/s]
+  6%|5         | 12/201 [00:00&lt;00:07, 26.91it/s]
+  7%|7         | 15/201 [00:00&lt;00:06, 26.64it/s]
+  9%|8         | 18/201 [00:00&lt;00:06, 26.29it/s]
+ 10%|#         | 21/201 [00:00&lt;00:06, 26.65it/s]
+ 12%|#1        | 24/201 [00:00&lt;00:06, 26.53it/s]
+ 13%|#3        | 27/201 [00:01&lt;00:06, 26.99it/s]
+ 15%|#4        | 30/201 [00:01&lt;00:06, 27.30it/s]
+ 16%|#6        | 33/201 [00:01&lt;00:06, 27.31it/s]
+ 18%|#7        | 36/201 [00:01&lt;00:06, 27.45it/s]
+ 19%|#9        | 39/201 [00:01&lt;00:05, 27.47it/s]
+ 21%|##        | 42/201 [00:01&lt;00:05, 27.83it/s]
+ 22%|##2       | 45/201 [00:01&lt;00:05, 27.77it/s]
+ 24%|##3       | 48/201 [00:01&lt;00:05, 28.12it/s]
+ 25%|##5       | 51/201 [00:01&lt;00:05, 27.74it/s]
+ 27%|##6       | 54/201 [00:01&lt;00:05, 27.73it/s]
+ 28%|##8       | 57/201 [00:02&lt;00:05, 27.87it/s]
+ 30%|##9       | 60/201 [00:02&lt;00:05, 27.81it/s]
+ 31%|###1      | 63/201 [00:02&lt;00:04, 27.84it/s]
+ 33%|###2      | 66/201 [00:02&lt;00:04, 27.93it/s]
+ 34%|###4      | 69/201 [00:02&lt;00:04, 28.21it/s]
+ 36%|###5      | 72/201 [00:02&lt;00:04, 27.73it/s]
+ 37%|###7      | 75/201 [00:02&lt;00:04, 27.91it/s]
+ 39%|###8      | 78/201 [00:02&lt;00:04, 28.12it/s]
+ 40%|####      | 81/201 [00:02&lt;00:04, 28.50it/s]
+ 42%|####1     | 84/201 [00:03&lt;00:04, 28.56it/s]
+ 43%|####3     | 87/201 [00:03&lt;00:04, 28.19it/s]
+ 45%|####4     | 90/201 [00:03&lt;00:03, 27.94it/s]
+ 46%|####6     | 93/201 [00:03&lt;00:03, 27.68it/s]
+ 48%|####7     | 96/201 [00:03&lt;00:03, 27.79it/s]
+ 49%|####9     | 99/201 [00:03&lt;00:03, 27.97it/s]
+ 51%|#####     | 102/201 [00:03&lt;00:03, 28.08it/s]
+ 52%|#####2    | 105/201 [00:03&lt;00:03, 28.13it/s]
+ 54%|#####3    | 108/201 [00:03&lt;00:03, 27.76it/s]
+ 55%|#####5    | 111/201 [00:04&lt;00:03, 27.88it/s]
+ 57%|#####6    | 114/201 [00:04&lt;00:03, 28.21it/s]
+ 58%|#####8    | 117/201 [00:04&lt;00:02, 28.22it/s]
+ 60%|#####9    | 120/201 [00:04&lt;00:02, 28.34it/s]
+ 61%|######1   | 123/201 [00:04&lt;00:02, 28.42it/s]
+ 63%|######2   | 126/201 [00:04&lt;00:02, 28.59it/s]
+ 64%|######4   | 129/201 [00:04&lt;00:02, 27.91it/s]
+ 66%|######5   | 132/201 [00:04&lt;00:02, 28.21it/s]
+ 67%|######7   | 135/201 [00:04&lt;00:02, 27.83it/s]
+ 69%|######8   | 138/201 [00:04&lt;00:02, 27.73it/s]
+ 70%|#######   | 141/201 [00:05&lt;00:02, 27.78it/s]
+ 72%|#######1  | 144/201 [00:05&lt;00:02, 27.71it/s]
+ 73%|#######3  | 147/201 [00:05&lt;00:01, 27.99it/s]
+ 75%|#######4  | 150/201 [00:05&lt;00:01, 27.91it/s]
+ 76%|#######6  | 153/201 [00:05&lt;00:01, 27.88it/s]
+ 78%|#######7  | 156/201 [00:05&lt;00:01, 27.91it/s]
+ 79%|#######9  | 159/201 [00:05&lt;00:01, 28.06it/s]
+ 81%|########  | 162/201 [00:05&lt;00:01, 27.70it/s]
+ 82%|########2 | 165/201 [00:05&lt;00:01, 27.72it/s]
+ 84%|########3 | 168/201 [00:06&lt;00:01, 27.71it/s]
+ 85%|########5 | 171/201 [00:06&lt;00:01, 27.53it/s]
+ 87%|########6 | 174/201 [00:06&lt;00:00, 28.03it/s]
+ 88%|########8 | 177/201 [00:06&lt;00:00, 28.06it/s]
+ 90%|########9 | 180/201 [00:06&lt;00:00, 27.95it/s]
+ 91%|#########1| 183/201 [00:06&lt;00:00, 27.82it/s]
+ 93%|#########2| 186/201 [00:06&lt;00:00, 27.66it/s]
+ 94%|#########4| 189/201 [00:06&lt;00:00, 27.61it/s]
+ 96%|#########5| 192/201 [00:06&lt;00:00, 27.78it/s]
+ 97%|#########7| 195/201 [00:07&lt;00:00, 28.04it/s]
+ 99%|#########8| 198/201 [00:07&lt;00:00, 27.98it/s]
+100%|##########| 201/201 [00:07&lt;00:00, 28.27it/s]
+100%|##########| 201/201 [00:07&lt;00:00, 27.82it/s]
+
+  0%|          | 0/201 [00:00&lt;?, ?it/s]
+  1%|1         | 3/201 [00:00&lt;00:07, 27.91it/s]
+  3%|2         | 6/201 [00:00&lt;00:06, 29.01it/s]
+  4%|4         | 9/201 [00:00&lt;00:06, 28.89it/s]
+  6%|5         | 12/201 [00:00&lt;00:06, 29.14it/s]
+  7%|7         | 15/201 [00:00&lt;00:06, 29.37it/s]
+  9%|8         | 18/201 [00:00&lt;00:06, 29.56it/s]
+ 11%|#         | 22/201 [00:00&lt;00:05, 29.87it/s]
+ 13%|#2        | 26/201 [00:00&lt;00:05, 30.14it/s]
+ 15%|#4        | 30/201 [00:01&lt;00:05, 29.57it/s]
+ 17%|#6        | 34/201 [00:01&lt;00:05, 29.95it/s]
+ 19%|#8        | 38/201 [00:01&lt;00:05, 30.07it/s]
+ 21%|##        | 42/201 [00:01&lt;00:05, 30.27it/s]
+ 23%|##2       | 46/201 [00:01&lt;00:05, 30.38it/s]
+ 25%|##4       | 50/201 [00:01&lt;00:04, 30.39it/s]
+ 27%|##6       | 54/201 [00:01&lt;00:04, 30.47it/s]
+ 29%|##8       | 58/201 [00:01&lt;00:04, 30.54it/s]
+ 31%|###       | 62/201 [00:02&lt;00:04, 30.41it/s]
+ 33%|###2      | 66/201 [00:02&lt;00:04, 30.43it/s]
+ 35%|###4      | 70/201 [00:02&lt;00:04, 30.32it/s]
+ 37%|###6      | 74/201 [00:02&lt;00:04, 29.94it/s]
+ 38%|###8      | 77/201 [00:02&lt;00:04, 29.29it/s]
+ 40%|####      | 81/201 [00:02&lt;00:04, 29.42it/s]
+ 42%|####2     | 85/201 [00:02&lt;00:03, 29.83it/s]
+ 44%|####4     | 89/201 [00:02&lt;00:03, 29.88it/s]
+ 46%|####5     | 92/201 [00:03&lt;00:03, 29.57it/s]
+ 47%|####7     | 95/201 [00:03&lt;00:03, 29.19it/s]
+ 49%|####8     | 98/201 [00:03&lt;00:03, 29.10it/s]
+ 50%|#####     | 101/201 [00:03&lt;00:03, 29.08it/s]
+ 52%|#####1    | 104/201 [00:03&lt;00:03, 29.27it/s]
+ 54%|#####3    | 108/201 [00:03&lt;00:03, 29.63it/s]
+ 55%|#####5    | 111/201 [00:03&lt;00:03, 29.61it/s]
+ 57%|#####6    | 114/201 [00:03&lt;00:03, 28.09it/s]
+ 58%|#####8    | 117/201 [00:03&lt;00:02, 28.41it/s]
+ 60%|######    | 121/201 [00:04&lt;00:02, 28.82it/s]
+ 62%|######1   | 124/201 [00:04&lt;00:02, 28.98it/s]
+ 63%|######3   | 127/201 [00:04&lt;00:02, 29.21it/s]
+ 65%|######4   | 130/201 [00:04&lt;00:02, 29.25it/s]
+ 66%|######6   | 133/201 [00:04&lt;00:02, 29.09it/s]
+ 68%|######8   | 137/201 [00:04&lt;00:02, 29.47it/s]
+ 70%|######9   | 140/201 [00:04&lt;00:02, 29.33it/s]
+ 72%|#######1  | 144/201 [00:04&lt;00:01, 29.79it/s]
+ 73%|#######3  | 147/201 [00:04&lt;00:01, 29.42it/s]
+ 75%|#######4  | 150/201 [00:05&lt;00:01, 29.57it/s]
+ 76%|#######6  | 153/201 [00:05&lt;00:01, 29.56it/s]
+ 78%|#######8  | 157/201 [00:05&lt;00:01, 29.71it/s]
+ 80%|#######9  | 160/201 [00:05&lt;00:01, 29.52it/s]
+ 82%|########1 | 164/201 [00:05&lt;00:01, 29.71it/s]
+ 84%|########3 | 168/201 [00:05&lt;00:01, 30.05it/s]
+ 85%|########5 | 171/201 [00:05&lt;00:01, 29.93it/s]
+ 87%|########7 | 175/201 [00:05&lt;00:00, 30.28it/s]
+ 89%|########9 | 179/201 [00:06&lt;00:00, 30.62it/s]
+ 91%|#########1| 183/201 [00:06&lt;00:00, 30.43it/s]
+ 93%|#########3| 187/201 [00:06&lt;00:00, 30.63it/s]
+ 95%|#########5| 191/201 [00:06&lt;00:00, 30.04it/s]
+ 97%|#########7| 195/201 [00:06&lt;00:00, 29.79it/s]
+ 99%|#########9| 199/201 [00:06&lt;00:00, 29.89it/s]
+100%|##########| 201/201 [00:06&lt;00:00, 29.71it/s]
+
+  0%|          | 0/201 [00:00&lt;?, ?it/s]
+  2%|1         | 4/201 [00:00&lt;00:05, 36.85it/s]
+  4%|3         | 8/201 [00:00&lt;00:05, 38.52it/s]
+  6%|5         | 12/201 [00:00&lt;00:04, 38.60it/s]
+  8%|7         | 16/201 [00:00&lt;00:04, 38.81it/s]
+ 10%|#         | 21/201 [00:00&lt;00:04, 39.46it/s]
+ 12%|#2        | 25/201 [00:00&lt;00:04, 38.73it/s]
+ 14%|#4        | 29/201 [00:00&lt;00:04, 38.97it/s]
+ 16%|#6        | 33/201 [00:00&lt;00:04, 39.20it/s]
+ 18%|#8        | 37/201 [00:00&lt;00:04, 39.00it/s]
+ 20%|##        | 41/201 [00:01&lt;00:04, 39.22it/s]
+ 23%|##2       | 46/201 [00:01&lt;00:03, 39.80it/s]
+ 25%|##5       | 51/201 [00:01&lt;00:03, 39.93it/s]
+ 28%|##7       | 56/201 [00:01&lt;00:03, 40.00it/s]
+ 30%|##9       | 60/201 [00:01&lt;00:03, 39.99it/s]
+ 32%|###2      | 65/201 [00:01&lt;00:03, 39.96it/s]
+ 34%|###4      | 69/201 [00:01&lt;00:03, 39.49it/s]
+ 36%|###6      | 73/201 [00:01&lt;00:03, 39.43it/s]
+ 38%|###8      | 77/201 [00:01&lt;00:03, 39.38it/s]
+ 40%|####      | 81/201 [00:02&lt;00:03, 39.18it/s]
+ 42%|####2     | 85/201 [00:02&lt;00:02, 39.16it/s]
+ 44%|####4     | 89/201 [00:02&lt;00:02, 39.36it/s]
+ 46%|####6     | 93/201 [00:02&lt;00:02, 39.22it/s]
+ 49%|####8     | 98/201 [00:02&lt;00:02, 39.26it/s]
+ 51%|#####1    | 103/201 [00:02&lt;00:02, 39.45it/s]
+ 53%|#####3    | 107/201 [00:02&lt;00:02, 39.55it/s]
+ 56%|#####5    | 112/201 [00:02&lt;00:02, 39.80it/s]
+ 58%|#####8    | 117/201 [00:02&lt;00:02, 40.05it/s]
+ 61%|######    | 122/201 [00:03&lt;00:01, 39.60it/s]
+ 63%|######2   | 126/201 [00:03&lt;00:01, 38.94it/s]
+ 65%|######4   | 130/201 [00:03&lt;00:01, 39.12it/s]
+ 67%|######6   | 134/201 [00:03&lt;00:01, 38.44it/s]
+ 69%|######8   | 138/201 [00:03&lt;00:01, 38.46it/s]
+ 71%|#######1  | 143/201 [00:03&lt;00:01, 39.00it/s]
+ 73%|#######3  | 147/201 [00:03&lt;00:01, 39.23it/s]
+ 76%|#######5  | 152/201 [00:03&lt;00:01, 39.86it/s]
+ 78%|#######8  | 157/201 [00:03&lt;00:01, 40.32it/s]
+ 81%|########  | 162/201 [00:04&lt;00:00, 39.72it/s]
+ 83%|########3 | 167/201 [00:04&lt;00:00, 40.02it/s]
+ 86%|########5 | 172/201 [00:04&lt;00:00, 39.92it/s]
+ 88%|########8 | 177/201 [00:04&lt;00:00, 40.27it/s]
+ 91%|######### | 182/201 [00:04&lt;00:00, 40.51it/s]
+ 93%|#########3| 187/201 [00:04&lt;00:00, 40.45it/s]
+ 96%|#########5| 192/201 [00:04&lt;00:00, 40.54it/s]
+ 98%|#########8| 197/201 [00:04&lt;00:00, 40.08it/s]
+100%|##########| 201/201 [00:05&lt;00:00, 39.55it/s]
+
+  0%|          | 0/201 [00:00&lt;?, ?it/s]
+  2%|1         | 4/201 [00:00&lt;00:05, 37.39it/s]
+  4%|4         | 9/201 [00:00&lt;00:04, 38.84it/s]
+  6%|6         | 13/201 [00:00&lt;00:04, 39.32it/s]
+  9%|8         | 18/201 [00:00&lt;00:04, 40.10it/s]
+ 11%|#1        | 23/201 [00:00&lt;00:04, 40.50it/s]
+ 14%|#3        | 28/201 [00:00&lt;00:04, 41.06it/s]
+ 16%|#6        | 33/201 [00:00&lt;00:04, 40.55it/s]
+ 19%|#8        | 38/201 [00:00&lt;00:04, 40.09it/s]
+ 21%|##1       | 43/201 [00:01&lt;00:03, 40.17it/s]
+ 24%|##3       | 48/201 [00:01&lt;00:03, 40.20it/s]
+ 26%|##6       | 53/201 [00:01&lt;00:03, 40.27it/s]
+ 29%|##8       | 58/201 [00:01&lt;00:03, 40.58it/s]
+ 31%|###1      | 63/201 [00:01&lt;00:03, 40.99it/s]
+ 34%|###3      | 68/201 [00:01&lt;00:03, 40.67it/s]
+ 36%|###6      | 73/201 [00:01&lt;00:03, 40.80it/s]
+ 39%|###8      | 78/201 [00:01&lt;00:03, 40.17it/s]
+ 41%|####1     | 83/201 [00:02&lt;00:02, 40.11it/s]
+ 44%|####3     | 88/201 [00:02&lt;00:02, 40.34it/s]
+ 46%|####6     | 93/201 [00:02&lt;00:02, 40.47it/s]
+ 49%|####8     | 98/201 [00:02&lt;00:02, 40.40it/s]
+ 51%|#####1    | 103/201 [00:03&lt;00:09, 10.61it/s]
+ 53%|#####3    | 107/201 [00:03&lt;00:07, 12.99it/s]
+ 56%|#####5    | 112/201 [00:03&lt;00:05, 16.52it/s]
+ 58%|#####7    | 116/201 [00:04&lt;00:04, 19.52it/s]
+ 60%|#####9    | 120/201 [00:04&lt;00:03, 22.66it/s]
+ 62%|######2   | 125/201 [00:04&lt;00:02, 26.74it/s]
+ 65%|######4   | 130/201 [00:04&lt;00:02, 30.06it/s]
+ 67%|######7   | 135/201 [00:04&lt;00:02, 32.62it/s]
+ 70%|######9   | 140/201 [00:04&lt;00:01, 34.72it/s]
+ 72%|#######2  | 145/201 [00:04&lt;00:01, 36.37it/s]
+ 75%|#######4  | 150/201 [00:04&lt;00:01, 37.78it/s]
+ 77%|#######7  | 155/201 [00:05&lt;00:01, 37.63it/s]
+ 79%|#######9  | 159/201 [00:05&lt;00:01, 38.00it/s]
+ 81%|########1 | 163/201 [00:05&lt;00:00, 38.44it/s]
+ 84%|########3 | 168/201 [00:05&lt;00:00, 38.95it/s]
+ 86%|########6 | 173/201 [00:05&lt;00:00, 38.70it/s]
+ 88%|########8 | 177/201 [00:05&lt;00:00, 38.77it/s]
+ 90%|######### | 181/201 [00:05&lt;00:00, 39.07it/s]
+ 93%|#########2| 186/201 [00:05&lt;00:00, 39.52it/s]
+ 95%|#########4| 190/201 [00:05&lt;00:00, 39.45it/s]
+ 97%|#########7| 195/201 [00:06&lt;00:00, 39.73it/s]
+100%|#########9| 200/201 [00:06&lt;00:00, 40.17it/s]
+100%|##########| 201/201 [00:06&lt;00:00, 32.60it/s]
+
+  0%|          | 0/201 [00:00&lt;?, ?it/s]
+  3%|2         | 6/201 [00:00&lt;00:03, 57.05it/s]
+  6%|6         | 13/201 [00:00&lt;00:03, 61.13it/s]
+ 10%|9         | 20/201 [00:00&lt;00:02, 62.97it/s]
+ 13%|#3        | 27/201 [00:00&lt;00:02, 64.23it/s]
+ 17%|#6        | 34/201 [00:00&lt;00:02, 64.58it/s]
+ 20%|##        | 41/201 [00:00&lt;00:02, 64.76it/s]
+ 24%|##3       | 48/201 [00:00&lt;00:02, 65.19it/s]
+ 27%|##7       | 55/201 [00:00&lt;00:02, 65.25it/s]
+ 31%|###       | 62/201 [00:00&lt;00:02, 64.91it/s]
+ 34%|###4      | 69/201 [00:01&lt;00:02, 65.16it/s]
+ 38%|###7      | 76/201 [00:01&lt;00:01, 65.44it/s]
+ 41%|####1     | 83/201 [00:01&lt;00:01, 63.99it/s]
+ 45%|####4     | 90/201 [00:01&lt;00:01, 63.41it/s]
+ 48%|####8     | 97/201 [00:01&lt;00:01, 62.65it/s]
+ 52%|#####1    | 104/201 [00:01&lt;00:01, 63.64it/s]
+ 55%|#####5    | 111/201 [00:01&lt;00:01, 62.80it/s]
+ 59%|#####8    | 118/201 [00:01&lt;00:01, 63.57it/s]
+ 62%|######2   | 125/201 [00:01&lt;00:01, 63.78it/s]
+ 66%|######5   | 132/201 [00:02&lt;00:01, 63.68it/s]
+ 69%|######9   | 139/201 [00:02&lt;00:00, 64.16it/s]
+ 73%|#######2  | 146/201 [00:02&lt;00:00, 64.44it/s]
+ 76%|#######6  | 153/201 [00:02&lt;00:00, 63.90it/s]
+ 80%|#######9  | 160/201 [00:02&lt;00:00, 64.27it/s]
+ 83%|########3 | 167/201 [00:02&lt;00:00, 64.39it/s]
+ 87%|########6 | 174/201 [00:02&lt;00:00, 62.55it/s]
+ 90%|######### | 181/201 [00:02&lt;00:00, 62.88it/s]
+ 94%|#########3| 188/201 [00:02&lt;00:00, 63.52it/s]
+ 97%|#########7| 195/201 [00:03&lt;00:00, 62.29it/s]
+100%|##########| 201/201 [00:03&lt;00:00, 63.63it/s]
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th>MiPf</th>
+      <th>MiCe</th>
+      <th>MiPa</th>
+      <th>MiOc</th>
+    </tr>
+    <tr>
+      <th>time_ms</th>
+      <th>model</th>
+      <th>beta</th>
+      <th>key</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="5" valign="top">-200</th>
+      <th rowspan="5" valign="top">1 + stim + tone + stim:tone</th>
+      <th rowspan="5" valign="top">Intercept</th>
+      <th>2.5_ci</th>
+      <td>-0.966986</td>
+      <td>-3.307879</td>
+      <td>-3.085487</td>
+      <td>-1.960382</td>
+    </tr>
+    <tr>
+      <th>97.5_ci</th>
+      <td>2.157268</td>
+      <td>0.814112</td>
+      <td>1.422942</td>
+      <td>2.082798</td>
+    </tr>
+    <tr>
+      <th>AIC</th>
+      <td>2453.064268</td>
+      <td>2638.194268</td>
+      <td>2698.055391</td>
+      <td>2625.298684</td>
+    </tr>
+    <tr>
+      <th>DF</th>
+      <td>330.000000</td>
+      <td>330.000000</td>
+      <td>330.000000</td>
+      <td>330.000000</td>
+    </tr>
+    <tr>
+      <th>Estimate</th>
+      <td>0.595141</td>
+      <td>-1.246884</td>
+      <td>-0.831273</td>
+      <td>0.061208</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th rowspan="5" valign="top">600</th>
+      <th rowspan="5" valign="top">1</th>
+      <th rowspan="5" valign="top">Intercept</th>
+      <th>SSresid</th>
+      <td>54705.731756</td>
+      <td>74415.041098</td>
+      <td>84421.740834</td>
+      <td>62445.342261</td>
+    </tr>
+    <tr>
+      <th>T-stat</th>
+      <td>-3.650176</td>
+      <td>-1.388632</td>
+      <td>1.231622</td>
+      <td>1.594855</td>
+    </tr>
+    <tr>
+      <th>has_warning</th>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>logLike</th>
+      <td>-1325.388794</td>
+      <td>-1376.772956</td>
+      <td>-1397.842824</td>
+      <td>-1347.486761</td>
+    </tr>
+    <tr>
+      <th>sigma2</th>
+      <td>164.281477</td>
+      <td>223.468592</td>
+      <td>253.518741</td>
+      <td>187.523550</td>
+    </tr>
+  </tbody>
+</table>
+<p>28944 rows × 4 columns</p>
+</div>
+</div>
+<br />
+<br /></div>
+<div class="section" id="aic-model-comparison-delta-i-mathsf-aic-i-mathsf-aic-min">
+<h2>AIC model comparison: <span class="math notranslate nohighlight">\(\Delta_{i} = \mathsf{AIC}_{i} - \mathsf{AIC_{min}}\)</span><a class="headerlink" href="#aic-model-comparison-delta-i-mathsf-aic-i-mathsf-aic-min" title="Permalink to this headline">¶</a></h2>
+<p>Akiakie’s information criterion (AIC) increases with residual error
+and the number of model parameters so comparison on AIC favors the
+better fitting, more parsimonious models with lower AIC values.</p>
+<p>This example visualizes the channel-wise time course of
+<span class="math notranslate nohighlight">\(\Delta_{i} = \mathsf{AIC}_{i} - \mathsf{AIC_{min}}\)</span>, a
+measure of the AIC of model <em>i</em> vs. the lowest AIC of any model in
+the set. Burnham and Anderson propose
+heuristics where models with <span class="math notranslate nohighlight">\(\Delta_{i}\)</span> around 4 are less well
+supported by the data than the alternative(s) and models with <span class="math notranslate nohighlight">\(\Delta_{i}\)</span>
+&gt; 7 substantially less so.</p>
+<p>In the next figure, the line plots (left column) and raster plots
+(right column) show the same data in different ways.  Higher
+amplitude line plots and corresponding darker shades of blue in the
+raster plot indicate that the model’s AIC is higher than the best
+candidate in the set.</p>
+<p><strong>Prestimulus.</strong> Prior to stimulus onset at time = 0, the more
+parsimonious models (bottom three rows) have systematically lower
+AIC values (broad regions of lighest blue) than the more complex
+models (top two rows). This indicates that during this interval, the
+predictor variables alone and in combination do not soak up enough
+variability to offset the penalty for increasing the model
+complexity. In terms of this AIC measure, none of the models appear
+systematically better supported by the data than the null model
+(bottom row) in the prestimulus interval.</p>
+<p><strong>Post-stimulus.</strong> In the interval between around 300 - 375 ms
+poststimulus, the full model that includes <cite>stim</cite> and <cite>tone</cite>
+predictors and their interaction has the minimum AIC among the
+models compared at all channels except the prefrontal MiPf.  The
+sharp transients in the magntiude of the AIC differences (&gt; 7) at
+these channels in this interval indicates substantially less support
+for the alternative models.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fitgrid.utils.summary</span> <span class="kn">import</span> <span class="n">plot_AICmin_deltas</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plot_AICmin_deltas</span><span class="p">(</span><span class="n">lm_summary_T</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">ax_row</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">axs</span><span class="p">)):</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">ax_row</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">))</span>
+</pre></div>
+</div>
+<img alt="aic min delta: 1 + stim + tone + stim:tone, aic min delta: 1 + stim + tone, aic min delta: 1 + stim, aic min delta: 1 + tone, aic min delta: 1" class="sphx-glr-single-img" src="../../_images/sphx_glr_p3_model_comps_001.png" />
+</div>
+<div class="section" id="likelihood-ratio">
+<h2>Likelihood Ratio<a class="headerlink" href="#likelihood-ratio" title="Permalink to this headline">¶</a></h2>
+<p>This example fits a full and reduced
+model, computes and then visualizes the time course of likelihood ratios
+with a few lines of code.</p>
+<p>Fit the full model. The log likelihood dataframe is returned by querying the <cite>FitGrid</cite>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lmg_full</span> <span class="o">=</span> <span class="n">fg</span><span class="o">.</span><span class="n">lm</span><span class="p">(</span><span class="n">p3_epochs_fg</span><span class="p">,</span> <span class="n">RHS</span><span class="o">=</span><span class="s2">&quot;1 + stim + tone + stim:tone&quot;</span><span class="p">,</span> <span class="n">LHS</span><span class="o">=</span><span class="n">channels</span><span class="p">)</span>
+<span class="n">lmg_full</span><span class="o">.</span><span class="n">llf</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>  0%|          | 0/201 [00:00&lt;?, ?it/s]
+  1%|1         | 3/201 [00:00&lt;00:07, 26.85it/s]
+  3%|2         | 6/201 [00:00&lt;00:07, 27.50it/s]
+  4%|4         | 9/201 [00:00&lt;00:06, 28.38it/s]
+  6%|5         | 12/201 [00:00&lt;00:06, 27.93it/s]
+  7%|7         | 15/201 [00:00&lt;00:06, 27.92it/s]
+  9%|8         | 18/201 [00:00&lt;00:06, 28.04it/s]
+ 10%|#         | 21/201 [00:00&lt;00:06, 27.99it/s]
+ 12%|#1        | 24/201 [00:00&lt;00:06, 27.99it/s]
+ 13%|#3        | 27/201 [00:00&lt;00:06, 28.41it/s]
+ 15%|#4        | 30/201 [00:01&lt;00:06, 28.26it/s]
+ 16%|#6        | 33/201 [00:01&lt;00:05, 28.21it/s]
+ 18%|#7        | 36/201 [00:01&lt;00:06, 27.32it/s]
+ 19%|#9        | 39/201 [00:01&lt;00:05, 27.97it/s]
+ 21%|##        | 42/201 [00:01&lt;00:05, 28.46it/s]
+ 22%|##2       | 45/201 [00:01&lt;00:05, 28.63it/s]
+ 24%|##3       | 48/201 [00:01&lt;00:05, 28.41it/s]
+ 25%|##5       | 51/201 [00:01&lt;00:05, 28.65it/s]
+ 27%|##6       | 54/201 [00:01&lt;00:05, 28.73it/s]
+ 28%|##8       | 57/201 [00:02&lt;00:05, 28.77it/s]
+ 30%|##9       | 60/201 [00:02&lt;00:04, 29.00it/s]
+ 31%|###1      | 63/201 [00:02&lt;00:04, 28.61it/s]
+ 33%|###2      | 66/201 [00:02&lt;00:04, 28.98it/s]
+ 35%|###4      | 70/201 [00:02&lt;00:04, 29.01it/s]
+ 36%|###6      | 73/201 [00:02&lt;00:04, 28.64it/s]
+ 38%|###7      | 76/201 [00:02&lt;00:04, 28.58it/s]
+ 39%|###9      | 79/201 [00:02&lt;00:04, 28.93it/s]
+ 41%|####      | 82/201 [00:02&lt;00:04, 28.84it/s]
+ 42%|####2     | 85/201 [00:02&lt;00:04, 28.51it/s]
+ 44%|####3     | 88/201 [00:03&lt;00:03, 28.43it/s]
+ 45%|####5     | 91/201 [00:03&lt;00:03, 28.22it/s]
+ 47%|####6     | 94/201 [00:03&lt;00:03, 28.09it/s]
+ 48%|####8     | 97/201 [00:03&lt;00:03, 27.80it/s]
+ 50%|####9     | 100/201 [00:03&lt;00:03, 27.79it/s]
+ 51%|#####1    | 103/201 [00:03&lt;00:03, 27.78it/s]
+ 53%|#####2    | 106/201 [00:03&lt;00:03, 27.34it/s]
+ 54%|#####4    | 109/201 [00:03&lt;00:03, 27.55it/s]
+ 56%|#####5    | 112/201 [00:03&lt;00:03, 28.04it/s]
+ 57%|#####7    | 115/201 [00:04&lt;00:03, 28.15it/s]
+ 59%|#####8    | 118/201 [00:04&lt;00:02, 28.06it/s]
+ 60%|######    | 121/201 [00:04&lt;00:02, 28.37it/s]
+ 62%|######1   | 124/201 [00:04&lt;00:02, 28.71it/s]
+ 63%|######3   | 127/201 [00:04&lt;00:02, 29.04it/s]
+ 65%|######4   | 130/201 [00:04&lt;00:02, 29.11it/s]
+ 66%|######6   | 133/201 [00:04&lt;00:02, 29.17it/s]
+ 68%|######7   | 136/201 [00:04&lt;00:02, 29.36it/s]
+ 69%|######9   | 139/201 [00:04&lt;00:02, 29.03it/s]
+ 71%|#######   | 142/201 [00:05&lt;00:02, 28.44it/s]
+ 72%|#######2  | 145/201 [00:05&lt;00:02, 27.66it/s]
+ 74%|#######3  | 148/201 [00:05&lt;00:01, 27.39it/s]
+ 75%|#######5  | 151/201 [00:05&lt;00:01, 27.78it/s]
+ 77%|#######6  | 154/201 [00:05&lt;00:01, 28.15it/s]
+ 78%|#######8  | 157/201 [00:05&lt;00:01, 28.17it/s]
+ 80%|#######9  | 160/201 [00:05&lt;00:01, 27.66it/s]
+ 81%|########1 | 163/201 [00:05&lt;00:01, 28.07it/s]
+ 83%|########2 | 166/201 [00:05&lt;00:01, 27.91it/s]
+ 84%|########4 | 169/201 [00:05&lt;00:01, 27.69it/s]
+ 86%|########5 | 172/201 [00:06&lt;00:01, 27.88it/s]
+ 87%|########7 | 175/201 [00:06&lt;00:00, 28.11it/s]
+ 89%|########8 | 178/201 [00:06&lt;00:00, 28.02it/s]
+ 90%|######### | 181/201 [00:06&lt;00:00, 27.72it/s]
+ 92%|#########1| 184/201 [00:06&lt;00:00, 27.98it/s]
+ 93%|#########3| 187/201 [00:06&lt;00:00, 28.28it/s]
+ 95%|#########4| 190/201 [00:06&lt;00:00, 28.32it/s]
+ 96%|#########6| 193/201 [00:06&lt;00:00, 28.48it/s]
+ 98%|#########7| 196/201 [00:06&lt;00:00, 28.62it/s]
+ 99%|#########9| 199/201 [00:07&lt;00:00, 28.65it/s]
+100%|##########| 201/201 [00:07&lt;00:00, 28.29it/s]
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>MiPf</th>
+      <th>MiCe</th>
+      <th>MiPa</th>
+      <th>MiOc</th>
+    </tr>
+    <tr>
+      <th>time_ms</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>-200</th>
+      <td>-1222.532134</td>
+      <td>-1315.097134</td>
+      <td>-1345.027696</td>
+      <td>-1308.649342</td>
+    </tr>
+    <tr>
+      <th>-196</th>
+      <td>-1219.015289</td>
+      <td>-1309.332110</td>
+      <td>-1343.317795</td>
+      <td>-1307.756720</td>
+    </tr>
+    <tr>
+      <th>-192</th>
+      <td>-1217.569942</td>
+      <td>-1299.470975</td>
+      <td>-1337.332536</td>
+      <td>-1313.580720</td>
+    </tr>
+    <tr>
+      <th>-188</th>
+      <td>-1203.189206</td>
+      <td>-1284.976803</td>
+      <td>-1330.065186</td>
+      <td>-1304.068471</td>
+    </tr>
+    <tr>
+      <th>-184</th>
+      <td>-1176.462814</td>
+      <td>-1277.721413</td>
+      <td>-1331.545780</td>
+      <td>-1303.852666</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>584</th>
+      <td>-1311.148454</td>
+      <td>-1361.863041</td>
+      <td>-1387.438445</td>
+      <td>-1340.639807</td>
+    </tr>
+    <tr>
+      <th>588</th>
+      <td>-1307.528658</td>
+      <td>-1365.721171</td>
+      <td>-1386.531566</td>
+      <td>-1332.786442</td>
+    </tr>
+    <tr>
+      <th>592</th>
+      <td>-1313.377251</td>
+      <td>-1370.874212</td>
+      <td>-1389.435160</td>
+      <td>-1333.903770</td>
+    </tr>
+    <tr>
+      <th>596</th>
+      <td>-1318.216984</td>
+      <td>-1373.834763</td>
+      <td>-1393.517831</td>
+      <td>-1343.739941</td>
+    </tr>
+    <tr>
+      <th>600</th>
+      <td>-1323.657999</td>
+      <td>-1373.309777</td>
+      <td>-1388.665581</td>
+      <td>-1337.706494</td>
+    </tr>
+  </tbody>
+</table>
+<p>201 rows × 4 columns</p>
+</div>
+</div>
+<br />
+<br /><p>Fit the reduced model likewise.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">lmg_reduced</span> <span class="o">=</span> <span class="n">fg</span><span class="o">.</span><span class="n">lm</span><span class="p">(</span><span class="n">p3_epochs_fg</span><span class="p">,</span> <span class="n">RHS</span><span class="o">=</span><span class="s2">&quot;1 + stim + tone&quot;</span><span class="p">,</span> <span class="n">LHS</span><span class="o">=</span><span class="n">channels</span><span class="p">)</span>
+<span class="n">lmg_reduced</span><span class="o">.</span><span class="n">llf</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>  0%|          | 0/201 [00:00&lt;?, ?it/s]
+  1%|1         | 3/201 [00:00&lt;00:09, 21.09it/s]
+  3%|2         | 6/201 [00:00&lt;00:07, 24.47it/s]
+  5%|4         | 10/201 [00:00&lt;00:06, 27.31it/s]
+  6%|6         | 13/201 [00:00&lt;00:06, 27.95it/s]
+  8%|8         | 17/201 [00:00&lt;00:06, 29.05it/s]
+ 10%|9         | 20/201 [00:00&lt;00:06, 29.10it/s]
+ 11%|#1        | 23/201 [00:00&lt;00:06, 29.05it/s]
+ 13%|#2        | 26/201 [00:00&lt;00:06, 28.76it/s]
+ 14%|#4        | 29/201 [00:01&lt;00:05, 28.70it/s]
+ 16%|#6        | 33/201 [00:01&lt;00:05, 29.45it/s]
+ 18%|#8        | 37/201 [00:01&lt;00:05, 29.91it/s]
+ 20%|##        | 41/201 [00:01&lt;00:05, 30.19it/s]
+ 22%|##2       | 45/201 [00:01&lt;00:05, 30.15it/s]
+ 24%|##4       | 49/201 [00:01&lt;00:05, 30.02it/s]
+ 26%|##5       | 52/201 [00:01&lt;00:04, 29.91it/s]
+ 28%|##7       | 56/201 [00:01&lt;00:04, 30.32it/s]
+ 30%|##9       | 60/201 [00:02&lt;00:04, 30.17it/s]
+ 32%|###1      | 64/201 [00:02&lt;00:04, 30.16it/s]
+ 34%|###3      | 68/201 [00:02&lt;00:04, 30.22it/s]
+ 36%|###5      | 72/201 [00:02&lt;00:04, 30.72it/s]
+ 38%|###7      | 76/201 [00:02&lt;00:04, 30.58it/s]
+ 40%|###9      | 80/201 [00:02&lt;00:03, 30.55it/s]
+ 42%|####1     | 84/201 [00:02&lt;00:03, 30.56it/s]
+ 44%|####3     | 88/201 [00:02&lt;00:03, 30.58it/s]
+ 46%|####5     | 92/201 [00:03&lt;00:03, 30.60it/s]
+ 48%|####7     | 96/201 [00:03&lt;00:03, 30.24it/s]
+ 50%|####9     | 100/201 [00:03&lt;00:03, 30.37it/s]
+ 52%|#####1    | 104/201 [00:03&lt;00:03, 30.12it/s]
+ 54%|#####3    | 108/201 [00:03&lt;00:03, 30.50it/s]
+ 56%|#####5    | 112/201 [00:03&lt;00:02, 30.71it/s]
+ 58%|#####7    | 116/201 [00:03&lt;00:02, 30.49it/s]
+ 60%|#####9    | 120/201 [00:04&lt;00:02, 30.31it/s]
+ 62%|######1   | 124/201 [00:04&lt;00:02, 29.43it/s]
+ 63%|######3   | 127/201 [00:04&lt;00:02, 29.24it/s]
+ 65%|######5   | 131/201 [00:04&lt;00:02, 29.93it/s]
+ 67%|######7   | 135/201 [00:04&lt;00:02, 30.33it/s]
+ 69%|######9   | 139/201 [00:04&lt;00:02, 30.27it/s]
+ 71%|#######1  | 143/201 [00:04&lt;00:01, 30.58it/s]
+ 73%|#######3  | 147/201 [00:04&lt;00:01, 31.07it/s]
+ 75%|#######5  | 151/201 [00:05&lt;00:01, 31.09it/s]
+ 77%|#######7  | 155/201 [00:05&lt;00:01, 31.08it/s]
+ 79%|#######9  | 159/201 [00:05&lt;00:01, 30.91it/s]
+ 81%|########1 | 163/201 [00:05&lt;00:01, 31.09it/s]
+ 83%|########3 | 167/201 [00:05&lt;00:01, 30.70it/s]
+ 85%|########5 | 171/201 [00:05&lt;00:00, 30.79it/s]
+ 87%|########7 | 175/201 [00:05&lt;00:00, 30.97it/s]
+ 89%|########9 | 179/201 [00:05&lt;00:00, 29.98it/s]
+ 91%|#########1| 183/201 [00:06&lt;00:00, 30.10it/s]
+ 93%|#########3| 187/201 [00:06&lt;00:00, 30.16it/s]
+ 95%|#########5| 191/201 [00:06&lt;00:00, 30.28it/s]
+ 97%|#########7| 195/201 [00:06&lt;00:00, 30.50it/s]
+ 99%|#########9| 199/201 [00:06&lt;00:00, 30.84it/s]
+100%|##########| 201/201 [00:06&lt;00:00, 30.10it/s]
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>MiPf</th>
+      <th>MiCe</th>
+      <th>MiPa</th>
+      <th>MiOc</th>
+    </tr>
+    <tr>
+      <th>time_ms</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>-200</th>
+      <td>-1222.598161</td>
+      <td>-1315.857038</td>
+      <td>-1345.655697</td>
+      <td>-1310.202354</td>
+    </tr>
+    <tr>
+      <th>-196</th>
+      <td>-1219.035644</td>
+      <td>-1309.862783</td>
+      <td>-1344.004489</td>
+      <td>-1309.552813</td>
+    </tr>
+    <tr>
+      <th>-192</th>
+      <td>-1217.708926</td>
+      <td>-1300.291720</td>
+      <td>-1338.389544</td>
+      <td>-1315.676625</td>
+    </tr>
+    <tr>
+      <th>-188</th>
+      <td>-1203.608227</td>
+      <td>-1286.117888</td>
+      <td>-1331.449561</td>
+      <td>-1305.668078</td>
+    </tr>
+    <tr>
+      <th>-184</th>
+      <td>-1176.544845</td>
+      <td>-1278.648741</td>
+      <td>-1332.709155</td>
+      <td>-1304.580230</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>584</th>
+      <td>-1311.224343</td>
+      <td>-1361.863881</td>
+      <td>-1387.594031</td>
+      <td>-1341.033271</td>
+    </tr>
+    <tr>
+      <th>588</th>
+      <td>-1307.935020</td>
+      <td>-1365.731574</td>
+      <td>-1386.761340</td>
+      <td>-1333.356553</td>
+    </tr>
+    <tr>
+      <th>592</th>
+      <td>-1313.604190</td>
+      <td>-1370.888442</td>
+      <td>-1389.681551</td>
+      <td>-1334.510610</td>
+    </tr>
+    <tr>
+      <th>596</th>
+      <td>-1318.389052</td>
+      <td>-1373.835473</td>
+      <td>-1393.602722</td>
+      <td>-1344.138936</td>
+    </tr>
+    <tr>
+      <th>600</th>
+      <td>-1324.154922</td>
+      <td>-1373.313601</td>
+      <td>-1388.716013</td>
+      <td>-1338.103694</td>
+    </tr>
+  </tbody>
+</table>
+<p>201 rows × 4 columns</p>
+</div>
+</div>
+<br />
+<br /><p><strong>Calculate.</strong> The likelihood ratio is the difference of the log likelihoods.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">likelihood_ratio</span> <span class="o">=</span> <span class="n">lmg_full</span><span class="o">.</span><span class="n">llf</span> <span class="o">-</span> <span class="n">lmg_reduced</span><span class="o">.</span><span class="n">llf</span>
+<span class="n">likelihood_ratio</span>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>MiPf</th>
+      <th>MiCe</th>
+      <th>MiPa</th>
+      <th>MiOc</th>
+    </tr>
+    <tr>
+      <th>time_ms</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>-200</th>
+      <td>0.066027</td>
+      <td>0.759904</td>
+      <td>0.628001</td>
+      <td>1.553012</td>
+    </tr>
+    <tr>
+      <th>-196</th>
+      <td>0.020355</td>
+      <td>0.530672</td>
+      <td>0.686694</td>
+      <td>1.796092</td>
+    </tr>
+    <tr>
+      <th>-192</th>
+      <td>0.138984</td>
+      <td>0.820745</td>
+      <td>1.057008</td>
+      <td>2.095905</td>
+    </tr>
+    <tr>
+      <th>-188</th>
+      <td>0.419021</td>
+      <td>1.141085</td>
+      <td>1.384376</td>
+      <td>1.599607</td>
+    </tr>
+    <tr>
+      <th>-184</th>
+      <td>0.082031</td>
+      <td>0.927328</td>
+      <td>1.163375</td>
+      <td>0.727564</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>584</th>
+      <td>0.075889</td>
+      <td>0.000840</td>
+      <td>0.155586</td>
+      <td>0.393464</td>
+    </tr>
+    <tr>
+      <th>588</th>
+      <td>0.406362</td>
+      <td>0.010402</td>
+      <td>0.229774</td>
+      <td>0.570111</td>
+    </tr>
+    <tr>
+      <th>592</th>
+      <td>0.226939</td>
+      <td>0.014231</td>
+      <td>0.246391</td>
+      <td>0.606841</td>
+    </tr>
+    <tr>
+      <th>596</th>
+      <td>0.172068</td>
+      <td>0.000710</td>
+      <td>0.084891</td>
+      <td>0.398995</td>
+    </tr>
+    <tr>
+      <th>600</th>
+      <td>0.496923</td>
+      <td>0.003825</td>
+      <td>0.050432</td>
+      <td>0.397200</td>
+    </tr>
+  </tbody>
+</table>
+<p>201 rows × 4 columns</p>
+</div>
+</div>
+<br />
+<br /><p><strong>Visualize.</strong> This comparison shows that stimulus x tone interaction
+term in the model has little systematic impact on the
+goodness-of-fit as given by the likelihood except around 300 - 375 ms poststimulus,
+largest over central scalp (MiCe).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+<span class="c1"># render</span>
+<span class="n">im</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">likelihood_ratio</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+<span class="n">cb</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">im</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+
+<span class="c1"># label</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Likelihood ratio&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Time (ms)&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Channel&quot;</span><span class="p">)</span>
+
+<span class="n">xtick_labels</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">200</span><span class="p">,</span> <span class="mi">600</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([</span><span class="n">likelihood_ratio</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span><span class="n">tick</span><span class="p">)</span> <span class="k">for</span> <span class="n">tick</span> <span class="ow">in</span> <span class="n">xtick_labels</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span><span class="p">(</span><span class="n">xtick_labels</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">likelihood_ratio</span><span class="o">.</span><span class="n">columns</span><span class="p">)))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">likelihood_ratio</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="Likelihood ratio" class="sphx-glr-single-img" src="../../_images/sphx_glr_p3_model_comps_002.png" />
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Likelihood Ratio&quot;</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="p">(</span><span class="n">lmg_full</span><span class="o">.</span><span class="n">llf</span> <span class="o">-</span> <span class="n">lmg_reduced</span><span class="o">.</span><span class="n">llf</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="Likelihood Ratio" class="sphx-glr-single-img" src="../../_images/sphx_glr_p3_model_comps_003.png" />
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 1 minutes  0.886 seconds)</p>
+<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-gallery-3-model-comparison-p3-model-comps-py">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/6332ca85543fa65b7c9c4d0445f9ce3e/p3_model_comps.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">p3_model_comps.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/cb2209b8c5f12a5f53ae13e717ae5fa2/p3_model_comps.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">p3_model_comps.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../../api.html" class="btn btn-neutral float-right" title="API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Model comparison" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

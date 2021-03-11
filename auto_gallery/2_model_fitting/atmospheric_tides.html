@@ -1,0 +1,544 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Time domain averaging: Atmospheric tides &mdash; fitgrid 0.5.0.dev1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-rendered-html.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Average ERPs with fitgrid" href="average_erps.html" />
+    <link rel="prev" title="Ordinary least squares andlinear mixed-effects: minimal examples" href="lm_lmer_minimal.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> fitgrid
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about_fitgrid.html">About <cite>fitgrid</cite></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gallery.html">Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">fitgrid</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../gallery.html">Examples Gallery</a> &raquo;</li>
+        
+          <li><a href="index.html">Model fitting</a> &raquo;</li>
+        
+      <li>Time domain averaging: Atmospheric tides</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-auto-gallery-2-model-fitting-atmospheric-tides-py"><span class="std std-ref">here</span></a>
+to download the full example code</p>
+</div>
+<div class="sphx-glr-example-title section" id="time-domain-averaging-atmospheric-tides">
+<span id="sphx-glr-auto-gallery-2-model-fitting-atmospheric-tides-py"></span><h1>Time domain averaging: Atmospheric tides<a class="headerlink" href="#time-domain-averaging-atmospheric-tides" title="Permalink to this headline">¶</a></h1>
+<img alt="../../_images/noaa_high_tide_epochs.png" src="../../_images/noaa_high_tide_epochs.png" />
+<p>Dawson introduced the summation procedure for detecting tiny but
+regular time-varying brain responses to stimulation embedded in the
+irregular fluctuations of background EEG (<a class="reference internal" href="../../bibliography.html#dawson1954" id="id1"><span>[Dawson1954]</span></a>). He noted
+that the idea of aggregating noisy measurements was already well known
+and pointed to Laplace’s early 19th century attempt to detect tiny but
+regular lunar gravitational pressure tides in the atmosphere, embedded
+in the larger fluctuations of barometric pressure driven by other
+factors, e.g., solar warming, weather systems, seasonal variation.</p>
+<p>The subject of atmospheric lunar tides is complex and has a rich
+scientific history (<a class="reference internal" href="../../bibliography.html#lincha1969" id="id2"><span>[LinCha1969]</span></a>).  This example it is not a
+serious model of the phenomenon, but rather an illustration of
+how event-related regression modeling, in this case simple
+averaging, can “see through” large unsystematic variation
+and find systematic time-varying patterns.</p>
+<p>Data are from NOAA Station La Jolla, CA 94102 (Scripps) August 1, 2010
+- July 1, 2020 sea level and meteorology data, downloaded January 29,
+2020 from
+<a class="reference external" href="https://tidesandcurrents.noaa.gov/waterlevels.html?id=9410230">https://tidesandcurrents.noaa.gov</a>.
+Water levels are measured relative mean sea level (MSL). For more on
+how the epochs data were prepared see <a class="reference internal" href="../1_epochs_data/noaa_csv_to_epochs.html#noaa-epochs"><span class="std std-ref">NOAA tides and weather epochs</span></a>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">pandas.plotting</span> <span class="kn">import</span> <span class="n">register_matplotlib_converters</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">fitgrid</span> <span class="k">as</span> <span class="nn">fg</span>
+<span class="kn">from</span> <span class="nn">fitgrid</span> <span class="kn">import</span> <span class="n">DATA_DIR</span>
+
+<span class="c1"># set up plotting</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s2">&quot;seaborn-bright&quot;</span><span class="p">)</span>
+<span class="n">rc_colors</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">&#39;axes.prop_cycle&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">by_key</span><span class="p">()[</span><span class="s1">&#39;color&#39;</span><span class="p">]</span>
+
+<span class="c1"># supress datetime FutureWarning (ugh)</span>
+<span class="c1"># register_matplotlib_converters()</span>
+
+<span class="c1"># path to hourly water level and meteorology data</span>
+<span class="n">WDIR</span> <span class="o">=</span> <span class="n">DATA_DIR</span> <span class="o">/</span> <span class="s2">&quot;CO-OPS_9410230&quot;</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">DATA_DIR</span> <span class="o">/</span> <span class="s2">&quot;CO-OPS_9410230.h5&quot;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">)</span>
+<span class="n">epochs_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">DATA_DIR</span> <span class="o">/</span> <span class="s2">&quot;CO-OPS_9410230.h5&quot;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;epochs_df&quot;</span><span class="p">)</span>
+<span class="n">epochs_df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;air_temp&quot;</span><span class="p">,</span> <span class="s2">&quot;air_temp_z&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># compute epochs time domain average</span>
+<span class="n">epochs_tda</span> <span class="o">=</span> <span class="n">epochs_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="event-related-data-modeling">
+<h2>Event-related data modeling<a class="headerlink" href="#event-related-data-modeling" title="Permalink to this headline">¶</a></h2>
+<p>Epochs are segments of recorded data, time stamped relative to an event of interest.</p>
+<p>For this illustration:</p>
+<ul class="simple">
+<li><p>The data channels include water level (meters), barometric</p></li>
+<li><p>pressure (mm Hg) recorded hourly at Scripps Pier in La Jolla and
+the standardized scores (centered, scaled by the standard deviation).</p></li>
+<li><p>For comparing the measured time-series data with random variation,
+an additional channel is created with a sequence of values sampled
+from a standard normal distribution.</p></li>
+<li><p>The epochs segments are 12 measurements beginning 3 hours before high tide at
+Time (hour) = 0.</p></li>
+</ul>
+<p>The epochs data frame looks like this:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">epochs_df</span>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>date_time_gmt</th>
+      <th>hour_pst</th>
+      <th>water_level</th>
+      <th>mm_hg</th>
+      <th>water_level_z</th>
+      <th>mm_hg_z</th>
+      <th>std_noise_z</th>
+      <th>high_tide</th>
+    </tr>
+    <tr>
+      <th>epoch_id</th>
+      <th>time</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="5" valign="top">0</th>
+      <th>-3</th>
+      <td>2011-03-13 02:00:00</td>
+      <td>18:00:00</td>
+      <td>0.00</td>
+      <td>1018.5</td>
+      <td>-0.108422</td>
+      <td>0.939952</td>
+      <td>-1.573892</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>-2</th>
+      <td>2011-03-13 03:00:00</td>
+      <td>19:00:00</td>
+      <td>-0.26</td>
+      <td>1018.8</td>
+      <td>-0.270056</td>
+      <td>1.022015</td>
+      <td>-1.308858</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>-1</th>
+      <td>2011-03-13 04:00:00</td>
+      <td>20:00:00</td>
+      <td>0.05</td>
+      <td>1019.1</td>
+      <td>-0.077339</td>
+      <td>1.104078</td>
+      <td>-0.250011</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>0</th>
+      <td>2011-03-13 05:00:00</td>
+      <td>21:00:00</td>
+      <td>0.10</td>
+      <td>1019.4</td>
+      <td>-0.046256</td>
+      <td>1.186141</td>
+      <td>-0.602190</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2011-03-13 06:00:00</td>
+      <td>22:00:00</td>
+      <td>0.05</td>
+      <td>1019.7</td>
+      <td>-0.077339</td>
+      <td>1.268204</td>
+      <td>2.534082</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th rowspan="5" valign="top">5201</th>
+      <th>3</th>
+      <td>2019-12-31 12:00:00</td>
+      <td>04:00:00</td>
+      <td>0.69</td>
+      <td>1012.8</td>
+      <td>0.320528</td>
+      <td>-0.619243</td>
+      <td>-0.098982</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2019-12-31 13:00:00</td>
+      <td>05:00:00</td>
+      <td>0.45</td>
+      <td>1013.1</td>
+      <td>0.171328</td>
+      <td>-0.537180</td>
+      <td>-0.606981</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>2019-12-31 14:00:00</td>
+      <td>06:00:00</td>
+      <td>0.36</td>
+      <td>1013.6</td>
+      <td>0.115378</td>
+      <td>-0.400409</td>
+      <td>1.655390</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>2019-12-31 15:00:00</td>
+      <td>07:00:00</td>
+      <td>0.51</td>
+      <td>1014.0</td>
+      <td>0.208628</td>
+      <td>-0.290991</td>
+      <td>-0.499858</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>2019-12-31 16:00:00</td>
+      <td>08:00:00</td>
+      <td>0.89</td>
+      <td>1014.6</td>
+      <td>0.444862</td>
+      <td>-0.126866</td>
+      <td>1.226266</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+<p>57222 rows × 8 columns</p>
+</div>
+</div>
+<br />
+<br /><p>The first few hundred epochs are shown (thin lines), along with the overall 10 year average (thick line).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">measures</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;water_level_z&#39;</span><span class="p">,</span> <span class="s1">&#39;mm_hg_z&#39;</span><span class="p">,</span> <span class="s1">&#39;std_noise_z&#39;</span><span class="p">]</span>
+<span class="n">alpha</span> <span class="o">=</span> <span class="mf">0.025</span>
+
+<span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">measures</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span>
+
+<span class="c1"># select a batch of individual epochs for illustration</span>
+<span class="n">epids</span> <span class="o">=</span> <span class="n">epochs_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="s2">&quot;epoch_id&quot;</span><span class="p">)[:</span><span class="mi">512</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">epochs_df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;epoch_id in @epids&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;epoch_id&#39;</span><span class="p">):</span>
+    <span class="n">vals</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">axi</span><span class="p">,</span> <span class="n">measure</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">measures</span><span class="p">):</span>
+        <span class="n">axs</span><span class="p">[</span><span class="n">axi</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="n">vals</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">],</span> <span class="n">vals</span><span class="p">[</span><span class="n">measure</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">rc_colors</span><span class="p">[</span><span class="n">axi</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span>
+        <span class="p">)</span>
+
+<span class="c1"># overplot the 10 year time-domain average</span>
+<span class="k">for</span> <span class="n">axi</span><span class="p">,</span> <span class="n">measure</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">measures</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">axi</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">axs</span><span class="p">[</span><span class="n">axi</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="mf">4.25</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="s2">&quot;high tide&quot;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">axi</span><span class="p">]</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;k&quot;</span><span class="p">,</span> <span class="n">ls</span><span class="o">=</span><span class="s2">&quot;--&quot;</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">axi</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">measure</span><span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">axi</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+        <span class="n">epochs_tda</span><span class="p">[</span><span class="s1">&#39;time&#39;</span><span class="p">],</span> <span class="n">epochs_tda</span><span class="p">[</span><span class="n">measure</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">rc_colors</span><span class="p">[</span><span class="n">axi</span><span class="p">],</span> <span class="n">lw</span><span class="o">=</span><span class="mi">2</span>
+    <span class="p">)</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">axi</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Time (hours)&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Standard Deviation (SD)&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="water_level_z, mm_hg_z, std_noise_z" class="sphx-glr-single-img" src="../../_images/sphx_glr_atmospheric_tides_001.png" />
+<p>The time course of the water levels (blue) shows epoch-to-epoch
+variation and, by construction, the rise and fall around the peak at
+high tide (Time = 0) for individual epochs and on average.</p>
+<p>The barometric atmospheric pressure data (green) are also time-aligned to high
+tide. They vary from epoch to epoch but individual epochs vary little over
+time and the 10-year average appears approximately flat.</p>
+<p>The standard normal data (red) are shown for comparison. Unlike the water levels, the
+amplitude variation over time is not systematic and the 10 year average appears approximately flat.</p>
+<p>The next figure shows these same 10-year averages. The oceanic tide is obvious but there is no clear indication
+of a corresponding atmospheric tide. On average, the barometric
+pressure looks not much different than the random variation.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">midx</span><span class="p">,</span> <span class="n">meas</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">measures</span><span class="p">):</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">epochs_tda</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">epochs_tda</span><span class="p">[</span><span class="n">meas</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">rc_colors</span><span class="p">[</span><span class="n">midx</span><span class="p">])</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">measures</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Standard Deviation (SD)&quot;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;10-year Time-domain average in standard units&quot;</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="10-year Time-domain average in standard units" class="sphx-glr-single-img" src="../../_images/sphx_glr_atmospheric_tides_002.png" />
+<p>This appearance, however, is misleading. When the 10-year
+averages are normalized by their range there is a clear barometric
+rise and fall at about a two-hour delay relative to water
+level. The scaled average random variation shows no such
+pattern. The barometric measurements of the lunar atmospheric tide
+are an order of magnitude smaller than the water level measurements
+but detectable none the less with enough data to average out the
+large but irregular sources of pressure variation.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">midx</span><span class="p">,</span> <span class="n">meas</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">measures</span><span class="p">):</span>
+    <span class="n">meas_range</span> <span class="o">=</span> <span class="n">epochs_tda</span><span class="p">[</span><span class="n">meas</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">epochs_tda</span><span class="p">[</span><span class="n">meas</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+        <span class="n">epochs_tda</span><span class="o">.</span><span class="n">time</span><span class="p">,</span> <span class="n">epochs_tda</span><span class="p">[</span><span class="n">meas</span><span class="p">]</span> <span class="o">/</span> <span class="n">meas_range</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">rc_colors</span><span class="p">[</span><span class="n">midx</span><span class="p">]</span>
+    <span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">measures</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Standard Deviation/(max - min)&quot;</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;10-year Time-domain averages range normalized&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="10-year Time-domain averages range normalized" class="sphx-glr-single-img" src="../../_images/sphx_glr_atmospheric_tides_003.png" />
+<p>The time-domain average event-related brain potential (ERP) as
+shown below for visual words presented 2 per second is computed the
+same way.</p>
+<img alt="../../_images/avg_erp_words_rsvp.png" src="../../_images/avg_erp_words_rsvp.png" />
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  4.678 seconds)</p>
+<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-gallery-2-model-fitting-atmospheric-tides-py">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/498be45c70ef7ab5fe54343ba100a574/atmospheric_tides.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">atmospheric_tides.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/3af9be3377cfc767575fea1ca353f1d2/atmospheric_tides.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">atmospheric_tides.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="average_erps.html" class="btn btn-neutral float-right" title="Average ERPs with fitgrid" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="lm_lmer_minimal.html" class="btn btn-neutral float-left" title="Ordinary least squares andlinear mixed-effects: minimal examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

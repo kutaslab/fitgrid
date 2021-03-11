@@ -1,0 +1,260 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>fitgrid.epochs module &mdash; fitgrid 0.5.0.dev1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-rendered-html.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> fitgrid
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../about_fitgrid.html">About <cite>fitgrid</cite></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_gallery/quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gallery.html">Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">fitgrid</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>fitgrid.epochs module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-fitgrid.epochs">
+<span id="fitgrid-epochs-module"></span><h1>fitgrid.epochs module<a class="headerlink" href="#module-fitgrid.epochs" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="fitgrid.epochs.Epochs">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">fitgrid.epochs.</span></code><code class="sig-name descname"><span class="pre">Epochs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epochs_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/epochs.html#Epochs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.epochs.Epochs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Container class used for storing epochs tables and exposing statsmodels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>epochs_table</strong> (<em>pandas DataFrame</em>) – long form dataframe containing epochs with equal indices</p></li>
+<li><p><strong>time</strong> (<em>str</em>) – time column name</p></li>
+<li><p><strong>epoch_id</strong> (<em>str</em>) – epoch identifier column name</p></li>
+<li><p><strong>channels</strong> (<em>list of str</em>) – list of channel names to serve as dependent variables</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>epochs</strong> – epochs object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs">Epochs</a></p>
+</dd>
+</dl>
+<dl class="py method">
+<dt id="fitgrid.epochs.Epochs.distances">
+<code class="sig-name descname"><span class="pre">distances</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/epochs.html#Epochs.distances"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.epochs.Epochs.distances" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return scaled Euclidean distances of epochs from the “mean” epoch.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><strong>distances</strong> – Series or DataFrame with epoch distances</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>pandas Series or DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Distances are scaled by dividing by the max.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="fitgrid.epochs.Epochs.plot_averages">
+<code class="sig-name descname"><span class="pre">plot_averages</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_up</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/epochs.html#Epochs.plot_averages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.epochs.Epochs.plot_averages" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot grand mean averages for each channel, negative up by default.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>channels</strong> (<em>list of str, optional, defaults to all channels</em>) – list of channel names to plot the averages</p></li>
+<li><p><strong>negative_up</strong> (<em>bool, optional, default True</em>) – by convention, ERPs are plotted negative voltage up</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>fig</strong> (<em>matplotlib.figure.Figure</em>) – figure containing plots</p></li>
+<li><p><strong>axes</strong> (<em>numpy.ndarray of matplotlib.axes.Axes</em>) – axes objects</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

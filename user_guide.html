@@ -1,0 +1,455 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>User Guide &mdash; fitgrid 0.5.0.dev1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-rendered-html.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Examples Gallery" href="gallery.html" />
+    <link rel="prev" title="Quick start" href="auto_gallery/quickstart.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> fitgrid
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about_fitgrid.html">About <cite>fitgrid</cite></a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auto_gallery/quickstart.html">Quick start</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">User Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#fitgrid-epochs"><cite>fitgrid.Epochs</cite></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#format">Format</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-ingestion"><span class="xref std std-ref">Data Ingestion</span></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-simulation"><span class="xref std std-ref">Data Simulation</span>.</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#fitting-a-model">Fitting a model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#the-fitgrid-time-channel">The <cite>FitGrid[time, channel]</cite></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#slice-by-time-channel">Slice by <cite>time</cite>, <cite>channel</cite></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#access-results">Access results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#slice-and-access">Slice and access</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lmfitgrid-methods"><code class="docutils literal notranslate"><span class="pre">LMFitGrid</span></code> methods</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#saving-and-loading-grids">Saving and loading grids</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#model-comparisons-and-summaries">Model comparisons and summaries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#model-and-data-diagnostics-wip">Model and data diagnostics (WIP)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#fitgrid-under-the-hood"><cite>fitgrid</cite> under the hood</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#how-mixed-effects-models-are-run">How mixed effects models are run</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#multicore-model-fitting">Multicore model fitting</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="gallery.html">Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">fitgrid</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>User Guide</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="user-guide">
+<span id="id1"></span><h1>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this headline">¶</a></h1>
+<p>TL;DR These are notes and highlights. For usage see
+the <a class="reference internal" href="auto_gallery/workflow.html#workflow"><span class="std std-ref">Workflow Outline</span></a>, <a class="reference internal" href="gallery.html#gallery"><span class="std std-ref">Examples Gallery</span></a>, and <a class="reference internal" href="api.html#api"><span class="std std-ref">API</span></a></p>
+<div class="section" id="fitgrid-epochs">
+<h2><cite>fitgrid.Epochs</cite><a class="headerlink" href="#fitgrid-epochs" title="Permalink to this headline">¶</a></h2>
+<p>Fitting linear regression models in Python and R with formulas like <cite>y
+~ a + b + a:b</cite> in Python (<cite>patsy</cite>, <cite>statsmodels.formula.api</cite>) or R (<cite>lm</cite>,
+<cite>lme4::lmer</cite>) assumes the data are represented as a 2D array with the
+variables in named columns, <cite>y</cite>, <cite>a</cite>, <cite>b</cite> and values (“observations”,
+“scores”) in rows.</p>
+<p><cite>fitgrid</cite> follows this format with the additional assumption that the
+data are vertically stacked fixed-length time-series “epochs”, so the
+user must specify two additional columns of values that together
+uniquely identify the epoch and time of the data row.</p>
+<div class="section" id="format">
+<span id="epochs-data-format"></span><h3>Format<a class="headerlink" href="#format" title="Permalink to this headline">¶</a></h3>
+<p><strong>Specification:</strong> Data for <cite>fitgrid</cite> modeling should be prepared as a single
+<cite>pandas.Dataframe</cite> with these columns and data types:</p>
+<ul class="simple">
+<li><p><cite>epoch_id</cite>: integer</p></li>
+<li><p><cite>time</cite>: integer</p></li>
+<li><p>a set of channel data columns: numeric</p></li>
+<li><p>a set of predictor variable columns: numeric, string, boolean</p></li>
+</ul>
+<p>Each epoch must have a unique integer identifier in the <cite>epoch_id</cite>
+column. Gaps are OK, duplicates are not.</p>
+<p>The integer time-stamps must be the same for all epochs.
+Gaps are OK, duplicates are not.</p>
+<p>Column names may be chosen freely (epoch and time index column
+names default to <cite>epoch_id</cite>, <cite>time</cite>).</p>
+<p><strong>Notes:</strong> The index column names default to <cite>epoch_id</cite> and <cite>time</cite> but
+any column may be designated as the epoch or time index, provided
+the conditions are met. Standard practice is to sequence the rows so
+time stamps are nested within epochs. Event-relative epochs are
+generally time-stamped so the event is at time=0 but this is not a
+<cite>fitgrid</cite> requirement.</p>
+<p><strong>Example:</strong> A canonical source of data epochs for <cite>fitgrid</cite> are
+multichannel “strip charts” as in EEG and MEG recordings. In this
+case, “epochs” are fixed-length segments extracted from the strip
+chart and time-stamped relative to an experimental event.</p>
+<img alt="_images/eeg_epochs.png" src="_images/eeg_epochs.png" />
+</div>
+<div class="section" id="data-ingestion">
+<h3><a class="reference internal" href="quick_reference.html#data-ingestion"><span class="std std-ref">Data Ingestion</span></a><a class="headerlink" href="#data-ingestion" title="Permalink to this headline">¶</a></h3>
+<p>Rows and columns epochs data can be loaded into a <cite>fitgrid.Epochs</cite>
+object from a <cite>pandas.DataFrame</cite> in memory or read from files in
+feather or HDF5 format.</p>
+<p>For details on these data formats see <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_feather.html">pandas.read_feather</a>
+and <a class="reference external" href="https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_hdf.html">pandas.read_hdf</a>).</p>
+</div>
+<div class="section" id="data-simulation">
+<h3><a class="reference internal" href="quick_reference.html#data-simulation"><span class="std std-ref">Data Simulation</span></a>.<a class="headerlink" href="#data-simulation" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> has a built-in function that generates data and creates <code class="docutils literal notranslate"><span class="pre">Epochs</span></code> data for testing.</p>
+</div>
+</div>
+<div class="section" id="fitting-a-model">
+<h2>Fitting a model<a class="headerlink" href="#fitting-a-model" title="Permalink to this headline">¶</a></h2>
+<p>The following methods populate the <cite>FitGrid[time, channel]</cite> object.
+with <cite>statsmodels</cite> results for OLS model fits and <cite>lme4::lmer</cite> for
+linear mixed-effects fits.</p>
+<ul>
+<li><p>Ordinary least squares: <code class="xref py py-meth docutils literal notranslate"><span class="pre">fitgrid.lm()</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">lm_grid</span> <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">lm</span><span class="p">(</span>
+    <span class="n">epochs_fg</span><span class="p">,</span>
+    <span class="n">RHS</span><span class="o">=</span><span class="s1">&#39;1 + categorical + continuous&#39;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p>Linear mixed-effects: <code class="xref py py-meth docutils literal notranslate"><span class="pre">fitgrid.lmer()</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">lmer_grid</span> <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">lmer</span><span class="p">(</span>
+    <span class="n">epochs_fg</span><span class="p">,</span>
+    <span class="n">RHS</span><span class="o">=</span><span class="s1">&#39;1 + continuous + (continuous | categorical)&#39;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p>User-defined (experimental): <code class="xref py py-meth docutils literal notranslate"><span class="pre">fitgrid.run_model()</span></code></p></li>
+</ul>
+</div>
+<div class="section" id="the-fitgrid-time-channel">
+<h2>The <cite>FitGrid[time, channel]</cite><a class="headerlink" href="#the-fitgrid-time-channel" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="slice-by-time-channel">
+<h3>Slice by <cite>time</cite>, <cite>channel</cite><a class="headerlink" href="#slice-by-time-channel" title="Permalink to this headline">¶</a></h3>
+<p>Slice the <cite>FitGrid</cite> with <cite>pandas.DataFrame</cite> range <code class="docutils literal notranslate"><span class="pre">:</span></code> and label slicers.
+The range includes the upper bound.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">lm_grid</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;MiCe&quot;</span><span class="p">,</span> <span class="s2">&quot;MiPa&quot;</span><span class="p">]]</span>
+<span class="n">lm_grid</span><span class="p">[</span><span class="o">-</span><span class="mi">100</span><span class="p">:</span><span class="mi">300</span><span class="p">,</span> <span class="p">:]</span>
+<span class="n">lm_grid</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;MiPa&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="access-results">
+<h3>Access results<a class="headerlink" href="#access-results" title="Permalink to this headline">¶</a></h3>
+<p>Query the <cite>FitGrid</cite> results like a single fit object. Result grids are
+returned as as <cite>pandas.DataFrame</cite> or another <cite>FitGrid</cite> which can be
+queried the same way.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">lmg_grid</span><span class="o">.</span><span class="n">params</span>
+<span class="n">lmg_grid</span><span class="o">.</span><span class="n">llf</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="slice-and-access">
+<h3>Slice and access<a class="headerlink" href="#slice-and-access" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">lm_grid</span><span class="p">[</span><span class="o">-</span><span class="mi">100</span><span class="p">:</span><span class="mi">300</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;MiCe&quot;</span><span class="p">,</span> <span class="s2">&quot;MiPa&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">params</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="lmfitgrid-methods">
+<h3><code class="docutils literal notranslate"><span class="pre">LMFitGrid</span></code> methods<a class="headerlink" href="#lmfitgrid-methods" title="Permalink to this headline">¶</a></h3>
+<p>The fitted OLS grid provides time-series plots of selected model
+results: estimated coefficients <code class="xref py py-meth docutils literal notranslate"><span class="pre">fitgrid.lm.plot_betas()</span></code> and
+adjusted <span class="math notranslate nohighlight">\(R^2\)</span> <code class="xref py py-meth docutils literal notranslate"><span class="pre">fitgrid.lm.plot_adj_rsquared()</span></code> (see also
+<a class="reference internal" href="api_docs/fitgrid.utils.html#module-fitgrid.utils" title="fitgrid.utils"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fitgrid.utils()</span></code></a> for additional model summary wrappers).</p>
+</div>
+</div>
+<div class="section" id="saving-and-loading-grids">
+<h2>Saving and loading grids<a class="headerlink" href="#saving-and-loading-grids" title="Permalink to this headline">¶</a></h2>
+<p>Running models on large datasets can take a long time. <cite>fitgrid</cite> lets
+you save your grid to disk so you can restore them later without
+having to refit the models. However, saving and loading large grids
+may still be slow and generate very large files.</p>
+<p>Suppose you run <cite>lmer</cite> like so:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">grid</span> <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">lmer</span><span class="p">(</span><span class="n">epochs</span><span class="p">,</span> <span class="n">RHS</span><span class="o">=</span><span class="s1">&#39;x + (x|a)&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Save the <code class="docutils literal notranslate"><span class="pre">grid</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">grid</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s1">&#39;lmer_results&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Later you can reload the <code class="docutils literal notranslate"><span class="pre">grid</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">grid</span> <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">load_grid</span><span class="p">(</span><span class="s1">&#39;lmer_results&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Fitted grids are saved and loaded with Python <cite>pickle</cite> which is not
+guaranteed to be portable across different versions of Python.
+Unpickling unknown files <strong>is not secure</strong> (for details see the
+Python <a class="reference external" href="https://docs.python.org/3/library/pickle.html">docs</a>). Only load grids
+you trust such as those you saved yourself. For reproducibility and
+portability fit the grid, collect the results you need, and export
+the dataframe to a standard data interchange format.</p>
+</div>
+</div>
+<div class="section" id="model-comparisons-and-summaries">
+<span id="guide-summaries"></span><h2>Model comparisons and summaries<a class="headerlink" href="#model-comparisons-and-summaries" title="Permalink to this headline">¶</a></h2>
+<p>To reduce memory demands when comparing sets of models, <cite>fitgrid</cite>
+provides a convenience wrapper, <cite>fitgrid.utils.summarize</cite>, that
+iteratively fits a list of models and collects a lightweight summary
+dataframe with key results for model interpretation and
+comparison. Unlike the primary <cite>FitGrid</cite>, the summary dataframe format
+is the same for <cite>fitgrid.lm</cite> and <cite>fitgrid.lmer</cite>. Some helper functions
+are available for visualizing selected summary results.</p>
+</div>
+<div class="section" id="model-and-data-diagnostics-wip">
+<span id="diagnostics"></span><h2>Model and data diagnostics (WIP)<a class="headerlink" href="#model-and-data-diagnostics-wip" title="Permalink to this headline">¶</a></h2>
+<p>Model and data diagnostics in the <cite>fitgrid</cite> framework is work in
+progress. For ordinary least squares fitting, there is some support
+for the native <cite>statsmodels</cite> OLS diagnostic measures.  Diagostics that
+can be computed analytically from a single model fit, e.g., via the
+hat matrix diagonal, may be useable but many are not for realistically
+large data sets. The per-observation diagnostic measures, e.g., the
+influence of observations on estimated parameters, are the same size
+as the original data multiplied by the number of model parameters
+which may overload memory and measures that require on
+leave-one-observation-out model refitting take intractably long for
+large data sets. A minimal effort is made to guard the user from known
+trouble but the general policy is <cite>fitgrid</cite> stays out of the way
+so you can try what you want. If it works great, if it chokes, that’s
+the nature of the beast you are modeling.</p>
+<p>Support for linear-mixed effects diagnostics in <cite>fitgrid</cite> is limited
+to a variance inflation factor computation implemented in Python as a
+proof-of-concept. <cite>fitgrid</cite> does not interface with mixed-effect model
+diagnostics libraries in R and plans are to improve
+support for mixed-effects modeling in Python rather than expand further
+into the R ecosystem.</p>
+</div>
+<div class="section" id="fitgrid-under-the-hood">
+<h2><cite>fitgrid</cite> under the hood<a class="headerlink" href="#fitgrid-under-the-hood" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="how-mixed-effects-models-are-run">
+<h3>How mixed effects models are run<a class="headerlink" href="#how-mixed-effects-models-are-run" title="Permalink to this headline">¶</a></h3>
+<p>Mixed effects models do not have a complete implementation in Python, so we
+interface with R from Python and use <cite>lme4</cite> in R. The results that you get when
+fitting mixed effects models in <cite>fitgrid</cite> are the same as if you used <cite>lme4</cite>
+directly, because we use <cite>lme4</cite> (indirectly).</p>
+</div>
+<div class="section" id="multicore-model-fitting">
+<h3>Multicore model fitting<a class="headerlink" href="#multicore-model-fitting" title="Permalink to this headline">¶</a></h3>
+<p>On a multicore machine, it may be possible to significantly speed
+fitting by computing the models in parallel. <code class="docutils literal notranslate"><span class="pre">fitgrid.lm</span></code> uses
+<code class="docutils literal notranslate"><span class="pre">statsmodels</span></code> under the hood to fit a linear least squares model,
+which in turn employs <code class="docutils literal notranslate"><span class="pre">numpy</span></code> for calculations.  <code class="docutils literal notranslate"><span class="pre">numpy</span></code> itself
+depends on linear algebra libraries that might be configured to use
+multiple threads by default. This means that on a 48 core machine,
+common linear algebra calculations might use 24 cores automatically,
+without any explicit parallelization. So when you explicitly
+parallelize your calculations using Python processes (say 4 of them),
+each process might start 24 threads. In this situation, 96 CPU bound
+threads are wrestling each other for time on the 48 core CPU. This is
+called oversubscription and results in <em>slower</em> computations.</p>
+<p>To deal with this when running <code class="docutils literal notranslate"><span class="pre">fitgrid.lm</span></code>, we try to instruct the
+linear algebra libraries your <code class="docutils literal notranslate"><span class="pre">numpy</span></code> distribution depends on to
+only use a single thread in every computation. This then lets you
+control the number of CPU cores being used by setting the <code class="docutils literal notranslate"><span class="pre">n_cores</span></code>
+parameter in <code class="xref py py-meth docutils literal notranslate"><span class="pre">fitgrid.lm()</span></code> and <code class="xref py py-meth docutils literal notranslate"><span class="pre">fitgrid.lmer()</span></code>.</p>
+<p>If you are using your own 8-core laptop, you might want to use all
+cores, so set something like <code class="docutils literal notranslate"><span class="pre">n_cores=7</span></code>. On a shared machine, it’s
+a good idea to run on half or 3/4 of the cores if no one else is
+running heavy computations.</p>
+<p>Note that fitgrid parallel processing counts the “logical” cores
+available to the operating system and this may differ from the number
+of physical cores, depending on the system hardware and setting, e.g.,
+Intel CPUs with hyperthreading enabled. The Python package
+<a class="reference external" href="https://psutil.readthedocs.io/en/latest/">psutil</a> and
+<code class="docutils literal notranslate"><span class="pre">psutil.cpu_count(logical=True)</span></code> and
+<code class="docutils literal notranslate"><span class="pre">psutil.cpu_count(logical=False)</span></code> may be useful for interrogating
+the system about the available resources.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="gallery.html" class="btn btn-neutral float-right" title="Examples Gallery" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="auto_gallery/quickstart.html" class="btn btn-neutral float-left" title="Quick start" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

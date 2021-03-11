@@ -1,0 +1,439 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>EEG sample epochs &mdash; fitgrid 0.5.0.dev1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-rendered-html.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="NOAA tides and weather epochs" href="noaa_csv_to_epochs.html" />
+    <link rel="prev" title="Epochs data" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> fitgrid
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about_fitgrid.html">About <cite>fitgrid</cite></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gallery.html">Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">fitgrid</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../gallery.html">Examples Gallery</a> &raquo;</li>
+        
+          <li><a href="index.html">Epochs data</a> &raquo;</li>
+        
+      <li>EEG sample epochs</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-auto-gallery-1-epochs-data-p3-sample-epochs-py"><span class="std std-ref">here</span></a>
+to download the full example code</p>
+</div>
+<div class="sphx-glr-example-title section" id="eeg-sample-epochs">
+<span id="sphx-glr-auto-gallery-1-epochs-data-p3-sample-epochs-py"></span><h1>EEG sample epochs<a class="headerlink" href="#eeg-sample-epochs" title="Permalink to this headline">¶</a></h1>
+<p>These are the EEG data used in <a class="reference internal" href="../workflow.html#workflow"><span class="std std-ref">Workflow Outline</span></a></p>
+<p><strong>Experimental design.</strong> These data are single-trial EEG epochs
+recorded at 250 digital samples per second from one individual in an
+auditory “oddball” paradigm.  The stimuli are a random
+sequence of high and low pitched tones (<em>tone</em>: <em>hi</em>, <em>lo</em>) that are
+frequent or infrequent (<em>stim</em>: <em>standard</em>, <em>target</em>). Stimulus trials are
+presented in two blocks: the <em>hi</em> tones are the infrequent targets in the first
+block and frequent standards in the second.  The task is to respond to the
+infrequent tones.  In this type of paradigm, the average potentials
+recorded over central and posterior scalp after about 300 ms
+post-stimulus are typically more positive going for the rare targets
+than for the frequent standards, a P300 ERP effect.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">fitgrid</span> <span class="kn">import</span> <span class="n">DATA_DIR</span><span class="p">,</span> <span class="n">sample_data</span>
+
+
+<span class="c1"># download the epochs data and read into a pd.DataFrame</span>
+<span class="n">sample_data</span><span class="o">.</span><span class="n">get_file</span><span class="p">(</span><span class="s2">&quot;sub000p3.ms1500.epochs.feather&quot;</span><span class="p">)</span>
+<span class="n">p3_epochs_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_feather</span><span class="p">(</span><span class="n">DATA_DIR</span> <span class="o">/</span> <span class="s2">&quot;sub000p3.ms1500.epochs.feather&quot;</span><span class="p">)</span>
+
+<span class="c1"># select the experimental stimulus trials for modeling</span>
+<span class="n">p3_epochs_df</span> <span class="o">=</span> <span class="n">p3_epochs_df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;stim in [&#39;standard&#39;, &#39;target&#39;]&quot;</span><span class="p">)</span>
+
+<span class="c1"># look up the data QC flags and select the good epochs</span>
+<span class="n">good_epochs</span> <span class="o">=</span> <span class="n">p3_epochs_df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;match_time == 0 and log_flags == 0&quot;</span><span class="p">)[</span>
+    <span class="s2">&quot;epoch_id&quot;</span>
+<span class="p">]</span>
+<span class="n">p3_epochs_df</span> <span class="o">=</span> <span class="n">p3_epochs_df</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;epoch_id in @good_epochs&quot;</span><span class="p">)</span>
+
+<span class="c1"># the original time stamp column name is obscure, rename for clarity</span>
+<span class="n">p3_epochs_df</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;match_time&quot;</span><span class="p">:</span> <span class="s2">&quot;time_ms&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># select columns of interest for modeling</span>
+<span class="n">indices</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;epoch_id&quot;</span><span class="p">,</span> <span class="s2">&quot;time_ms&quot;</span><span class="p">]</span>
+<span class="n">predictors</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;stim&quot;</span><span class="p">,</span> <span class="s2">&quot;tone&quot;</span><span class="p">]</span>  <span class="c1"># stim=standard, target; tone=hi, lo</span>
+<span class="n">channels</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MiPf&quot;</span><span class="p">,</span> <span class="s2">&quot;MiCe&quot;</span><span class="p">,</span> <span class="s2">&quot;MiPa&quot;</span><span class="p">,</span> <span class="s2">&quot;MiOc&quot;</span><span class="p">]</span>  <span class="c1"># midline electrodes</span>
+<span class="n">p3_epochs_df</span> <span class="o">=</span> <span class="n">p3_epochs_df</span><span class="p">[</span><span class="n">indices</span> <span class="o">+</span> <span class="n">predictors</span> <span class="o">+</span> <span class="n">channels</span><span class="p">]</span>
+
+<span class="c1"># set the epoch and time column index for fg.Epochs</span>
+<span class="n">p3_epochs_df</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">&quot;epoch_id&quot;</span><span class="p">,</span> <span class="s2">&quot;time_ms&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># &quot;baseline&quot;, i.e., center each epoch on the pre-stimulus interval</span>
+<span class="n">centered</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">epoch_id</span><span class="p">,</span> <span class="n">vals</span> <span class="ow">in</span> <span class="n">p3_epochs_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;epoch_id&quot;</span><span class="p">):</span>
+    <span class="n">centered</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">vals</span><span class="p">[</span><span class="n">channels</span><span class="p">]</span> <span class="o">-</span> <span class="n">vals</span><span class="p">[</span><span class="n">channels</span><span class="p">]</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;time_ms &lt; 0&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="p">)</span>
+<span class="n">p3_epochs_df</span><span class="p">[</span><span class="n">channels</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">centered</span><span class="p">)</span>
+
+<span class="c1"># done ...</span>
+<span class="n">p3_epochs_df</span>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>stim</th>
+      <th>tone</th>
+      <th>MiPf</th>
+      <th>MiCe</th>
+      <th>MiPa</th>
+      <th>MiOc</th>
+    </tr>
+    <tr>
+      <th>epoch_id</th>
+      <th>time_ms</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="5" valign="top">0</th>
+      <th>-748</th>
+      <td>target</td>
+      <td>hi</td>
+      <td>-6.157753</td>
+      <td>-25.526524</td>
+      <td>-44.994408</td>
+      <td>-23.116379</td>
+    </tr>
+    <tr>
+      <th>-744</th>
+      <td>target</td>
+      <td>hi</td>
+      <td>-8.157753</td>
+      <td>-32.354649</td>
+      <td>-48.095970</td>
+      <td>-20.686691</td>
+    </tr>
+    <tr>
+      <th>-740</th>
+      <td>target</td>
+      <td>hi</td>
+      <td>-7.157753</td>
+      <td>-31.596836</td>
+      <td>-40.935814</td>
+      <td>-16.553879</td>
+    </tr>
+    <tr>
+      <th>-736</th>
+      <td>target</td>
+      <td>hi</td>
+      <td>-12.157753</td>
+      <td>-30.837070</td>
+      <td>-35.212181</td>
+      <td>-14.124190</td>
+    </tr>
+    <tr>
+      <th>-732</th>
+      <td>target</td>
+      <td>hi</td>
+      <td>-8.657753</td>
+      <td>-24.260899</td>
+      <td>-26.385033</td>
+      <td>-13.397628</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th rowspan="5" valign="top">391</th>
+      <th>732</th>
+      <td>standard</td>
+      <td>hi</td>
+      <td>-21.056150</td>
+      <td>-5.361887</td>
+      <td>4.670756</td>
+      <td>1.208691</td>
+    </tr>
+    <tr>
+      <th>736</th>
+      <td>standard</td>
+      <td>hi</td>
+      <td>-15.056150</td>
+      <td>0.708426</td>
+      <td>10.639506</td>
+      <td>7.521191</td>
+    </tr>
+    <tr>
+      <th>740</th>
+      <td>standard</td>
+      <td>hi</td>
+      <td>-21.556150</td>
+      <td>-4.857981</td>
+      <td>4.912944</td>
+      <td>4.364941</td>
+    </tr>
+    <tr>
+      <th>744</th>
+      <td>standard</td>
+      <td>hi</td>
+      <td>-23.056150</td>
+      <td>-4.350168</td>
+      <td>4.912944</td>
+      <td>7.036816</td>
+    </tr>
+    <tr>
+      <th>748</th>
+      <td>standard</td>
+      <td>hi</td>
+      <td>-24.556150</td>
+      <td>-4.096262</td>
+      <td>4.194194</td>
+      <td>8.497753</td>
+    </tr>
+  </tbody>
+</table>
+<p>125250 rows × 6 columns</p>
+</div>
+</div>
+<br />
+<br /><p>These time-domain average ERPs can be computed with <cite>fitgrid</cite>, see <a class="reference internal" href="../2_model_fitting/average_erps.html#average-erps"><span class="std std-ref">Average ERPs with fitgrid</span></a>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">axi</span><span class="p">,</span> <span class="p">(</span><span class="n">condition</span><span class="p">,</span> <span class="n">vals</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">p3_epochs_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;stim&quot;</span><span class="p">)):</span>
+    <span class="n">vals</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;time_ms&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="n">axi</span><span class="p">])</span>
+    <span class="n">axs</span><span class="p">[</span><span class="n">axi</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">condition</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<img alt="standard, target" class="sphx-glr-single-img" src="../../_images/sphx_glr_p3_sample_epochs_001.png" />
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  2.539 seconds)</p>
+<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-gallery-1-epochs-data-p3-sample-epochs-py">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/5b984be2f47cc3802fb302f9d21aeb99/p3_sample_epochs.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">p3_sample_epochs.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/44d4e7a56fdb3d2dbfa0e10a048c5640/p3_sample_epochs.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">p3_sample_epochs.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="noaa_csv_to_epochs.html" class="btn btn-neutral float-right" title="NOAA tides and weather epochs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Epochs data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

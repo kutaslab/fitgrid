@@ -1,0 +1,335 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>fitgrid.utils.summary module &mdash; fitgrid 0.5.0.dev1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/gallery-rendered-html.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> fitgrid
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../about_fitgrid.html">About <cite>fitgrid</cite></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_gallery/quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gallery.html">Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">fitgrid</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>fitgrid.utils.summary module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-fitgrid.utils.summary">
+<span id="fitgrid-utils-summary-module"></span><h1>fitgrid.utils.summary module<a class="headerlink" href="#module-fitgrid.utils.summary" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="fitgrid.utils.summary.plot_AICmin_deltas">
+<code class="sig-prename descclassname"><span class="pre">fitgrid.utils.summary.</span></code><code class="sig-name descname"><span class="pre">plot_AICmin_deltas</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summary_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gridspec_kw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/utils/summary.html#plot_AICmin_deltas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.utils.summary.plot_AICmin_deltas" title="Permalink to this definition">¶</a></dt>
+<dd><p>plot FitGrid min delta AICs and fitter warnings</p>
+<p>Thresholds of AIC_min delta at 2, 4, 7, 10 are from Burnham &amp;
+Anderson 2004, see Notes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>summary_df</strong> (<em>pd.DataFrame</em>) – as returned by fitgrid.utils.summary.summarize</p></li>
+<li><p><strong>figsize</strong> (<em>2-ple</em>) – pyplot.figure figure size parameter</p></li>
+<li><p><strong>gridspec_kw</strong> (<em>dict</em>) – matplotlib.gridspec key : value parameters</p></li>
+<li><p><strong>kwargs</strong> (<em>dict</em>) – keyword args passed to plt.subplots(…)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>f, axs</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>matplotlib.pyplot.Figure</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p><a class="reference internal" href="../bibliography.html#burand2004" id="id1"><span>[BurAnd2004]</span></a> p. 270-271. Where <span class="math notranslate nohighlight">\(AIC_{min}\)</span> is the
+lowest AIC value for “a set of a priori candidate models
+well-supported by the underlying science <span class="math notranslate nohighlight">\(g_{i}, i = 1,
+2, ..., R)\)</span>”,</p>
+<div class="math notranslate nohighlight">
+\[\Delta_{i} = AIC_{i} - AIC_{min}\]</div>
+<p>“is the information loss experienced if we are using fitted
+model <span class="math notranslate nohighlight">\(g_{i}\)</span> rather than the best model, <span class="math notranslate nohighlight">\(g_{min}\)</span>
+for inference.” …</p>
+<p>“Some simple rules of thumb are often useful in assessing the
+relative merits of models in the set: Models having
+<span class="math notranslate nohighlight">\(\Delta_{i} &lt;= 2\)</span> have substantial support (evidence), those
+in which <span class="math notranslate nohighlight">\(\Delta_{i} 4 &lt;= 7\)</span> have considerably less support,
+and models having <span class="math notranslate nohighlight">\(\Delta_{i} &gt; 10\)</span> have essentially no
+support.”</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fitgrid.utils.summary.plot_betas">
+<code class="sig-prename descclassname"><span class="pre">fitgrid.utils.summary.</span></code><code class="sig-name descname"><span class="pre">plot_betas</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summary_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LHS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fdr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">s</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/utils/summary.html#plot_betas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.utils.summary.plot_betas" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot model parameter estimates for each data column in LHS</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>summary_df</strong> (<em>pd.DataFrame</em>) – as returned by fitgrid.utils.summary.summarize</p></li>
+<li><p><strong>LHS</strong> (<em>list of str</em>) – column names of the data fitgrid.fitgrid docs</p></li>
+<li><p><strong>alpha</strong> (<em>float</em>) – alpha level for false discovery rate correction</p></li>
+<li><p><strong>fdr</strong> (<em>str {None, ‘BY’, ‘BH’}</em>) – Add markers for FDR adjusted significant <span class="math notranslate nohighlight">\(p\)</span>-values. BY
+is Benjamini and Yekatuli, BH is Benjamini and Hochberg, None
+supresses the markers.</p></li>
+<li><p><strong>df_func</strong> (<em>{None, function}</em>) – plot <cite>function(degrees of freedom)</cite>, e.g., <cite>np.log10</cite>,  <cite>lambda x: x</cite></p></li>
+<li><p><strong>s</strong> (<em>float</em>) – scatterplot marker size for BH and lmer decorations</p></li>
+<li><p><strong>kwargs</strong> (<em>dict</em>) – keyword args passed to pyplot.subplots()</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>figs</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="fitgrid.utils.summary.summarize">
+<code class="sig-prename descclassname"><span class="pre">fitgrid.utils.summary.</span></code><code class="sig-name descname"><span class="pre">summarize</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epochs_fg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modeler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LHS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">RHS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/utils/summary.html#summarize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.utils.summary.summarize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fit the data with one or more model formulas and return summary information.</p>
+<p>Convenience wrapper, useful for keeping memory use manageable when
+gathering betas and fit measures for a stack of models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>epochs_fg</strong> (<em>fitgrid.epochs.Epochs</em>) – as returned by <cite>fitgrid.epochs_from_dataframe()</cite> or
+<cite>fitgrid.from_hdf()</cite>, <em>NOT</em> a <cite>pandas.DataFrame</cite>.</p></li>
+<li><p><strong>modeler</strong> (<em>{‘lm’, ‘lmer’}</em>) – class of model to fit, <cite>lm</cite> for OLS, <cite>lmer</cite> for linear mixed-effects.
+Note: the RHS formula language must match the modeler.</p></li>
+<li><p><strong>LHS</strong> (<em>list of str</em>) – the data columns to model</p></li>
+<li><p><strong>RHS</strong> (<em>model formula or list of model formulas to fit</em>) – see the Python package <cite>patsy</cite> docs for <cite>lm</cite> formula langauge
+and the R library <cite>lme4</cite> docs for the <cite>lmer</cite> formula langauge.</p></li>
+<li><p><strong>parallel</strong> (<em>bool</em>)</p></li>
+<li><p><strong>n_cores</strong> (<em>int</em>) – number of cores to use. See what works, but golden rule if running
+on a shared machine.</p></li>
+<li><p><strong>**kwargs</strong> (<em>key=value arguments passed to the modeler, optional</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>summary_df</strong> – indexed by <cite>timestamp</cite>, <cite>model_formula</cite>, <cite>beta</cite>, and <cite>key</cite>,
+where the keys are <cite>ll.l_ci</cite>, <cite>uu.u_ci</cite>, <cite>AIC</cite>, <cite>DF</cite>, <cite>Estimate</cite>,
+<cite>P-val</cite>, <cite>SE</cite>, <cite>T-stat</cite>, <cite>has_warning</cite>, <cite>logLike</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><cite>pandas.DataFrame</cite></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lm_formulas</span> <span class="o">=</span> <span class="p">[</span>
+<span class="go">    &#39;1 + fixed_a + fixed_b + fixed_a:fixed_b&#39;,</span>
+<span class="go">    &#39;1 + fixed_a + fixed_b&#39;,</span>
+<span class="go">    &#39;1 + fixed_a,</span>
+<span class="go">    &#39;1 + fixed_b,</span>
+<span class="go">    &#39;1&#39;,</span>
+<span class="go">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lm_summary_df</span> <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">summarize</span><span class="p">(</span>
+<span class="go">    epochs_fg,</span>
+<span class="go">    &#39;lm&#39;,</span>
+<span class="go">    LHS=[&#39;MiPf&#39;, &#39;MiCe&#39;, &#39;MiPa&#39;, &#39;MiOc&#39;],</span>
+<span class="go">    RHS=lmer_formulas,</span>
+<span class="go">    parallel=True,</span>
+<span class="go">    n_cores=4</span>
+<span class="go">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lmer_formulas</span> <span class="o">=</span> <span class="p">[</span>
+<span class="go">    &#39;1 + fixed_a + (1 + fixed_a | random_a) + (1 | random_b)&#39;,</span>
+<span class="go">    &#39;1 + fixed_a + (1 | random_a) + (1 | random_b)&#39;,</span>
+<span class="go">    &#39;1 + fixed_a + (1 | random_a)&#39;,</span>
+<span class="go">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lmer_summary_df</span> <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">summarize</span><span class="p">(</span>
+<span class="go">    epochs_fg,</span>
+<span class="go">    &#39;lmer&#39;,</span>
+<span class="go">    LHS=[&#39;MiPf&#39;, &#39;MiCe&#39;, &#39;MiPa&#39;, &#39;MiOc&#39;],</span>
+<span class="go">    RHS=lmer_formulas,</span>
+<span class="go">    parallel=True,</span>
+<span class="go">    n_cores=12,</span>
+<span class="go">    REML=False</span>
+<span class="go">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

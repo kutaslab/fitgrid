@@ -1,0 +1,680 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>fitgrid.fitgrid &mdash; fitgrid 0.5.0.dev1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/gallery-rendered-html.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> fitgrid
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about_fitgrid.html">About <cite>fitgrid</cite></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../auto_gallery/quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gallery.html">Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">fitgrid</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>fitgrid.fitgrid</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for fitgrid.fitgrid</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">lru_cache</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="kn">from</span> <span class="nn">.errors</span> <span class="kn">import</span> <span class="n">FitGridError</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">tools</span>
+
+
+<div class="viewcode-block" id="FitGrid"><a class="viewcode-back" href="../../api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.FitGrid">[docs]</a><span class="k">class</span> <span class="nc">FitGrid</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Hold rERP fit objects.</span>
+
+<span class="sd">    FitGrid should not be created directly, the right way to build it is to</span>
+<span class="sd">    start with an Epochs object and pass it to a function like `fitgrid.lm`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    _grid : Pandas DataFrame</span>
+<span class="sd">        Pandas DataFrame of fit objects</span>
+<span class="sd">    epochs_index : pandas Index</span>
+<span class="sd">        index containing epoch ids</span>
+<span class="sd">    time : str</span>
+<span class="sd">        time column name</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    grid: FitGrid</span>
+<span class="sd">        FitGrid object</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Slicing FitGrids is a little different than slicing Pandas DataFrames. For</span>
+<span class="sd">    instance, we require that the keys in a list used to slice a FitGrid on</span>
+<span class="sd">    time or channels be unique. The following Pandas quirk is inherited by</span>
+<span class="sd">    FitGrids: slicing using a list where some keys are present but some</span>
+<span class="sd">    are missing from a grid succeeds silently and creates columns with the</span>
+<span class="sd">    missing keys as names. For example, if you have a grid with columns</span>
+
+<span class="sd">        &#39;channel1&#39;, &#39;channel2&#39;</span>
+
+<span class="sd">    and you slice:</span>
+
+<span class="sd">        grid[:, [&#39;channel1&#39;, &#39;blah&#39;]]</span>
+
+<span class="sd">    this returns a new grid with columns</span>
+
+<span class="sd">        &#39;channel1&#39;, &#39;blah&#39;</span>
+
+<span class="sd">    where column &#39;blah&#39; consists of NaN&#39;s. Since version 21.0 of Pandas this</span>
+<span class="sd">    throws a warning and should in future be replaced with a KeyError.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">_grid</span><span class="p">,</span> <span class="n">epoch_index</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+
+        <span class="c1"># check no duplicate column names</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">_grid</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="n">deduped_names</span> <span class="o">=</span> <span class="n">tools</span><span class="o">.</span><span class="n">deduplicate_list</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">deduped_names</span> <span class="o">!=</span> <span class="n">names</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">FitGridError</span><span class="p">(</span><span class="s1">&#39;Duplicate column names not allowed.&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span> <span class="o">=</span> <span class="n">_grid</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epoch_index</span> <span class="o">=</span> <span class="n">epoch_index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">time</span> <span class="o">=</span> <span class="n">time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tester</span> <span class="o">=</span> <span class="n">_grid</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">channels</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">_grid</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">slicer</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Slice grid on time and channels, return new grid with that shape.</span>
+
+<span class="sd">        The intended way to slice a FitGrid is to always slice on both time and</span>
+<span class="sd">        channels, allowing wildcard colons:</span>
+
+<span class="sd">            `grid[:, [&#39;channel1&#39;, &#39;channel2&#39;]]`</span>
+
+<span class="sd">        or</span>
+
+<span class="sd">            `grid[:, :]`</span>
+
+<span class="sd">        or</span>
+
+<span class="sd">            `grid[25:-25, &#39;channel2&#39;]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">slicer</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">slicer</span><span class="p">,</span> <span class="s1">&#39;__len__&#39;</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">slicer</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="n">FitGridError</span><span class="p">(</span><span class="s1">&#39;Must slice on time and channels.&#39;</span><span class="p">)</span>
+
+        <span class="c1"># now we can unpack</span>
+        <span class="n">time</span><span class="p">,</span> <span class="n">channels</span> <span class="o">=</span> <span class="n">slicer</span>
+
+        <span class="k">def</span> <span class="nf">check_slicer_component</span><span class="p">(</span><span class="n">component</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="nb">slice</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">component</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="c1"># deduplicate and warn if duplicates found</span>
+                <span class="n">deduped_component</span> <span class="o">=</span> <span class="n">tools</span><span class="o">.</span><span class="n">deduplicate_list</span><span class="p">(</span><span class="n">component</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">deduped_component</span> <span class="o">!=</span> <span class="n">component</span><span class="p">:</span>
+                    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Slicer </span><span class="si">{</span><span class="n">component</span><span class="si">}</span><span class="s1"> contained duplicates, &#39;</span>
+                    <span class="n">msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s1">&#39;slicing instead on deduped: </span><span class="si">{</span><span class="n">deduped_component</span><span class="si">}</span><span class="s1">.&#39;</span>
+                    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="ne">UserWarning</span><span class="p">(</span><span class="n">msg</span><span class="p">))</span>
+                <span class="k">return</span> <span class="n">deduped_component</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># wrap in list to always get a DataFrame in return on slicing</span>
+                <span class="c1"># otherwise we might get a scalar or a pandas Series,</span>
+                <span class="c1"># which can&#39;t be used to create a FitGrid object</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">component</span><span class="p">]</span>
+
+        <span class="n">time</span> <span class="o">=</span> <span class="n">check_slicer_component</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+        <span class="n">channels</span> <span class="o">=</span> <span class="n">check_slicer_component</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span>
+        <span class="n">subgrid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">time</span><span class="p">,</span> <span class="n">channels</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span><span class="n">subgrid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">epoch_index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">)</span>
+
+    <span class="nd">@lru_cache</span><span class="p">()</span>
+    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Broadcast attribute extraction in the grid.</span>
+
+<span class="sd">        This is the method that gets called when an attribute is requested that</span>
+<span class="sd">        FitGrid does not have. We then go and check if the tester has it, and</span>
+<span class="sd">        broadcast if it does.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tester</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;No such attribute: </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">.&#39;</span><span class="p">)</span>
+
+        <span class="n">temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="o">.</span><span class="n">applymap</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expand</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Broadcast method calling in the grid.</span>
+
+<span class="sd">        This is the method that gets called when the grid is called as if it</span>
+<span class="sd">        were a method.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">callable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tester</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">FitGridError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s1">&#39;This grid is not callable, &#39;</span>
+                <span class="sa">f</span><span class="s1">&#39;current type is </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tester</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># if we are not callable, we&#39;ll get an appropriate exception</span>
+        <span class="n">temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="o">.</span><span class="n">applymap</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expand</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__dir__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="c1"># the result of this call is what shows up for tab completion</span>
+
+        <span class="c1"># so we add the cell attributes:</span>
+        <span class="n">cell_attrs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">item</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tester</span><span class="p">)</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">item</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;__&#39;</span><span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="c1"># and the attributes of the grid itself:</span>
+        <span class="n">grid_attrs</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="o">.</span><span class="vm">__name__</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">cell_attrs</span> <span class="o">+</span> <span class="n">grid_attrs</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">samples</span><span class="p">,</span> <span class="n">chans</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="o">.</span><span class="n">shape</span>
+        <span class="n">classname</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">samples</span><span class="si">}</span><span class="s1"> by </span><span class="si">{</span><span class="n">chans</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="n">classname</span><span class="si">}</span><span class="s1"> of type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">tester</span><span class="p">)</span><span class="si">}</span><span class="s1">.&#39;</span>
+
+<div class="viewcode-block" id="FitGrid.save"><a class="viewcode-back" href="../../api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.FitGrid.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save FitGrid object to file (reload with ``fitgrid.load_grid``).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        filename : str</span>
+<span class="sd">            file name to use</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;wb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">kernel</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">epoch_index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">kernel</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">pickle</span><span class="o">.</span><span class="n">HIGHEST_PROTOCOL</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FitGrid.expand_series_or_df"><a class="viewcode-back" href="../../api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.FitGrid.expand_series_or_df">[docs]</a>    <span class="k">def</span> <span class="nf">expand_series_or_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Expand a DataFrame that has Series or DataFrames for values.&quot;&quot;&quot;</span>
+
+        <span class="n">columns</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">temp</span><span class="p">[</span><span class="n">channel</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span> <span class="n">keys</span><span class="o">=</span><span class="n">temp</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="n">temp</span>
+        <span class="p">)</span>
+        <span class="c1"># concatenate columns, channel names are top level columns indices</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">columns</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="n">temp</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+        <span class="c1"># stack to achieve long form if columns have multiple levels</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">indexes</span><span class="o">.</span><span class="n">multi</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">stack</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+    <span class="k">def</span> <span class="nf">_expand</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Expand the values in the grid if possible, return frame or grid.&quot;&quot;&quot;</span>
+
+        <span class="n">tester</span> <span class="o">=</span> <span class="n">temp</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># no processing needed</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">isscalar</span><span class="p">(</span><span class="n">tester</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">temp</span>
+
+        <span class="c1"># familiar types, expand them</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tester</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tester</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="c1"># want single index level</span>
+            <span class="c1"># can get more if original DataFrame had a multiindex</span>
+            <span class="c1"># in Epochs we ensure that only epoch_id is in the index for</span>
+            <span class="c1"># groupby</span>
+            <span class="k">if</span> <span class="n">tester</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">nlevels</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;index should have one level, have </span><span class="si">{</span><span class="n">tester</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">nlevels</span><span class="si">}</span><span class="s1">&#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39; instead: </span><span class="si">{</span><span class="n">tester</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="si">}</span><span class="s1">&#39;</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">expand_series_or_df</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+
+        <span class="c1"># array-like, try converting to array and then Series/DataFrame</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tester</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tester</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">array_form</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span>
+                <span class="n">tester</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;O&quot;</span>
+            <span class="p">)</span>  <span class="c1"># deprecated without dtype=&quot;O&quot;</span>
+
+            <span class="k">if</span> <span class="n">array_form</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="c1"># Tidy 1-D are Series. Untidy 1-D may be broadcastable</span>
+                <span class="c1"># into a tidy DataFrame</span>
+
+                <span class="k">def</span> <span class="nf">series_fun</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>  <span class="c1"># default</span>
+
+                <span class="k">if</span> <span class="n">array_form</span><span class="o">.</span><span class="n">dtype</span> <span class="o">!=</span> <span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;object&quot;</span><span class="p">):</span>
+                    <span class="n">pd_fun</span> <span class="o">=</span> <span class="n">series_fun</span>  <span class="c1"># tidy</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="c1"># broadcastable to DataFrame?</span>
+                        <span class="k">def</span> <span class="nf">df_fun</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="o">*</span><span class="n">x</span><span class="p">))</span><span class="o">.</span><span class="n">T</span>
+
+                        <span class="n">pd_fun</span> <span class="o">=</span> <span class="n">df_fun</span>
+                        <span class="n">pd_fun</span><span class="p">(</span><span class="n">tester</span><span class="p">)</span>
+                    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                        <span class="c1"># oh well, fall back to Series</span>
+                        <span class="n">pd_fun</span> <span class="o">=</span> <span class="n">series_fun</span>
+
+                <span class="n">temp</span> <span class="o">=</span> <span class="n">temp</span><span class="o">.</span><span class="n">applymap</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd_fun</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+
+            <span class="k">elif</span> <span class="n">array_form</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">temp</span> <span class="o">=</span> <span class="n">temp</span><span class="o">.</span><span class="n">applymap</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                    <span class="s1">&#39;Cannot use elements with dim &gt; 2,&#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;element has ndim = </span><span class="si">{</span><span class="n">array_form</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s1">.&#39;</span>
+                <span class="p">)</span>
+            <span class="n">temp_expanded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expand_series_or_df</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+            <span class="n">temp_epoch_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_epoch_index</span><span class="p">(</span><span class="n">temp_expanded</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">temp_epoch_index</span>
+
+        <span class="c1"># array, try converting to Series/DataFrame</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tester</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">tester</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">temp</span> <span class="o">=</span> <span class="n">temp</span><span class="o">.</span><span class="n">applymap</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">tester</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">temp</span> <span class="o">=</span> <span class="n">temp</span><span class="o">.</span><span class="n">applymap</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                    <span class="s1">&#39;Cannot use elements with dim &gt; 2,&#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;element has ndim = </span><span class="si">{</span><span class="n">tester</span><span class="o">.</span><span class="n">ndim</span><span class="si">}</span><span class="s1">.&#39;</span>
+                <span class="p">)</span>
+            <span class="n">temp_expanded</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">expand_series_or_df</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+            <span class="n">temp_epoch_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">add_epoch_index</span><span class="p">(</span><span class="n">temp_expanded</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">temp_epoch_index</span>
+
+        <span class="c1"># catchall for all types we don&#39;t handle explicitly</span>
+        <span class="c1"># statsmodels objects, dicts, methods all go here</span>
+        <span class="k">return</span> <span class="n">FitGrid</span><span class="p">(</span><span class="n">temp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">epoch_index</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FitGrid.add_epoch_index"><a class="viewcode-back" href="../../api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.FitGrid.add_epoch_index">[docs]</a>    <span class="k">def</span> <span class="nf">add_epoch_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">temp</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;We assume that temp is in long form, the columns are channels, and the</span>
+<span class="sd">        first index level is time.&quot;&quot;&quot;</span>
+
+        <span class="c1"># first index level is time</span>
+        <span class="k">assert</span> <span class="n">temp</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">time</span>
+
+        <span class="c1"># temp should be long form, columns have single level (channels</span>
+        <span class="c1"># hopefully)</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">temp</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">core</span><span class="o">.</span><span class="n">indexes</span><span class="o">.</span><span class="n">multi</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">)</span>
+
+        <span class="c1"># we can only handle 2- or 3-dimensional</span>
+        <span class="k">assert</span> <span class="n">temp</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">nlevels</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">temp</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">nlevels</span><span class="p">):</span>
+            <span class="n">level</span> <span class="o">=</span> <span class="n">temp</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">levels</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="c1"># if a level looks like it was automatically created by Pandas,</span>
+            <span class="c1"># we replace it with the epoch_index</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="nb">isinstance</span><span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">RangeIndex</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">level</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epoch_index</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">level</span><span class="o">.</span><span class="n">start</span> <span class="o">==</span> <span class="mi">0</span>
+                <span class="ow">and</span> <span class="n">level</span><span class="o">.</span><span class="n">step</span> <span class="o">==</span> <span class="mi">1</span>
+                <span class="ow">and</span> <span class="n">level</span><span class="o">.</span><span class="n">stop</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epoch_index</span><span class="p">)</span>
+            <span class="p">):</span>
+                <span class="n">temp</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">set_levels</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epoch_index</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">temp</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epoch_index</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">temp</span></div></div>
+
+
+<div class="viewcode-block" id="LMFitGrid"><a class="viewcode-back" href="../../api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.LMFitGrid">[docs]</a><span class="k">class</span> <span class="nc">LMFitGrid</span><span class="p">(</span><span class="n">FitGrid</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__dir__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">lmfitgrid_attrs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plot_betas</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">plot_adj_rsquared</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">influential_epochs</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__dir__</span><span class="p">()</span> <span class="o">+</span> <span class="n">lmfitgrid_attrs</span>
+
+<div class="viewcode-block" id="LMFitGrid.plot_betas"><a class="viewcode-back" href="../../api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.LMFitGrid.plot_betas">[docs]</a>    <span class="k">def</span> <span class="nf">plot_betas</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">legend_on_bottom</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Plot betas of the model, one plot per channel, overplotting betas.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        legend_on_bottom : bool, defaults to False</span>
+<span class="sd">            set to True to plot single legend below all channel plots</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fig : matplotlib.figure.Figure</span>
+<span class="sd">            figure containing plots</span>
+<span class="sd">        axes : numpy.ndarray of matplotlib.axes.Axes</span>
+<span class="sd">            axes objects</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+        <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">rc_context</span><span class="p">({</span><span class="s1">&#39;font.size&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">}):</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">unstack</span><span class="p">()</span>
+            <span class="n">channels</span><span class="p">,</span> <span class="n">betas</span> <span class="o">=</span> <span class="n">params</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">levels</span>
+            <span class="n">figsize</span> <span class="o">=</span> <span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">4</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">channels</span><span class="p">))</span>
+
+            <span class="n">n_plots</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">legend_on_bottom</span> <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">channels</span><span class="p">)</span>
+
+            <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span>
+                <span class="n">nrows</span><span class="o">=</span><span class="n">n_plots</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span> <span class="n">sharey</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span>
+
+            <span class="c1"># wrap in list if single axis to allow for zipping later</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+                <span class="n">axes</span> <span class="o">=</span> <span class="p">[</span><span class="n">axes</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">legend_on_bottom</span><span class="p">:</span>
+                <span class="n">legend_ax</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">channel_axes</span> <span class="o">=</span> <span class="n">axes</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">channel_axes</span> <span class="o">=</span> <span class="n">axes</span>
+
+            <span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">chan</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">channel_axes</span><span class="p">,</span> <span class="n">channels</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">beta</span> <span class="ow">in</span> <span class="n">params</span><span class="p">[</span><span class="n">chan</span><span class="p">]:</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="n">chan</span><span class="p">][</span><span class="n">beta</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">beta</span><span class="p">)</span>
+                <span class="n">ax</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ylabel</span><span class="o">=</span><span class="n">chan</span><span class="p">,</span> <span class="n">xlabel</span><span class="o">=</span><span class="n">params</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">legend_on_bottom</span><span class="p">:</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span>
+                        <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper center&#39;</span><span class="p">,</span>
+                        <span class="n">ncol</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="n">chan</span><span class="p">]),</span>
+                        <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">),</span>
+                        <span class="n">fancybox</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                        <span class="n">shadow</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">legend_on_bottom</span><span class="p">:</span>
+                <span class="n">handles</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_legend_handles_labels</span><span class="p">()</span>
+                <span class="n">legend_ax</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+                <span class="n">legend_ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="p">,</span> <span class="n">labels</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;expand&#39;</span><span class="p">,</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+
+            <span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+            <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">axes</span></div>
+
+<div class="viewcode-block" id="LMFitGrid.plot_adj_rsquared"><a class="viewcode-back" href="../../api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.LMFitGrid.plot_adj_rsquared">[docs]</a>    <span class="k">def</span> <span class="nf">plot_adj_rsquared</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Plot adjusted :math:`R^2` as a heatmap with marginal bar and line.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        fig : matplotlib.figure.Figure</span>
+<span class="sd">            figure containing plots</span>
+<span class="sd">        gs : matplotlib.gridspec.GridSpec</span>
+<span class="sd">            grid specification that determines locations and sizes of subplots</span>
+<span class="sd">        bar, heatmap, colorbar, line : matplotlib.axes._subplots.AxesSubplot</span>
+<span class="sd">            subplot objects</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+        <span class="n">rsq_adj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rsquared_adj</span>
+
+        <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">rc_context</span><span class="p">({</span><span class="s1">&#39;font.size&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">}):</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span>
+            <span class="n">gs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">GridSpec</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">width_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">13</span><span class="p">,</span> <span class="mi">3</span><span class="p">],</span> <span class="n">height_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">7</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
+
+            <span class="n">bar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">bar</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_grid</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">rsq_adj</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span>
+
+            <span class="n">heatmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">sharey</span><span class="o">=</span><span class="n">bar</span><span class="p">)</span>
+            <span class="n">heatmap_image</span> <span class="o">=</span> <span class="n">heatmap</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">rsq_adj</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
+            <span class="n">heatmap</span><span class="o">.</span><span class="n">get_xaxis</span><span class="p">()</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="n">colorbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">mappable</span><span class="o">=</span><span class="n">heatmap_image</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">colorbar</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mf">0.75</span><span class="p">)</span>
+
+            <span class="n">line</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">line</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">rsq_adj</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+
+            <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">margins</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">gs</span><span class="p">,</span> <span class="n">bar</span><span class="p">,</span> <span class="n">heatmap</span><span class="p">,</span> <span class="n">colorbar</span><span class="p">,</span> <span class="n">line</span></div>
+
+<div class="viewcode-block" id="LMFitGrid.influential_epochs"><a class="viewcode-back" href="../../api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.LMFitGrid.influential_epochs">[docs]</a>    <span class="k">def</span> <span class="nf">influential_epochs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return dataframe with top influential epochs ranked by Cook&#39;s-D.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        top : int, optional, default None</span>
+<span class="sd">            how many top epochs to return, all epochs by default</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        top_epochs : pandas DataFrame</span>
+<span class="sd">            dataframe with epoch_id as index and aggregated Cook&#39;s-D as values</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Cook&#39;s distance is aggregated by simple averaging across time and</span>
+<span class="sd">        channels.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_influence</span><span class="p">()</span>
+            <span class="o">.</span><span class="n">cooks_distance</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">level</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">to_frame</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;average_Cooks_D&#39;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">iloc</span><span class="p">[:</span><span class="n">top</span><span class="p">]</span>
+        <span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="LMERFitGrid"><a class="viewcode-back" href="../../api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.LMERFitGrid">[docs]</a><span class="k">class</span> <span class="nc">LMERFitGrid</span><span class="p">(</span><span class="n">FitGrid</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__or__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">FitGridError</span><span class="p">(</span>
+                <span class="s1">&#39;Can only compare LMERFitGrid to other LMERFitGrid.&#39;</span>
+            <span class="p">)</span>
+        <span class="c1"># figure out the situation</span>
+        <span class="n">this_fixef</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tester</span><span class="o">.</span><span class="n">fixef</span><span class="o">.</span><span class="n">columns</span>
+        <span class="n">other_fixef</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">tester</span><span class="o">.</span><span class="n">fixef</span><span class="o">.</span><span class="n">columns</span>
+        <span class="n">same_fixef</span> <span class="o">=</span> <span class="n">this_fixef</span><span class="o">.</span><span class="n">equals</span><span class="p">(</span><span class="n">other_fixef</span><span class="p">)</span>
+        <span class="n">at_least_one_fit_with_REML</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">tester</span><span class="o">.</span><span class="n">_REML</span> <span class="ow">or</span> <span class="n">other</span><span class="o">.</span><span class="n">tester</span><span class="o">.</span><span class="n">_REML</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">same_fixef</span><span class="p">)</span> <span class="ow">and</span> <span class="n">at_least_one_fit_with_REML</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">FitGridError</span><span class="p">(</span>
+                <span class="s1">&#39;Cannot compare models with different fixed effects when &#39;</span>
+                <span class="s1">&#39;REML is used. For more context, see &#39;</span>
+                <span class="s1">&#39;https://stats.stackexchange.com/a/116796&#39;</span>
+            <span class="p">)</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">AIC</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">AIC</span>
+
+        <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+        <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">rc_context</span><span class="p">({</span><span class="s1">&#39;font.size&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">}):</span>
+            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span>
+            <span class="n">gs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">GridSpec</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="n">width_ratios</span><span class="o">=</span><span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+
+            <span class="n">heatmap</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">heatmap_image</span> <span class="o">=</span> <span class="n">heatmap</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">diff</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
+
+            <span class="n">colorbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">mappable</span><span class="o">=</span><span class="n">heatmap_image</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">colorbar</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">gs</span><span class="p">,</span> <span class="n">heatmap</span><span class="p">,</span> <span class="n">colorbar</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

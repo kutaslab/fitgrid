@@ -1,0 +1,275 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Installation &mdash; fitgrid 0.5.0.dev1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-binder.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-dataframe.css" type="text/css" />
+  <link rel="stylesheet" href="_static/gallery-rendered-html.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Quick start" href="auto_gallery/quickstart.html" />
+    <link rel="prev" title="About fitgrid" href="about_fitgrid.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> fitgrid
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.5
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about_fitgrid.html">About <cite>fitgrid</cite></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#conda-install-recommended"><cite>conda install</cite> (recommended)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#pip-install"><cite>pip install</cite></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#system-requirements">System requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="auto_gallery/quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gallery.html">Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">fitgrid</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Installation</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="installation">
+<span id="id1"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p><strong>TL;DR</strong> Use <cite>conda install</cite> not <cite>pip</cite> and for real work, run
+<cite>fitgrid</cite> on a fast multicore x64_86 linux server with gobs of RAM.</p>
+<div class="section" id="conda-install-recommended">
+<h2><cite>conda install</cite> (recommended)<a class="headerlink" href="#conda-install-recommended" title="Permalink to this headline">¶</a></h2>
+<p><cite>fitgrid</cite> is packaged and distributed on <a class="reference external" href="https://anaconda.org/kutaslab/fitgrid">Anaconda Cloud</a> for installation into conda
+virtual environments using the <a class="reference external" href="https://conda.io">conda package manager</a>. The virtual environment isolates the <cite>fitgrid</cite>
+installation to prevent clashes with what is already installed on your
+system and the <cite>conda</cite> installer automatically searches for compatible
+versions of the hundreds of Python and R packages <cite>fitgrid</cite> requires
+to run. The steps are simple but before proceeding it is prudent to
+have a general understanding of conda virtual environments and at
+least these commands: <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">create</span> <span class="pre">...</span></code>, <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">...</span></code>,
+<code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">deactivate</span></code>, <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">-c</span> <span class="pre">....</span></code>. See the <a class="reference external" href="https://docs.conda.io/projects/conda/en/latest/user-guide/cheatsheet.html">Conda Cheat
+Sheet</a>
+for a summary.</p>
+<p>This example shows how to install <cite>fitgrid</cite> from a bash shell command
+prompt in a linux terminal window.  It assumes the <cite>conda</cite> executable
+is already installed (we use <a class="reference external" href="https://docs.conda.io/en/latest/miniconda.html">miniconda3</a>). It bakes a date
+into the name and provisions the new environment with <cite>fitgrid</cite> and a
+compatible <cite>jupyterlab</cite>. The order of the <cite>-c</cite> conda channels matters,
+the channels are searched for compatible packages from left to right.</p>
+<p id="conda-install-fitgrid"><strong>Example installation</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ conda create --name fg_012021 -c kutaslab -c defaults -c conda-forge fitgrid jupyterlab
+$ conda activate fg_012021
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To avoid Python and R package version conflicts, experience teaches
+it is helpful to start with a fresh conda environment if possible,
+and install <cite>fitgrid</cite> along with any other conda packages you want
+to run in one fell swoop. The conda installer cannot see into the
+future. If you install packages one by one, the versions you get
+will be compatible with what you have already installed but may not
+be compatible with what you want to install next.</p>
+</div>
+</div>
+<div class="section" id="pip-install">
+<h2><cite>pip install</cite><a class="headerlink" href="#pip-install" title="Permalink to this headline">¶</a></h2>
+<p>This is asking for trouble because Python packaging doesn’t know or
+care about the R dependencies. The <cite>fitgrid</cite> source may be downloaded
+or git cloned from <a class="reference external" href="https://github.com/kutaslab/fitgrid">https://github.com/kutaslab/fitgrid</a> and we upload
+stable releases of the Python package to PyPI (<a class="reference external" href="https://pypi.org/project/fitgrid/">here</a>) as a courtesy, it is not
+intended for general use.</p>
+</div>
+<div class="section" id="system-requirements">
+<h2>System requirements<a class="headerlink" href="#system-requirements" title="Permalink to this headline">¶</a></h2>
+<p>The platform of choice is linux. Minimum system requirements are not
+known but obviously large scale regression modeling with millions of
+data points is computationally demanding. We develop, test, and use
+<cite>fitgrid</cite> on a high-performance linux server (CentOS 7, Intel x86_64,
+48 cores, 500GB RAM) and our continuous integration runs all but the
+parallel processing pytests on Ubuntu 18.04, 7GB RAM. The 64-bit OSX
+conda package is spot-checked from time to time on an
+Intel MacBook Pro (8 cores, 32GB RAM). The pytests pass when conda is
+installed as above, useability for modeling at scale is unknown. We
+don’t test the 64-bit Windows conda package, field reports from
+contributors are welcome.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="auto_gallery/quickstart.html" class="btn btn-neutral float-right" title="Quick start" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="about_fitgrid.html" class="btn btn-neutral float-left" title="About fitgrid" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+
+    </p>
+  </div> 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
