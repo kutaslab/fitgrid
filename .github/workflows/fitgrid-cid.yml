@@ -80,7 +80,7 @@ jobs:
     env:
       PY_VER: ${{ matrix.py_ver }}
       CONDA_BLD_PATH: /tmp/ci_conda_bld
-      GH_PAGES_BRANCH: gh-pages-dev
+      GH_PAGES_BRANCH: gh-pages-dev   # gh-pages for tagged release, gh-pages--dev for testing.
 
     outputs:
       # tarballs are py3X job-specific
@@ -134,10 +134,11 @@ jobs:
           pytest --cov=$PACKAGE_NAME # test as installed by conda
 
       - name: build sphinx docs
-        if: ${{ matrix.py_ver == env.DEPLOY_PY_VER }}
+        # if: ${{ matrix.py_ver == env.DEPLOY_PY_VER }}
         run: |
           conda activate env_$PY_VER  # required to run doc demos
-          conda install -q sphinx sphinx_rtd_theme jupyter nbsphinx "nbconvert!=5.4" -c defaults -c conda-forge
+          # conda install -q sphinx sphinx_rtd_theme jupyter nbsphinx "nbconvert!=5.4" -c defaults -c conda-forge
+          conda install -q sphinx sphinx_rtd_theme sphinx-gallery -c defaults -c conda-forge
           conda install -q pandoc -c conda-forge
           make -C docs html
           touch docs/build/html/.nojekyll
@@ -218,8 +219,8 @@ jobs:
         run: conda install -q codecov && codecov
 
       - name: deploy sphinx docs to gh-pages
-        # if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && env.DEPLOY_TYPE == 'main' }}
-        if: ${{ matrix.py_ver == env.DEPLOY_PY_VER }}  # testing only
+        if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && env.DEPLOY_TYPE == 'main' }}
+        # if: ${{ matrix.py_ver == env.DEPLOY_PY_VER }}  # testing only
         run: |
           cd $GITHUB_WORKSPACE/docs/build/html  # wherever sphinx writes the html, repo specific
           ls -lR

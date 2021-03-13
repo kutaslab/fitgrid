@@ -12,12 +12,17 @@ build:
   # setting string embeds git short SHA in conda tarball name
   # script: python setup.py install --single-version-externally-managed --record=record.txt
   script: pip install . -vv --no-deps
-  # github vN.N.N release builds are tagged with git short hash and conda build number, Travis deploys should be 0
+  # github vN.N.N release builds are tagged with git short hash and conda build number, Action deploys should be 0
   string: py{{environ.get("CONDA_PY", "XX")}}{{environ.get("GIT_ABBREV_COMMIT", "no_git_abbrev_commit") }}_{{ environ.get("PKG_BUILDNUM", "no_pkg_buildnum") }}
 
 requirements:
 #  build:
   build:
+    # conda build buggy w/ binutils_linux-65 2.35 and compiler jinja
+    # 02/07/21 conda build OK w/ binutils_linux-64 8.2.0,  gcc/gxx_linux-64 7.3.0, _sysconfigdata_x86_64_conda_cos6_linux_gnu
+    # 02/08/21 conda build fails w/ binutils_* 2.35, gxx_linux_64 9.3.0 _sysconfigdata_x86_64_conda_cos7_linux_gnu
+    # - binutils_linux-64 !=2.35
+    # revision 03/12/21 drop binutils pin, restore compiler jinjas, py36, 37, 38 ok
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
   host:
@@ -35,6 +40,7 @@ requirements:
     - matplotlib
     - pytables
     - tqdm
+    - requests
 
 test:
   imports:

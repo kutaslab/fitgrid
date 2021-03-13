@@ -1,9 +1,25 @@
 .. _api:
 
-===
+###
 API
-===
+###
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+
+.. _quick_reference:
+
+===============
+Quick reference
+===============
+
+.. toctree::
+   :maxdepth: 2
+
+   quick_reference
+
+
+=======
+Indexes
+=======
+
+* :ref:`Alphabetical Index <genindex>`
+* :ref:`Module Index <modindex>`

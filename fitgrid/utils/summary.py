@@ -35,7 +35,7 @@ PER_MODEL_KEY_LABELS = ['AIC', 'SSresid', 'has_warning', 'logLike', 'sigma2']
 
 
 def summarize(
-    epochs_fg, modeler, LHS, RHS, parallel=True, n_cores=4, **kwargs,
+    epochs_fg, modeler, LHS, RHS, parallel=True, n_cores=4, **kwargs
 ):
     """Fit the data with one or more model formulas and return summary information.
 
