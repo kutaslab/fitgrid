@@ -8,6 +8,7 @@ from io import StringIO
 import numpy as np
 import pandas as pd
 from statsmodels.formula.api import ols
+from pymer4 import Lmer  # moved up from lmer_single() for Multiprocessing
 from tqdm import tqdm
 
 from .errors import FitGridError
@@ -195,8 +196,7 @@ def lmer_single(
     data, channel, RHS, family, conf_int, factors, permute, ordered, REML
 ):
     import re
-    from pymer4 import Lmer
-
+    
     model = Lmer(channel + ' ~ ' + RHS, data=data, family=family)
 
     with redirect_stdout(StringIO()) as captured_stdout:

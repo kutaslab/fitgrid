@@ -76,11 +76,18 @@ def test_lm_correctness_parallel():
             assert fit.rsquared == rsquared.loc[timepoint, channel]
 
 
+@pytest.mark.parametrize('parallel,n_cores', [(True, 2), (False, 1)])
 @pytest.mark.parametrize('quiet', [True, False])
-def test_smoke_lmer(quiet):
-
-    epochs = fitgrid.generate(n_samples=2, n_channels=2)
-    grid = fitgrid.lmer(epochs, RHS='(continuous | categorical)', quiet=quiet)
+def test_smoke_lmer(parallel, n_cores, quiet):
+    
+    epochs = fitgrid.generate(n_samples=2, n_channels=2, seed=0)
+    grid = fitgrid.lmer(
+        epochs,
+        RHS='(continuous | categorical)',
+        parallel=parallel,
+        n_cores=n_cores,
+        quiet=quiet,
+    )
 
     assert isinstance(grid, LMERFitGrid)
     assert grid.has_warning.dtypes.all() == bool

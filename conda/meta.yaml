@@ -18,17 +18,20 @@ build:
 requirements:
 #  build:
   build:
-    # - {{ compiler('c') }}
-    # - {{ compiler('cxx') }}
     # conda build buggy w/ binutils_linux-65 2.35 and compiler jinja
     # 02/07/21 conda build OK w/ binutils_linux-64 8.2.0,  gcc/gxx_linux-64 7.3.0, _sysconfigdata_x86_64_conda_cos6_linux_gnu
     # 02/08/21 conda build fails w/ binutils_* 2.35, gxx_linux_64 9.3.0 _sysconfigdata_x86_64_conda_cos7_linux_gnu
-    - binutils_linux-64 !=2.35
+    # - binutils_linux-64 !=2.35
+
+    # revision 03/12/21 restore compiler jinjas
+    - {{ compiler('c') }}
+    - {{ compiler('cxx') }}
   host:
     - python {{ python }}
     - pip
   run:
     - python {{ python }}
+    # - rpy2 <3.4
     - pymer4
     - statsmodels
     - numpy
