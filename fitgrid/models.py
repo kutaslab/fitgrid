@@ -196,7 +196,7 @@ def lmer_single(
     data, channel, RHS, family, conf_int, factors, permute, ordered, REML
 ):
     import re
-    
+
     model = Lmer(channel + ' ~ ' + RHS, data=data, family=family)
 
     with redirect_stdout(StringIO()) as captured_stdout:

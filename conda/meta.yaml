@@ -22,8 +22,7 @@ requirements:
     # 02/07/21 conda build OK w/ binutils_linux-64 8.2.0,  gcc/gxx_linux-64 7.3.0, _sysconfigdata_x86_64_conda_cos6_linux_gnu
     # 02/08/21 conda build fails w/ binutils_* 2.35, gxx_linux_64 9.3.0 _sysconfigdata_x86_64_conda_cos7_linux_gnu
     # - binutils_linux-64 !=2.35
-
-    # revision 03/12/21 restore compiler jinjas
+    # revision 03/12/21 drop binutils pin, restore compiler jinjas, py36, 37, 38 ok
     - {{ compiler('c') }}
     - {{ compiler('cxx') }}
   host:
@@ -31,7 +30,6 @@ requirements:
     - pip
   run:
     - python {{ python }}
-    # - rpy2 <3.4
     - pymer4
     - statsmodels
     - numpy

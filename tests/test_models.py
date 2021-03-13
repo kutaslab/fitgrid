@@ -79,7 +79,7 @@ def test_lm_correctness_parallel():
 @pytest.mark.parametrize('parallel,n_cores', [(True, 2), (False, 1)])
 @pytest.mark.parametrize('quiet', [True, False])
 def test_smoke_lmer(parallel, n_cores, quiet):
-    
+
     epochs = fitgrid.generate(n_samples=2, n_channels=2, seed=0)
     grid = fitgrid.lmer(
         epochs,
