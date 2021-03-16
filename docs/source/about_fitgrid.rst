@@ -1,4 +1,4 @@
-. _about_fitgrid:
+.. _about_fitgrid:
 
 ###############
 About `fitgrid`

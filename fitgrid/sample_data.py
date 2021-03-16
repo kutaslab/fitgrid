@@ -20,10 +20,6 @@ PM_1500_FEATHER = "sub000pm.ms1500.epochs.feather"
 def _download(filename, url=DATA_URL):
     """download filename from repo url to fitgrid/data/ 
 
-    .. _zenodo_files: https://doi.org/10.5281/zenodo.3968485/files
-
-    default = Zenodo eeg-workshops/mkpy_data_examples/data, v0.0.3
-              https://doi.org/10.5281/zenodo.3968485/files
 
     Parameters
     ----------
@@ -57,14 +53,14 @@ def _download(filename, url=DATA_URL):
 def get_file(filename, url=DATA_URL):
     """checks file is present in fitgrid/data, downloads if not
 
+    Defaults to `Zenodo eeg-workshops/mkpy_data_examples/data v.0.0.3 <https://zenodo.org/record/3968485>`_
+
     Parameters
     ----------
     filename : str
-      name of a files in the repository URL, , e.g., "sub000p3.h5",
-      "sub000p3.ms1500.epochs.feather".
-
+      filename in the repository, , e.g., `sub000p3.ms1500.epochs.feather`.
     url: str
-      fully qualified URL, defaults to `zenodo_files`_
+      fully qualified URL
 
     """
     if (DATA_DIR / filename).exists():

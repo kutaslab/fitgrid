@@ -26,19 +26,19 @@ data analysis workflows.
 
 For a summary of the problem `fitgrid` solves, why it is worth
 solving, and how it is solved, see the :ref:`about_fitgrid`. The
-:ref:`workflow` section outlines and illustrates the `fitgrid`
-analysis workflow with executable examples. The :ref:`user_guide`
-provides additional information about specific topics including how
-the OLS models are fit in Python `statsmodels` [SeaSkiPer2010]_ and
-the LMER models are fit in R (`lme4::lmer`, `lmerTest`
-[KuzBroChr2017]_) via `pymer4` [Jolly2018]_ under the hood. The
-:ref:`gallery` contains executable `fitgrid` vignettes with
-simulated data, experimental EEG recordings, and NOAA tide and
-atmospheric observations. The examples can be downloaded as Python
-scripts or Jupyter notebooks thanks to `sphinx-gallery
+:ref:`user_guide` has information on specific topics including how the
+OLS models are fit in Python `statsmodels` [SeaSkiPer2010]_ and the
+LMER models are fit in R (`lme4::lmer`, `lmerTest` [KuzBroChr2017]_)
+via `pymer4` [Jolly2018]_ under the hood. The :ref:`gallery` contains
+executable `fitgrid` vignettes with simulated data, experimental EEG
+recordings, and NOAA tide and atmospheric observations. The
+:ref:`workflow` example illustrates the `fitgrid` modeling
+pipeline. The examples can be downloaded as Python scripts or Jupyter
+notebooks thanks to `sphinx-gallery
 <https://sphinx-gallery.github.io/>`_. The :ref:`api` is a complete
 listing of `fitgrid` classes, methods, attributes, and functions.  The
-:ref:`bibliography` includes :ref:`references` and :ref:`fitgrid_reports`.
+:ref:`bibliography` includes :ref:`references` and
+:ref:`fitgrid_reports`.
 
 .. image:: ../source/_static/fitgrid_overview.png
 

@@ -2,6 +2,6 @@ fitgrid.tools module
 ====================
 
 .. automodule:: fitgrid.tools
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
