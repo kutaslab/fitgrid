@@ -1,5 +1,5 @@
-"""Ordinary least squares andlinear mixed-effects: minimal examples
-===================================================================
+"""Ordinary least squares and linear mixed-effects: minimal examples
+====================================================================
 
 OLS and mixed-effect models are specified by model formulas. The
 results returned by `statstmodels` for OLS and `lme4::lmer` for
