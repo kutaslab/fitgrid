@@ -9,7 +9,9 @@ Submodules
 
    fitgrid.utils.lm
    fitgrid.utils.lmer
+   fitgrid.utils.lmer_050dev1
    fitgrid.utils.summary
+   fitgrid.utils.summary_050dev1
 
 Module contents
 ---------------

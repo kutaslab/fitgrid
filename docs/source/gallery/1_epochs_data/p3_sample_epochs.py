@@ -4,7 +4,7 @@ EEG sample epochs
 """
 
 # %%
-# These are the EEG data used in :ref:`workflow`
+# These are the EEG data used in the :ref:`workflow`
 #
 # **Experimental design.** These data are single-trial EEG epochs
 # recorded at 250 digital samples per second from one individual in an

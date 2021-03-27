@@ -1,5 +1,5 @@
-from pathlib import Path
 import warnings
+import pytest
 import numpy as np
 import pandas as pd
 from .context import fitgrid, FIT_ATOL, FIT_RTOL
@@ -51,3 +51,41 @@ def test_get_lmer_dfbetas():
             f'{for_display}\n'
             f'------------------------------------------------------------\n'
         )
+
+
+def test_smoke_get_plot_lmer_warnings():
+
+    # this seed and model generates a nice assortment of errors
+    epochs_fg = fitgrid.generate(n_samples=8, n_channels=4, seed=32)
+    channels = [
+        column for column in epochs_fg.table.columns if "channel" in column
+    ]
+
+    lmer_grid = fitgrid.lmer(
+        epochs_fg,
+        RHS="1 + categorical + (continuous | categorical)",
+        LHS=channels,
+        parallel=True,
+        n_cores=2,
+    )
+
+    for key, val in fitgrid.utils.lmer.get_lmer_warnings(lmer_grid).items():
+        print(key + "\n", val)
+
+    fitgrid.utils.lmer.plot_lmer_warnings(lmer_grid)
+    for show_warning in [
+        "each",
+        "all",
+        "converge",
+        ["converge"],
+        ["singular", "converge"],
+    ]:
+        fitgrid.utils.lmer.plot_lmer_warnings(lmer_grid, which=show_warning)
+
+    with pytest.raises(ValueError) as fail:
+        fitgrid.utils.lmer.plot_lmer_warnings(lmer_grid, which=1.0)
+    assert (
+        "ValueError: "
+        "The value for which=value must be 'any', 'each', a warning "
+        "string pattern to match or list of them, not this:"
+    ) in fail.exconly()

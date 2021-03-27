@@ -1,11 +1,17 @@
+import itertools
 import copy
 import warnings
 import re
+from cycler import cycler as cy
+from collections import defaultdict
+import pprint as pp
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
 from matplotlib import pyplot as plt
+from matplotlib.lines import Line2D
 import fitgrid
+
 
 # enforce some common structure for summary dataframes
 # scraped out of different fit objects.
@@ -28,14 +34,29 @@ KEY_LABELS = [
     'has_warning',
     'logLike',
     'sigma2',
+    'warnings',
 ]
 
 # special treatment for per-model values ... broadcast to all params
-PER_MODEL_KEY_LABELS = ['AIC', 'SSresid', 'has_warning', 'logLike', 'sigma2']
+PER_MODEL_KEY_LABELS = [
+    'AIC',
+    'SSresid',
+    'has_warning',
+    'warnings',
+    'logLike',
+    'sigma2',
+]
 
 
 def summarize(
-    epochs_fg, modeler, LHS, RHS, parallel=True, n_cores=4, **kwargs
+    epochs_fg,
+    modeler,
+    LHS,
+    RHS,
+    parallel=False,
+    n_cores=2,
+    quiet=False,
+    **kwargs,
 ):
     """Fit the data with one or more model formulas and return summary information.
 
@@ -61,13 +82,16 @@ def summarize(
        and the R library `lme4` docs for the `lmer` formula langauge.
 
     parallel : bool
+       If True, model fitting is distributed to multiple cores
 
     n_cores : int
        number of cores to use. See what works, but golden rule if running
        on a shared machine.
 
-    **kwargs : key=value arguments passed to the modeler, optional
+    quiet : bool
+       Show progress bar default=True
 
+    **kwargs : key=value arguments passed to the modeler, optional
 
     Returns
     -------
@@ -113,7 +137,9 @@ def summarize(
 
     """
 
-    FutureWarning('fitgrid summaries are in early days, subject to change')
+    warnings.warn(
+        'fitgrid summaries are in early days, subject to change', FutureWarning
+    )
 
     # modicum of guarding
     msg = None
@@ -151,6 +177,7 @@ def summarize(
                     RHS=_rhs,
                     parallel=parallel,
                     n_cores=n_cores,
+                    quiet=quiet,
                     **kwargs,
                 )
             )
@@ -166,27 +193,67 @@ def summarize(
 # private-ish summary helpers for scraping summary info from fits
 # ------------------------------------------------------------
 def _check_summary_df(summary_df, fg_obj):
-    # check the fg_obj.time has propagated to the summary and the
-    # rest of the index is OK. fg_obj can be fitgrid.Epochs,
-    # LMGrid or LMERGrid, they all have a time attribute
+    """check summary df structure, and against the fitgrid object if any"""
+    # fg_obj can be fitgrid.Epochs, LMGrid or LMERGrid, they all have a time attribute
 
-    assert any(
-        [
-            isinstance(fg_obj, fgtype)
-            for fgtype in [
-                fitgrid.epochs.Epochs,
-                fitgrid.fitgrid.LMFitGrid,
-                fitgrid.fitgrid.LMERFitGrid,
-            ]
-        ]
-    )
-    if not (
-        summary_df.index.names == [fg_obj.time] + INDEX_NAMES[1:]
-        and all(summary_df.index.levels[-1] == KEY_LABELS)
-    ):
-        raise ValueError(
-            "uh oh ... fitgrid summary dataframe bug, please post an issue"
+    # check for fatal error conditions
+    error_msg = None  # set on error
+
+    # check summary
+    if not isinstance(summary_df, pd.DataFrame):
+        error_msg = "summary data is not a pandas.DataFrame"
+
+    elif not len(summary_df):
+        error_msg = "summary data frame is empty"
+
+    elif not len(summary_df.columns):
+        error_msg = "summary data frame has no channel columns"
+
+    elif not summary_df.index.names[1:] == INDEX_NAMES[1:]:
+        # first name is _TIME, set from user epochs data
+        error_msg = (
+            f"summary index names do not match INDEX_NAMES: {INDEX_NAMES}"
         )
+
+    elif not all(summary_df.index.levels[-1] == KEY_LABELS):
+        error_msg = (
+            f"summary index key levels dot match KEY_LABELS: {KEY_LABELS}"
+        )
+
+    else:
+        # TBD
+        pass
+
+    # does summary of an object agree with its object?
+    if fg_obj:
+        assert any(
+            [
+                isinstance(fg_obj, fgtype)
+                for fgtype in [
+                    fitgrid.epochs.Epochs,
+                    fitgrid.fitgrid.LMFitGrid,
+                    fitgrid.fitgrid.LMERFitGrid,
+                ]
+            ]
+        )
+
+        if not summary_df.index.names == [fg_obj.time] + INDEX_NAMES[1:]:
+            error_msg = (
+                f"summary fitgrid object index mismatch: "
+                f"summary_df.index.names: {summary_df.index.names} "
+                f"fitgrd object: {[fg_obj.time] + INDEX_NAMES[1:]}"
+            )
+
+    if error_msg:
+        raise ValueError(error_msg)
+
+    # check for non-fatal issues
+    if "warnings" not in summary_df.index.unique("key"):
+        msg = (
+            "These summaries look like fitgrid version < 0.5.0, use that one or "
+            f"the models with this one: fitgrid.utils.summarize() {fitgrid.__version__}"
+        )
+        raise RuntimeError(msg)
 
 
 def _update_INDEX_NAMES(lxgrid, index_names):
@@ -195,6 +262,54 @@ def _update_INDEX_NAMES(lxgrid, index_names):
     _index_names = copy.copy(index_names)
     _index_names[0] = lxgrid.time
     return _index_names
+
+
+def _stringify_lmer_warnings(fg_lmer):
+    """create grid w/ _ separated string of lme4::lmer warning list items, else "" """
+
+    warning_grids = fitgrid.utils.lmer.get_lmer_warnings(
+        fg_lmer
+    )  # dict of indicator dataframes
+    warning_string_grid = pd.DataFrame(
+        np.full(fg_lmer._grid.shape, ""),
+        index=fg_lmer._grid.index.copy(),
+        columns=fg_lmer._grid.columns.copy(),
+    )
+
+    # collect multiple warnings into single sorted "_" separated strings
+    # on a tidy time x channel grid
+    for warning, warning_grid in warning_grids.items():
+        for idx, row_vals in warning_grid.iterrows():
+            for jdx, col_val in row_vals.iteritems():
+                if col_val:
+                    if len(warning_string_grid.loc[idx, jdx]) == 0:
+                        warning_string_grid.loc[idx, jdx] = warning
+                    else:
+                        # split, sort, reassemble
+                        wrns = "_".join(
+                            sorted(
+                                warning_string_grid.loc[idx, jdx].split("_")
+                                + [warning]
+                            )
+                        )
+                        warning_string_grid.loc[idx, jdx] = wrns
+    return warning_string_grid
+
+
+# def _unstringify_lmer_warnings(lmer_summaries):
+#     """convert stringfied lmer warning grid back into dict of indicator grids as in get_lmer_warnings()"""
+#     string_warning_grid = lmer_summaries.query("key=='warnings'")
+#     warnings = []
+#     for warning in np.unique(string_warning_grid):
+#         if len(warning) > 0:
+#             warnings += warning.split("_")
+
+#     warning_grids = {}
+#     for warning in sorted(warnings):
+#         warning_grids[warning] = string_warning_grid.applymap(
+#             lambda x: 1 if warning in x else 0
+#         )
+#     return warning_grids
 
 
 def _lm_get_summaries_df(fg_ols, ci_alpha=0.05):
@@ -260,13 +375,19 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=0.05):
         )
         raise ValueError(msg)
 
+    # handle warnings
     # build model has_warnings with False for ols
-    warnings = pd.DataFrame(
+    has_warnings = pd.DataFrame(
         np.zeros(model_vals[0].shape).astype('bool'),
         columns=model_vals[0].columns,
         index=model_vals[0].index,
     )
-    warnings['key'] = 'has_warning'
+    has_warnings['key'] = 'has_warning'
+    model_vals.append(has_warnings)
+
+    # build empty warning string to match has_warnings == False
+    warnings = has_warnings.applymap(lambda x: "")
+    warnings["key"] = "warnings"
     model_vals.append(warnings)
 
     model_vals = pd.concat(model_vals)
@@ -324,11 +445,11 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=0.05):
     cis['model'] = rhs
 
     summaries.append(cis.reset_index().set_index(_index_names))
-
     summaries_df = pd.concat(summaries)
 
     # add the parmeter model info
-    summaries_df = pd.concat([summaries_df, pmvs]).sort_index().astype(float)
+    # summaries_df = pd.concat([summaries_df, pmvs]).sort_index().astype(float)
+    summaries_df = pd.concat([summaries_df, pmvs]).sort_index()
 
     _check_summary_df(summaries_df, fg_ols)
 
@@ -385,6 +506,7 @@ def _lmer_get_summaries_df(fg_lmer):
         .groupby([fg_lmer.time])
         .sum(),
         'sigma2': lambda x: scrape_sigma2(x),
+        "warnings": lambda x: _stringify_lmer_warnings(x),
     }
 
     # grab and tidy the formulat RHS from the first grid cell
@@ -426,7 +548,7 @@ def _lmer_get_summaries_df(fg_lmer):
         summaries_df.reset_index()
         .set_index(_index_names)  # INDEX_NAMES)
         .sort_index()
-        .astype(float)
+        #        .astype(float)
     )
 
     _check_summary_df(summaries_df, fg_lmer)
@@ -450,7 +572,7 @@ def _get_AICs(summary_df):
 
     # AIC and lmer warnings are 1 per model, pull from the first
     # model coefficient only, e.g., (Intercept)
-    aic_cols = ["AIC", "has_warning"]
+    aic_cols = ["AIC", "has_warning", "warnings"]
     aics = []
     # for model, model_data in summary_df.groupby('model'):
     # groupby processes models in alphabetical sort order
@@ -499,193 +621,424 @@ def _get_AICs(summary_df):
     return AICs
 
 
+def summaries_fdr_control(
+    model_summary_df, method="BY", rate=0.05, plot_pvalues=True,
+):
+    """False discovery rate control for the family of all p-values in model_summary_df
+
+    Parameters
+    ----------
+    model_summary_df : pandas.DataFrame 
+        As returned by `fitgrid.utils.summary.summarize`.
+    
+    method : str {"BY", "BH"}
+        `BY` (default) is from Benjamini and Yekatuli [1]_, `BH` is Benjamini and
+        Hochberg [2_].
+
+    rate : float {0.05}
+        The target rate for controlling false discoveries.
+
+    plot_pvalues : bool {True, False} 
+        Display a plot of the family of $p$-values and critical value for FDR control.
+
+
+    References
+    ----------
+
+    .. [1] Benjamini, Y., & Yekutieli, D. (2001). The control of
+          the false discovery rate in multiple testing under
+          dependency.The Annals of Statistics, 29, 1165-1188.
+
+    .. [2] Benjamini, Y., & Hochberg, Y. (1995). Controlling the
+          false discovery rate: A practical and powerful approach to
+          multiple testing. Journal of the Royal Statistical
+          Society. Series B (Methodological), 57, 289-300.
+
+"""
+
+    _check_summary_df(model_summary_df, None)
+    pvals_df = model_summary_df.query("key == 'P-val'")  # fetch pvals
+    pvals = np.sort(pvals_df.to_numpy().flatten())
+    m = len(pvals)
+    ks = list()
+
+    if method == 'BH':
+        # Benjamini & Hochberg ... restricted
+        c_m = 1
+    elif method == 'BY':
+        # Benjamini & Yekatuli general case
+        c_m = np.sum([1 / i for i in range(1, m + 1)])
+    else:
+        raise ValueError("method must be 'BH' or 'BY'")
+
+    for k, p in enumerate(pvals):
+        kmcm = k / (m * c_m)
+        if p <= kmcm * rate:
+            ks.append(k)
+
+    if len(ks) > 0:
+        crit_p = pvals[max(ks)]
+        crit_p_idx = np.where(pvals < crit_p)[0].max()
+    else:
+        crit_p = 0.0
+        crit_p_idx = 0
+
+    n_pvals = len(pvals)
+
+    fdr_specs = {
+        "method": method,
+        "rate": rate,
+        "crit_p": crit_p,
+        "n_pvals": n_pvals,
+        "models": list(pvals_df.index.unique('model')),
+        "betas": list(pvals_df.index.unique('beta')),
+        "channels": list(pvals_df.columns),
+    }
+
+    fig, ax = None, None
+    if plot_pvalues:
+
+        fig, ax = plt.subplots()
+        ax.set_title("Distribution of $p$-values")
+        ax.plot(np.arange(m), pvals, color="k")
+        ax.axhline(crit_p, xmax=crit_p_idx, ls="--", color="k")
+        ax.axvline(crit_p_idx, ymax=0.5, ls="--", color="k")
+        ax.annotate(
+            xy=(crit_p_idx, 0.525),
+            text=f"critcal $p$={crit_p:0.5f} for {method} FDR {rate}",
+            ha="left",
+        )
+        ax.text(
+            x=0.0,
+            y=-0.15,
+            s=pp.pformat(fdr_specs, compact=True),
+            va="top",
+            ha="left",
+            transform=ax.transAxes,
+            wrap=True,
+        )
+    else:
+        fig, ax = None, None
+
+    return fdr_specs, fig, ax
+
+
 def plot_betas(
     summary_df,
-    LHS,
-    alpha=0.05,
-    fdr=None,
-    figsize=None,
-    s=None,
+    LHS=[],
+    models=[],
+    betas=[],
+    interval=[],
+    beta_plot_kw={},
+    show_se=True,
+    show_warnings=True,
+    fdr_kw={},
+    fig_kw={},
     df_func=None,
+    scatter_size=75,
     **kwargs,
 ):
 
-    """Plot model parameter estimates for each data column in LHS
+    """Plot  model parameter estimates for model, beta, and channel LHS
+
+    The time course of estimated betas and standard errors is plotted
+    by channel for the models, betas, and channels in the data
+    frame. Channels, models, betas and time intervals may be selected
+    from the summary dataframe. Plots are marked with model fit
+    warnings by default and may be tagged to indicate differences from
+    0 controlled for false discovery rate (FDR).
+
 
     Parameters
     ----------
     summary_df : pd.DataFrame
        as returned by fitgrid.utils.summary.summarize
 
-    LHS : list of str
-       column names of the data fitgrid.fitgrid docs
+    LHS : list of str or []
+       column names of the data, [] default = all channels
 
-    alpha : float
-       alpha level for false discovery rate correction
+    models : list of str or []
+       select model or model betas to display, [] default = all models
 
-    fdr : str {None, 'BY', 'BH'}
-        Add markers for FDR adjusted significant :math:`p`-values. BY
-        is Benjamini and Yekatuli, BH is Benjamini and Hochberg, None
-        supresses the markers.
-    df_func : {None, function}
-        plot `function(degrees of freedom)`, e.g., `np.log10`,  `lambda x: x`
+    betas : list of str [] or []
+       select beta or betas to plot,  [] default = all betas
 
-    s : float
-       scatterplot marker size for BH and lmer decorations
+    interval : [start, stop] list of two ints
+       time interval to plot
 
-    kwargs : dict
+    beta_plot_kw : dict
+       keyword arguments passed to matplotlib.axes.plot()
+
+    show_se : bool
+       toggle display of standard error shading (default = True)
+
+    show_warnings : bool
+       toggle display of model warnings (default = True)
+
+    fdr_kw : dict (default empty)
+        One or more keyword arguments passed to `summaries_fdr_control() to trigger
+        to tag plots for FDR controlled differences from 0.
+
+    fig_kw : dict
        keyword args passed to pyplot.subplots()
+
+    df_func : {None, function}
+        toggle plot `function(degrees of freedom)`, e.g., `np.log10`,  `lambda x: x`
+
+    scatter_size : float 
+       scatterplot marker size for FDR (default = 75) and warnings (= 1.5 scatter_size)
 
 
     Returns
     -------
-    figs : list
+    figs : list of matplotlib.Figure
+
+
+    Note
+    ----
+
+    The FDR family of tests is given by all channels, models, betas,
+    and times in the summary data frame regardless of which of these
+    are selected for plotting. To specify a different family of tests,
+    construct a summary dataframe with all and only the tests for that
+    family before plotting the betas.
+    References
+    ----------
+
 
     """
+    _check_summary_df(summary_df, None)
 
-    def _do_fdr(_fg_beta):
-        # FDR helper
-        m = len(_fg_beta)
-        pvals = _fg_beta['P-val'].copy().sort_values()
-        ks = list()
+    # fitgrid < 0.5.0
+    for kwarg in ["figsize", "fdr", "alpha", "s"]:
+        if kwarg in kwargs.keys():
+            msg = (
+                "keyword {kwarg} is deprecated in fitgrid 0.5.0, has no effect and "
+                "will be removed. See figrid.utils.summary.plot_betas() documentation."
+            )
+            warnings.warn(msg, FutureWarning)
 
-        if fdr == 'BH':
-            # Benjamini & Hochberg ... restricted
-            c_m = 1
-        if fdr == 'BY':
-            # Benjamini & Yekatuli general case
-            c_m = np.sum([1 / i for i in range(1, m + 1)])
+    # ------------------------------------------------------------
+    # validate kwargs
+    error_msg = None
 
-        for k, p in enumerate(pvals):
-            kmcm = k / (m * c_m)
-            if p <= kmcm * alpha:
-                ks.append(k)
-
-        if len(ks) > 0:
-            crit_p = pvals.iloc[max(ks)]
-        else:
-            crit_p = 0.0
-
-        _fg_beta['sig_fdr'] = _fg_beta['P-val'] < crit_p
-
-        # slice out sig ps for plotting
-        sig_ps = _fg_beta.loc[_fg_beta['sig_fdr'], :]
-        return sig_ps, crit_p
-        # --------------------
-
-    figs = list()
-
-    _time = summary_df.index.names[0]
-
+    # LHS defaults to all channels
     if isinstance(LHS, str):
         LHS = [LHS]
-    assert all([isinstance(col, str) for col in LHS])
+    if LHS == []:
+        LHS = list(summary_df.columns)
 
-    if fdr not in ['BH', 'BY', None]:
-        raise ValueError(f"fdr must be 'BH', 'BY' or None")
+    if not all([isinstance(col, str) for col in LHS]):
+        error_msg = "LHS must be a list of channel name strings"
+    for channel in LHS:
+        if channel not in summary_df.columns:
+            error_msg = f"channel {channel} not found in the summary columns"
 
-    # defaults
-    if figsize is None:
-        figsize = (8, 3)
+    # model, beta
+    for key, vals in {"model": models, "beta": betas}.items():
+        if vals and not (
+            isinstance(vals, list)
+            and all([isinstance(itm, str) for itm in vals])
+        ):
+            error_msg = f"{key} must be a list of strings"
 
-    betas = summary_df.index.get_level_values('beta').unique()
-    for col in LHS:
-        # for idx, beta in enumerate(betas):
-        for beta in betas:
+        unique_vals = list(summary_df.index.unique(key))
+        for val in vals:
+            if val not in unique_vals:
+                error_msg = (
+                    f"{val} not found, check the summary index: "
+                    f"name={key}, labels={unique_vals}"
+                )
 
-            # f, ax_beta = plt.subplots(len(betas), ncol=1, **kwargs)
-            f, ax_beta = plt.subplots(
-                nrows=1, ncols=1, figsize=figsize, **kwargs
+    # validate interval
+    if interval:
+        t_min = summary_df.index[0][0]
+        t_max = summary_df.index[-1][0]
+        if not (
+            isinstance(interval, list)
+            and all([isinstance(t, int) for t in interval])
+            and interval[0] < interval[1]
+            and interval[0] >= t_min
+            and interval[1] <= t_max
+        ):
+            error_msg = (
+                "interval must be a list of increasing integers "
+                f"in the summary time range between {t_min} and {t_max}."
             )
+    # fail on any error
+    if error_msg:
+        raise ValueError(error_msg)
 
-            # if len(betas) == 1:
-            #    ax_beta = [ax_beta]
+    # ------------------------------------------------------------
+    # filter summary for selections, if any
 
-            # unstack this beta, column for plotting
+    # summary_df.sort_index(inplace=True)
+    model_summary_df = summary_df  # a reference may be all we need
+
+    if not LHS == list(summary_df.columns):
+        model_summary_df = summary_df[LHS].copy()
+    if models:
+        model_summary_df = model_summary_df.query("model in @models").copy()
+    if betas:
+        model_summary_df = model_summary_df.query("beta in @betas").copy()
+
+    if interval:
+        model_summary_df.sort_index(inplace=True)
+        model_summary_df = model_summary_df.loc[
+            # Index = time, model, beta, key
+            pd.IndexSlice[interval[0] : interval[1], :, :, :,],
+            :,
+        ]
+
+    models = list(model_summary_df.index.unique("model"))
+    _time = model_summary_df.index.names[0]
+
+    # ------------------------------------------------------------
+    # optional FDR calc
+    if fdr_kw:
+        # the family of tests for FDR is given by the summary data, *not*
+        # which slices happen to be selected for plotting.
+        fdr_specs, fdr_fig, fdr_ax = summaries_fdr_control(
+            summary_df, **fdr_kw
+        )
+        if not summary_df.equals(model_summary_df):
+            fdr_msg = (
+                "FDR test family is for **ALL** models, betas, and channels in "
+                "the summary dataframe not just those selected for plotting."
+            )
+            warnings.warn(fdr_msg)
+        print(pp.pformat(fdr_specs, compact=True))
+
+    # ------------------------------------------------------------
+    # set up to plot various warnings consistently
+    warning_kinds = np.unique(
+        np.hstack(
+            [
+                w.split("_") if len(w) else []
+                for w in np.unique(summary_df.query("key=='warnings'"))
+            ]
+        )
+    )
+    warning_colors = plt.rcParams["axes.prop_cycle"].by_key()["color"]
+    warning_cycler = cy(color=warning_colors) + cy(
+        marker=Line2D.filled_markers[: len(warning_colors)]
+    )  # [1:len(warning_colors) + 1])
+    # build the dict as warning keys are encountered, then use them as styled
+    cy_iter = iter(warning_cycler)
+    warning_styles = defaultdict(lambda: next(cy_iter))
+    for warning_kind in warning_kinds:
+        print(warning_kind)
+    # ------------------------------------------------------------
+    # set up figures
+    figs = list()
+
+    for model, col in itertools.product(models, LHS):
+
+        # select beta for this model
+        for beta in model_summary_df.query("model == @model").index.unique(
+            "beta"
+        ):
+
+            # start the fig, ax
+            if "figsize" not in fig_kw.keys():
+                fig_kw["figsize"] = (8, 3)  # default
+
+            f, ax_beta = plt.subplots(nrows=1, ncols=1, **fig_kw)
+
+            # unstack this beta as a column for plotting
             fg_beta = (
-                summary_df.loc[pd.IndexSlice[:, :, beta], col]
+                model_summary_df.loc[pd.IndexSlice[:, model, beta], col]
                 .unstack(level='key')
-                .reset_index(_time)  # time label for this summary_df
-            )
-
-            # lmer SEs
-            fg_beta['mn+SE'] = (fg_beta['Estimate'] + fg_beta['SE']).astype(
-                float
-            )
-            fg_beta['mn-SE'] = (fg_beta['Estimate'] - fg_beta['SE']).astype(
-                float
+                .reset_index(_time)  # time label for this model_summary_df
             )
 
             fg_beta.plot(
                 x=_time,
                 y='Estimate',
-                # ax=ax_beta[idx],
                 ax=ax_beta,
                 color='black',
                 alpha=0.5,
                 label=beta,
+                **beta_plot_kw,
             )
 
-            # ax_beta[idx].fill_between(
-            ax_beta.fill_between(
-                x=fg_beta[_time],
-                y1=fg_beta['mn+SE'],
-                y2=fg_beta['mn-SE'],
-                alpha=0.2,
-                color='black',
-            )
+            # optional +/- SE band
+            if show_se:
+                beta_hat = fg_beta['Estimate']
+                ax_beta.fill_between(
+                    x=fg_beta[_time],
+                    y1=(beta_hat + fg_beta["SE"]).astype(float),
+                    y2=(beta_hat - fg_beta["SE"]).astype(float),
+                    alpha=0.2,
+                    color='black',
+                )
 
-            # plot transformed df
+            # optional (transformed) degrees of freedom
             if df_func is not None:
+                try:
+                    func_name = getattr(df_func, "__name__")
+                except AttributeError:
+                    func_name = str(df_func)
+
                 fg_beta['DF_'] = fg_beta['DF'].apply(lambda x: df_func(x))
                 fg_beta.plot(
-                    x=_time, y='DF_', ax=ax_beta, label=f"{df_func}(df)"
+                    x=_time, y='DF_', ax=ax_beta, label=f"{func_name}(df)"
                 )
 
-            if s is not None:
-                my_kwargs = {'s': s}
-            else:
-                my_kwargs = {}
-
-            # mark FDR sig ps
-            if fdr is not None:
-                # optionally fetch FDR adjusted sig ps
-                sig_ps, crit_p = _do_fdr(fg_beta)
+            # FDR controlled differences from 0
+            if fdr_kw:
+                fdr_mask = fg_beta["P-val"] < fdr_specs["crit_p"]
                 ax_beta.scatter(
-                    sig_ps[_time],
-                    sig_ps['Estimate'],
+                    fg_beta[_time][fdr_mask],
+                    fg_beta['Estimate'][fdr_mask],
                     color='black',
                     zorder=3,
-                    label=f'{fdr} FDR p < crit {crit_p:0.2}',
-                    **my_kwargs,
+                    label=f"{fdr_specs['method']} FDR p < crit {fdr_specs['crit_p']:0.2}",
+                    s=scatter_size,
                 )
 
-            try:
-                # color warnings last to mask sig ps
-                warn_ma = np.ma.where(fg_beta['has_warning'] > 0)[0]
-                # ax_beta[idx].scatter(
-                ax_beta.scatter(
-                    fg_beta[_time].iloc[warn_ma],
-                    fg_beta['Estimate'].iloc[warn_ma],
-                    color='red',
-                    zorder=4,
-                    label='model warnings',
-                    **my_kwargs,
+            # warnings
+            if show_warnings and any(
+                [len(warning) for warning in fg_beta["warnings"]]
+            ):
+                warn_strs = np.hstack(
+                    [
+                        np.array(wrn.split("_"))  # lengths vary
+                        for wrn in fg_beta["warnings"].unique()
+                        if len(wrn) > 0
+                    ]
                 )
-            except Exception:
-                pass
+                warn_strs = sorted(np.unique(warn_strs))
 
-            # ax_beta[idx].axhline(y=0, linestyle='--', color='black')
-            # ax_beta[idx].legend()
+                for warn_str in warn_strs:
+                    # separate warnings by 1/4 major tick interval
+                    sep = np.abs(
+                        (ax_beta.get_yticks()[:2] * [0.25, -0.25]).sum()
+                    )
+                    # warn_offset = (warning_kinds.index(warn_str) + 1) * sep
+                    warn_offset = (
+                        np.where(warning_kinds == warn_str)[0] + 1
+                    ) * sep
+
+                    warn_mask = fg_beta["warnings"].apply(
+                        lambda x: warn_str in x
+                    )
+                    ax_beta.scatter(
+                        fg_beta[_time][warn_mask],
+                        fg_beta['Estimate'][warn_mask] + warn_offset,
+                        zorder=4,
+                        label=warn_str,
+                        **warning_styles[
+                            warn_str
+                        ],  # cycler + defaultdict voodoo
+                        alpha=0.75,
+                        s=scatter_size * 1.5,
+                    )
 
             ax_beta.axhline(y=0, linestyle='--', color='black')
-            ax_beta.legend(loc=(1.0, 0.0))
+            ax_beta.legend(loc='upper left', bbox_to_anchor=(0.0, -0.25))
 
-            # title
-            # rhs = fg_lmer.formula[col].unique()[0]
             formula = fg_beta.index.get_level_values('model').unique()[0]
-            assert isinstance(formula, str)
-            # ax_beta[idx].set_title(f'{col} {beta}: {formula}')
             ax_beta.set_title(f'{col} {beta}: {formula}', loc='left')
 
             figs.append(f)
@@ -693,7 +1046,13 @@ def plot_betas(
     return figs
 
 
-def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
+def plot_AICmin_deltas(
+    summary_df,
+    show_warnings="no_labels",
+    figsize=None,
+    gridspec_kw=None,
+    subplot_kw=None,
+):
     r"""plot FitGrid min delta AICs and fitter warnings
 
     Thresholds of AIC_min delta at 2, 4, 7, 10 are from Burnham &
@@ -704,14 +1063,21 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
     summary_df : pd.DataFrame
        as returned by fitgrid.utils.summary.summarize
 
+    show_warnings : {"no_labels", "labels", str, list of str}
+       "no_labels" (default) highlights everywhere there is any warning in
+       red, the default behavior in fitgrid < v0.5.0. "labels" display
+       all warning strings the axes titles.  A `str` or list of `str` selects 
+       and display only warnings that (partial) match a model warning string.
+
     figsize : 2-ple
        pyplot.figure figure size parameter
 
     gridspec_kw : dict
-       matplotlib.gridspec key : value parameters
+       matplotlib.gridspec keyword args passed to ``pyplot.subplots(...,
+       gridspec_kw=gridspec_kw})``
 
-    kwargs : dict
-       keyword args passed to plt.subplots(...)
+    subplot_kw : dict
+       keyword args passed to ``pyplot.subplots(..., subplot_kw=subplot_kw))``
 
     Returns
     -------
@@ -738,75 +1104,103 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
        and models having :math:`\Delta_{i} > 10` have essentially no
        support."
 
-
     """
-    _time = summary_df.index.names[0]  # may differ from fitgrid.defaults.Time
+
+    def _get_warnings_grid(model_warnings, show_warnings):
+        """look up warnings according to aic and user kwarg value """
+
+        # split the "_" separated multiple warning strings into unique types
+        warning_kinds = np.unique(
+            np.hstack(
+                [
+                    w.split("_") if len(w) else []
+                    for w in np.unique(model_warnings)
+                ]
+            )
+        )
+        warning_kinds = list(warning_kinds)
+
+        # optionally filter by user keyword matching
+        if show_warnings not in ["no_labels", "labels"]:
+
+            user_kinds = []
+            for kw_warning in show_warnings:
+                found_kinds = [
+                    warning_kind
+                    for warning_kind in warning_kinds
+                    if kw_warning in warning_kind  # string matches
+                ]
+
+                # collect the matching kinds or warn
+                if found_kinds:
+                    user_kinds += found_kinds
+                else:
+                    msg = (
+                        f"show_warnings '{kw_warning}' not found in model "
+                        f"{m} warnings: [{', '.join(warning_kinds)}]"
+                    )
+                    warnings.warn(msg)
+
+            # update filtered kinds
+            warning_kinds = user_kinds
+
+        # build indicator grid for matching warning kinds
+        warnings_grid = model_warnings.applymap(
+            lambda x: 1
+            if any([warning_kind in x for warning_kind in warning_kinds])
+            else 0
+        )
+        return warning_kinds, warnings_grid
+
+    # ------------------------------------------------------------
+    # validate kwarg
+    if show_warnings not in ["no_labels", "labels"]:
+        # promote string to list
+        show_warnings = list(np.atleast_1d(show_warnings))
+        if not all([isinstance(wrn, str) for wrn in show_warnings]):
+            msg = (
+                "show_warnings must be 'all', 'kinds', or a string or list of strings "
+                "that partial match warnings"
+            )
+            raise ValueError(msg)
+
+    # validate summary dataframe
+    _check_summary_df(summary_df, None)
+    _time = summary_df.index.names[0]
+
+    # fetch the AIC min delta data
     aics = _get_AICs(summary_df)  # long format
     models = aics.index.unique('model')
     channels = aics.index.unique('channel')
 
-    nrows = len(models)
-
+    # ------------------------------------------------------------
+    # figure setup
     if figsize is None:
         figsize = (12, 8)
 
-    # set reasonable gridspec defaults if the user does not
-    gs_defaults = {'width_ratios': [0.46, 0.46, 0.015]}
-    if gridspec_kw is None:
-        gridspec_kw = gs_defaults
-    else:
-        for key, val in gs_defaults.items():
-            if key not in gridspec_kw.keys():
-                gridspec_kw[key] = val
+    # reasonable default, update w/ user kwargs if any
+    gspec_kw = {'width_ratios': [0.46, 0.46, 0.015]}
+    if gridspec_kw:
+        gspec_kw.update(gridspec_kw)
 
+    # main figure, axes: number of models rows x 3 columns: traces, raster, colorbar
     f, axs = plt.subplots(
-        # nrows, 2, **kwargs, figsize=figsize, gridspec_kw=gridspec_kw
-        nrows,
+        len(models),  # 1 axis row per model
         3,
-        **kwargs,
+        squeeze=False,  # keep axes shape (1, 3), tho singleton model is pointless
         figsize=figsize,
-        gridspec_kw=gridspec_kw,
+        gridspec_kw=gspec_kw,
+        subplot_kw=subplot_kw,
     )
 
+    # plot each model on an axes row
     for i, m in enumerate(models):
+        traces = axs[i, 0]
+        heatmap = axs[i, 1]
+        colorbar = axs[i, 2]
 
-        # debugging
-        # print(f"i: {i} m: {m}")
-
-        # channel traces
-        if len(models) == 1:
-            traces = axs[0]
-            heatmap = axs[1]
-            colorbar = axs[2]
-        else:
-            traces = axs[i, 0]
-            heatmap = axs[i, 1]
-            colorbar = axs[i, 2]
-
-        traces.set_title(f'aic min delta: {m}', loc='left')
-        for c in channels:
-            min_deltas = aics.loc[
-                pd.IndexSlice[:, m, c], ['min_delta', 'has_warning']
-            ].reset_index(_time)
-            traces.plot(min_deltas[_time], min_deltas['min_delta'], label=c)
-            warn_ma = np.ma.where(min_deltas['has_warning'] > 0)
-            traces.scatter(
-                min_deltas[_time].iloc[warn_ma],
-                min_deltas['min_delta'].iloc[warn_ma],
-                color='red',
-                label=None,
-            )
-
-        if i == 0:
-            # first channel legend left of the main plot
-            traces.legend(loc='upper right', bbox_to_anchor=(-0.2, 1.0))
-
-        aic_min_delta_bounds = [0, 2, 4, 7, 10]
-        # for y in aic_min_delta_bounds:
-        for y in aic_min_delta_bounds[1:]:
-            traces.axhline(y=y, color='black', linestyle='dotted')
-
-        # for heat map
+        # ------------------------------------------------------------
+        # slice this model min delta values and warnings
         _min_deltas = (
             aics.loc[pd.IndexSlice[:, m, :], 'min_delta']
             .reset_index('model', drop=True)
@@ -816,13 +1210,56 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
         # unstack() alphanum sorts the channel index ... ugh
         _min_deltas = _min_deltas.reindex(columns=channels)
 
-        _has_warnings = (
-            aics.loc[pd.IndexSlice[:, m, :], 'has_warning']
+        model_warnings = (
+            aics.loc[pd.IndexSlice[:, m, :], 'warnings']
             .reset_index('model', drop=True)
             .unstack('channel')
-            .astype(bool)
         )
-        _has_warnings = _has_warnings.reindex(columns=channels)
+        model_warnings = model_warnings.reindex(columns=channels)
+
+        # fetch warnings for heatmapping
+        warning_kinds, warnings_grid = _get_warnings_grid(
+            model_warnings, show_warnings
+        )
+
+        # ------------------------------------------------------------
+        # plot traces and warnings in left column
+
+        # left column title is model with optional list of warnings
+        title_str = f"{m}"
+        if warning_kinds and not show_warnings == "no_labels":
+            title_str += "\n" + "\n".join(warning_kinds)
+        traces.set_title(title_str, loc="left")
+
+        for chan in channels:
+            traces.plot(
+                _min_deltas.reset_index()[_time], _min_deltas[chan], label=chan
+            )
+
+            # warning mask
+            chan_mask = (
+                _min_deltas[chan].where(warnings_grid[chan] == 1).dropna()
+            )
+            traces.scatter(
+                chan_mask.index, chan_mask, c="crimson", label=None,
+            )
+
+        if i == 0:
+            # first channel legend left of the main plot
+            traces.legend()
+            traces.legend(
+                loc='upper right',
+                bbox_to_anchor=(-0.2, 1.0),
+                handles=traces.get_legend().legendHandles[::-1],
+            )
+
+        aic_min_delta_bounds = [0, 2, 4, 7, 10]
+        # for y in aic_min_delta_bounds:
+        for y in aic_min_delta_bounds[1:]:
+            traces.axhline(y=y, color='black', linestyle='dotted')
+
+        # ------------------------------------------------------------
+        # heatmap
 
         # colorbrewer 2.0 Blues color blind safe n=5
         # http://colorbrewer2.org/#type=sequential&scheme=Blues&n=5
@@ -835,33 +1272,32 @@ def plot_AICmin_deltas(summary_df, figsize=None, gridspec_kw=None, **kwargs):
 
         bounds = aic_min_delta_bounds
         norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
+
+        ylabels = _min_deltas.columns
+        heatmap.yaxis.set_major_locator(
+            mpl.ticker.FixedLocator(np.arange(len(ylabels)))
+        )
+        heatmap.yaxis.set_major_formatter(mpl.ticker.FixedFormatter(ylabels))
         im = heatmap.pcolormesh(
             _min_deltas.index,
-            # np.arange(len(_min_deltas.columns) + 1),
-            np.arange(len(_min_deltas.columns)),
+            np.arange(len(ylabels)),
             _min_deltas.T,
             cmap=cmap,
             norm=norm,
             shading='nearest',
         )
 
-        # fitter warnings mask
-        pal_ma = ['k']
-        bounds_ma = [0.5]
-        cmap_ma = mpl.colors.ListedColormap(pal_ma)
-        cmap_ma.set_over(color='crimson')
-        cmap_ma.set_under(alpha=0.0)  # don't show goods
-        norm_ma = mpl.colors.BoundaryNorm(bounds_ma, cmap_ma.N)
-        heatmap.pcolormesh(
-            _has_warnings.index,
-            np.arange(len(_has_warnings.columns)),
-            _has_warnings.T,
-            cmap=cmap_ma,
-            norm=norm_ma,
-            shading='nearest',
-        )
-        yloc = mpl.ticker.FixedLocator(np.arange(len(_min_deltas.columns)))
-        heatmap.yaxis.set_major_locator(yloc)
-        heatmap.set_yticklabels(_min_deltas.columns)
+        # any non-zero warnings are red
+        if warnings_grid.to_numpy().max():
+            assert (warnings_grid.index == _min_deltas.index).all()
+            assert (warnings_grid.columns == _min_deltas.columns).all()
+            heatmap.pcolormesh(
+                warnings_grid.index,
+                np.arange(len(ylabels)),
+                np.ma.masked_equal(warnings_grid.T.to_numpy(), 0),
+                shading="nearest",
+                cmap=mpl.colors.ListedColormap(['red']),
+            )
+
         colorbar = mpl.colorbar.Colorbar(colorbar, im, extend='max')
     return f, axs

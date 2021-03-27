@@ -102,7 +102,12 @@ rhss_T = [
 from fitgrid.utils.summary import summarize
 
 lm_summary_T = summarize(
-    p3_epochs_fg, modeler="lm", RHS=rhss_T, LHS=channels, parallel=False
+    p3_epochs_fg,
+    modeler="lm",
+    RHS=rhss_T,
+    LHS=channels,
+    parallel=False,
+    quiet=True,
 )
 lm_summary_T
 
