@@ -70,7 +70,7 @@ p3_epochs_fg = fg.epochs_from_dataframe(
 # coding for one categorical variable with two levels.
 
 # %%
-lmg_0_stim = fg.lm(p3_epochs_fg, RHS="0 + stim")
+lmg_0_stim = fg.lm(p3_epochs_fg, RHS="0 + stim", quiet=True)
 
 
 # %%

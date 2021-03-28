@@ -99,13 +99,17 @@ def get_lmer_dfbetas(epochs, factor, **kwargs):
 def get_lmer_warnings(lmer_grid):
     """grid the LMERFitGrid lme4::lmer4 warnings by type
 
-    lmer warnings are a mishmash of characters, punctuation, and digits some, with
-    varying numerical values.
+    lmer warnings are a mishmash of characters, punctuation, and digits, some with
+    numerical values specific to the message, for instance,
 
-      'Model failed to converge with max|grad| = 0.00222262 (tol = 0.002, component 1)'
-      'unable to evaluate scaled gradient',
-      'boundary (singular) fit: see ?isSingular'
-       np.nan
+        | Model failed to converge with max|grad| = 0.00222262 (tol = 0.002, component 1)
+        | unable to evaluate scaled gradient
+        | boundary (singular) fit: see ?isSingular
+        | np.nan
+
+    The warning strings are returned as-is except for stripping
+    leading and trailing whitespace and the "= N.NNNNNNNN" portion of the
+    max \|grad\| convergence failure.
 
     Parameters
     ----------
@@ -114,15 +118,17 @@ def get_lmer_warnings(lmer_grid):
 
     Returns
     -------
-    warning_grids : dict of pandas.DataFrames
-        keys = lmer warning (type) string, values = indicator grid(time, channel)
-        1 where warning==key, otherwise 0.
-
-
+    warning_grids : dict
+        A dictionary, the keys are lmer warning strings, each value
+        is a `pandas.DataFrame` indicator grid where grid.loc[time, channel] == 1 if the
+        lmer warning == key, otherwise 0.
     """
 
     if not isinstance(lmer_grid, LMERFitGrid):
-        msg = f"get_lmer_warnings() must be called on an LMERFitGrid not {type(lmer_grid)}"
+        msg = (
+            "get_lmer_warnings() must be called on an "
+            f"LMERFitGrid not {type(lmer_grid)}"
+        )
         raise ValueError(msg)
 
     # In pymer4 0.7.1+ and lme4::lmer 0.22+ warnings come back from
@@ -190,29 +196,30 @@ def plot_lmer_warnings(lmer_grid, which="each", verbose=True):
     lmer_grid : fitgrid.LMERFitGrid
         as returned by ``fitgrid.lmer()``, shape = time x channel
 
-    which : str {"each", "all"} or list of str
+    which :  {"each", "all", or list of str}
        select the types of warnings to plot. `each` (default) plots
        each type of warning separately. `all` plots one grid showing
        where any type of warning occured. A list of strings searches
-       the lmer warnings and plots any partial matches.
+       the lmer warnings and plots those that match.
 
-    verbose : bool (default=True)
+    verbose : bool, default=True
        If `True` warn of failed matches for warnings keywords.
 
 
     Examples
     --------
 
-    >>> plot_lmer_warnings(lmerg_1a)  # default plots each
+    default, plot each warning grid separately
 
-    >>> plot_lmer_warnings(lmerg_1a, which="each")  # same as default
+    >>> plot_lmer_warnings(lmer_grid)
 
-    >>> plot_lmer_warnings(lmerg_1a, which="all")  # one plot, show everywhere there is a warning
-        plot_lmer_warnings(lmerg_1a, which=["Model failed to converge"])  # show convergence warnings
-        plot_lmer_warnings(lmerg_1a, warnings=["converge"])  # same as above, partial match is OK
-        plot_lmer_warnings(lmerg_1a, warnings=["singular"])  # show singular fit warnings
-        plot_lmer_warnings(lmerg_1a, warnings=["Model failed to converge", "singular"])  # show both
+    one plot shows everywhere there is a warning
 
+    >>> plot_lmer_warnings(lmer_grid, which="all")
+
+    plot just warnings that match these strings
+
+    >>> plot_lmer_warnings(lmer_grid, which=["converge", "singular"])
     """
 
     def _plot_warnings(warning, warning_grid):

@@ -1,5 +1,5 @@
 """LMER warning grids
-=====================
+#####################
 
 The modeling at each cell in a fitted LMERFitGrid may generate
 various numbers and types of lme4::lmer warnings.
@@ -12,7 +12,8 @@ from matplotlib import pyplot as plt
 import fitgrid
 
 # %%
-# To illustrate, we use a small data set and silly model to generate lots of different warnings.
+# To illustrate, we use a small random data set and silly model to
+# generate lots of different warnings.
 epochs_fg = fitgrid.generate(n_samples=8, n_channels=4, seed=32)
 
 lmer_grid = fitgrid.lmer(
@@ -25,6 +26,9 @@ lmer_grid = fitgrid.lmer(
 )
 
 # %%
+# :py:func:`.get_lmer_warnings`
+# =============================
+#
 # The ``get_lmer_warnings()`` utility collects the warnings and
 # returns them as an ordinary Python dictionary.  Each warning message
 # is a key and its value is a time x channel indicator grid of 0s, and
@@ -34,18 +38,19 @@ for key, val in lmer_warnings.items():
     print(key, "\n", val)
 
 # %%
+# :py:func:`.plot_lmer_warnings`
+# ==============================
+#
 # The ``plot_lmer_warnings()`` utility visualizes the warning grids.
 #
-# The warnings can be displayed in different ways.
+# The warnings can be displayed in different ways with ``which=...`` keyword argument.
 #
-# The default is to plot each type of warning grid separately
-# (which="each") and alert if no warnings are found (verbose=True).
+# The default (``which="each"``) plots each type of warning in a separate figure.
 fitgrid.utils.lmer.plot_lmer_warnings(lmer_grid)
 
 # %%
-# Stacking the warning grids into one summary grid for "all" of them
-# shows quickly which grid cells have
-# warnings and which do not.
+# Stacking all the warning grids into one summary grid (``which="all"``)
+# shows immediately which grid cells have warnings and which do not.
 fitgrid.utils.lmer.plot_lmer_warnings(
     lmer_grid, which="all",
 )

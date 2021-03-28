@@ -189,7 +189,7 @@ p3_epochs_fg
 # Here the `patsy` formula :math:`\sim \mathsf{1 + stim}` is used for
 # OLS model fitting with `statsmodels`.
 
-lmg_1_stim = fg.lm(p3_epochs_fg, RHS="1 + stim")
+lmg_1_stim = fg.lm(p3_epochs_fg, RHS="1 + stim", quiet=True)
 
 # %%
 # The times and channels of the `fitgrid.Epochs` define the `fitgrid.FitGrid` dimensions. Each cell contains
@@ -472,7 +472,7 @@ for attr_df in [
 # estimated intercept :math:`\hat\beta_{0}` is average ERP for all trials,
 # collapsed across the stimulus conditions.
 
-lmg_1 = fg.lm(p3_epochs_fg, RHS="1")
+lmg_1 = fg.lm(p3_epochs_fg, RHS="1", quiet=True)
 
 params_1 = lmg_1.params
 params_1.index.set_names(["time_ms", "params"], inplace=True)
@@ -574,7 +574,7 @@ ax.hlines(
 # For this model, :math:`\beta_0 X_0 + \beta_1 X_1 + e`, the estimated coefficients :math:`\hat\beta_{i}` are the
 # average of the trials in each condition, i.e., identical to the sum-and-divide time-domain average ERP.
 
-lmg_0_stim = fg.lm(p3_epochs_fg, RHS="0 + stim")
+lmg_0_stim = fg.lm(p3_epochs_fg, RHS="0 + stim", quiet=True)
 print(type(lmg_0_stim))
 params_0_stim = lmg_0_stim.params
 rse_0_stim = lmg_0_stim.HC0_se

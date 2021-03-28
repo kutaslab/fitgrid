@@ -624,37 +624,39 @@ def _get_AICs(summary_df):
 def summaries_fdr_control(
     model_summary_df, method="BY", rate=0.05, plot_pvalues=True,
 ):
-    """False discovery rate control for the family of all p-values in model_summary_df
+    """False discovery rate control for non-zero betas in model summary dataframes
+
+    The family of tests for FDR control is assumed to be **all and
+    only** the channels, models, and :math:`\hat{\beta}_i` in the
+    summary dataframe.  The user must select the appropriate family of
+    tests by slicing or stacking summary dataframes before running the
+    FDR calculator.
 
     Parameters
     ----------
-    model_summary_df : pandas.DataFrame 
+    model_summary_df : pandas.DataFrame
         As returned by `fitgrid.utils.summary.summarize`.
-    
     method : str {"BY", "BH"}
-        `BY` (default) is from Benjamini and Yekatuli [1]_, `BH` is Benjamini and
-        Hochberg [2_].
-
+        BY (default) is from Benjamini and Yekatuli [1]_, BH is Benjamini and
+        Hochberg [2]_.
     rate : float {0.05}
         The target rate for controlling false discoveries.
-
     plot_pvalues : bool {True, False} 
         Display a plot of the family of $p$-values and critical value for FDR control.
 
 
     References
     ----------
-
     .. [1] Benjamini, Y., & Yekutieli, D. (2001). The control of
-          the false discovery rate in multiple testing under
-          dependency.The Annals of Statistics, 29, 1165-1188.
+           the false discovery rate in multiple testing under
+           dependency.The Annals of Statistics, 29, 1165-1188.
 
     .. [2] Benjamini, Y., & Hochberg, Y. (1995). Controlling the
-          false discovery rate: A practical and powerful approach to
-          multiple testing. Journal of the Royal Statistical
-          Society. Series B (Methodological), 57, 289-300.
+           false discovery rate: A practical and powerful approach to
+           multiple testing. Journal of the Royal Statistical
+           Society. Series B (Methodological), 57, 289-300.
 
-"""
+    """
 
     _check_summary_df(model_summary_df, None)
     pvals_df = model_summary_df.query("key == 'P-val'")  # fetch pvals
@@ -776,16 +778,17 @@ def plot_betas(
        toggle display of model warnings (default = True)
 
     fdr_kw : dict (default empty)
-        One or more keyword arguments passed to `summaries_fdr_control() to trigger
+        One or more keyword arguments passed to ``summaries_fdr_control()`` to trigger
         to tag plots for FDR controlled differences from 0.
 
     fig_kw : dict
        keyword args passed to pyplot.subplots()
 
     df_func : {None, function}
-        toggle plot `function(degrees of freedom)`, e.g., `np.log10`,  `lambda x: x`
+        toggle degrees of freedom line plot via function, e.g.,
+        ``np.log10``, ``lambda x: x``
 
-    scatter_size : float 
+    scatter_size : float
        scatterplot marker size for FDR (default = 75) and warnings (= 1.5 scatter_size)
 
 
@@ -802,9 +805,6 @@ def plot_betas(
     are selected for plotting. To specify a different family of tests,
     construct a summary dataframe with all and only the tests for that
     family before plotting the betas.
-    References
-    ----------
-
 
     """
     _check_summary_df(summary_df, None)

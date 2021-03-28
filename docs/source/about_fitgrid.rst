@@ -46,7 +46,7 @@ Potentials, [LucKap2011]_.
 regression ERPs
 ===============
 
-In 2015 Smith and Kutas published a seminal paper ([SmiKut2015]_) noting
+In 2015 Smith and Kutas published a paper noting
 that the average of a set of values, :math:`y`, is identical to
 the estimated constant, :math:`\hat{\beta}_{0}` for the linear model
 
@@ -54,10 +54,11 @@ the estimated constant, :math:`\hat{\beta}_{0}` for the linear model
 
   y = \beta_{0} + e
 
-fit by minimizing squared error (ordinary least squares). They pointed
-out that this makes the average ERP a special case of sweeping a
-linear regression model along the EEG at time, *t*, and
-generalized this to more complex multiple regression models,
+fit by minimizing squared error (ordinary least squares)
+[SmiKut2015]_. They pointed out that this makes the average ERP a
+special case of sweeping a linear regression model along the EEG at
+time, *t*, and generalized this to more complex multiple regression
+models,
 
 .. math::
 

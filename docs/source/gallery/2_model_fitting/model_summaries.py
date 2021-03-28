@@ -1,10 +1,11 @@
 """Model summary dataframes
 ========================
 
-Whereas `fitgrid.lm()` and `fitgrid.lmer()` return all the available fit
-information in an LMFitGrid or LMERFitGrid object, respectively, the
-`summarize()` utility gathers a useful subset and returns it as a tidy
-indexed pandas.Dataframe.
+
+Whereas ``fitgrid.lm()`` and ``fitgrid.lmer()`` return all the
+available fit information as LMFitGrid or LMERFitGrid object,
+respectively, the ``fitgrid.utils.summary.summarize()`` function
+gathers a useful subset into a tidy indexed pandas.Dataframe.
 
 The summary dataframe row and column indexing is standardized, so
 summaries for different models and model sets can be conveniently

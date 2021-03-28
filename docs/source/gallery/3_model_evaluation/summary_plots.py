@@ -27,7 +27,8 @@ from matplotlib import pyplot as plt
 import fitgrid
 
 # %%
-# A small random data set
+# Generate a small random data set
+# --------------------------------
 epochs_fg = fitgrid.generate(n_samples=8, n_channels=4, seed=32)
 channels = [
     column for column in epochs_fg.table.columns if "channel" in column
@@ -35,6 +36,7 @@ channels = [
 
 # %%
 # Summarize a stack of two LMER models
+# ------------------------------------
 lmer_rhs = [
     "1 + categorical + (continuous | categorical)",
     "1 + continuous + (1 | categorical)",
@@ -52,6 +54,10 @@ lmer_summaries = fitgrid.utils.summary.summarize(
 lmer_summaries
 
 # %%
+#
+# Estimated coefficient ("beta") plots
+# ------------------------------------
+#
 # Select and plot one model intercept at a channels. Model warnings,
 # if any, are plotted by default.
 figs = fitgrid.utils.summary.plot_betas(
@@ -63,9 +69,19 @@ figs = fitgrid.utils.summary.plot_betas(
 )
 
 # %%
-# Degrees of freedom for mixed-effects models is somewhat controversial, you can plot those returned
-# by lmerTest, scaled by a function of your choosing such as ``numpy.log10()`` when the df are much larger
-# than the betas. The identity function ``dof()`` below shows how to define your own.
+# Display degrees of freedom
+# --------------------------
+#
+
+# Degrees of freedom for mixed-effects models are somewhat
+# controversial. You can plot those returned by lmerTest. The degrees
+# of freedom must be scaled by a function of your choosing. When when
+# the df are much larger than the betas log tranform like
+# ``numpy.log10()`` may be useful. The identity function ``dof()``
+# below shows schematically how to define your own and the example
+# uses the Python anonymous function (``lambda``) to do the same thing as ``dof``.
+
+
 def dof(x):
     return x
 
@@ -76,15 +92,21 @@ figs = fitgrid.utils.summary.plot_betas(
     models=["1+categorical+(continuous|categorical)"],
     betas=["(Intercept)"],
     beta_plot_kwargs={"ylim": (-100, 100)},
-    df_func=dof,  # overplot degrees of freedom
+    df_func=dof,
 )
 
 
 # %%
+#
+# .. _fdr_lmer_beta_plots:
+#
+# Beta plots with FDR control
+# ---------------------------
+#
 # FDR controlled beta differences from zero can be plotted as well, though
 # for LMER models, *p* values are somewhat controversial. For this toy
 # data set with random data, none of the tests survive the FDR control
-# procedure.
+# procedure (see :ref:`fdr_model_summaries` for an example with EEG data).
 figs = fitgrid.utils.summary.plot_betas(
     lmer_summaries,
     LHS=["channel2"],
@@ -96,6 +118,9 @@ figs = fitgrid.utils.summary.plot_betas(
 
 
 # %%
+# AIC :math:`\Delta_\mathsf{min}` with model warnings
+# ---------------------------------------------------
+#
 # For AIC :math:`\Delta_\mathsf{min}` plots the default
 # is to highlight all grid cells with warnings.
 fig, axs = fitgrid.utils.summary.plot_AICmin_deltas(
@@ -122,8 +147,8 @@ fig.tight_layout()
 
 
 # %%
-# OLS Summaries
-# ----------------------------------------
+# OLS model summaries and plots
+# -----------------------------
 #
 # Summaries of OLS models and models stacks are computed the same way as LMER models.
 
@@ -147,7 +172,7 @@ figs = fitgrid.utils.summary.plot_betas(
     LHS=["channel0", "channel1"],
     models=["1 + categorical"],
     betas=["Intercept"],
-    beta_plot_kwargs={"ylim": (-100, 100)},
+    beta_plot_kw={"ylim": (-25, 25)},
     interval=[2, 6],
 )
 
@@ -159,10 +184,24 @@ fig, ax = fitgrid.utils.summary.plot_AICmin_deltas(lm_summaries)
 fig.tight_layout()
 
 #%%
-# Some matplotlib options can be passed through.
 #
-# The matplotlib.Figure and matplotlib.Axes are returned so they can be customized.
+# Customizing figrid summary plots
+# --------------------------------
+#
+# Some matplotlib options can be passed through.
 
+plt.close("all")
+figs = fitgrid.utils.summary.plot_betas(
+    lm_summaries,
+    LHS=["channel0", "channel1"],
+    models=["1 + categorical"],
+    betas=["Intercept"],
+    beta_plot_kw={"ylabel": "$\mu$V / unit change", "ylim": (-25, 25)},
+    interval=[2, 6],
+)
+
+# %%
+# The matplotlib.Figure and matplotlib.Axes are returned so they can be customized.
 plt.close("all")
 fig, axs = fitgrid.utils.summary.plot_AICmin_deltas(
     lm_summaries,
@@ -170,23 +209,24 @@ fig, axs = fitgrid.utils.summary.plot_AICmin_deltas(
     gridspec_kw={"width_ratios": [1, 1, 0.1]},  # column widths
 )
 
-# example Axes tuning
-for ax in axs:
-    ax[0].set(ylim=(0, 12))
-    for line in [hl for hl in ax[0].get_lines()]:
+# matplotlib.Axes tuning ... the axs are a numpy.array, 2 rows of 3 columns
+for ax_row in axs:
+    ax_row[0].set(ylim=(0, 12))
+    ax_row[0].set_yticks([2, 4, 7, 10])
+    for line in [hl for hl in ax_row[0].get_lines()]:
         if "channel" not in line.get_label():
-            line.set(linewidth=1.5, color="lightgray")
+            line.set(linewidth=0.75, color="black", zorder=0)
         else:
-            line.set(linewidth=3)
+            line.set(linewidth=4)
 
+# text annotation
 axs[1][1].annotate(
     text=(
         "For these $\mathcal{N}(0, 1)$ random data,\n"
-        "$\Delta_{\mathsf{min}}$ > 4 are rare by chance."
+        "$\Delta_{\mathsf{min}}$ > 4 like this is rare."
     ),
     xy=(1, 0.6),
     xytext=(1.75, 1.25),
     arrowprops={"width": 2},
-    # multialign="left",
 )
 fig.tight_layout()

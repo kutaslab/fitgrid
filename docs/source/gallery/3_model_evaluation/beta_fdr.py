@@ -1,22 +1,41 @@
 """
-False Discovery Rate (FDR) control for estimated coefficents
-============================================================
+False Discovery Rate (FDR) control for estimated predictor coefficents (betas)
+==============================================================================
 """
 
 # %%
 # The fitgrid summary utilities include an FDR critical value
-# calculator for special case of estimated predictor coefficients
-# :math:`\hat{\beta}_i \neq 0`. The family of tests is assumed to be
-# all betas in the model summary dataframe so the size of the family
-# will shrink if a summary data frame is sliced down by channels,
-# models, betas, or times and grow if summaries are stacked
-# together. The test is based on the *p*-values returned by the
-# statsmodels for fitgrid.lm() and the lmerTest *p*-values for
-# fitgrid.lmer().  The methods implemented are from [BenYek2001]_ and
-# [BenHoc1995]_.
+# calculator (:py:func:`.summaries_fdr_control`) for the special case
+# of estimated predictor coefficients :math:`\hat{\beta}_i \neq
+# 0`. The FDR methods implemented are from [BenYek2001]_ and
+# [BenHoc1995]_ and computed for whatever *p*-values are returned by
+# statsmodels for fitgrid.lm() and the lmerTest for fitgrid.lmer().
+#
+# .. note::
+#
+#    The family of tests for FDR control is assumed to be **all and
+#    only** the channels, models, and :math:`\hat{\beta}_i` in the
+#    summary dataframe.  The user must select the appropriate
+#    family of tests by slicing or stacking summary dataframes before
+#    running the FDR calculator.
+
 
 # %%
-# FDR control is illustrated here for some sample EEG data.
+# This example is event-related EEG data from one individual in an
+# auditory oddball paradigm that presents a series of beeps
+# ("standards") with occasional and unpredictable boops
+# ("targets"). We may be interested in when (time) and where (channel)
+# the brain response in these two conditions differs. FDR control is
+# one procedure for guiding judgment about which differences are
+# sufficiently large, relative to the variability of the observations,
+# to be credibly attributed to the experimental manipulation rather
+# than chance.
+
+
+# %%
+#
+# Prepare the data for modeling
+# -----------------------------
 import numpy as np
 import pandas as pd
 import fitgrid as fg
@@ -62,58 +81,101 @@ p3_epochs_fg = fg.epochs_from_dataframe(
     p3_epochs_df, epoch_id="epoch_id", time="time", channels=channels
 )
 
+
 # %%
-# Summarize a simple model with one categorical predictor: stim (2 levels: standard, target).
+# Summarize a model or model stack
+# --------------------------------
+#
+# This example summarizes a simple model with one categorical predictor: stim (2 levels: standard, target).
 lm_summary = fg.utils.summary.summarize(
     p3_epochs_fg, modeler="lm", LHS=channels, RHS=["1 + stim",], quiet=True,
 )
 lm_summary
 
 # %%
-# The summary dataframe includes the *t* statistic for the test
-# :math:`\hat{\beta} \neq 0` and corresponding
-# *p*-values, uncorrected for multiple comparisons.
+#
+# The summary dataframe includes the *t* statistic for the test of
+# :math:`\hat{\beta} \neq 0` for each model, beta, time and channel
+# along with the corresponding *p*-values, uncorrected for multiple
+# comparisons.
 lm_summary.query("key in ['T-stat', 'P-val']")
 
 # %%
-# Here, for example is Benjamini and Hochberg FDR control at 0.05 (=default) for **all** estimated betas in the summary data frame.
+#
+# .. _fdr_model_summaries:
+#
+# FDR control for model summaries
+# -------------------------------
+#
+# Here is the fitgrid default Benjamini and Yekutieli FDR control at
+# 0.05. Note, the family of tests is **all** the estimated betas in
+# the summary dataframe.
 fdr_info, fig, ax = fg.utils.summary.summaries_fdr_control(lm_summary)
 
 # %%
-# Out of curiousity, how many are below critical *p* for this FDR control?
+# Out of curiousity, how many *p*-values are below the unadjusted *p* = 0.05?
 pvals = lm_summary.query("key=='P-val'").to_numpy().flatten()  # fetch p values
-assert fdr_info['n_pvals'] == len(pvals)  # these must agree
-
-n_crit_p = len(np.where(pvals < fdr_info["crit_p"])[0])
-print(
-    f"There are {n_crit_p}/{fdr_info['n_pvals']} = {n_crit_p/fdr_info['n_pvals']:.3f} "
-    f"below critical p = {fdr_info['crit_p']} for FDR control"
-)
-
-# %%
-# Out of curiousity, how many are below uncorrected *p* = 0.05?
 n_crit_05 = len(np.where(pvals < 0.05)[0])
 print(
     f"There are {n_crit_05}/{fdr_info['n_pvals']} = {n_crit_05/fdr_info['n_pvals']:.3f} "
     "below unadjusted p=0.05"
 )
 
+# %%
+# Out of curiousity, how many are below critical *p* for this FDR control?
+assert fdr_info['n_pvals'] == len(pvals)  # these must agree
+
+n_crit_p = len(np.where(pvals < fdr_info["crit_p"])[0])
+print(
+    f"There are {n_crit_p}/{fdr_info['n_pvals']} = {n_crit_p/fdr_info['n_pvals']:.3f} "
+    f"below critical p = {fdr_info['crit_p']:.5f} for FDR control"
+)
+
 
 # %%
-# The fitgrid utilities can display FDR results along with the
-# time series of coefficient estimates, the :math:`\hat\beta_i`.
-# Four midline scalp channels are shown here. The black dots indicate
-# a non-zero experimental effect of stimulus type
-# according to this FDR control procedure. Their latency and scalp
-# distribution around 300 ms post-stimulus over
-# central and posterior scalp shows good agreement with the P300 average ERP
-# effect typically observed in this kind of auditory oddball paradigm.
+#
+# The fitgrid utilities can display FDR results along with the time
+# series of coefficient estimates, the :math:`\hat\beta_i`
+# (see :ref:`fdr_lmer_beta_plots` for more examples). Four midline scalp channels
+# are shown here. The black dots indicate where the *p*-value is below
+# critical *p* for the specified FDR control procedure. Their latency
+# in an interval around 300 - 400 ms post-stimulus, predominantly over
+# central and posterior scalp [MiCe, MiPa, MiOc], is in agreement with
+# the P300 average ERP effect typically observed in this kind of
+# auditory oddball paradigm.
+#
 
-figs = fg.utils.summary.plot_betas(
+figs_a = fg.utils.summary.plot_betas(
     lm_summary,
     fdr_kw={"method": "BY", "rate": 0.05},
     betas=["stim[T.target]"],
     scatter_size=50,
 )
-for fig in figs:
+for fig in figs_a:
+    ax = fig.get_axes()[0]
+    ax.axvline(0, lw=0.5, color="black", zorder=0)
+    ax.set(ylim=(-15, 15))
+
+# %%
+# Selecting the family of tests
+# ------------------------------
+#
+# For this application, it might be argued that tests of
+# :math:`\hat\beta_\mathsf{Intercept} \neq 0` do not belong in the
+# family of tests for controlling FDR for tests of
+# :math:`\hat\beta_\mathsf{stim[T.target]} \neq 0`.
+#
+# If so, it is straightforward to select the desired test family from
+# the summary data frame as shown which halves the size of the test
+# family.  In this instance, critical *p* changes only slightly so the
+# choice of family is largely inconsequential for the systematic
+# patterns though in other cases it may matter.
+
+figs_b = fg.utils.summary.plot_betas(
+    lm_summary.query("beta == 'stim[T.target]'"),  # select these betas
+    fdr_kw={"method": "BY", "rate": 0.05},
+    betas=["stim[T.target]"],
+    scatter_size=50,
+)
+for fig in figs_b:
     fig.get_axes()[0].set(ylim=(-15, 15))
