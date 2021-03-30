@@ -75,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        py_ver: [3.8]  ### [3.6, 3.7, 3.8]
+        py_ver: [3.6, 3.7, 3.8]
 
     env:
       PY_VER: ${{ matrix.py_ver }}
@@ -236,8 +236,8 @@ jobs:
 
       - name: deploy sphinx docs to gh-pages
         # switch docs deployment repo/branch on deploy type
-        ### if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && (env.DEPLOY_TYPE == 'main' || env.DEPLOY_TYPE == 'pre-release') }}
-        if: ${{ matrix.py_ver == env.DEPLOY_PY_VER }}  ### testing only
+        if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && (env.DEPLOY_TYPE == 'main' || env.DEPLOY_TYPE == 'pre-release') }}
+        ### if: ${{ matrix.py_ver == env.DEPLOY_PY_VER }}  ### testing only
         env:
           # machine user account PAT
           GH_USER_NAME: robo-kutaslab
@@ -259,10 +259,10 @@ jobs:
             DOCS_BRANCH=$GH_PAGES_BRANCH; \
           fi
 
-          ### if [[ ${{ env.DEPLOY_TYPE }} == pre-release ]]; then \
-          DOCS_REPO=$GH_PAGES_DEV_REPOSITORY; \
-          DOCS_BRANCH=$GH_PAGES_DEV_BRANCH; \
-          ### fi
+          if [[ ${{ env.DEPLOY_TYPE }} == pre-release ]]; then \
+            DOCS_REPO=$GH_PAGES_DEV_REPOSITORY; \
+            DOCS_BRANCH=$GH_PAGES_DEV_BRANCH; \
+          fi
 
           echo "deploy type ${{ env.DEPLOY_TYPE }}: sphinx docs on $DOCS_REPO/$DOCS_BRANCH"
 
