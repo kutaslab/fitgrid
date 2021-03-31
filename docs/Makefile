@@ -16,15 +16,15 @@ help:
 
 # Catch-all target: route all unknown targets to Sphinx using the new
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
-%: Makefile
+%: Makefile api-rst
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
-api-rst:
+api-rst: 
 	ls source/api_docs
 	sphinx-apidoc -e -f -o source/api_docs ../fitgrid
 
 # just format .rst, don't run sphinx-gallery scripts
-html-noexec:
+html-noexec: api-rst
 	$(SPHINXBUILD) -D plot_gallery=0 -b html $(ALLSPHINXOPTS) $(SOURCEDIR) $(BUILDDIR)/html
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
@@ -32,5 +32,6 @@ html-noexec:
 # cleaning auto_gallery triggers re-running all sphinx-gallery scripts
 clean:
 	rm -rf $(BUILDDIR)/*
+	rm -rf source/api_docs/*
 	rm -rf source/auto_gallery/*
 

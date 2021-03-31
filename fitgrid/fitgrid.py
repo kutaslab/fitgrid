@@ -299,7 +299,9 @@ class FitGrid:
                 and level.step == 1
                 and level.stop == len(self.epoch_index)
             ):
-                temp.index.set_levels(self.epoch_index, level=i, inplace=True)
+                # inplace is deprecated pandas 1.2+
+                # temp.index.set_levels(self.epoch_index, level=i, inplace=True)
+                temp.index = temp.index.set_levels(self.epoch_index, level=i)
                 temp.index.rename(self.epoch_index.name, level=i, inplace=True)
 
         return temp

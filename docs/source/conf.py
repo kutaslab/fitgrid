@@ -90,7 +90,7 @@ sphinx_gallery_conf = {
         "gallery",
         "gallery/1_epochs_data",
         "gallery/2_model_fitting",
-        "gallery/3_model_comparison",
+        "gallery/3_model_evaluation",
     ],
     # generated output dirs
     "gallery_dirs": [
@@ -98,11 +98,11 @@ sphinx_gallery_conf = {
         "auto_gallery",
         "auto_gallery/1_epochs_data",
         "auto_gallery/2_model_fitting",
-        "auto_gallery/3_model_comparison",
+        "auto_gallery/3_model_evaluation",
     ],
     # execute all *.py (not default plot_*.py)
     "filename_pattern": "[a-zA-Z]+.py",
-    # or ... select files individally to speed up execution for preview
+    # or ... select files individally
     # "filename_pattern": ".*/quickstart.py",
     "image_scrapers": (fg_matplotlib_scraper(),),
     # or set to https://kutaslab.github.io/fitgrid/ to reduce notebook size

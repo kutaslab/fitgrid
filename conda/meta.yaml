@@ -37,6 +37,7 @@ requirements:
     - pandas >=1.0
     # 1.0.1 fights with pandas
     - pyarrow >=1.0,!=1.0.1
+    - rpy2 !=3.4.3
     - matplotlib
     - pytables
     - tqdm

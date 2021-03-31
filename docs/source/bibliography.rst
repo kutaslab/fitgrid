@@ -33,6 +33,15 @@ References
        lme4. Journal of Statistical Software, 67(1),
        1-48. https://doi:10.18637/jss.v067.i01.
 
+.. [BenHoc1995] Benjamini, Y., & Hochberg, Y. (1995). Controlling the
+      false discovery rate: A practical and powerful approach to
+      multiple testing. Journal of the Royal Statistical
+      Society. Series B (Methodological), 57, 289-300.
+
+.. [BenYek2001] Benjamini, Y., & Yekutieli, D. (2001). The control of
+       the false discovery rate in multiple testing under
+       dependency.The Annals of Statistics, 29, 1165-1188.
+
 .. [Berger1930] Berger, H. (1930). Electroencephalogram of man
       (P. Gloor, Trans.). In P. Gloor (Ed.), Hans Berger on the
       Electroencephalogram of Man. The Fourteen Original Reports on

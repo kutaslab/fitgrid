@@ -5,13 +5,15 @@ Subpackages
 -----------
 
 .. toctree::
+   :maxdepth: 4
 
-    fitgrid.utils
+   fitgrid.utils
 
 Submodules
 ----------
 
 .. toctree::
+   :maxdepth: 4
 
    fitgrid.defaults
    fitgrid.epochs
@@ -21,12 +23,13 @@ Submodules
    fitgrid.io
    fitgrid.models
    fitgrid.plots
+   fitgrid.sample_data
    fitgrid.tools
 
 Module contents
 ---------------
 
 .. automodule:: fitgrid
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

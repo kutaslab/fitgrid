@@ -1,5 +1,5 @@
-"""Ordinary least squares andlinear mixed-effects: minimal examples
-===================================================================
+"""Ordinary least squares and linear mixed-effects: minimal examples
+====================================================================
 
 OLS and mixed-effect models are specified by model formulas. The
 results returned by `statstmodels` for OLS and `lme4::lmer` for
@@ -40,7 +40,7 @@ lm_grid = fitgrid.lm(epochs_fg, RHS='1 + categorical + continuous', quiet=True)
 lm_grid.params
 
 # %%
-# Query and display praameter standard errors
+# Query and display parameter standard errors
 lm_grid.bse
 
 # %% label index and quick plot with pandas
@@ -56,7 +56,7 @@ for param, vals in params.groupby("params"):
 # ---------------------------
 #
 # These models are specified with `lme4::lmer` R formulas and the results come back
-# as `pymer4` objects from the `lmer results`.
+# as `pymer4` objects from the `lmer` and `lmerTest` results.
 
 # %%
 # Fit a mixed-effects model with `lme4::lmer` via `pymer4`

@@ -88,6 +88,31 @@ and `pandas.read_hdf
 ``fitgrid`` has a built-in function that generates data and creates ``Epochs`` data for testing.
 
 
+---------------
+EEG Sample Data
+---------------
+
+Optional sample files containing previously prepared EEG data epochs
+are availble for download from the Zenodo archive at
+`eeg-workshops/mkpy_data_examples/data
+<https://zenodo.org/record/3968485>`_.
+
+The files can be installed into the fitgrid package with
+:py:meth:`fitgrid.sample_data.get file` and accessed thereafter as
+``fitgrid.DATA_DIR(<filename>)`` or downloaded manually to another
+location.
+
+The sample data with `msNNN.epochs.*` filenames contain segmented EEG
+epochs and the `msNNNN` infix gives the length of the epoch in
+millesconds. Files with the shortest epochs (100 ms) are suitable for
+testing, those with longer epochs (1500, 3000 ms) are more
+representative of actual experimental EEG data. The feather format
+versions `.epochs.feather` are recommended for use with pandas and
+:py:meth:`pandas.read_feather`.
+
+Additional information about the experimental designs for these sample
+files is available online at https://eeg-workshops.github.io/mkpy_data_examples.
+
 
 ===============
 Fitting a model
@@ -277,18 +302,19 @@ directly, because we use `lme4` (indirectly).
 Multicore model fitting
 -----------------------
 
-On a multicore machine, it may be possible to significantly speed 
-fitting by computing the models in parallel. ``fitgrid.lm`` uses
-``statsmodels`` under the hood to fit a linear least squares model,
-which in turn employs ``numpy`` for calculations.  ``numpy`` itself
-depends on linear algebra libraries that might be configured to use
-multiple threads by default. This means that on a 48 core machine,
-common linear algebra calculations might use 24 cores automatically,
-without any explicit parallelization. So when you explicitly
-parallelize your calculations using Python processes (say 4 of them),
-each process might start 24 threads. In this situation, 96 CPU bound
-threads are wrestling each other for time on the 48 core CPU. This is
-called oversubscription and results in *slower* computations.
+On a multicore machine, it may be possible to significantly speed
+fitting by computing the models in parallel especially for
+``fitgrid.lmer``. For least squares models, ``fitgrid.lm`` uses
+``statsmodels`` under the hood, which in turn employs ``numpy`` for
+calculations.  ``numpy`` itself depends on linear algebra libraries
+that might be configured to use multiple threads by default. This
+means that on a 48 core machine, common linear algebra calculations
+might use 24 cores automatically, without any explicit
+parallelization. So when you explicitly parallelize your calculations
+using Python processes (say 4 of them), each process might start 24
+threads. In this situation, 96 CPU bound threads are wrestling each
+other for time on the 48 core CPU. This is called oversubscription and
+results in *slower* computations.
 
 To deal with this when running ``fitgrid.lm``, we try to instruct the
 linear algebra libraries your ``numpy`` distribution depends on to

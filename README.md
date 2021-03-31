@@ -26,4 +26,4 @@ Alternatively, with no `lmer` support,
 
 Click this button to launch a demo notebook:
 
-[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/kutaslab/fitgrid/master?filepath=notebooks/Demo.ipynb)
+[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/kutaslab/fitgrid/fg050_dev2?filepath=notebooks/Demo.ipynb)
