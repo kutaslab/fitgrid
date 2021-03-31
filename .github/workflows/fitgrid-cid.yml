@@ -218,21 +218,68 @@ jobs:
         if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && env.DEPLOY_TYPE == 'main' }}
         run: conda install -q codecov && codecov
 
+      # - name: deploy sphinx docs to gh-pages
+      #   if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && env.DEPLOY_TYPE == 'main' }}
+      #   # if: ${{ matrix.py_ver == env.DEPLOY_PY_VER }}  # testing only
+      #   run: |
+      #     cd $GITHUB_WORKSPACE/docs/build/html  # wherever sphinx writes the html, repo specific
+      #     ls -lR
+      #     git init 
+      #     user_name="docs_${GITHUB_EVENT_NAME}_bot"
+      #     git config user.email "${user_name}@the.cloud.org"
+      #     git config user.name "$user_name"
+      #     git remote add origin "https://${user_name}:${{ secrets.github_token }}@github.com/${GITHUB_REPOSITORY}"
+      #     git checkout --orphan $GH_PAGES_BRANCH
+      #     git add -A .
+      #     git commit -a -m "deploy type $DEPLOY_TYPE python $DEPLOY_PY_VER"
+      #     git push -u origin $GH_PAGES_BRANCH --force
+
       - name: deploy sphinx docs to gh-pages
-        if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && env.DEPLOY_TYPE == 'main' }}
-        # if: ${{ matrix.py_ver == env.DEPLOY_PY_VER }}  # testing only
+        # switch docs deployment repo/branch on deploy type
+        if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && (env.DEPLOY_TYPE == 'main' || env.DEPLOY_TYPE == 'pre-release') }}
+        ### if: ${{ matrix.py_ver == env.DEPLOY_PY_VER }}  ### testing only
+        env:
+          # machine user account PAT
+          GH_USER_NAME: robo-kutaslab
+          GH_USER_EMAIL: robo.kutaslab@gmail.com
+          GH_PAGES_TOKEN: ${{ secrets.GH_PAGES_TOKEN }}
+
+          # vM.N.P tagged release docs are pushed here
+          # $GITHUB_REPOSITORY
+          GH_PAGES_BRANCH: gh-pages
+
+          # actions on dev branch push docs to this separate repo
+          GH_PAGES_DEV_REPOSITORY: kutaslab/fitgrid-dev-docs
+          GH_PAGES_DEV_BRANCH: gh-pages-dev
+
         run: |
-          cd $GITHUB_WORKSPACE/docs/build/html  # wherever sphinx writes the html, repo specific
-          ls -lR
-          git init 
-          user_name="docs_${GITHUB_EVENT_NAME}_bot"
-          git config user.email "${user_name}@the.cloud.org"
-          git config user.name "$user_name"
-          git remote add origin "https://${user_name}:${{ secrets.github_token }}@github.com/${GITHUB_REPOSITORY}"
-          git checkout --orphan $GH_PAGES_BRANCH
-          git add -A .
+          # set docs version repo/branch
+          if [[ ${{ env.DEPLOY_TYPE }} == main ]]; then \
+            DOCS_REPO=$GITHUB_REPOSITORY; \
+            DOCS_BRANCH=$GH_PAGES_BRANCH; \
+          fi
+
+          if [[ ${{ env.DEPLOY_TYPE }} == pre-release ]]; then \
+            DOCS_REPO=$GH_PAGES_DEV_REPOSITORY; \
+            DOCS_BRANCH=$GH_PAGES_DEV_BRANCH; \
+          fi
+
+          echo "deploy type ${{ env.DEPLOY_TYPE }}: sphinx docs on $DOCS_REPO/$DOCS_BRANCH"
+
+          git config --global user.name $GH_USER_NAME
+          git config --global user.email $GH_USER_EMAIL
+          git config --global init.defaultBranch main
+
+          # wherever sphinx wrote the html, repo specific
+          cd $GITHUB_WORKSPACE/docs/build/html
+          git init
+
+          git remote add origin "https://$GH_PAGES_TOKEN@github.com/${DOCS_REPO}"
+          git checkout --orphan $DOCS_BRANCH
+          git add -A
           git commit -a -m "deploy type $DEPLOY_TYPE python $DEPLOY_PY_VER"
-          git push -u origin $GH_PAGES_BRANCH --force
+          git push -u origin $DOCS_BRANCH --force
+
 
       - name: deploy python package M.N.P.devX to test.pypi.org
         if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && env.DEPLOY_TYPE == 'pre-release' }}
