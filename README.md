@@ -1,5 +1,4 @@
-[![Build status](https://travis-ci.org/kutaslab/fitgrid.svg?branch=master)](https://travis-ci.org/kutaslab/fitgrid)
-[![Coverage](https://codecov.io/gh/kutaslab/fitgrid/branch/master/graph/badge.svg)](https://codecov.io/gh/kutaslab/fitgrid)
+[![Build status](https://github.com/kutaslab/fitgrid/actions/workflows/fitgrid-cid.yml/badge.svg)](https://github.com/kutaslab/fitgrid/actions)
 [![DOI](https://zenodo.org/badge/147436563.svg)](https://zenodo.org/badge/latestdoi/147436563)
 
 # fitgrid
