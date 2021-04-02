@@ -206,9 +206,6 @@ def _check_summary_df(summary_df, fg_obj):
     elif not len(summary_df):
         error_msg = "summary data frame is empty"
 
-    elif not len(summary_df.columns):
-        error_msg = "summary data frame has no channel columns"
-
     elif not summary_df.index.names[1:] == INDEX_NAMES[1:]:
         # first name is _TIME, set from user epochs data
         error_msg = (
@@ -250,8 +247,8 @@ def _check_summary_df(summary_df, fg_obj):
     # check for non-fatal issues
     if "warnings" not in summary_df.index.unique("key"):
         msg = (
-            "These summaries look like fitgrid version < 0.5.0, use that one or "
-            f"the models with this one: fitgrid.utils.summarize() {fitgrid.__version__}"
+            "Summaries are from fitgrid version < 0.5.0, use that version or re-fit the"
+            f" models with this one fitgrid.utils.summarize() v{fitgrid.__version__}"
         )
         raise RuntimeError(msg)
 
