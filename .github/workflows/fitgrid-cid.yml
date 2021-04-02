@@ -286,7 +286,7 @@ jobs:
           FITGRID_PYPI_TOKEN: ${{ secrets.pypi_token }}
         run: >-
           twine upload
-          --repository-url https://pypi.org/
+          --repository-url https://upload.pypi.org/legacy/
           -u __token__
           -p "$PYPI_TOKEN"
           dist/*
