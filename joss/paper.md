@@ -27,7 +27,7 @@ bibliography: paper.bib
 
 Electrical brain activity related to external stimulation and internal
 mental events can be measured at the scalp as tiny time-varying
-electrical potential waveforms (EEG), typically a few tens of
+electric potential waveforms (EEG), typically a few tens of
 microvolts peak to peak [@Berger1930]. Even tinier brain responses,
 too small to be seen by naked eye in the EEG, can be detected by
 repeating the stimulation, aligning the EEG recordings to the
@@ -47,7 +47,7 @@ $\hat{\beta}_{0}(t)$ for the regression model $y(t) = \beta_{0}(t) +
 \varepsilon(t)$, fit by minimizing squared error [@SmiKut2015]. The
 average ERP can be viewed as a time series of model parameter
 estimates. Generalizing to more complex models, e.g., multiple
-regression $y(t) = \beta_{0} + \beta_{1}X_{1} + \ldots +
+regression $y = \beta_{0} + \beta_{1}X_{1} + \ldots +
 \beta_{p}X_{p} + \varepsilon$, likewise produces time series of
 estimates for the constant and each regressor coefficient, the
 $\hat{\beta}_{0}(t), \hat{\beta}_{1}(t), \ldots, \hat{\beta}_{p}(t)$
@@ -57,8 +57,8 @@ This holds for straight-line fits ("slope" rERPs) as well as models of
 curvilinear relationships, e.g., spline regression
 [@SmiKut2015b]. Besides the estimated coefficient rERPs, the approach
 also produces time series for all the basic and derived quantities of
-the fitted model: coefficient standard errors, residuals, residual
-error, likelihood, Akaike information criterion (AIC), and so
+the fitted model: coefficient standard errors, residuals, 
+likelihood, Akaike information criterion (AIC), and so
 forth. With the shift from averaging to regression modeling, however,
 comes a new problem.
 
