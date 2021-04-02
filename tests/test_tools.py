@@ -42,7 +42,7 @@ def test_blas_osys():
 
 
 @pytest.mark.skipif(
-    'TRAVIS' in os.environ,
+    'GITHUB_ACTIONS' in os.environ,
     reason='https://github.com/kutaslab/fitgrid/issues/86',
 )
 def test_blas_getter():
@@ -72,7 +72,7 @@ def test_single_threaded_no_change():
 
 
 @pytest.mark.skipif(
-    'TRAVIS' in os.environ,
+    'GITHUB_ACTIONS' in os.environ,
     reason='https://github.com/kutaslab/fitgrid/issues/86',
 )
 def test_single_threaded_change_before():

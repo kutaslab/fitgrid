@@ -1,3 +1,4 @@
+from os import environ
 from math import ceil
 from functools import partial
 from multiprocessing import Pool
@@ -7,6 +8,7 @@ from io import StringIO
 import numpy as np
 import pandas as pd
 from statsmodels.formula.api import ols
+from pymer4 import Lmer  # moved up from lmer_single() for Multiprocessing
 from tqdm import tqdm
 
 from .errors import FitGridError
@@ -46,7 +48,9 @@ def process_key_and_group(key_and_group, function, channels):
     return pd.Series(results, name=key)
 
 
-def run_model(epochs, function, channels=None, parallel=False, n_cores=4):
+def run_model(
+    epochs, function, channels=None, parallel=False, n_cores=4, quiet=False
+):
     """Run an arbitrary model on the epochs.
 
     Parameters
@@ -61,6 +65,8 @@ def run_model(epochs, function, channels=None, parallel=False, n_cores=4):
         set to True in order to run in parallel
     n_cores : int, defaults to 4
         number of processes to run in parallel
+    quiet : bool, defaults to False
+        set to True to disable progress bar display
 
     Returns
     -------
@@ -87,20 +93,26 @@ def run_model(epochs, function, channels=None, parallel=False, n_cores=4):
     """
 
     _grid = _run_model(
-        epochs, function, channels=channels, parallel=parallel, n_cores=n_cores
+        epochs,
+        function,
+        channels=channels,
+        parallel=parallel,
+        n_cores=n_cores,
+        quiet=quiet,
     )
     return FitGrid(_grid, epochs.epoch_index, epochs.time)
 
 
-def _run_model(epochs, function, channels=None, parallel=False, n_cores=4):
+def _run_model(
+    epochs, function, channels=None, parallel=False, n_cores=4, quiet=False
+):
 
     if channels is None:
         channels = epochs.channels
 
     validate_LHS(epochs, channels)
 
-    groups = tqdm(epochs._snapshots)
-
+    groups = tqdm(epochs._snapshots, disable=quiet)
     processor = partial(
         process_key_and_group, function=function, channels=channels
     )
@@ -110,11 +122,13 @@ def _run_model(epochs, function, channels=None, parallel=False, n_cores=4):
         with tools.single_threaded(np):
             with Pool(n_cores) as pool:
                 results = pool.map(processor, groups, chunksize=chunksize)
+
     else:
         results = map(processor, groups)
 
     grid = pd.concat(results, axis=1).T
     grid.index.name = epochs.time
+
     return grid  # dataframe, not FitGrid
 
 
@@ -123,7 +137,15 @@ def lm_single(data, channel, RHS, eval_env):
     return ols(formula, data, eval_env=eval_env).fit()
 
 
-def lm(epochs, LHS=None, RHS=None, parallel=False, n_cores=4, eval_env=4):
+def lm(
+    epochs,
+    LHS=None,
+    RHS=None,
+    parallel=False,
+    n_cores=4,
+    quiet=False,
+    eval_env=4,
+):
     """Run ordinary least squares linear regression on the epochs.
 
     Parameters
@@ -138,6 +160,8 @@ def lm(epochs, LHS=None, RHS=None, parallel=False, n_cores=4, eval_env=4):
         change to True to run in parallel
     n_cores : int, defaults to 4
         number of processes to use for computation
+    quiet : bool, defaults to False
+        set to True to disable fitting progress bar
     eval_env : int or patsy.EvalEnvironment, defaults to 4
         environment to use for evaluating patsy formulas, see patsy docs
 
@@ -162,6 +186,7 @@ def lm(epochs, LHS=None, RHS=None, parallel=False, n_cores=4, eval_env=4):
         channels=LHS,
         parallel=parallel,
         n_cores=n_cores,
+        quiet=quiet,
     )
 
     return LMFitGrid(_grid, epochs.epoch_index, epochs.time)
@@ -170,9 +195,10 @@ def lm(epochs, LHS=None, RHS=None, parallel=False, n_cores=4, eval_env=4):
 def lmer_single(
     data, channel, RHS, family, conf_int, factors, permute, ordered, REML
 ):
-    from pymer4 import Lmer
+    import re
 
     model = Lmer(channel + ' ~ ' + RHS, data=data, family=family)
+
     with redirect_stdout(StringIO()) as captured_stdout:
         model.fit(
             summarize=False,
@@ -183,18 +209,25 @@ def lmer_single(
             REML=REML,
         )
 
-    # lmer prints warnings, capture them and attach to the model object
+    # lmer prints warnings, capture them
     warning = captured_stdout.getvalue()
 
-    model.has_warning = True if warning else False
-    model.warning = warning
+    # in pymer4 <= 0.6 lmer warnings were not attached to the model object
+    # model.has_warning = True if warning else False
+    # model.warning = warning
 
-    captured_stdout.close()
+    # as of pymer4 0.7+  model.warning -> model.warnings
+    model.has_warning = True if len(model.warnings) > 0 else False
+
+    # captured_stdout.close()
 
     del model.data
     del model.design_matrix
     del model.model_obj
 
+    # return model.AIC
+    # return model._REML
+    # return model.__class__
     return model
 
 
@@ -210,6 +243,7 @@ def lmer(
     REML=True,
     parallel=False,
     n_cores=4,
+    quiet=False,
 ):
     """Fit lme4 linear mixed model by interfacing with R.
 
@@ -246,6 +280,8 @@ def lmer(
         change to True to run in parallel
     n_cores : int, defaults to 4
         number of processes to use for computation
+    quiet : bool, defaults to False
+        set to True to disable fitting progress bar
 
     Returns
     -------
@@ -270,7 +306,12 @@ def lmer(
         REML=REML,
     )
     _grid = _run_model(
-        epochs, function, channels=LHS, parallel=parallel, n_cores=n_cores
+        epochs,
+        function,
+        channels=LHS,
+        parallel=parallel,
+        n_cores=n_cores,
+        quiet=quiet,
     )
 
     return LMERFitGrid(_grid, epochs.epoch_index, epochs.time)

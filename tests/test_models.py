@@ -15,6 +15,15 @@ def test_epochs_lm_bad_inputs():
         fitgrid.lm(epochs, LHS=['bad_channel'], RHS='categorical')
 
 
+@pytest.mark.parametrize('quiet', [True, False])
+def test_smoke_lm(quiet):
+    """lm with and without tqdm"""
+    epochs = fitgrid.generate(n_samples=10, time=_TIME)
+
+    RHS = 'continuous + categorical'
+    fitgrid.lm(epochs, RHS=RHS, quiet=quiet)
+
+
 def test_lm_correctness():
     """Probe grid to check that correct results are in the right cells."""
 
@@ -67,15 +76,22 @@ def test_lm_correctness_parallel():
             assert fit.rsquared == rsquared.loc[timepoint, channel]
 
 
-def test_smoke_lmer():
+@pytest.mark.parametrize('parallel,n_cores', [(True, 2), (False, 1)])
+@pytest.mark.parametrize('quiet', [True, False])
+def test_smoke_lmer(parallel, n_cores, quiet):
 
-    epochs = fitgrid.generate(n_samples=2, n_channels=2)
-    grid = fitgrid.lmer(epochs, RHS='(continuous | categorical)')
+    epochs = fitgrid.generate(n_samples=2, n_channels=2, seed=0)
+    grid = fitgrid.lmer(
+        epochs,
+        RHS='(continuous | categorical)',
+        parallel=parallel,
+        n_cores=n_cores,
+        quiet=quiet,
+    )
 
     assert isinstance(grid, LMERFitGrid)
-
     assert grid.has_warning.dtypes.all() == bool
-    assert grid.warning.dtypes.all() == object
+    assert grid.warnings.dtypes.all() == object
 
     grid.coefs
 
@@ -141,7 +157,6 @@ def test_lmer_correctness_parallel():
     from pymer4 import Lmer
 
     epochs = fitgrid.generate(n_samples=2, n_channels=2, time=_TIME)
-
     RHS = 'continuous + (continuous | categorical)'
     grid = fitgrid.lmer(epochs, RHS=RHS, parallel=True, n_cores=2)
 
@@ -167,6 +182,7 @@ def test_lmer_correctness_parallel():
                 # obj, but up to dtype they are still equal
                 check_dtype=False,
             )
+
             assert lmer.AIC == aic.loc[timepoint, channel]
 
 

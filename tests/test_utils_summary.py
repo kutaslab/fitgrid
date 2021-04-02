@@ -5,10 +5,16 @@ import hashlib
 from numpy import log10
 import numpy as np
 import pandas as pd
+import matplotlib as mpl
 from matplotlib import pyplot as plt
+
+# import at module level or multiprocessing + pymer4 + rpy2 errors
+from pymer4 import Lmer
+
 import fitgrid
+from fitgrid import DATA_DIR
 from fitgrid.utils.summary import INDEX_NAMES, KEY_LABELS, PER_MODEL_KEY_LABELS
-from .context import tpath, FIT_ATOL, FIT_RTOL, FIT_ATOL_FAIL, FIT_RTOL_FAIL
+from .context import FIT_ATOL, FIT_RTOL, FIT_ATOL_FAIL, FIT_RTOL_FAIL
 
 _EPOCH_ID = fitgrid.defaults.EPOCH_ID
 _TIME = fitgrid.defaults.TIME
@@ -18,6 +24,7 @@ PARALLEL = True
 N_CORES = 4
 
 # ------------------------------------------------------------
+#
 # "new" LMER fit data files for epochs = _get_epochs(seed=0)
 #  after (late 2019) with Py36 releases of r-lme4, r-matrix
 #
@@ -44,12 +51,16 @@ N_CORES = 4
 # gold standard data files
 TEST_SUMMARIZE = {
     'lm': {
-        'fname': 'tests/data/test_summarize_lm.tsv',
+        # unchanged from v0.4.11 v0.5.0
+        'fname': DATA_DIR / "test_summarize_lm.v0.5.0.tsv",
         'md5sum': 'b3b16d7b44d3ce4591cfc07695e14a56',
     },
     'lmer': {
-        'fname': 'tests/data/test_summarize_lmer.tsv',
-        'md5sum': 'c082d5fd2634992ae7f2fb381155f340',
+        # for v0.4.11
+        # 'fname': DATA_DIR / "test_summarize_lmer.tsv",
+        # 'md5sum': 'c082d5fd2634992ae7f2fb381155f340',
+        'fname': DATA_DIR / "test_summarize_lmer.v0.5.0.tsv",
+        'md5sum': 'bdf5a0b8c0cb82004b2982cacd17ba89',
     },
 }
 
@@ -99,6 +110,34 @@ def _get_epochs_fg(seed=None, epoch_id=_EPOCH_ID, time=_TIME):
     return epochs_fg
 
 
+def test__check_summary_df():
+    # all bad summaries
+
+    fg_epochs = fitgrid.generate(
+        n_epochs=3, n_samples=2, n_categories=2, n_channels=2
+    )
+    sumry = fitgrid.utils.summary.summarize(
+        fg_epochs,
+        modeler="lm",
+        LHS=fg_epochs.channels,
+        RHS=["categorical", "continuous"],
+    )
+    sumry_bad_idx = sumry.rename_axis(index=sumry.index.names[::-1])
+    sumry_bad_keys = sumry.copy()
+    sumry_bad_keys.index.set_levels(
+        fitgrid.utils.summary.KEY_LABELS[::-1], -1, inplace=True
+    )
+    for df in [
+        "not_a_dataframe",
+        pd.DataFrame(),
+        pd.DataFrame({"a": [1, 2], "b": [3, 4]}).set_index("a"),
+        sumry_bad_idx,
+        sumry_bad_keys,
+    ]:
+        with pytest.raises(ValueError):
+            fitgrid.utils.summary._check_summary_df(df, None)
+
+
 def test__lm_get_summaries_df(epoch_id, time):
 
     fgrid_lm = fitgrid.lm(
@@ -120,9 +159,24 @@ def test__lmer_get_summaries_df(epoch_id, time):
         parallel=PARALLEL,
         n_cores=N_CORES,
     )
-
     summaries_df = fitgrid.utils.summary._lmer_get_summaries_df(fgrid_lmer)
     fitgrid.utils.summary._check_summary_df(summaries_df, fgrid_lmer)
+
+
+# summary.summarize args
+bad_epochs_mark = pytest.mark.xfail(reason=TypeError, strict=True)
+
+
+@pytest.mark.parametrize(
+    "epoch_arg",
+    [
+        pytest.param(np.array([]), marks=bad_epochs_mark),
+        pytest.param(pd.DataFrame(), marks=bad_epochs_mark),
+    ],
+)
+def test_summarize_args(epoch_arg):
+    """ test summary.summarize argument guards"""
+    fitgrid.utils.summary.summarize(epoch_arg, None, None, None, None, None)
 
 
 def test_summarize():
@@ -144,13 +198,14 @@ def test_summarize():
             "0 + categorical",
             "1",
         ],
+        # formula whitespace got clobbered in lme4/pymer4
         "lmer": [
-            "1 + continuous + (continuous | categorical)",
-            "0 + continuous + (continuous | categorical)",
-            "1 + continuous + (1 | categorical)",
-            "0 + continuous + (1 | categorical)",
-            "1 + (continuous | categorical)",
-            "1 + (1 | categorical)",
+            "1+continuous+(continuous|categorical)",
+            "0+continuous+(continuous|categorical)",
+            "1+continuous+(1|categorical)",
+            "0+continuous+(1|categorical)",
+            "1+(continuous|categorical)",
+            "1+(1|categorical)",
         ],
     }
 
@@ -176,8 +231,6 @@ def test_summarize():
         assert all(summaries_df.index.levels[-1] == KEY_LABELS)
         fitgrid.utils.summary._check_summary_df(summaries_df, epochs_fg)
 
-        aics = fitgrid.utils.summary._get_AICs(summaries_df)
-
         # verify data and select the modler
         if modler == 'lm':
             modler_ = fitgrid.lm
@@ -191,29 +244,33 @@ def test_summarize():
             TEST_SUMMARIZE[modler]['fname'], sep='\t'
         ).set_index(summaries_df.index.names)
 
-        # handle lme4 warnings separately, these changed substantially
-        # at some point
-        if not expected_df.query('key == "has_warning"').equals(
-            summaries_df.query('key == "has_warning"')
-        ):
-            warnings.warn(f'{modler} has_warning values have changed')
-
-        actual_vals = summaries_df.query('key != "has_warning"').stack()
+        # check numerical values, skip warnings and warning strings
+        # which changed substantially in lme4::lmer 0.21 -> 0.22
+        actual_vals = (
+            summaries_df.query('key not in ["has_warning", "warnings"]')
+            .stack()
+            .astype(float)
+        )
         actual_vals.name = 'actual'
 
-        expected_vals = expected_df.query('key != "has_warning"').stack()
+        expected_vals = (
+            expected_df.query('key not in ["has_warning", "warnings"]')
+            .stack()
+            .astype(float)
+        )
         expected_vals.name = 'expected'
 
         deltas = abs(actual_vals - expected_vals)
         deltas.name = 'abs_delta'
 
+        # find numpy deviations from close
         oo_tol = ~np.isclose(
             actual_vals, expected_vals, atol=FIT_ATOL, rtol=FIT_RTOL
         )
 
         if oo_tol.any():
 
-            # check for fails
+            # lookup which tolerance deviations are out of spec for fits
             oo_tol_fail = ~np.isclose(
                 actual_vals,
                 expected_vals,
@@ -387,7 +444,8 @@ def test_summarize_lmer_kwargs(kw, est, aic):
     epochs_fg = _get_epochs_fg(seed=0)  # freeze data to test values
 
     LHS = epochs_fg.channels
-    RHS = "1 + (1 | categorical)"  # for fitgrid.lmer
+    RHS = "1 +(1 | categorical)"  # for fitgrid.lmer
+    RHS = re.sub(r"\s+", "", RHS)  # new for pymer4 7.0+
 
     # what the fitgrid modeler returns
     lmer_fit = fitgrid.lmer(epochs_fg, LHS=LHS, RHS=RHS, **kw)
@@ -409,7 +467,14 @@ def test_summarize_lmer_kwargs(kw, est, aic):
 
     # other grid.attr
     attr_keys = [key for key in summary_keys if key in dir(lmer_fit.tester)]
+
     for key in shared_keys.union(attr_keys):
+
+        if key == "warnings":
+            # LMERFitGrid.warnings are irregular and incomensurable with
+            # their rendition as canonical summary time x channel gridded "_"
+            # joined or empty strings
+            continue
 
         # these come from the coefs dataframe
         if key in shared_keys:
@@ -428,7 +493,7 @@ def test_summarize_lmer_kwargs(kw, est, aic):
                 drop=True
             )
         else:
-            raise ValueError(f"unknown key: {key}")
+            raise ValueError(f"unknown summary key: {key}")
 
         try:
             all(modeler_vals == summarize_vals)
@@ -444,8 +509,6 @@ def test_summarize_lmer_kwargs(kw, est, aic):
 
         if key == 'AIC':
             assert all(summarize_vals == aic)
-
-    pass
 
 
 def test__get_AICs():
@@ -488,26 +551,117 @@ def test__get_AICs():
     return aics
 
 
-def test_smoke_plot_betas():
-    """TO DO: needs argument testing"""
+def test_lm_plot_betas_AICmin_deltas():
+    """test lm summary plotting"""
 
-    for summary_df in test_summarize():
-        cols = [col for col in summary_df.columns if "channel" in col]
-        for fdr in [None, 'BY', 'BH']:
-            _ = fitgrid.utils.summary.plot_betas(
-                summary_df=summary_df, LHS=cols, fdr=fdr
-            )
-            plt.close('all')
+    # data in common for lm and lmer
+    epochs_fg = fitgrid.generate(n_samples=10, n_channels=10, seed=32)
+    channels = [
+        column for column in epochs_fg.table.columns if "channel" in column
+    ]
 
-        for df_func in [None, log10]:
-            _ = fitgrid.utils.summary.plot_betas(
-                summary_df=summary_df, LHS=cols, df_func=df_func
-            )
-            plt.close('all')
+    lm_rhs = ["1 + categorical", "1 + continuous"]
+    lm_summaries = fitgrid.utils.summary.summarize(
+        epochs_fg, "lm", LHS=channels, RHS=lm_rhs, parallel=False
+    )
 
+    # ------------------------------------------------------------
+    # plot AIC min deltas
 
-def test_smoke_plot_AICs():
+    # default
+    fitgrid.utils.summary.plot_AICmin_deltas(lm_summaries)
+    plt.close("all")
 
-    for summary_df in test_summarize():
-        f, axs = fitgrid.utils.summary.plot_AICmin_deltas(summary_df)
+    # plotting kwargs here, warnings checked w/ LMER
+    fitgrid.utils.summary.plot_AICmin_deltas(
+        lm_summaries,
+        figsize=(12, 8),
+        gridspec_kw={"width_ratios": [1, 1, 0.1]},
+        subplot_kw={"ylim": (0, 50)},
+    )
+    plt.close('all')
+
+    # ------------------------------------------------------------
+    # plot betas, prevent matplotlib too many figures warning
+    with mpl.rc_context({"figure.max_open_warning": 41}):
+
+        fitgrid.utils.summary.plot_betas(lm_summaries)
         plt.close('all')
+
+        # deprecated kwargs < v0.5.0
+        with pytest.warns(FutureWarning):
+            fitgrid.utils.summary.plot_betas(lm_summaries, figsize=(12, 3))
+            plt.close("all")
+
+        # kwargs v0.5.0
+        fitgrid.utils.summary.plot_betas(
+            lm_summaries,
+            LHS=["channel0", "channel1"],
+            fdr_kw={"method": "BH", "rate": 0.10, "plot_pvalues": True},
+            beta_plot_kwargs={"ylim": (-100, 100)},
+            models=["1 + categorical"],
+            betas=["Intercept"],
+            interval=[2, 6],
+        )
+        plt.close('all')
+
+
+def test_lmer_warnings_plot_betas_AICmin_deltas():
+    """test lmer warnings and summary plotting"""
+
+    # ------------------------------------------------------------
+    # setup the data and models for nice variety of warnings
+    epochs_fg = fitgrid.generate(n_samples=8, n_channels=4, seed=32)
+    channels = [
+        column for column in epochs_fg.table.columns if "channel" in column
+    ]
+
+    lmer_rhs = [
+        "1 + continuous + (1 | categorical)",
+        "1 + categorical + (continuous | categorical)",
+    ]
+
+    # ------------------------------------------------------------
+    # lmer summaries, plotting betas, AICmin delta
+    lmer_summaries = fitgrid.utils.summary.summarize(
+        epochs_fg,
+        "lmer",
+        LHS=channels,
+        RHS=lmer_rhs,
+        parallel=True,
+        n_cores=2,
+    )
+
+    # lmer plot_beta w/ warnings
+    fitgrid.utils.summary.plot_betas(lmer_summaries)
+    plt.close("all")
+
+    fitgrid.utils.summary.plot_betas(
+        lmer_summaries,
+        fdr_kw={"method": "BH", "rate": 0.10, "plot_pvalues": False},
+        beta_plot_kwargs={"ylim": (-100, 100)},
+        models=["1+continuous+(1|categorical)"],
+        betas=["(Intercept)"],
+        show_warnings=False,
+        interval=[2, 6],
+        df_func=lambda x: x,
+    )
+
+    # AIC default
+    fitgrid.utils.summary.plot_AICmin_deltas(lmer_summaries)
+
+    # warning display options
+    for shwarn in [
+        "no_labels",
+        "labels",
+        ["converge"],
+        ["converge", "singular"],
+    ]:
+        fitgrid.utils.summary.plot_AICmin_deltas(
+            lmer_summaries, show_warnings=shwarn
+        )
+
+    with pytest.warns(UserWarning):
+        fitgrid.utils.summary.plot_AICmin_deltas(
+            lmer_summaries, show_warnings="converge"
+        )

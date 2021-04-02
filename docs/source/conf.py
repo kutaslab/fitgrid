@@ -22,13 +22,12 @@ sys.path.insert(0, os.path.abspath('.'))
 # after sys.path.insert to import local __version__
 from fitgrid import __version__
 
-
 # -- Project information -----------------------------------------------------
 
 project = 'fitgrid'
-copyright = '2018-2019, Andrey Portnoy, Thomas P. Urbach'
+copyright = '2018-2021, Andrey Portnoy, Thomas P. Urbach'
 author = 'Andrey Portnoy, Thomas P. Urbach'
-today = 'April 20, 2019'
+today = 'January 29, 2021'
 
 
 ver_tag = re.match(r"(?P<ver>^\d\.\d)(?P<tag>.*)", __version__)
@@ -59,11 +58,58 @@ extensions = [
     'sphinx.ext.githubpages',
     'sphinx.ext.viewcode',
     'sphinx.ext.extlinks',
-    'nbsphinx',
+    # 'nbsphinx',
+    "sphinx_gallery.gen_gallery",
 ]
 
 # nbsphinx_timeout = -1 # don't timeout
-nbsphinx_timeout = 5 * 60  # lmer needs time to run in Tutorial
+# nbsphinx_timeout = 5 * 60  # lmer needs time to run in Tutorial
+
+napoleon_google_docstring = False
+napoleon_use_param = False
+napoleon_use_ivar = True
+
+# ------------------------------------------------------------
+# sphinx gallery config TPU
+from sphinx_gallery.scrapers import matplotlib_scraper
+
+
+class fg_matplotlib_scraper(object):
+    def __repr__(self):
+        return self.__class__.__name__
+
+    def __call__(self, *args, **kwargs):
+        # bbox_inches="tight" or .png gallery images have excessive margins
+        return matplotlib_scraper(*args, bbox_inches="tight", **kwargs)
+
+
+sphinx_gallery_conf = {
+    # source dirs
+    "examples_dirs": [
+        # "user_guide",
+        "gallery",
+        "gallery/1_epochs_data",
+        "gallery/2_model_fitting",
+        "gallery/3_model_evaluation",
+    ],
+    # generated output dirs
+    "gallery_dirs": [
+        # "auto_user_guide",
+        "auto_gallery",
+        "auto_gallery/1_epochs_data",
+        "auto_gallery/2_model_fitting",
+        "auto_gallery/3_model_evaluation",
+    ],
+    # execute all *.py (not default plot_*.py)
+    "filename_pattern": "[a-zA-Z]+.py",
+    # or ... select files individally
+    # "filename_pattern": ".*/quickstart.py",
+    "image_scrapers": (fg_matplotlib_scraper(),),
+    # or set to https://kutaslab.github.io/fitgrid/ to reduce notebook size
+    "notebook_images": True,
+}
+# ------------------------------------------------------------
+
 
 # alias long urls to keep line length under control
 extlinks = {"sm_docs": ("https://www.statsmodels.org/stable/generated/%s", "")}

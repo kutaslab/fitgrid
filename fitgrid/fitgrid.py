@@ -217,7 +217,9 @@ class FitGrid:
 
         # array-like, try converting to array and then Series/DataFrame
         if isinstance(tester, tuple) or isinstance(tester, list):
-            array_form = np.array(tester)
+            array_form = np.array(
+                tester, dtype="O"
+            )  # deprecated without dtype="O"
 
             if array_form.ndim == 1:
                 # Tidy 1-D are Series. Untidy 1-D may be broadcastable
@@ -281,7 +283,7 @@ class FitGrid:
 
         # temp should be long form, columns have single level (channels
         # hopefully)
-        assert not isinstance(temp.columns, pd.core.index.MultiIndex)
+        assert not isinstance(temp.columns, pd.core.indexes.multi.MultiIndex)
 
         # we can only handle 2- or 3-dimensional
         assert temp.index.nlevels in (2, 3)
@@ -297,7 +299,9 @@ class FitGrid:
                 and level.step == 1
                 and level.stop == len(self.epoch_index)
             ):
-                temp.index.set_levels(self.epoch_index, level=i, inplace=True)
+                # inplace is deprecated pandas 1.2+
+                # temp.index.set_levels(self.epoch_index, level=i, inplace=True)
+                temp.index = temp.index.set_levels(self.epoch_index, level=i)
                 temp.index.rename(self.epoch_index.name, level=i, inplace=True)
 
         return temp

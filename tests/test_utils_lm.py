@@ -56,11 +56,12 @@ LMGX, _ = get_seeded_lm_grid_infl()
 LMGX.tester = []
 
 
-def test_smoke_get_vifs():
+@pytest.mark.parametrize("quiet", [True, False])
+def test_smoke_get_vifs(quiet):
 
     epochs = fitgrid.generate()
     RHS = 'continuous + categorical'
-    fgutil.lm.get_vifs(epochs, RHS)
+    fgutil.lm.get_vifs(epochs, RHS, quiet=quiet)
 
 
 # _OLS_INFLUENCE_ATTRS lists statsmodels diagnostics known to lm.py
