@@ -215,7 +215,8 @@ jobs:
           --skip-existing
 
       - name: deploy codecov
-        if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && env.DEPLOY_TYPE == 'main' }}
+        ### if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && env.DEPLOY_TYPE == 'main' }}
+        if: ${{ matrix.py_ver == env.DEPLOY_PY_VER }} ### testing only
         run: conda install -q codecov && codecov
 
       # - name: deploy sphinx docs to gh-pages
