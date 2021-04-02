@@ -110,6 +110,34 @@ def _get_epochs_fg(seed=None, epoch_id=_EPOCH_ID, time=_TIME):
     return epochs_fg
 
 
+def test__check_summary_df():
+    # all bad summaries
+
+    fg_epochs = fitgrid.generate(
+        n_epochs=3, n_samples=2, n_categories=2, n_channels=2
+    )
+    sumry = fitgrid.utils.summary.summarize(
+        fg_epochs,
+        modeler="lm",
+        LHS=fg_epochs.channels,
+        RHS=["categorical", "continuous"],
+    )
+    sumry_bad_idx = sumry.rename_axis(index=sumry.index.names[::-1])
+    sumry_bad_keys = sumry.copy()
+    sumry_bad_keys.index.set_levels(
+        fitgrid.utils.summary.KEY_LABELS[::-1], -1, inplace=True
+    )
+    for df in [
+        "not_a_dataframe",
+        pd.DataFrame(),
+        pd.DataFrame({"a": [1, 2], "b": [3, 4]}).set_index("a"),
+        sumry_bad_idx,
+        sumry_bad_keys,
+    ]:
+        with pytest.raises(ValueError):
+            fitgrid.utils.summary._check_summary_df(df, None)
+
+
 def test__lm_get_summaries_df(epoch_id, time):
 
     fgrid_lm = fitgrid.lm(
@@ -542,6 +570,7 @@ def test_lm_plot_betas_AICmin_deltas():
 
     # default
     fitgrid.utils.summary.plot_AICmin_deltas(lm_summaries)
+    plt.close("all")
 
     # plotting kwargs here, warnings checked w/ LMER
     fitgrid.utils.summary.plot_AICmin_deltas(
@@ -555,10 +584,16 @@ def test_lm_plot_betas_AICmin_deltas():
     # ------------------------------------------------------------
     # plot betas, prevent matplotlib too many figures warning
     with mpl.rc_context({"figure.max_open_warning": 41}):
+
         fitgrid.utils.summary.plot_betas(lm_summaries)
         plt.close('all')
 
-        # kwargs
+        # deprecated kwargs < v0.5.0
+        with pytest.warns(FutureWarning):
+            fitgrid.utils.summary.plot_betas(lm_summaries, figsize=(12, 3))
+            plt.close("all")
+
+        # kwargs v0.5.0
         fitgrid.utils.summary.plot_betas(
             lm_summaries,
             LHS=["channel0", "channel1"],

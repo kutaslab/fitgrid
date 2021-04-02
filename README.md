@@ -1,5 +1,7 @@
-[![Build status](https://github.com/kutaslab/fitgrid/actions/workflows/fitgrid-cid.yml/badge.svg)](https://github.com/kutaslab/fitgrid/actions)
 [![DOI](https://zenodo.org/badge/147436563.svg)](https://zenodo.org/badge/latestdoi/147436563)
+[![Build status](https://github.com/kutaslab/fitgrid/actions/workflows/fitgrid-cid.yml/badge.svg)](https://github.com/kutaslab/fitgrid/actions)
+stable [![Coverage](https://codecov.io/gh/kutaslab/fitgrid/branch/main/graph/badge.svg)]
+pre-release [![Coverage](https://codecov.io/gh/kutaslab/fitgrid/branch/dev/graph/badge.svg)]
 
 # fitgrid
 
@@ -25,4 +27,4 @@ Alternatively, with no `lmer` support,
 
 Click this button to launch a demo notebook:
 
-[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/kutaslab/fitgrid/fg050_dev2?filepath=notebooks/Demo.ipynb)
+[![Binder](https://mybinder.org/badge.svg)](https://mybinder.org/v2/gh/kutaslab/fitgrid/dev?filepath=notebooks/Demo.ipynb)
