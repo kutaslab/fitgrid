@@ -283,10 +283,10 @@ jobs:
       - name: deploy python package release vM.N.P to pypi.org
         if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && env.DEPLOY_TYPE == 'main' }}
         env:
-          FITGRID_PYPI_TOKEN: ${{ secrets.pypi_token }}
+          PYPI_TOKEN: ${{ secrets.pypi_token }}
         run: >-
           twine upload
-          --repository-url https://pypi.org/
+          --repository-url https://upload.pypi.org/legacy/
           -u __token__
           -p "$PYPI_TOKEN"
           dist/*
