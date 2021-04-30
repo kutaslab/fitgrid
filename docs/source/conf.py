@@ -25,19 +25,15 @@ from fitgrid import __version__
 # -- Project information -----------------------------------------------------
 
 project = 'fitgrid'
-copyright = '2018-2021, Andrey Portnoy, Thomas P. Urbach'
-author = 'Andrey Portnoy, Thomas P. Urbach'
+copyright = '2018-2021, Andrey S. Portnoy, Thomas P. Urbach'
+author = 'Andrey S. Portnoy, Thomas P. Urbach'
 today = 'January 29, 2021'
 
-
-ver_tag = re.match(r"(?P<ver>^\d\.\d)(?P<tag>.*)", __version__)
-assert ver_tag is not None
-
-# The short X.Y version
-version = ver_tag['ver']
+# The short X.Y version. TPU: no, use full version for M.N.P(.devX) in sidebar
+version = __version__
 
 # The full version, including alpha/beta/rc tags
-release = ver_tag['ver'] + ver_tag['tag']
+# release = ""
 
 # -- General configuration ---------------------------------------------------
 

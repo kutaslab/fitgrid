@@ -44,8 +44,8 @@ setup(
     description='Mass multiple regression manager',
     long_description=readme(),
     long_description_content_type='text/markdown',
-    author='Thomas P. Urbach, Andrey Portnoy',
-    author_email='turbach@ucsd.edu, aportnoy@ucsd.edu',
+    author='Andrey Portnoy, Thomas P. Urbach',
+    author_email='aportnoy@ucsd.edu, turbach@ucsd.edu',
     url='https://github.com/kutaslab/fitgrid',
     classifiers=[
         "Programming Language :: Python :: 3",
