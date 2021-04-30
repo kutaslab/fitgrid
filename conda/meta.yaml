@@ -21,7 +21,8 @@ requirements:
     - pip
   run:
     - python {{ python }}
-    - pymer4 >=7.2  # for rpy2 breaking change 3.4.3 -> 3.4.4
+    # for rpy2 breaking change 3.4.3 -> 3.4.4    
+    - pymer4 >=0.7.2
     - statsmodels
     - numpy
     - scipy
