@@ -175,7 +175,7 @@ bad_epochs_mark = pytest.mark.xfail(reason=TypeError, strict=True)
     ],
 )
 def test_summarize_args(epoch_arg):
-    """ test summary.summarize argument guards"""
+    """test summary.summarize argument guards"""
     fitgrid.utils.summary.summarize(epoch_arg, None, None, None, None, None)
 
 

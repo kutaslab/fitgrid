@@ -619,7 +619,10 @@ def _get_AICs(summary_df):
 
 
 def summaries_fdr_control(
-    model_summary_df, method="BY", rate=0.05, plot_pvalues=True,
+    model_summary_df,
+    method="BY",
+    rate=0.05,
+    plot_pvalues=True,
 ):
     """False discovery rate control for non-zero betas in model summary dataframes
 
@@ -638,7 +641,7 @@ def summaries_fdr_control(
         Hochberg [2]_.
     rate : float {0.05}
         The target rate for controlling false discoveries.
-    plot_pvalues : bool {True, False} 
+    plot_pvalues : bool {True, False}
         Display a plot of the family of $p$-values and critical value for FDR control.
 
 
@@ -883,7 +886,12 @@ def plot_betas(
         model_summary_df.sort_index(inplace=True)
         model_summary_df = model_summary_df.loc[
             # Index = time, model, beta, key
-            pd.IndexSlice[interval[0] : interval[1], :, :, :,],
+            pd.IndexSlice[
+                interval[0] : interval[1],
+                :,
+                :,
+                :,
+            ],
             :,
         ]
 
@@ -1063,7 +1071,7 @@ def plot_AICmin_deltas(
     show_warnings : {"no_labels", "labels", str, list of str}
        "no_labels" (default) highlights everywhere there is any warning in
        red, the default behavior in fitgrid < v0.5.0. "labels" display
-       all warning strings the axes titles.  A `str` or list of `str` selects 
+       all warning strings the axes titles.  A `str` or list of `str` selects
        and display only warnings that (partial) match a model warning string.
 
     figsize : 2-ple
@@ -1104,7 +1112,7 @@ def plot_AICmin_deltas(
     """
 
     def _get_warnings_grid(model_warnings, show_warnings):
-        """look up warnings according to aic and user kwarg value """
+        """look up warnings according to aic and user kwarg value"""
 
         # split the "_" separated multiple warning strings into unique types
         warning_kinds = np.unique(
@@ -1238,7 +1246,10 @@ def plot_AICmin_deltas(
                 _min_deltas[chan].where(warnings_grid[chan] == 1).dropna()
             )
             traces.scatter(
-                chan_mask.index, chan_mask, c="crimson", label=None,
+                chan_mask.index,
+                chan_mask,
+                c="crimson",
+                label=None,
             )
 
         if i == 0:

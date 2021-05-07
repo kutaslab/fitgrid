@@ -12,6 +12,7 @@ MKL = 'mkl'
 OBLAS = 'openblas'
 CBLAS = 'cblas'  # numpy.show_config doesn't know if this is mkl or openblas
 
+
 def get_index_duplicates_table(df, level):
     """Return a string table of duplicate index values and their locations."""
 
@@ -50,6 +51,7 @@ def deduplicate_list(lst):
 
 class BLAS:
     """blas wrapper as determined by its thread getter/setter"""
+
     def __init__(self, cdll):
 
         self.cdll = cdll
@@ -62,7 +64,7 @@ class BLAS:
             self.kind = MKL
         except Exception:
             pass
-        
+
         try:
             self.get_n_threads = cdll.openblas_get_num_threads
             self.set_n_threads = cdll.openblas_set_num_threads
@@ -73,8 +75,7 @@ class BLAS:
         if self.kind not in (MKL, OBLAS):
             raise NotImplementedError(
                 f"BLAS must be {MKL} or {OBLAS} in {str(cdll)}"
-           )
-
+            )
 
     def __repr__(self):
         if self.kind == MKL:

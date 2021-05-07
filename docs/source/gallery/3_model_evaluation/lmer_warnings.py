@@ -52,7 +52,8 @@ fitgrid.utils.lmer.plot_lmer_warnings(lmer_grid)
 # Stacking all the warning grids into one summary grid (``which="all"``)
 # shows immediately which grid cells have warnings and which do not.
 fitgrid.utils.lmer.plot_lmer_warnings(
-    lmer_grid, which="all",
+    lmer_grid,
+    which="all",
 )
 
 # %%
