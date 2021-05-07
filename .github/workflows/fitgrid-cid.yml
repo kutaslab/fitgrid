@@ -107,7 +107,7 @@ jobs:
           conda config --set allow_conda_downgrades true
           conda install -q conda=4.9.0  # works on mkgpu1, 4.9.2 fails here DNDC
           conda install -q conda-build conda-verify anaconda-client twine
-          conda install -n base mamba boa
+          conda install -n base mamba boa -c conda-forge
           conda info -a
 
       # ------------------------------------------------------------
