@@ -624,7 +624,7 @@ def summaries_fdr_control(
     rate=0.05,
     plot_pvalues=True,
 ):
-    """False discovery rate control for non-zero betas in model summary dataframes
+    r"""False discovery rate control for non-zero betas in model summary dataframes
 
     The family of tests for FDR control is assumed to be **all and
     only** the channels, models, and :math:`\hat{\beta}_i` in the

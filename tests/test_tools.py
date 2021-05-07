@@ -41,21 +41,26 @@ def test_blas_osys():
         assert tools.get_blas_osys(numpy, 'darwin') is None
 
 
-@pytest.mark.skipif(
-    'GITHUB_ACTIONS' in os.environ,
-    reason='https://github.com/kutaslab/fitgrid/issues/86',
-)
+# @pytest.mark.skipif(
+#     'GITHUB_ACTIONS' in os.environ,
+#     reason='https://github.com/kutaslab/fitgrid/issues/86',
+# )
 def test_blas_getter():
 
     import numpy
 
     blas = tools.get_blas(numpy)
 
-    blas.set_n_threads(4)
-    assert blas.get_n_threads() == 4
+    if not 'GITHUB_ACTIONS' in os.environ:
+        blas.set_n_threads(4)
+        assert blas.get_n_threads() == 4
 
     blas.set_n_threads(2)
     assert blas.get_n_threads() == 2
+
+    blas.set_n_threads(1)
+    assert blas.get_n_threads() == 1
+
 
 
 def test_single_threaded_no_change():
