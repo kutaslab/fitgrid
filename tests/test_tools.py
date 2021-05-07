@@ -62,7 +62,6 @@ def test_blas_getter():
     assert blas.get_n_threads() == 1
 
 
-
 def test_single_threaded_no_change():
 
     import numpy
