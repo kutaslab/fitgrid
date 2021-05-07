@@ -75,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        py_ver: [3.7, 3.8, 3.9]
+        py_ver: [3.7, 3.8]
 
     env:
       PY_VER: ${{ matrix.py_ver }}
@@ -100,7 +100,7 @@ jobs:
           bash miniconda.sh -b -p $HOME/miniconda
           conda shell.bash hook >> ~/.bash_profile  # instead of conda init bash
           mkdir -p $CONDA_BLD_PATH && rm miniconda.sh
-          source ~/.bash_profile && conda_activate
+          source ~/.bash_profile
           hash -r
           conda config --set always_yes yes --set changeps1 no
           conda config --set bld_path $CONDA_BLD_PATH
