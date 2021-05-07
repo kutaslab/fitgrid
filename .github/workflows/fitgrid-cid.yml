@@ -126,7 +126,7 @@ jobs:
       # black and pytest in the py3X conda env
       - name: conda create env_${{ env.PY_VER }} python=${{ env.PY_VER }} ${{ env.PACKAGE_NAME}} and pytest
         run: |
-          mamba create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME -c local -c defaults -c conda-forge -c ejolly
+          mamba create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME "blas=*=mkl*" -c local -c ejolly -c conda-forge -c defaults --strict-channel-priority
           conda activate env_$PY_VER
           mamba install -q black pytest pytest-cov
           conda list
