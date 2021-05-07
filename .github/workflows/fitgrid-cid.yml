@@ -106,7 +106,7 @@ jobs:
           conda config --set bld_path $CONDA_BLD_PATH
           conda config --set allow_conda_downgrades true
           conda install -q conda=4.9.0  # works on mkgpu1, 4.9.2 fails here DNDC
-          conda install -q conda-build conda-verify anaconda twine
+          conda install -q conda-build conda-verify anaconda-client twine
           conda install -n base mamba boa
           conda info -a
 
