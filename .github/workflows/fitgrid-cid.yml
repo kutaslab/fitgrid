@@ -75,7 +75,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        py_ver: [3.6, 3.7, 3.8]
+        py_ver: [3.7, 3.8, 3.9]
 
     env:
       PY_VER: ${{ matrix.py_ver }}
@@ -107,6 +107,7 @@ jobs:
           conda config --set allow_conda_downgrades true
           conda install -q conda=4.9.0  # works on mkgpu1, 4.9.2 fails here DNDC
           conda install -q conda-build conda-verify anaconda twine
+          conda install -n base mamba boa
           conda info -a
 
       # ------------------------------------------------------------
@@ -114,7 +115,8 @@ jobs:
       - name: conda build --python=${{ env.PY_VER }} conda
         id: conda-bld
         run: |
-          conda build --python=$PY_VER -c defaults -c conda-forge -c ejolly conda
+          # conda build --python=$PY_VER -c defaults -c conda-forge -c ejolly conda
+          conda mambabuild --python=$PY_VER -c defaults -c conda-forge -c ejolly conda
           # filename is last line when conda build is chatty
           tarball=$(conda build --python=$PY_VER conda --output | tail -1)
           conda convert -p osx-64 -p win-64 -o $CONDA_BLD_PATH $tarball
@@ -124,9 +126,9 @@ jobs:
       # black and pytest in the py3X conda env
       - name: conda create env_${{ env.PY_VER }} python=${{ env.PY_VER }} ${{ env.PACKAGE_NAME}} and pytest
         run: |
-          conda create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME -c local -c defaults -c conda-forge -c ejolly
+          mamba create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME -c local -c defaults -c conda-forge -c ejolly
           conda activate env_$PY_VER
-          conda install -q black pytest pytest-cov
+          mamba install -q black pytest pytest-cov
           conda list
           lscpu
           python -c 'import numpy; numpy.show_config()'
@@ -138,8 +140,8 @@ jobs:
         run: |
           conda activate env_$PY_VER  # required to run doc demos
           # conda install -q sphinx sphinx_rtd_theme jupyter nbsphinx "nbconvert!=5.4" -c defaults -c conda-forge
-          conda install -q sphinx sphinx_rtd_theme sphinx-gallery -c defaults -c conda-forge
-          conda install -q pandoc -c conda-forge
+          mamba install -q sphinx sphinx_rtd_theme sphinx-gallery -c defaults -c conda-forge
+          mamba install -q pandoc -c conda-forge
           make -C docs html
           touch docs/build/html/.nojekyll
 
@@ -217,7 +219,7 @@ jobs:
       - name: deploy codecov
         if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && (env.DEPLOY_TYPE == 'main' || env.DEPLOY_TYPE == 'pre-release') }}
         # if: ${{ matrix.py_ver == env.DEPLOY_PY_VER }}  # testing only
-        run: conda install -q codecov && codecov
+        run: mamba install -q codecov && codecov
 
       - name: deploy sphinx docs to gh-pages
         # switch docs deployment repo/branch on deploy type
