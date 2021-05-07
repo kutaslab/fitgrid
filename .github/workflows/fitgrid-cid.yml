@@ -104,11 +104,16 @@ jobs:
           hash -r
           conda config --set always_yes yes --set changeps1 no
           conda config --set bld_path $CONDA_BLD_PATH
-          conda config --set allow_conda_downgrades true
-          conda install -q conda=4.9.0  # works on mkgpu1, 4.9.2 fails here DNDC
-          conda install -q conda-build conda-verify anaconda-client twine
+          # conda config --set allow_conda_downgrades true
+          # conda install -q conda # =4.9.0  # works on mkgpu1, 4.9.2 fails here DNDC
+          conda config --add channels conda-forge
+          conda config --set channel_priority strict
           conda install -n base mamba boa -c conda-forge
+          mamba install -q conda-build conda-verify anaconda-client twine
+          echo "# ------------------------------------------------------------"
           conda info -a
+          echo "# ------------------------------------------------------------"
+          mamba info -a
 
       # ------------------------------------------------------------
       # 2. CI
@@ -123,20 +128,24 @@ jobs:
           echo "conda build tarball" $tarball
           echo "::set-output name=conda-tarball::$tarball"
 
-      # black and pytest in the py3X conda env
-      - name: conda create env_${{ env.PY_VER }} python=${{ env.PY_VER }} ${{ env.PACKAGE_NAME}} and pytest
+      # create an env w/ local package
+      - name: conda create env_${{ env.PY_VER }} python=${{ env.PY_VER }} ${{ env.PACKAGE_NAME}} and black
         run: |
-          mamba create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME "blas=*=mkl*" -c local -c ejolly -c conda-forge -c defaults --strict-channel-priority
+          black --check --verbose -S -l 79 .
+          mamba create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME "blas=*=mkl*" -c local -c ejolly # -c conda-forge -c defaults
           conda activate env_$PY_VER
           mamba install -q black pytest pytest-cov
           conda list
           lscpu
           python -c 'import numpy; numpy.show_config()'
-          black --check --verbose -S -l 79 .
+
+      - name: pytest
+        run: |
+          conda activate env_$PY_VER
           pytest --cov=$PACKAGE_NAME # test as installed by conda
 
       - name: build sphinx docs
-        # if: ${{ matrix.py_ver == env.DEPLOY_PY_VER }}
+        if: ${{ matrix.py_ver == env.DEPLOY_PY_VER }}
         run: |
           conda activate env_$PY_VER  # required to run doc demos
           # conda install -q sphinx sphinx_rtd_theme jupyter nbsphinx "nbconvert!=5.4" -c defaults -c conda-forge
