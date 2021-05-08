@@ -156,7 +156,7 @@ jobs:
           lscpu
           python -c 'import numpy; numpy.show_config()'
           mamba install -q black pytest pytest-cov
-          black --diff --verbose -S -l 79 .
+          black --check --verbose -S -l 79 .
 
       - name: pytest
         run: |
