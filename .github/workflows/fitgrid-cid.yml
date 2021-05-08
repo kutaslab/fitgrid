@@ -136,7 +136,9 @@ jobs:
           OS: ${{ runner.os }}   # Linux, macOS
         run: |
 
-          conda mambabuild --python=$PY_VER -c defaults -c conda-forge -c ejolly conda
+          # conda mambabuild --python=$PY_VER -c defaults -c conda-forge -c ejolly conda
+          # conda-forge added in setup w/ strict priority
+          conda mambabuild --python=$PY_VER -c ejolly conda
           # filename is last line when conda build is chatty
           tarball=$(conda build --python=$PY_VER conda --output | tail -1)
 
