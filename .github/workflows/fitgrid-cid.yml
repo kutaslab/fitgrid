@@ -145,7 +145,7 @@ jobs:
 
           # atrocious hack, only linux job converts to win-64 for upload
           if [[ $OS == "Linux" ]]; then \
-              conda convert -p win-64 -o $CONDA_BLD_PATH $tarball \
+              conda convert -p win-64 -o $CONDA_BLD_PATH $tarball; \
           fi
           echo "conda build tarball" $tarball
           echo "::set-output name=conda-tarball::$tarball"
