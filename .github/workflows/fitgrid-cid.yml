@@ -4,7 +4,7 @@
 # 
 # - based on spudtr-cid.yml
 # - canonical package semantic version strings are M.N.P and M.N.P.devX
-# - job matrix runs on linux-64 for Python 3.6, 3.7, 3.8
+# - job matrix runs on linux-64 for Python 3.7, 3.8
 # - each py3X job builds, installs, pytests, and deploys its own conda py3X packages
 # - one py3X job deploys codecov, python package sdist, and docs
 # - cron runs daily to conda build, install, pytest the latest commit on default branch
