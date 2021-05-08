@@ -11,19 +11,19 @@
 #
 # CI:
 #
-#   - conda build, install, and pytest the conda packages linux-64 py3[678]
-#   - conda convert py3[678] x [osx-64, win-64] (untested)
+#   - conda build, install, and pytest py3[78] x [linux-64, osx-64] tarbalss
+#   - conda convert py3[78] linux-64 -> win-64 (untested)
 #   - build sphinx docs
 #   - build python package sdist
 #
 # Deployment:
 #
 #   Development: package version M.N.P.devX on dev branch triggers
-#     - anaconda upload py3X x OS-64 tarballs to channel label /pre-release
+#     - anaconda upload py3X platform tarballs to channel label /pre-release
 #     - twine python build/sdist to test.pypi.org
 #
 #   Stable release: version M.N.P on release tagged vM.N.P triggers
-#     - anaconda upload py3X x OS-64 tarballs to channel label /main
+#     - anaconda upload py3X platform tarballs to channel label /main
 #     - codecov
 #     - sphinx docs to gh-pages
 #     - twine python build/sdist to pypi.org
@@ -118,8 +118,6 @@ jobs:
           conda config --set always_yes yes --set changeps1 no
           conda config --set bld_path $CONDA_BLD_PATH
           conda install -q conda-build conda-verify anaconda-client twine
-          # conda config --set allow_conda_downgrades true
-          # conda install -q conda # =4.9.0  # works on mkgpu1, 4.9.2 fails here DNDC
 
           # switch to mamba/boa and conda-forge
           conda config --add channels conda-forge
@@ -138,7 +136,6 @@ jobs:
           OS: ${{ runner.os }}   # Linux, macOS
         run: |
 
-          # conda build --python=$PY_VER -c defaults -c conda-forge -c ejolly conda
           conda mambabuild --python=$PY_VER -c defaults -c conda-forge -c ejolly conda
           # filename is last line when conda build is chatty
           tarball=$(conda build --python=$PY_VER conda --output | tail -1)
