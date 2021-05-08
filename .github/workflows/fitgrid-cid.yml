@@ -97,11 +97,23 @@ jobs:
         run: |
           # short SHA gets baked into the conda package filename in conda/meta.yaml
           echo "GIT_ABBREV_COMMIT=_g${GITHUB_SHA:0:8}" >> $GITHUB_ENV
-          wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-          bash miniconda.sh -b -p $HOME/miniconda
-          conda shell.bash hook >> ~/.bash_profile  # instead of conda init bash
-          mkdir -p $CONDA_BLD_PATH && rm miniconda.sh
+          # wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+          # bash miniconda.sh -b -p $HOME/miniconda
+
+          if [[ ${{ runner.os }} == Linux ]]; then \
+            miniconda_url='https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh'; \
+          fi
+          if [[ ${{ runner.os }} == macOS ]]; then \
+            miniconda_url='https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh'; \
+          fi
+
+          wget $miniconda_url -O $HOME/miniconda.sh
+          bash ~/miniconda.sh -b -p $HOME/miniconda
+          hash -r
+          $HOME/miniconda/bin/conda shell.bash hook >> ~/.bash_profile  # instead of conda init bash
           source ~/.bash_profile
+
+          
           hash -r
           conda config --set always_yes yes --set changeps1 no
           conda config --set bld_path $CONDA_BLD_PATH
