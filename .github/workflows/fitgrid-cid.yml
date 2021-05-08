@@ -117,12 +117,14 @@ jobs:
           hash -r
           conda config --set always_yes yes --set changeps1 no
           conda config --set bld_path $CONDA_BLD_PATH
+          conda install -q conda-build conda-verify anaconda-client twine
           # conda config --set allow_conda_downgrades true
           # conda install -q conda # =4.9.0  # works on mkgpu1, 4.9.2 fails here DNDC
+
+          # switch to mamba/boa and conda-forge
           conda config --add channels conda-forge
           conda config --set channel_priority strict
-          conda install -n base mamba boa -c conda-forge
-          mamba install -q conda-build conda-verify anaconda-client twine
+          conda install -n base -q mamba boa -c conda-forge
           echo "# ------------------------------------------------------------"
           conda info -a
           echo "# ------------------------------------------------------------"
