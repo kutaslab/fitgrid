@@ -134,12 +134,19 @@ jobs:
       # 2. CI
       - name: conda build --python=${{ env.PY_VER }} conda
         id: conda-bld
+        env:
+          OS: ${{ runner.os }}   # Linux, macOS
         run: |
+
           # conda build --python=$PY_VER -c defaults -c conda-forge -c ejolly conda
           conda mambabuild --python=$PY_VER -c defaults -c conda-forge -c ejolly conda
           # filename is last line when conda build is chatty
           tarball=$(conda build --python=$PY_VER conda --output | tail -1)
-          conda convert -p osx-64 -p win-64 -o $CONDA_BLD_PATH $tarball
+
+          # atrocious hack, only linux job converts to win-64 for upload
+          if [[ $OS == "Linux" ]]; then \
+              conda convert -p win-64 -o $CONDA_BLD_PATH $tarball \
+          fi
           echo "conda build tarball" $tarball
           echo "::set-output name=conda-tarball::$tarball"
 
@@ -160,12 +167,12 @@ jobs:
           pytest --cov=$PACKAGE_NAME # test as installed by conda
 
       - name: build sphinx docs
-        if: ${{ matrix.py_ver == env.DEPLOY_PY_VER }}
+        if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && matrix.os == env.DEPLOY_OS }}
         run: |
           conda activate env_$PY_VER  # required to run doc demos
           # conda install -q sphinx sphinx_rtd_theme jupyter nbsphinx "nbconvert!=5.4" -c defaults -c conda-forge
-          mamba install -q sphinx sphinx_rtd_theme sphinx-gallery -c defaults -c conda-forge
-          mamba install -q pandoc -c conda-forge
+          # conda install -q pandoc -c conda-forge
+          mamba install -q sphinx sphinx_rtd_theme sphinx-gallery pandoc #  -c defaults -c conda-forge
           make -C docs html
           touch docs/build/html/.nojekyll
 
@@ -184,6 +191,8 @@ jobs:
       # . pkg_version is entire M.N.P.devX version string
       # . pkg_mnp is M.N.P only
       - name: set DEPLOY_TYPE=<pre-release|main|no_deploy>
+        env:
+          OS: ${{ runner.os }}   # Linux, macOS
         run: |
 
           # lookup the conda tarball package version and M.N.P string (if any)
@@ -193,6 +202,7 @@ jobs:
 
           # pre-release if package version is M.N.P.devX on dev branch
           if [[ \
+            $OS == "Linux" && \
             $GITHUB_REF =~ ^refs/heads/dev$ && \
             $pkg_version =~ ^([0-9]+\.){2}[0-9]+(\.dev[0-9]+){0,1}$ \
           ]]; then \
@@ -201,6 +211,7 @@ jobs:
 
           # main if package version is M.N.P on release tag vM.N.P
           if [[ \
+            $OS == "Linux" && \
             $GITHUB_REF =~ ^refs/tags/v([0-9]+\.){2}[0-9]+$ && \
             $pkg_version == $pkg_mnp \
           ]]; then \
@@ -229,6 +240,7 @@ jobs:
           printenv | sort
           conda list --explicit
 
+      # linux and osx jobs built their own tarballs; linux-64 conda converts to win-64
       - name: deploy conda package python ${{ matrix.py_ver}} ${{ env.DEPLOY_TYPE }}
         if: ${{ env.DEPLOY_TYPE == 'pre-release' || env.DEPLOY_TYPE == 'main' }}
         env:
@@ -247,8 +259,13 @@ jobs:
 
       - name: deploy sphinx docs to gh-pages
         # switch docs deployment repo/branch on deploy type
-        if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && (env.DEPLOY_TYPE == 'main' || env.DEPLOY_TYPE == 'pre-release') }}
         # if: ${{ matrix.py_ver == env.DEPLOY_PY_VER }}  # testing only
+        if: >-
+          ${{
+          matrix.py_ver == env.DEPLOY_PY_VER
+          && matrix.os == env.DEPLOY_OS
+          && (env.DEPLOY_TYPE == 'main' || env.DEPLOY_TYPE == 'pre-release')
+          }}
         env:
           # machine user account PAT
           GH_USER_NAME: robo-kutaslab
@@ -256,7 +273,6 @@ jobs:
           GH_PAGES_TOKEN: ${{ secrets.GH_PAGES_TOKEN }}
 
           # vM.N.P tagged release docs are pushed here
-          # $GITHUB_REPOSITORY
           GH_PAGES_BRANCH: gh-pages
 
           # actions on dev branch push docs to this separate repo
@@ -290,7 +306,6 @@ jobs:
           git add -A
           git commit -a -m "deploy type $DEPLOY_TYPE python $DEPLOY_PY_VER"
           git push -u origin $DOCS_BRANCH --force
-
 
       - name: deploy python package M.N.P.devX to test.pypi.org
         if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && env.DEPLOY_TYPE == 'pre-release' }}
