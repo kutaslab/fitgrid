@@ -9,7 +9,8 @@ import glob
 import warnings
 
 MKL = 'mkl'
-OBLAS = 'blas'  # matches libopenblas, libcblas
+OBLAS = 'openblas'
+CBLAS = 'cblas'  # numpy.show_config doesn't know if this is mkl or openblas
 
 
 def get_index_duplicates_table(df, level):
@@ -49,22 +50,32 @@ def deduplicate_list(lst):
 
 
 class BLAS:
-    def __init__(self, cdll, kind):
+    """blas wrapper as determined by its thread getter/setter"""
 
-        if kind not in (MKL, OBLAS):
-            raise ValueError(
-                f'kind must be {MKL} or {OBLAS}, got {kind} instead.'
-            )
+    def __init__(self, cdll):
 
-        self.kind = kind
         self.cdll = cdll
+        self.kind = None
 
-        if kind == MKL:
+        # quack like an mkl or openblas duck or fail
+        try:
             self.get_n_threads = cdll.MKL_Get_Max_Threads
             self.set_n_threads = cdll.MKL_Set_Num_Threads
-        else:
+            self.kind = MKL
+        except Exception:
+            pass
+
+        try:
             self.get_n_threads = cdll.openblas_get_num_threads
             self.set_n_threads = cdll.openblas_set_num_threads
+            self.kind = OBLAS
+        except Exception:
+            pass
+
+        if self.kind not in (MKL, OBLAS):
+            raise NotImplementedError(
+                f"BLAS must be {MKL} or {OBLAS} in {str(cdll)}"
+            )
 
     def __repr__(self):
         if self.kind == MKL:
@@ -107,14 +118,13 @@ def get_blas_osys(numpy_module, osys):
     )
 
     output = ldd_result.stdout
-
-    kinds = [MKL, OBLAS]
+    kinds = [MKL, OBLAS, CBLAS]
     for kind in kinds:
         match = re.search(PATTERN.format(kind), output, flags=re.MULTILINE)
         if match:
             path = match.groupdict()['path']
             cdll = ctypes.CDLL(path)
-            return BLAS(cdll, kind)
+            return BLAS(cdll)
 
     # unknown kind
     return None

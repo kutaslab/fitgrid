@@ -88,7 +88,13 @@ p3_epochs_fg = fg.epochs_from_dataframe(
 #
 # This example summarizes a simple model with one categorical predictor: stim (2 levels: standard, target).
 lm_summary = fg.utils.summary.summarize(
-    p3_epochs_fg, modeler="lm", LHS=channels, RHS=["1 + stim",], quiet=True,
+    p3_epochs_fg,
+    modeler="lm",
+    LHS=channels,
+    RHS=[
+        "1 + stim",
+    ],
+    quiet=True,
 )
 lm_summary
 

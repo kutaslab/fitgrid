@@ -4,26 +4,26 @@
 # 
 # - based on spudtr-cid.yml
 # - canonical package semantic version strings are M.N.P and M.N.P.devX
-# - job matrix runs on linux-64 for Python 3.6, 3.7, 3.8
+# - job matrix runs on linux-64 for Python 3.7, 3.8
 # - each py3X job builds, installs, pytests, and deploys its own conda py3X packages
 # - one py3X job deploys codecov, python package sdist, and docs
 # - cron runs daily to conda build, install, pytest the latest commit on default branch
 #
 # CI:
 #
-#   - conda build, install, and pytest the conda packages linux-64 py3[678]
-#   - conda convert py3[678] x [osx-64, win-64] (untested)
+#   - conda build, install, and pytest py3[78] x [linux-64, osx-64] tarbalss
+#   - conda convert py3[78] linux-64 -> win-64 (untested)
 #   - build sphinx docs
 #   - build python package sdist
 #
 # Deployment:
 #
 #   Development: package version M.N.P.devX on dev branch triggers
-#     - anaconda upload py3X x OS-64 tarballs to channel label /pre-release
+#     - anaconda upload py3X platform tarballs to channel label /pre-release
 #     - twine python build/sdist to test.pypi.org
 #
 #   Stable release: version M.N.P on release tagged vM.N.P triggers
-#     - anaconda upload py3X x OS-64 tarballs to channel label /main
+#     - anaconda upload py3X platform tarballs to channel label /main
 #     - codecov
 #     - sphinx docs to gh-pages
 #     - twine python build/sdist to pypi.org
@@ -72,10 +72,11 @@ defaults:
 
 jobs:
   fitgrid-cid:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }} # ubuntu-latest
     strategy:
       matrix:
-        py_ver: [3.6, 3.7, 3.8]
+        py_ver: [3.7, 3.8]
+        os: [ubuntu-latest, macos-10.15]  # Intel macs
 
     env:
       PY_VER: ${{ matrix.py_ver }}
@@ -96,50 +97,81 @@ jobs:
         run: |
           # short SHA gets baked into the conda package filename in conda/meta.yaml
           echo "GIT_ABBREV_COMMIT=_g${GITHUB_SHA:0:8}" >> $GITHUB_ENV
-          wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
-          bash miniconda.sh -b -p $HOME/miniconda
-          conda shell.bash hook >> ~/.bash_profile  # instead of conda init bash
-          mkdir -p $CONDA_BLD_PATH && rm miniconda.sh
-          source ~/.bash_profile && conda_activate
+          # wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh
+          # bash miniconda.sh -b -p $HOME/miniconda
+
+          if [[ ${{ runner.os }} == Linux ]]; then \
+            miniconda_url='https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh'; \
+          fi
+          if [[ ${{ runner.os }} == macOS ]]; then \
+            miniconda_url='https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh'; \
+          fi
+
+          wget $miniconda_url -O $HOME/miniconda.sh
+          bash ~/miniconda.sh -b -p $HOME/miniconda
+          hash -r
+          $HOME/miniconda/bin/conda shell.bash hook >> ~/.bash_profile  # instead of conda init bash
+          source ~/.bash_profile
+
+          
           hash -r
           conda config --set always_yes yes --set changeps1 no
           conda config --set bld_path $CONDA_BLD_PATH
-          conda config --set allow_conda_downgrades true
-          conda install -q conda=4.9.0  # works on mkgpu1, 4.9.2 fails here DNDC
-          conda install -q conda-build conda-verify anaconda twine
+          conda install -q conda-build conda-verify anaconda-client twine
+
+          # switch to mamba/boa and conda-forge
+          conda config --add channels conda-forge
+          conda config --set channel_priority strict
+          conda install -n base -q mamba boa -c conda-forge
+          echo "# ------------------------------------------------------------"
           conda info -a
+          echo "# ------------------------------------------------------------"
+          mamba info -a
 
       # ------------------------------------------------------------
       # 2. CI
       - name: conda build --python=${{ env.PY_VER }} conda
         id: conda-bld
+        env:
+          OS: ${{ runner.os }}   # Linux, macOS
         run: |
-          conda build --python=$PY_VER -c defaults -c conda-forge -c ejolly conda
+
+          # conda mambabuild --python=$PY_VER -c defaults -c conda-forge -c ejolly conda
+          # conda-forge added in setup w/ strict priority
+          conda mambabuild --python=$PY_VER -c ejolly conda
           # filename is last line when conda build is chatty
           tarball=$(conda build --python=$PY_VER conda --output | tail -1)
-          conda convert -p osx-64 -p win-64 -o $CONDA_BLD_PATH $tarball
+
+          # atrocious hack, only linux job converts to win-64 for upload
+          if [[ $OS == "Linux" ]]; then \
+              conda convert -p win-64 -o $CONDA_BLD_PATH $tarball; \
+          fi
           echo "conda build tarball" $tarball
           echo "::set-output name=conda-tarball::$tarball"
 
-      # black and pytest in the py3X conda env
-      - name: conda create env_${{ env.PY_VER }} python=${{ env.PY_VER }} ${{ env.PACKAGE_NAME}} and pytest
+      # create an env w/ local package
+      - name: conda create env_${{ env.PY_VER }} python=${{ env.PY_VER }} ${{ env.PACKAGE_NAME}} and black
         run: |
-          conda create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME -c local -c defaults -c conda-forge -c ejolly
+          mamba create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME "blas=*=mkl*" -c local -c ejolly # -c conda-forge -c defaults
           conda activate env_$PY_VER
-          conda install -q black pytest pytest-cov
           conda list
           lscpu
           python -c 'import numpy; numpy.show_config()'
+          mamba install -q black pytest pytest-cov
           black --check --verbose -S -l 79 .
+
+      - name: pytest
+        run: |
+          conda activate env_$PY_VER
           pytest --cov=$PACKAGE_NAME # test as installed by conda
 
       - name: build sphinx docs
-        # if: ${{ matrix.py_ver == env.DEPLOY_PY_VER }}
+        if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && matrix.os == env.DEPLOY_OS }}
         run: |
           conda activate env_$PY_VER  # required to run doc demos
           # conda install -q sphinx sphinx_rtd_theme jupyter nbsphinx "nbconvert!=5.4" -c defaults -c conda-forge
-          conda install -q sphinx sphinx_rtd_theme sphinx-gallery -c defaults -c conda-forge
-          conda install -q pandoc -c conda-forge
+          # conda install -q pandoc -c conda-forge
+          mamba install -q sphinx sphinx_rtd_theme sphinx-gallery pandoc #  -c defaults -c conda-forge
           make -C docs html
           touch docs/build/html/.nojekyll
 
@@ -158,6 +190,8 @@ jobs:
       # . pkg_version is entire M.N.P.devX version string
       # . pkg_mnp is M.N.P only
       - name: set DEPLOY_TYPE=<pre-release|main|no_deploy>
+        env:
+          OS: ${{ runner.os }}   # Linux, macOS
         run: |
 
           # lookup the conda tarball package version and M.N.P string (if any)
@@ -167,6 +201,7 @@ jobs:
 
           # pre-release if package version is M.N.P.devX on dev branch
           if [[ \
+            $OS == "Linux" && \
             $GITHUB_REF =~ ^refs/heads/dev$ && \
             $pkg_version =~ ^([0-9]+\.){2}[0-9]+(\.dev[0-9]+){0,1}$ \
           ]]; then \
@@ -175,6 +210,7 @@ jobs:
 
           # main if package version is M.N.P on release tag vM.N.P
           if [[ \
+            $OS == "Linux" && \
             $GITHUB_REF =~ ^refs/tags/v([0-9]+\.){2}[0-9]+$ && \
             $pkg_version == $pkg_mnp \
           ]]; then \
@@ -203,6 +239,7 @@ jobs:
           printenv | sort
           conda list --explicit
 
+      # linux and osx jobs built their own tarballs; linux-64 conda converts to win-64
       - name: deploy conda package python ${{ matrix.py_ver}} ${{ env.DEPLOY_TYPE }}
         if: ${{ env.DEPLOY_TYPE == 'pre-release' || env.DEPLOY_TYPE == 'main' }}
         env:
@@ -217,12 +254,17 @@ jobs:
       - name: deploy codecov
         if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && (env.DEPLOY_TYPE == 'main' || env.DEPLOY_TYPE == 'pre-release') }}
         # if: ${{ matrix.py_ver == env.DEPLOY_PY_VER }}  # testing only
-        run: conda install -q codecov && codecov
+        run: mamba install -q codecov && codecov
 
       - name: deploy sphinx docs to gh-pages
         # switch docs deployment repo/branch on deploy type
-        if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && (env.DEPLOY_TYPE == 'main' || env.DEPLOY_TYPE == 'pre-release') }}
         # if: ${{ matrix.py_ver == env.DEPLOY_PY_VER }}  # testing only
+        if: >-
+          ${{
+          matrix.py_ver == env.DEPLOY_PY_VER
+          && matrix.os == env.DEPLOY_OS
+          && (env.DEPLOY_TYPE == 'main' || env.DEPLOY_TYPE == 'pre-release')
+          }}
         env:
           # machine user account PAT
           GH_USER_NAME: robo-kutaslab
@@ -230,7 +272,6 @@ jobs:
           GH_PAGES_TOKEN: ${{ secrets.GH_PAGES_TOKEN }}
 
           # vM.N.P tagged release docs are pushed here
-          # $GITHUB_REPOSITORY
           GH_PAGES_BRANCH: gh-pages
 
           # actions on dev branch push docs to this separate repo
@@ -264,7 +305,6 @@ jobs:
           git add -A
           git commit -a -m "deploy type $DEPLOY_TYPE python $DEPLOY_PY_VER"
           git push -u origin $DOCS_BRANCH --force
-
 
       - name: deploy python package M.N.P.devX to test.pypi.org
         if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && env.DEPLOY_TYPE == 'pre-release' }}
