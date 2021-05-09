@@ -198,8 +198,8 @@ jobs:
 
           # lookup the conda tarball package version and M.N.P string (if any)
           tarball=${{ steps.conda-bld.outputs.conda-tarball }}
-          pkg_version=`echo $tarball | sed -n "s/.*${PACKAGE_NAME}-\(.\+\)-.*/\1/p"`
-          pkg_mnp=`echo $pkg_version | sed -n "s/\(\([0-9]\+\.\)\{1,2\}[0-9]\+\).*/\1/p"`
+          pkg_version=`echo $tarball | sed -n "s/.*${PACKAGE_NAME}-\(.*\)-.*/\1/p"`
+          pkg_mnp=`echo $pkg_version | sed -n "s/\([0-9]*\.[0-9]*\.[0-9]\).*/\1/p"`
 
           # pre-release if package version is M.N.P.devX on dev branch
           if [[ \
