@@ -63,6 +63,7 @@ on:
 env:
   PACKAGE_NAME: fitgrid
   DEPLOY_PY_VER: 3.8  # only this job deploys codecov, docs, sdist
+  DEPLOY_OS: ubuntu-latest
 
 defaults:
   run:
@@ -157,13 +158,14 @@ jobs:
           conda list
           lscpu
           python -c 'import numpy; numpy.show_config()'
-          mamba install -q black pytest pytest-cov
-          black --check --verbose -S -l 79 .
 
-      - name: pytest
+      - name: black, pytest, codecov
         run: |
           conda activate env_$PY_VER
+          mamba install -q black pytest pytest-cov codecov
+          black --check --verbose -S -l 79 .
           pytest --cov=$PACKAGE_NAME # test as installed by conda
+          codecov
 
       - name: build sphinx docs
         if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && matrix.os == env.DEPLOY_OS }}
@@ -201,7 +203,6 @@ jobs:
 
           # pre-release if package version is M.N.P.devX on dev branch
           if [[ \
-            $OS == "Linux" && \
             $GITHUB_REF =~ ^refs/heads/dev$ && \
             $pkg_version =~ ^([0-9]+\.){2}[0-9]+(\.dev[0-9]+){0,1}$ \
           ]]; then \
@@ -210,7 +211,6 @@ jobs:
 
           # main if package version is M.N.P on release tag vM.N.P
           if [[ \
-            $OS == "Linux" && \
             $GITHUB_REF =~ ^refs/tags/v([0-9]+\.){2}[0-9]+$ && \
             $pkg_version == $pkg_mnp \
           ]]; then \
@@ -251,14 +251,9 @@ jobs:
           -l $DEPLOY_TYPE
           --skip-existing
 
-      - name: deploy codecov
-        if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && (env.DEPLOY_TYPE == 'main' || env.DEPLOY_TYPE == 'pre-release') }}
-        # if: ${{ matrix.py_ver == env.DEPLOY_PY_VER }}  # testing only
-        run: mamba install -q codecov && codecov
-
       - name: deploy sphinx docs to gh-pages
         # switch docs deployment repo/branch on deploy type
-        # if: ${{ matrix.py_ver == env.DEPLOY_PY_VER }}  # testing only
+        # if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && matrix.os == env.DEPLOY_OS }}  # testing only
         if: >-
           ${{
           matrix.py_ver == env.DEPLOY_PY_VER
@@ -306,8 +301,16 @@ jobs:
           git commit -a -m "deploy type $DEPLOY_TYPE python $DEPLOY_PY_VER"
           git push -u origin $DOCS_BRANCH --force
 
+
       - name: deploy python package M.N.P.devX to test.pypi.org
-        if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && env.DEPLOY_TYPE == 'pre-release' }}
+        # if: ${{ matrix.py_ver == env.DEPLOY_PY_VER }}  # testing only
+        if: >-
+          ${{
+          matrix.py_ver == env.DEPLOY_PY_VER
+          && matrix.os == env.DEPLOY_OS
+          && env.DEPLOY_TYPE == 'pre-release'
+          }}
+
         env:
           TEST_PYPI_TOKEN: ${{ secrets.test_pypi_token }}
         # trailing / on pypi repos is required
@@ -321,7 +324,12 @@ jobs:
 
       # upload to pypi.org last to avoid burning stable version strings
       - name: deploy python package release vM.N.P to pypi.org
-        if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && env.DEPLOY_TYPE == 'main' }}
+        if: >-
+          ${{
+          matrix.py_ver == env.DEPLOY_PY_VER
+          && matrix.os == env.DEPLOY_OS
+          && env.DEPLOY_TYPE == 'main'
+          }}
         env:
           PYPI_TOKEN: ${{ secrets.pypi_token }}
         run: >-
