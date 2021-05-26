@@ -76,13 +76,12 @@ jobs:
     runs-on: ${{ matrix.os }} # ubuntu-latest
     strategy:
       matrix:
-        py_ver: [3.7, 3.8]
+        py_ver: [3.7, 3.8, 3.9]
         os: [ubuntu-latest, macos-10.15]  # Intel macs
 
     env:
       PY_VER: ${{ matrix.py_ver }}
       CONDA_BLD_PATH: /tmp/ci_conda_bld
-      GH_PAGES_BRANCH: gh-pages-dev   # gh-pages for tagged release, gh-pages--dev for testing.
 
     outputs:
       # tarballs are py3X job-specific
@@ -162,9 +161,9 @@ jobs:
       - name: black, pytest, codecov
         run: |
           conda activate env_$PY_VER
-          mamba install -q black pytest pytest-cov codecov
+          mamba install -q black pytest pytest-cov pytest-xdist codecov
           black --check --verbose -S -l 79 .
-          pytest --cov=$PACKAGE_NAME # test as installed by conda
+          pytest -n 2 --cov=$PACKAGE_NAME # test as installed by mamba
           codecov
 
       - name: build sphinx docs
