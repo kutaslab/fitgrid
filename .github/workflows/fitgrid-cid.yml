@@ -137,7 +137,7 @@ jobs:
 
           # conda mambabuild --python=$PY_VER -c defaults -c conda-forge -c ejolly conda
           # conda-forge added in setup w/ strict priority
-          conda mambabuild --python=$PY_VER -c ejolly conda
+          conda mambabuild --python=$PY_VER -c ejolly/label/pre-release conda
           # filename is last line when conda build is chatty
           tarball=$(conda build --python=$PY_VER conda --output | tail -1)
 
@@ -151,7 +151,7 @@ jobs:
       # create an env w/ local package
       - name: conda create env_${{ env.PY_VER }} python=${{ env.PY_VER }} ${{ env.PACKAGE_NAME}} and black
         run: |
-          mamba create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME "blas=*=mkl*" -c local -c ejolly -c conda-forge -c defaults
+          mamba create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME "blas=*=mkl*" -c local -c ejolly/label/pre-release -c conda-forge -c defaults
           conda activate env_$PY_VER
           conda list
           lscpu
