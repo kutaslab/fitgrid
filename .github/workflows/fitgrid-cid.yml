@@ -117,12 +117,11 @@ jobs:
           hash -r
           conda config --set always_yes yes --set changeps1 no
           conda config --set bld_path $CONDA_BLD_PATH
-          conda install -q conda-build conda-verify anaconda-client twine
 
           # switch to mamba/boa and conda-forge
           conda config --add channels conda-forge
           conda config --set channel_priority strict
-          conda install -n base -q mamba boa -c conda-forge
+          conda install -n base -q conda-build conda-verify anaconda-client twine mamba boa
           echo "# ------------------------------------------------------------"
           conda info -a
           echo "# ------------------------------------------------------------"
@@ -152,7 +151,7 @@ jobs:
       # create an env w/ local package
       - name: conda create env_${{ env.PY_VER }} python=${{ env.PY_VER }} ${{ env.PACKAGE_NAME}} and black
         run: |
-          mamba create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME "blas=*=mkl*" -c local -c ejolly # -c conda-forge -c defaults
+          mamba create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME "blas=*=mkl*" -c local -c ejolly -c conda-forge -c defaults
           conda activate env_$PY_VER
           conda list
           lscpu
