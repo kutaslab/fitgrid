@@ -17,12 +17,23 @@ conda environments
 <https://anaconda.org/kutaslab/fitgrid>`_ for installation into conda
 "virtual" environments using the (good) `conda <https://conda.io>`_ or
 (better) `mamba <https://mamba.readthedocs.io/en/latest/>`_ package
-manager. The virtual environment isolates the `fitgrid` installation
-to prevent clashes with what is already installed on your system.  The
-`conda` package installer automatically populates the environment with
-compatible versions of the hundreds of Python and R packages `fitgrid`
-requires to run. The `mamba` package installer does the same thing but
-much faster and, in some cases, more reliably.
+manager. A virtual environment isolates the `fitgrid` installation to
+prevent clashes with what is already installed elsewhere in your
+system and other virtual environments.  The `mamba` environment
+creator and package installer does the same thing as `conda` but much
+faster and, in some cases, more reliably. Either way, when the package
+manager installs fitgrid it also automatically populates the
+environment with compatible versions of the hundreds of Python and R
+packages `fitgrid` requires to run including `numpy
+<https://numpy.org/doc/stable>`_, `pandas
+<https://pandas.pydata.org/docs>`_, `matplotlib
+<https://matplotlib.org>`_, `pymer4 <https://eshinjolly.com/pymer4>`_,
+and `rpy2 <https://rpy2.github.io/doc/latest/html/index.html>`_ as
+well as `R <https://www.r-project.org/other-docs.html>`_, `lme4
+<https://cran.r-project.org/web/packages/lme4/index.html>`_, and
+`lmerTest
+<https://cran.r-project.org/web/packages/lmerTest/index.html>`_ to
+name a few. 
 
 The steps for creating conda environments and installing fitgrid are
 simple but it is prudent to first have a general understanding of
@@ -30,12 +41,52 @@ conda virtual environments and at least these commands: ``conda create
 ...``, ``conda activate ...``, ``conda deactivate``, ``conda
 install -c ....``. See the `Conda Cheat Sheet
 <https://docs.conda.io/projects/conda/en/latest/user-guide/cheatsheet.html>`_
-for a summary. For fine tuning and troubleshooting environments, it is
-useful to have a grasp of conda channels and channel priority and the
-difference between the default conda channels `main` and `r`
-commercially maintained by Anaconda and the parallel universe
-of the `conda-forge` channel maintained by the open-source community.
+for a summary.
 
+Our current recommended best practice for working with conda
+environments is to install the lightweight `miniconda3
+<https://docs.conda.io/en/latest/miniconda.html>`_ and then avoid
+polluting the "base" conda environment with data analysis and
+application packages like fitgrid.  Instead, create separate new
+working environments, each populated with the packages needed for a
+given project. The mamba package is an exception to this rule. If you
+elect to use mamba, follow the installation instructions carefully and
+install it into the **base** conda environment with ``conda
+install --name base mamba``.
+
+For fine tuning environments and working around incompatible package
+versions refer to the core `conda tasks
+<https://conda.io/projects/conda/en/latest/user-guide/tasks/index.html>`_
+especially `managing conda channels and channel priority
+<https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-channels.html>`_
+and `installing packages
+<https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-pkgs.html#installing-packages>`_.
+For working with mixed Python and R environments, it is especially
+important to attend to the difference between the defaults conda
+channels `main` and `r` where packages are commercially maintained by
+the Anaconda team and the somewhat parallel universe of the
+`conda-forge <https://conda-forge.org/>`_ channel where packages are
+maintained by the open-source community. When you intend to install
+packages primarily from conda-forge, the conda-forge maintainers
+recommend strict conda-forge channel priority.  This can be specified
+with the command line option `--strict-channel-priority` or set as the
+default by modifying the .condarc `configuration file
+<https://docs.conda.io/projects/conda/en/master/user-guide/configuration/use-condarc.html#using-the-condarc-conda-configuration-file>`_.
+
+However, there is no good "one-size-fits-most" default setting because
+the specific versions of packages required for compatibility and best
+performance depend on the computing hardware, operating systems,
+compilers, and the version requirements of packages that are already
+in the environment or will be. The examples below illustrate how to
+adapt to a variety of common scenarios that cover a large number of
+cases encountered in practice. Environment names may be chosen freely,
+those shown are for illustration only.
+
+.. note::
+
+   The commands shown here are broken into separate lines here for
+   readability. If you do this, make sure the \\ is the last character on each line.
+   Alternatively you can enter the command as a single line without any \\.
 
 .. _conda_install_fitgrid:
 
@@ -45,34 +96,21 @@ of the `conda-forge` channel maintained by the open-source community.
 ================================
 
 These examples show how to install `fitgrid` from a bash shell command
-prompt in a linux or Mac terminal window.  They assume the `conda`
-executable is already installed (we use `miniconda3
-<https://docs.conda.io/en/latest/miniconda.html>`_ for development and
-testing) and `mamba` has been installed into the base conda
-environment with ``conda install --name base mamba``. The
-environment names may be chosen freely, those shown are for
-illustration only.
+prompt in a linux or Mac terminal window.  They assume the conda
+executable is already installed and mamba is installed in the base
+environment as instructed and the users's .condarc file has not been
+modified.
 
-The `--strict-channel-priority` option is the recommended
-configuration for working in the `conda-forge
-<https://conda-forge.org>`_ ecosystem.  Command line options can be
-also be configured in the .condarc `configuration file
-<https://docs.conda.io/projects/conda/en/master/user-guide/configuration/use-condarc.html#using-the-condarc-conda-configuration-file>`_,
-these examples assume the default .condarc file has not been modified.
-
-.. note::
-
-   The commands shown here are broken into separate lines here for
-   readability. If you do this, make sure the \\ is the last character on each line.
-   Alternatively you can enter the command as a single line without any \\.
 
 Stable release
 --------------
 
 This is a typical installation of the latest stable release of fitgrid
-into a fresh conda environment. This pattern
-is most likely to be compatible with recent versions of other conda
-packages on linux and (Intel) Mac OSX.
+into a fresh conda environment. This pattern is likely to be
+compatible with recent versions of other conda packages on linux and
+Mac OSX. However, performance may be degraded on Intel CPUs
+because conda-forge defaults to OpenBLAS builds of the algebra
+libraries.
 
 .. code-block:: bash
 
@@ -87,7 +125,7 @@ Development version
 
 At times, the development version of fitgrid runs ahead of the latest
 stable release and includes bug fixes and new features. The
-development version may be installed by overriding the default
+latest development version may be installed by overriding the default
 `kutaslab` conda channel with `kutaslab/label/pre-release` like so:
 
 .. code-block:: bash
@@ -237,6 +275,14 @@ Troubleshooting
 * Use `conda list` to inspect package versions and the channels they come
   from when constructing conda enviroments.
 
+* To help avoid package version conflicts and speed up the dependency solver
+  it can be useful to specify the Python version and install `fitgrid`
+  along with the other conda packages you want into a fresh
+  environment in one fell swoop. The package installers cannot see
+  into the future. If packages are installed one by one, the next
+  package version you want may not be compatible with what is already
+  in the environment.
+
 * `mamba create` and `mamba install` are not exact drop in
   replacements for `conda create` and `conda install` because the
   conda installer has an affinity for packages on default conda
@@ -248,14 +294,6 @@ Troubleshooting
   packages you wish to install. Not all combinations of platforms,
   Python versions, installers, channel priority, and packages are
   compatible.
-
-* To avoid package version conflicts and speed up the dependency solver
-  it can be useful to specify the Python version and install `fitgrid`
-  along with the other conda packages you want into a fresh
-  environment in one fell swoop. The package installers cannot see
-  into the future. If packages are installed one by one, the next
-  package version you want may not be compatible with what is already
-  in the environment.
 
 * Depending on your computer hardware, you may see a significant
   performance difference between the Intel MKL and OpenBLAS builds of
