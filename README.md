@@ -10,17 +10,7 @@ We gratefully acknowledge the support of grant NICHD 5R01HD022614 for the develo
 
 ## Documentation
 
-Available [here](https://kutaslab.github.io/fitgrid).
-
-
-## Recommended for full installation
-
-    conda install -c kutaslab -c defaults -c conda-forge -c ejolly fitgrid
-
-Unsupported alternative with no `lmer`
-
-    pip3 install fitgrid
-
+User guide, installation instructions, workflow and usage examples are available [here](https://kutaslab.github.io/fitgrid).
 
 ## Demo
 
