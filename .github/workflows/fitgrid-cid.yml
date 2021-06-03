@@ -160,10 +160,9 @@ jobs:
       - name: black, pytest, codecov
         run: |
           conda activate env_$PY_VER
-          mamba install -q black pytest pytest-cov pytest-xdist codecov
+          mamba install -q black pytest pytest-cov codecov
           black --check --verbose -S -l 79 .
-          pytest -n 2 --cov=$PACKAGE_NAME # test as installed by mamba
-          codecov
+          pytest --cov=$PACKAGE_NAME && codecov # test as installed by mamba
 
       - name: build sphinx docs
         if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && matrix.os == env.DEPLOY_OS }}
