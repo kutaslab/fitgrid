@@ -76,13 +76,12 @@ jobs:
     runs-on: ${{ matrix.os }} # ubuntu-latest
     strategy:
       matrix:
-        py_ver: [3.7, 3.8]
+        py_ver: [3.7, 3.8, 3.9]
         os: [ubuntu-latest, macos-10.15]  # Intel macs
 
     env:
       PY_VER: ${{ matrix.py_ver }}
       CONDA_BLD_PATH: /tmp/ci_conda_bld
-      GH_PAGES_BRANCH: gh-pages-dev   # gh-pages for tagged release, gh-pages--dev for testing.
 
     outputs:
       # tarballs are py3X job-specific
@@ -118,12 +117,11 @@ jobs:
           hash -r
           conda config --set always_yes yes --set changeps1 no
           conda config --set bld_path $CONDA_BLD_PATH
-          conda install -q conda-build conda-verify anaconda-client twine
 
           # switch to mamba/boa and conda-forge
           conda config --add channels conda-forge
           conda config --set channel_priority strict
-          conda install -n base -q mamba boa -c conda-forge
+          conda install -n base -q conda-build conda-verify anaconda-client twine mamba boa
           echo "# ------------------------------------------------------------"
           conda info -a
           echo "# ------------------------------------------------------------"
@@ -139,7 +137,7 @@ jobs:
 
           # conda mambabuild --python=$PY_VER -c defaults -c conda-forge -c ejolly conda
           # conda-forge added in setup w/ strict priority
-          conda mambabuild --python=$PY_VER -c ejolly conda
+          conda mambabuild --python=$PY_VER -c ejolly/label/pre-release conda
           # filename is last line when conda build is chatty
           tarball=$(conda build --python=$PY_VER conda --output | tail -1)
 
@@ -153,7 +151,7 @@ jobs:
       # create an env w/ local package
       - name: conda create env_${{ env.PY_VER }} python=${{ env.PY_VER }} ${{ env.PACKAGE_NAME}} and black
         run: |
-          mamba create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME "blas=*=mkl*" -c local -c ejolly # -c conda-forge -c defaults
+          mamba create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME "blas=*=mkl*" -c local -c ejolly/label/pre-release -c conda-forge -c defaults
           conda activate env_$PY_VER
           conda list
           lscpu
@@ -164,8 +162,7 @@ jobs:
           conda activate env_$PY_VER
           mamba install -q black pytest pytest-cov codecov
           black --check --verbose -S -l 79 .
-          pytest --cov=$PACKAGE_NAME # test as installed by conda
-          codecov
+          pytest --cov=$PACKAGE_NAME && codecov # test as installed by mamba
 
       - name: build sphinx docs
         if: ${{ matrix.py_ver == env.DEPLOY_PY_VER && matrix.os == env.DEPLOY_OS }}
