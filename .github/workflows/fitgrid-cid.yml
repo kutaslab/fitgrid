@@ -76,8 +76,9 @@ jobs:
     runs-on: ${{ matrix.os }} # ubuntu-latest
     strategy:
       matrix:
-        py_ver: [3.7, 3.8, 3.9]
-        os: [ubuntu-latest, macos-10.15]  # Intel macs
+        py_ver: [3.7, 3.8]
+        # os: [ubuntu-latest, macos-10.15]  # Intel macs
+        os: [windows-latest]  # Intel macs
 
     env:
       PY_VER: ${{ matrix.py_ver }}
@@ -134,10 +135,8 @@ jobs:
         env:
           OS: ${{ runner.os }}   # Linux, macOS
         run: |
-
-          # conda mambabuild --python=$PY_VER -c defaults -c conda-forge -c ejolly conda
           # conda-forge added in setup w/ strict priority
-          conda mambabuild --python=$PY_VER -c ejolly/label/pre-release conda
+          conda mambabuild --python=$PY_VER -c ejolly conda
           # filename is last line when conda build is chatty
           tarball=$(conda build --python=$PY_VER conda --output | tail -1)
 
@@ -151,7 +150,7 @@ jobs:
       # create an env w/ local package
       - name: conda create env_${{ env.PY_VER }} python=${{ env.PY_VER }} ${{ env.PACKAGE_NAME}} and black
         run: |
-          mamba create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME "blas=*=mkl*" -c local -c ejolly/label/pre-release -c conda-forge -c defaults
+          mamba create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME "blas=*=mkl*" -c local -c ejolly
           conda activate env_$PY_VER
           conda list
           lscpu
