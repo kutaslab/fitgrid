@@ -150,16 +150,15 @@ jobs:
       - name: conda create env_${{ env.PY_VER }} python=${{ env.PY_VER }} ${{ env.PACKAGE_NAME}} and black
         run: |
           mamba create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME "blas=*=mkl*" -c local -c ejolly
-          conda activate env_$PY_VER
-          conda list
-          lscpu
-          python -c 'import numpy; numpy.show_config()'
 
       - name: black, pytest, codecov
         run: |
           conda activate env_$PY_VER
           mamba install -q black pytest pytest-cov codecov
           black --check --verbose -S -l 79 .
+          conda list
+          lscpu
+          python -c 'import numpy; numpy.show_config()'
           pytest --cov=$PACKAGE_NAME && codecov # test as installed by mamba
 
       - name: build sphinx docs
@@ -169,8 +168,7 @@ jobs:
           # conda install -q sphinx sphinx_rtd_theme jupyter nbsphinx "nbconvert!=5.4" -c defaults -c conda-forge
           # conda install -q pandoc -c conda-forge
           mamba install -q sphinx sphinx_rtd_theme sphinx-gallery pandoc #  -c defaults -c conda-forge
-          make -C docs html
-          touch docs/build/html/.nojekyll
+          make -C docs html && touch docs/build/html/.nojekyll
 
       - name: build python package sdist
         if: ${{ matrix.py_ver == env.DEPLOY_PY_VER }}
