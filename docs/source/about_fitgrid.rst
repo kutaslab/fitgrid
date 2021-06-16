@@ -115,21 +115,21 @@ The `fitgrid` package allows researchers generally familiar with
 regression modeling and model specification formulas in Python
 (`statsmodels.formula.api` via `patsy`) or R (`lm`, `lme4`,
 `lmerTest`) to use these tools to readily and reproducibly fit
-ordinary least squares and linear mixed-effects regression models of 
+ordinary least squares and linear mixed-effects regression models of
 multichannel event-related time series recordings, at scale, with
-a few lines of scripted Python. 
+a few lines of scripted Python.
 
 With one function call, `fitgrid` sweeps a model formula across the
 data observations at each time and channel (in parallel on multiple CPU
 cores if supported by hardware) and collects the resulting fit objects
 returned by `statsmodels.ols` or `lme4::lmer` via `pymer4` in a
-single `FitGrid[times, channels]` Python object. 
+single `FitGrid[times, channels]` Python object.
 
 The `FitGrid` can be sliced by time and channel like a dataframe, and
 the results for a fit attribute are queried for the entire grid with
 the same syntax as single fit: ``results = FitGrid.<attr>``. The
 results include the time-series of coefficient estimates comprising
-the regression ERPs, including, but not restricted to, the special 
+the regression ERPs, including, but not restricted to, the special
 case average ERP.  Equally important for modeling, the results also include
 everything else in the bundle of information comprising the fit object
 such as coefficient standard errors, model log likelihood, Akiake's
@@ -157,7 +157,7 @@ For illustration with `patsy` and `statsmodels`, suppose you have a
 pandas DataFrame ``data`` with independent variables ``x`` and ``a``,
 where ``x`` is continuous and ``a`` is categorical. Suppose also
 ``channel`` is your continuous dependent variable.  Here's how you
-would run an ordinary least squares linear regression of ``y`` on
+would run an ordinary least squares linear regression of ``channel`` on
 ``x + a`` using `statsmodels <http://www.statsmodels.org>`_::
 
     from statsmodels.formula.api import ols
@@ -171,7 +171,7 @@ accessing various attributes of ``fit``. For example, the betas::
     betas = fit.params
 
 or the t-values::
-    
+
     tvalues = fit.tvalues
 
 or :math:`Pr(>|t|)`::
@@ -179,7 +179,7 @@ or :math:`Pr(>|t|)`::
     pvalues = fit.pvalues
 
 Compare to R, where this is usually done by calling functions like ``summary``
-or ``coef``. 
+or ``coef``.
 
 Now the issue with using that interface for single trial rERP analyses
 is of course the dimensionality: instead of fitting a single model, we
@@ -260,6 +260,6 @@ can also be used with sensor array time-series data from other domains
 where event-related signal averaging and and regression modeling is
 appropriate. The :ref:`gallery` includes hourly NOAA tide and
 atmospheric data to illustrate event-related time-domain aggregation
-to detect lunar atmospheric tides, an approach first attempted by 
+to detect lunar atmospheric tides, an approach first attempted by
 Laplace in the early 19th century [LinCha1969]_.
 

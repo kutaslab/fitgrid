@@ -17,16 +17,16 @@ the :ref:`workflow`, :ref:`gallery`, and :ref:`api`
 `fitgrid.Epochs`
 ================
 
-Fitting linear regression models in Python and R with formulas like `y
-~ a + b + a:b` in Python (`patsy`, `statsmodels.formula.api`) or R (`lm`,
-`lme4::lmer`) assumes the data are represented as a 2D array with the
-variables in named columns, `y`, `a`, `b` and values ("observations",
-"scores") in rows.
+Fitting linear regression models in Python and R with formulas like
+``y ~ a + b + a:b`` in Python (`patsy`, `statsmodels.formula.api`) or R
+(`lm`, `lme4::lmer`) assumes the data are represented as a 2D array with
+the variables in named columns, ``y``, ``a``, ``b`` and values
+("observations", "scores") in rows.
 
 `fitgrid` follows this format with the additional assumption that the
 data are vertically stacked fixed-length time-series "epochs", so the
 user must specify two additional columns of values that together
-uniquely identify the epoch and time of the data row. 
+uniquely identify the epoch and time of the data row.
 
 
 .. _epochs_data_format:
@@ -73,7 +73,7 @@ chart and time-stamped relative to an experimental event.
 
 Rows and columns epochs data can be loaded into a `fitgrid.Epochs`
 object from a `pandas.DataFrame` in memory or read from files in
-feather or HDF5 format. 
+feather or HDF5 format.
 
 For details on these data formats see `pandas.read_feather
 <https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_feather.html>`_
@@ -121,7 +121,7 @@ Fitting a model
 
 The following methods populate the `FitGrid[time, channel]` object.
 with `statsmodels` results for OLS model fits and `lme4::lmer` for
-linear mixed-effects fits. 
+linear mixed-effects fits.
 
 * Ordinary least squares: :py:meth:`fitgrid.lm`
 
@@ -158,7 +158,7 @@ The `FitGrid[time, channel]`
 Slice by `time`, `channel`
 --------------------------
 
- 
+
 Slice the `FitGrid` with `pandas.DataFrame` range ``:`` and label slicers.
 The range includes the upper bound.
 
@@ -320,12 +320,12 @@ To deal with this when running ``fitgrid.lm``, we try to instruct the
 linear algebra libraries your ``numpy`` distribution depends on to
 only use a single thread in every computation. This then lets you
 control the number of CPU cores being used by setting the ``n_cores``
-parameter in :py:meth:`fitgrid.lm` and :py:meth:`fitgrid.lmer`. 
+parameter in :py:meth:`fitgrid.lm` and :py:meth:`fitgrid.lmer`.
 
 If you are using your own 8-core laptop, you might want to use all
 cores, so set something like ``n_cores=7``. On a shared machine, it's
 a good idea to run on half or 3/4 of the cores if no one else is
-running heavy computations. 
+running heavy computations.
 
 Note that fitgrid parallel processing counts the "logical" cores
 available to the operating system and this may differ from the number
