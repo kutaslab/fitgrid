@@ -27,8 +27,8 @@ bibliography: paper.bib
 
 Electrical brain activity related to external stimulation and internal
 mental events can be measured at the scalp as tiny time-varying
-electric potential waveforms (EEG), typically a few tens of
-microvolts peak to peak [@Berger1930]. Even tinier brain responses,
+electric potential waveforms (electroencephalogram; EEG), typically a few
+tens of microvolts peak to peak [@Berger1930]. Even tinier brain responses,
 too small to be seen by naked eye in the EEG, can be detected by
 repeating the stimulation, aligning the EEG recordings to the
 triggering event and averaging them at each time point
@@ -46,7 +46,7 @@ mathematically identical to the estimated constant
 $\hat{\beta}_{0}(t)$ for the regression model $y(t) = \beta_{0}(t) +
 \varepsilon(t)$, fit by minimizing squared error [@SmiKut2015]. The
 average ERP can be viewed as a time series of model parameter
-estimates. Generalizing to more complex models, e.g., multiple
+estimates. Generalizing to more complex models such as multiple
 regression $y = \beta_{0} + \beta_{1}X_{1} + \ldots +
 \beta_{p}X_{p} + \varepsilon$, likewise produces time series of
 estimates for the constant and each regressor coefficient, the
@@ -54,10 +54,10 @@ $\hat{\beta}_{0}(t), \hat{\beta}_{1}(t), \ldots, \hat{\beta}_{p}(t)$
 dubbed regression ERP (rERP) waveforms
 [see @SmiKut2015; @SmiKut2015b for discussion of related approaches].
 This holds for straight-line fits ("slope" rERPs) as well as models of
-curvilinear relationships, e.g., spline regression
+curvilinear relationships such as spline regression
 [@SmiKut2015b]. Besides the estimated coefficient rERPs, the approach
 also produces time series for all the basic and derived quantities of
-the fitted model: coefficient standard errors, residuals, 
+the fitted model: coefficient standard errors, residuals,
 likelihood, Akaike information criterion (AIC), and so
 forth. With the shift from averaging to regression modeling, however,
 comes a new problem.
@@ -66,7 +66,7 @@ comes a new problem.
 
 Interpreting recordings of brain responses and drawing inferences from
 patterns of systematic variation is based on statistical comparison and
-evaluation of candidate models.  Whereas fitting a regression model is
+evaluation of candidate models. Whereas fitting a regression model is
 straightforward on current scientific computing platforms, informative
 modeling, by contrast, is a laborious process that iterates cycles of
 data quality control, fitting, data diagnosis, model evaluation,
@@ -86,17 +86,19 @@ for a large scale experiment. The combinatorial explosion is
 unavoidable; `fitgrid` contains it.
 
 The rERP approach is attracting growing attention in the field but to
-date the open-source EEG and MEG data analysis landscape has been
+date the open-source EEG and magnetoencephalography (MEG) data analysis
+landscape has been
 dominated by toolboxes written for MATLAB such as EEGLAB
 [@DelMak2004], FieldTrip [@OosEtAl2011], and Brainstorm
-[@TadEtAl2011], and this holds for rERP modeling, e.g., @EhiDim2019.
+[@TadEtAl2011], and this holds for rERP modeling (e.g., @EhiDim2019)s.
 Like open-source scientific computing generally, Python and R have
-been gaining traction for EEG and MEG analysis, as in MNE Python
-@GramfortEtAl2013 and for regression ERPs in R,
+been gaining traction for EEG and MEG analysis, as in MNE-Python
+@GramfortEtAl2013, and for regression ERPs in R
 @TreNew2015. Nevertheless, widely accessible implementations for rERP
-modeling in the Python remain limited.  Development of N. J. Smith's
+modeling in Python remain limited. Development of N. J. Smith's
 promising rERPy Python package for ERP and rERP analysis appears to
-have halted in Python 2.X. MNE Python implements a `linear_regression`
+have halted in Python 2, which reached its end of life in January 2020.
+MNE-Python implements a `linear_regression`
 function for computing rERP coefficients on continuous data as
 described in @SmiKut2015b but not time series of OLS or mixed-effects
 model fits. `fitgrid` is intended to fill this gap in the Python
@@ -118,7 +120,7 @@ parallel if supported by hardware). The fit results across times and
 channels are available on demand with the same syntax used to access
 results in a single fit object and the results are returned as tidy
 indexed `pandas.DataFrames` for further analysis, visualization, and
-interpretation. 
+interpretation.
 
 `fitgrid` provides routines for generating simulated data and
 downloading sample EEG data from a public Zenodo companion archive
@@ -127,12 +129,12 @@ Python vignettes that illustrate their use. While the origins of
 `fitgrid` are in EEG data analysis, `fitgrid` can also be used with
 other neuroimaging data such as MEG and more generally with
 synchronized sensor array time-series data from other domains for
-which event-related regression modeling is appropriate.  `fitgrid`
+which event-related regression modeling is appropriate. `fitgrid`
 enables researchers to conduct this type of computationally-intensive
 modeling flexibly, efficiently, informatively, and reproducibly with
 familiar scientific computing tools and minimal programming. These
 features make `fitgrid` well-suited for general use in exploratory
-data analysis (EDA), e.g., @UrbDelChaKut2020 and @TroUrbKut2020.
+data analysis (EDA; e.g., @UrbDelChaKut2020 and @TroUrbKut2020).
 
 ![fitgrid TL; DR](fitgrid_overview.png)
 
@@ -144,7 +146,7 @@ The `fitgrid` documentation is available online:
 
 * [Getting Started]() gives an overview of the `fitgrid` workflow with
    notes, figures, and downloadable and executable code.
-   
+
 * The [User Guide]() provides information about usage and specific
   topics including how the OLS models are fit in Python `statsmodels`
   [@SeaPer2010] and the LMER models are fit in R
@@ -166,14 +168,14 @@ The `fitgrid` documentation is available online:
 
   ![Downloadable Examples Gallery](examples_gallery.png)
 
-## Installation, Continuous Integration, and Source 
+## Installation, Continuous Integration, and Source
 
 The online documentation includes [installation instructions]() and
-system recommendations.  The latest stable release of `fitgrid` and
+system recommendations. The latest stable release of `fitgrid` and
 the bleeding edge pre-release development version are packaged for
 Python 3.6, 3.7, and 3.8 on x86_64 linux and distributed on Anaconda
 Cloud. Installation of the stable release into a fresh conda virtual
-environment along with other compatible packages, e.g., `jupyter` for
+environment along with other compatible packages, such as `jupyter` for
 running Example Gallery notebooks, is recommended like so:
 
 ```bash
@@ -191,13 +193,14 @@ install, and pytests before deployment to Anaconda Cloud. The
 Python 3.6, 3.7 and 3.8 64-bit Intel OSX and Windows packages are also
 distributed on Anaconda Conda and the Python sdist is uploaded to PyPI
 but these are not routinely tested (contributed field reports are
-welcome). The source code is hosted in the public github repository
+welcome). The source code is hosted in the public GitHub repository
 [https://github.com/kutaslab/fitgrid)](https://github.com/kutaslab/fitgrid)
 and Issues may be posted there in accordance with the `fitgrid` Code
 of Conduct.
 
 
 ## Implementation
+
 The core function of `fitgrid` is to apply a linear regression or a
 linear mixed effects model to datasets encapsulated in an input
 `Epochs` object. The output is a `FitGrid` which maintains a 2D grid
@@ -230,8 +233,8 @@ In addition to straight-line fits, the `fitgrid` framework can fit OLS
 models of curvilinear relations between predictors and EEG with model
 formulas because `patsy` supports column variable transformation by
 arbitrary Python code. Polynomial regression ERPs for U-shaped
-relations can be computed with, e.g., $\mathsf{x + pow(x, 2)}$ if this
-seems like a good idea. If spline regression as described in
+relations can be computed with, for example, $\mathsf{x + pow(x, 2)}$
+if this seems like a good idea. If spline regression as described in
 @SmiKut2015b seems like a better idea, `patsy` also provides built-in
 functions for generating families of spline bases, although the
 researcher is responsible for ensuring that the data epochs are
@@ -254,7 +257,7 @@ to track the time course of all the fit attributes, not just the
 estimated regression coefficients. For fitting the wide $\mathsf{L
 \times P}$ models to continuous data, implementations specifically
 designed for that approach such as the rERPy package or the
-implementation in MNE Python may be a better choice.
+implementation in MNE-Python may be a better choice.
 
 # Acknowledgments and Contributions
 
@@ -269,7 +272,7 @@ testing), Nathaniel J. Smith (binary EEG file I/O), and testing and
 feedback by Wen-Hsuan Chan, Emily Provenzano, Anna Stoermann, and
 Melissa Troyer. We thank Marta Kutas and Melissa Troyer for valuable
 comments on the fitgrid documentation and earlier drafts of this
-report.  This work was supported by grant NICHD 5R01HD022614 to Marta
+report. This work was supported by grant NICHD 5R01HD022614 to Marta
 Kutas.
 
 # References
