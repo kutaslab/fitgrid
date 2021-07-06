@@ -14,6 +14,7 @@ authors:
     orcid: 0000-0001-7993-142X
     affiliation: 1
   - name: Andrey S. Portnoy
+	orcid: 0000-0001-9997-9025
     affiliation: 1
 affiliations:
  - name: Department of Cognitive Science, University of California, San Diego
@@ -47,20 +48,21 @@ $\hat{\beta}_{0}(t)$ for the regression model $y(t) = \beta_{0}(t) +
 \varepsilon(t)$, fit by minimizing squared error [@SmiKut2015]. The
 average ERP can be viewed as a time series of model parameter
 estimates. Generalizing to more complex models such as multiple
-regression $y = \beta_{0} + \beta_{1}X_{1} + \ldots +
-\beta_{p}X_{p} + \varepsilon$, likewise produces time series of
-estimates for the constant and each regressor coefficient, the
-$\hat{\beta}_{0}(t), \hat{\beta}_{1}(t), \ldots, \hat{\beta}_{p}(t)$
-dubbed regression ERP (rERP) waveforms
+regression $y = \beta_{0} + \beta_{1}X_{1} + \ldots + \beta_{p}X_{p} +
+\varepsilon$, likewise produces time series of estimates for the
+constant and each regressor coefficient, the $\hat{\beta}_{0}(t),
+\hat{\beta}_{1}(t), \ldots, \hat{\beta}_{p}(t)$ dubbed regression ERP
+(rERP) waveforms
 [see @SmiKut2015; @SmiKut2015b for discussion of related approaches].
 This holds for straight-line fits ("slope" rERPs) as well as models of
 curvilinear relationships such as spline regression
 [@SmiKut2015b]. Besides the estimated coefficient rERPs, the approach
 also produces time series for all the basic and derived quantities of
-the fitted model: coefficient standard errors, residuals,
-likelihood, Akaike information criterion (AIC), and so
-forth. With the shift from averaging to regression modeling, however,
-comes a new problem.
+the fitted model: coefficient standard errors, residuals, likelihood,
+Akaike information criterion (AIC), and so forth. With the shift from
+averaging to regression modeling, however, comes a new problem:
+fitting, diagnosing, comparing, evaluating and interpreting large
+numbers of regression models.
 
 # Statement of need
 
@@ -82,27 +84,43 @@ samples per second, in 3 seconds of 32-channel EEG data there are
 candidate models requires 72,000 separate model fits, where the size
 of each data set might range anywhere from a few dozens of
 observations for a single subject to tens of thousands of observations
-for a large scale experiment. The combinatorial explosion is
-unavoidable; `fitgrid` contains it.
+for a large scale experiment.
+
+The combinatorial explosion of model fits is unavoidable; `fitgrid`
+contains it by gathering the rich fit objects in a regular Time x
+Channel grid that provides users with approachable access to
+corresponding grids of the fit objects' attributes. There are various
+Python implementations that use matrix operations operations to
+efficiently estimate ordinary linear regression coefficients *en
+masse* for N-D arrays of 1-D vectors such as
+[numpy.linalg.lstsq](https://numpy.org/doc/stable/reference/generated/numpy.linalg.lstsq.html)
+[@Harris2020] or
+[sklearn.linear_model.LinearRegression](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html)
+[@scikit-learn]. By capturing the `statsmodels` and `pymer4.Lmer`
+model fit objects on tidy grids, `fitgrid` provides users with equally
+approachable access to the estimated coefficients and, crucially, the
+other quantities baked into the fit result objects such as coefficient
+standard errors, residuals, likelihood, and goodness of fit measures
+required for evaluating, comparing, and interpreting models and,
+ultimately, drawing inferences about the estimated coefficients.
 
 The rERP approach is attracting growing attention in the field but to
-date the open-source EEG and magnetoencephalography (MEG) data analysis
-landscape has been
-dominated by toolboxes written for MATLAB such as EEGLAB
-[@DelMak2004], FieldTrip [@OosEtAl2011], and Brainstorm
-[@TadEtAl2011], and this holds for rERP modeling (e.g., @EhiDim2019)s.
+date the open-source EEG and magnetoencephalography (MEG) data
+analysis landscape has been dominated by toolboxes written for MATLAB
+such as EEGLAB [@DelMak2004], FieldTrip [@OosEtAl2011], and Brainstorm
+[@TadEtAl2011], and this holds for rERP modeling (e.g., @EhiDim2019).
 Like open-source scientific computing generally, Python and R have
 been gaining traction for EEG and MEG analysis, as in MNE-Python
-@GramfortEtAl2013, and for regression ERPs in R
-@TreNew2015. Nevertheless, widely accessible implementations for rERP
-modeling in Python remain limited. Development of N. J. Smith's
-promising rERPy Python package for ERP and rERP analysis appears to
-have halted in Python 2, which reached its end of life in January 2020.
-MNE-Python implements a `linear_regression`
-function for computing rERP coefficients on continuous data as
-described in @SmiKut2015b but not time series of OLS or mixed-effects
-model fits. `fitgrid` is intended to fill this gap in the Python
-ecosystem.
+@GramfortEtAl2013, and for regression ERPs in R @TreNew2015.
+Nevertheless, widely accessible implementations for rERP modeling in
+Python remain limited. Development of N. J. Smith's promising
+[rERPy](https://github.com/rerpy/rerpy) Python package for ERP and
+rERP analysis appears to have halted in Python 2, which reached its
+end of life in January 2020. MNE-Python implements a
+`linear_regression` function for computing rERP coefficients on
+continuous data as described in @SmiKut2015b but not time series of
+OLS or mixed-effects model fits. `fitgrid` is intended to fill this
+gap in the Python ecosystem.
 
 
 # fitgrid
@@ -119,8 +137,8 @@ tens of thousands of model fits with one line of code (computed in
 parallel if supported by hardware). The fit results across times and
 channels are available on demand with the same syntax used to access
 results in a single fit object and the results are returned as tidy
-indexed `pandas.DataFrames` for further analysis, visualization, and
-interpretation.
+indexed `pandas.DataFrames` [@McKinney2010] for further analysis,
+visualization, and interpretation.
 
 `fitgrid` provides routines for generating simulated data and
 downloading sample EEG data from a public Zenodo companion archive
@@ -136,7 +154,8 @@ familiar scientific computing tools and minimal programming. These
 features make `fitgrid` well-suited for general use in exploratory
 data analysis (EDA; e.g., @UrbDelChaKut2020 and @TroUrbKut2020).
 
-![fitgrid TL; DR](fitgrid_overview.png)
+![fitgrid Overview. The left column shows the four basic steps to set
+up and compute regression models for single-trial data epochs with fitgrid. The right column shows example visualizations of the modeling results.](fitgrid_overview.png)
 
 
 # Documentation
@@ -144,59 +163,116 @@ data analysis (EDA; e.g., @UrbDelChaKut2020 and @TroUrbKut2020).
 The `fitgrid` documentation is available online:
 [https://kutaslab.github.io/fitgrid]([https://kutaslab.github.io/fitgrid]).
 
-* [Getting Started]() gives an overview of the `fitgrid` workflow with
-   notes, figures, and downloadable and executable code.
+* [Installation](https://kutaslab.github.io/fitgrid/installation.html) gives
+  instructions, options, and examples for installing and `fitgrid` in [conda virtual
+  environments](https://docs.conda.io/projects/conda). Installation
+  with pip is not supported because of the numerous R dependencies.
 
-* The [User Guide]() provides information about usage and specific
-  topics including how the OLS models are fit in Python `statsmodels`
+  Installation of the stable release into a fresh conda virtual environment along with
+  other compatible packages, such as
+  [Jupyter or JupyterLab](https://jupyter.org/documentation) for running
+  Example Gallery notebooks, is recommended. To install `fitgrid` in a
+  conda environment named `fg_env` with the additional package
+  dependencies downloaded primarily from the conda-forge channel run this:
+
+  ```bash
+  $ conda create --name fg_env \
+	  fitgrid jupyter \
+      -c kutaslab -c ejolly -c conda-forge \
+	  --strict-channel-priority
+  ```
+
+  To install `fitgrid` with dependencies downloaded primarily from the
+  Anaconda default channels (main, r), run this:
+
+  ```bash
+  $ conda create --name fg_env \
+	  fitgrid jupyter \
+      -c kutaslab -c ejolly -c defaults -c conda-forge
+  ```
+
+* [Quick Start](https://kutaslab.github.io/fitgrid/quickstart.html)
+  gives an overview of the `fitgrid` workflow with
+  notes, [matplotlib](https://matplotlib.org) figures [@Hunter2007],
+  and downloadable and executable code.
+
+* The [User Guide](https://kutaslab.github.io/fitgrid/user_guide.html)
+  provides information about usage and specific topics including how
+  the OLS models are fit in Python `statsmodels`
   [@SeaPer2010] and the LMER models are fit in R
-  [`lme4::lmer`, `lmerTest` @KuzBroChr2017] via `pymer4` [@Jolly2018].
+  [`lme4::lmer`, `lmerTest` @KuzBroChr2017] via `pymer4` [@Jolly2018]
+  and `rpy2` [@rpy2].
 
-* The [API Reference]() is a complete listing of `fitgrid` classes,
-  methods, attributes, and functions auto-generated with numpy-style
-  docstrings and links to the source code generated by
-  ``sphinx-apidoc`` [@sphinx].
+* The [API](https://kutaslab.github.io/fitgrid/api.html) is a complete
+  listing of `fitgrid` classes, methods, attributes, and functions
+  auto-generated with numpy-style docstrings and links to the source
+  code generated by ``sphinx-apidoc`` [@sphinx].
 
-* The [Bibliography]() includes references to relevant experimental
-  and technical literature.
+* The [Examples Gallery](https://kutaslab.github.io/fitgrid/gallery.html)
+  contains annotated `fitgrid` vignettes with simulated data, experimental EEG
+  recordings, and NOAA tide and atmospheric observations. The examples
+  illustrate how to prepare data for modeling, fit ordinary least
+  squares and linear mixed-effects models, summarize, and visualize
+  the results. All the examples can be downloaded as executable Python
+  scripts or Jupyter notebooks thanks to
+  [Sphinx-Gallery](https://sphinx-gallery.github.io).
 
-* The [Examples Gallery]() contains `fitgrid` vignettes with simulated
-  data, experimental EEG recordings, and NOAA tide and atmospheric
-  observations that can be downloaded as executable Python scripts or
-  Jupyter notebooks thanks to
-  [sphinx-gallery](https://sphinx-gallery.github.io/).
+![Examples such as those shown here can be downloaded as Python scripts or
+Jupyter notebooks and run on the user's local machine after installing
+`fitgrid`.](examples_gallery.png)
 
-  ![Downloadable Examples Gallery](examples_gallery.png)
+* The [Bibliography](https://kutaslab.github.io/fitgrid/biblography.html)
+  includes references to relevant experimental and technical literature.
 
-## Installation, Continuous Integration, and Source
+* The [Contributing](https://kutaslab.github.io/fitgrid/contributing.html)
+  section encourages users and developers to post field reports and ideas large
+  and small for improving `fitgrid` in the GitHub 
+  [Issues](https://github.com/kutaslab/fitgrid/issues) in accordance
+  with the [Code of Conduct](https://github.com/kutaslab/fitgrid/blob/main/CODE_OF_CONDUCT.md).
+  It also gives an overview for developers and instructions for
+  configuring a conda development environment and installing `fitgrid` from source
+  for the purpose of modifying the code or documentation.
 
-The online documentation includes [installation instructions]() and
-system recommendations. The latest stable release of `fitgrid` and
-the bleeding edge pre-release development version are packaged for
-Python 3.6, 3.7, and 3.8 on x86_64 linux and distributed on Anaconda
-Cloud. Installation of the stable release into a fresh conda virtual
-environment along with other compatible packages, such as `jupyter` for
-running Example Gallery notebooks, is recommended like so:
 
-```bash
-    $ conda create --name fg_env \
-        -c kutaslab -c defaults -c conda-forge \
-	    fitgrid jupyter
-```
+## Source, Continuous Integration, Packaging and Deployment
 
-`fitgrid` is developed and tested locally on a high-performance
-48-core x86_64 CentOS 7 server. Continuous integration (CI) with
-github Actions for the latest stable release on the main code branch
-runs nightly conda build, conda install, and package pytests on
-Ubuntu 18.04. Pre-release packages also pass CI conda build, conda
-install, and pytests before deployment to Anaconda Cloud. The
-Python 3.6, 3.7 and 3.8 64-bit Intel OSX and Windows packages are also
-distributed on Anaconda Conda and the Python sdist is uploaded to PyPI
-but these are not routinely tested (contributed field reports are
-welcome). The source code is hosted in the public GitHub repository
-[https://github.com/kutaslab/fitgrid)](https://github.com/kutaslab/fitgrid)
-and Issues may be posted there in accordance with the `fitgrid` Code
-of Conduct.
+`fitgrid` has been developed and tested locally on 48-core x86_64
+CentOS 7 and 144-core x86_64 Ubuntu 20.04 servers with Intel Xeon
+CPUs.
+
+The source code is hosted in the public GitHub repository
+[github.com/kutaslab/fitgrid](https://github.com/kutaslab/fitgrid).
+
+The latest stable release of `fitgrid` and the bleeding edge
+pre-release development version are packaged for Python 3.7, and 3.8
+on x86_64 linux and Intel OSX platforms and distributed on
+[anaconda.org/kutaslab](https://anaconda.org/kutaslab/fitgrid/file).
+
+The continuous integration and deployment is implemented in a
+single-pass GitHub Action workflow,
+[figrid-cid.yml](https://github.com/kutaslab/fitgrid/blob/main/.github/workflows/fitgrid-cid.yml).
+The continuous integration builds and installs the conda package in a
+conda virtual environment, and runs pytests and generates the sphinx
+documentation with the conda package as installed. The deploy phase
+automatically uploads the conda packages and documentation for
+development version pre-releases and stable releases and synchronizes
+the stable release source code across the GitHub repository at
+[github.com/kutaslab/fitgrid](https://github.com/kutaslab/fitgrid),
+the conda packages at
+[anaconda.org/kutaslab/fitgrid](https://anaconda.org/kutaslab/fitgrid/files),
+the online sphinx documentation
+[kutaslab/github.io/fitgrid](https://kutaslab.github.io/fitgrid), and
+the Zenodo source code archive at
+[DOI 10.5281/zenodo.3581496](https://doi.org/10.5281/zenodo.3581496).
+
+The continuous intetgration workflow for the latest stable release on
+the main code branch runs nightly on
+[GitHub Action hosted runners](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources).
+Pre-release packages also pass the CI conda build, install, pytest, and
+document generation phases before deployment to
+[anaconda.org/kutaslab/fitgrid/label/pre-release](https://anaconda.org/kutaslab/fitgrid/files).
+Python 3.7 and 3.8 64-bit Windows conda packages are also
+distributed but not routinely tested.
 
 
 ## Implementation
@@ -266,12 +342,12 @@ Laboratory, Department of Cognitive Science, University of California,
 San Diego. ASP designed, implemented, and named the `fitgrid` package,
 user interface, classes and core routines. TPU initiated the project
 and contributed prototypes and utility routines. Both authors
-contributed to this report and fitgrid documentation. We gratefully
+contributed to this report and `fitgrid` documentation. We gratefully
 acknowledge contributions by Lauren Liao (prototype coding and
 testing), Nathaniel J. Smith (binary EEG file I/O), and testing and
 feedback by Wen-Hsuan Chan, Emily Provenzano, Anna Stoermann, and
 Melissa Troyer. We thank Marta Kutas and Melissa Troyer for valuable
-comments on the fitgrid documentation and earlier drafts of this
+comments on the `fitgrid` documentation and earlier drafts of this
 report. This work was supported by grant NICHD 5R01HD022614 to Marta
 Kutas.
 

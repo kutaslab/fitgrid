@@ -13,24 +13,32 @@
   type =	 {Journal Article}
 }
 
-@inbook{Berger1930,
-   author =     {Berger, Hans},
-   title =      {{Electroencephalogram of man}},
-   booktitle =  {Hans Berger on the Electroencephalogram of Man. The
-                Fourteen Original Reports on the Human
-                Electroencephalogram},
-   editor =     {Gloor, Pierre},
-   publisher =  {Elsevier},
-   address =    {1969. Electroencephalography and Clinical
-                Neurophysiology, supplement 28. New York},
-   year =       {1930},
-   type =       {Book Section}
+@software{conda,
+  title = {conda},
+  author = {Anaconda Incorporated},
+  year = {2012-2021},
+  type = {Computer Software}
 }
 
-@article{Dawson1951,
+@inbook{Berger1930,
+  author =	 {Berger, Hans},
+  title =	 {{Electroencephalogram of man}},
+  booktitle =	 {Hans Berger on the Electroencephalogram of Man. The
+                  Fourteen Original Reports on the Human
+                  Electroencephalogram},
+  series =	 {Electroencephalography and Clinical Neurophysiology,
+                  supplement 28.},
+  editor =	 {Gloor, Pierre},
+  publisher =	 {Elsevier},
+  address =	 {New York},
+  year =	 1930,
+  type =	 {Book Section}
+}
+
+@inproceedings{Dawson1951,
   author =	 {Dawson, G.~D.},
-  title =	 {{A summation technique for detecting small signals in
-                  a large irregular background}},
+  title =	 {{A summation technique for detecting small signals
+                  in a large irregular background}},
   journal =	 {Journal of Physiology},
   volume =	 115,
   number =	 1,
@@ -58,11 +66,13 @@
   author =	 {Delorme, A. and Makeig, S.},
   year =	 2004,
   title =	 {{EEGLAB: An open-source toolbox for analysis of
-                  single-trial EEG dynamics}},
+                  single-trial EEG dynamics including independent
+                  component analysis}},
   journal =	 {Journal of Neuroscience Methods},
   volume =	 134,
   pages =	 {9-21},
   type =	 {Journal Article},
+  doi =		 {10.1016/j.jneumeth.2003.10.009}
 }
 
 @article{EhiDim2019,
@@ -75,7 +85,8 @@
   pages =	 {e7838},
   year =	 2019,
   type =	 {Journal Article},
-  publisher =	 {PeerJ Inc.}
+  publisher =	 {PeerJ Inc.},
+  doi =		 {10.7717/peerj.7838}
 }
 
 @article{GramfortEtAl2013,
@@ -93,6 +104,46 @@
                   {https://www.frontiersin.org/article/10.3389/fnins.2013.00267},
   doi =		 {10.3389/fnins.2013.00267},
   issn =	 {1662-453X},
+}
+
+@article{         Harris2020,
+  title =	 {Array programming with {NumPy}},
+  author =	 {Charles R. Harris and K. Jarrod Millman and
+                  St{\'{e}}fan J.  van der Walt and Ralf Gommers and
+                  Pauli Virtanen and David Cournapeau and Eric Wieser
+                  and Julian Taylor and Sebastian Berg and Nathaniel
+                  J. Smith and Robert Kern and Matti Picus and Stephan
+                  Hoyer and Marten H. van Kerkwijk and Matthew Brett
+                  and Allan Haldane and Jaime Fern{\'{a}}ndez del
+                  R{\'{i}}o and Mark Wiebe and Pearu Peterson and
+                  Pierre G{\'{e}}rard-Marchant and Kevin Sheppard and
+                  Tyler Reddy and Warren Weckesser and Hameer Abbasi
+                  and Christoph Gohlke and Travis E. Oliphant},
+  year =	 2020,
+  month =	 sep,
+  journal =	 {Nature},
+  volume =	 585,
+  number =	 7825,
+  pages =	 {357--362},
+  doi =		 {10.1038/s41586-020-2649-2},
+  publisher =	 {Springer Science and Business Media {LLC}},
+  url =		 {https://doi.org/10.1038/s41586-020-2649-2}
+}
+
+@Article{Hunter2007,
+  Author =	 {Hunter, J. D.},
+  Title =	 {Matplotlib: A 2D graphics environment},
+  Journal =	 {Computing in Science \& Engineering},
+  Volume =	 9,
+  Number =	 3,
+  Pages =	 {90--95},
+  abstract =	 {Matplotlib is a 2D graphics package used for Python
+                  for application development, interactive scripting,
+                  and publication-quality image generation across user
+                  interfaces and operating systems.},
+  publisher =	 {IEEE COMPUTER SOC},
+  doi =		 {10.1109/MCSE.2007.55},
+  year =	 2007
 }
 
 @article{Jolly2018,
@@ -144,6 +195,19 @@
   doi =		 {10.1093/oxfordhb/9780195374148.001.0001}
 }
 
+@inproceedings{ McKinney2010,
+  author =	 { {W}es {M}c{K}inney },
+  title =	 { {D}ata {S}tructures for {S}tatistical {C}omputing
+                  in {P}ython },
+  booktitle =	 { {P}roceedings of the 9th {P}ython in {S}cience
+                  {C}onference },
+  pages =	 { 56 - 61 },
+  year =	 { 2010 },
+  editor =	 { {S}t\'efan van der {W}alt and {J}arrod {M}illman },
+  type =	 {Journal Article},
+  doi =		 { 10.25080/Majora-92bf1922-00a }
+}
+
 @article{OosEtAl2011,
   author =	 {Oostenveld, R. and Fries, P. and Maris, E. and
                   Schoffelen, J. M.},
@@ -164,17 +228,8 @@
   organization = {R Foundation for Statistical Computing},
   address =	 {Vienna, Austria},
   year =	 2020,
-  type =         {Computer Software},
+  type =	 {Computer Software},
   url =		 {http://www.R-project.org/},
-}
-
-@inproceedings{SeaPer2010,
-  author =	 {Seabold, S. and Perktold, J.},
-  title =	 {Statsmodels: Econometric and statistical modeling
-                  with python},
-  booktitle =	 {9th Python in Science Conference},
-  type =	 {Conference Proceedings},
-  year =	 2010
 }
 
 @article{SmiKut2015,
@@ -210,7 +265,8 @@
   volume =	 2011,
   year =	 2011,
   type =	 {Journal Article},
-  publisher =	 {Hindawi}
+  publisher =	 {Hindawi},
+  doi =		 {10.1155/2011/879716}
 }
 
 @article{TreNew2015,
@@ -244,8 +300,8 @@
 @article{UrbDelChaKut2020,
   author =	 {{Urbach}, T.~P. and {DeLong}, K.~A. and {Chan},
                   W.~H. and {Kutas}, M.},
-  title =	 {{An exploratory data analysis of word form prediction
-                  during word-by-word reading}},
+  title =	 {{An exploratory data analysis of word form
+                  prediction during word-by-word reading}},
   journal =	 {Proceedings of the National Academy of Sciences},
   pages =	 201922028,
   year =	 2020,
@@ -257,16 +313,59 @@
   author =	 {Smith, N.~J.},
   title =	 {{patsy - Describing statistical models in Python}},
   year =	 {2011-2015},
-  type =         {Computer Software},
+  type =	 {Computer Software},
   url =		 {https://patsy.readthedocs.io}
 }
 
+@article{rpy2,
+  author =	 {Gautier, Laurent},
+  title =	 {rpy2 - R in Python},
+  year =	 2021,
+  type =	 {Computer Software},
+  url =		 {https://rpy2.github.io}
+}
+
+@article{scikit-learn,
+  title =	 {Scikit-learn: Machine Learning in {P}ython},
+  author =	 {Pedregosa, F. and Varoquaux, G. and Gramfort, A. and
+                  Michel, V.  and Thirion, B. and Grisel, O. and
+                  Blondel, M. and Prettenhofer, P.  and Weiss, R. and
+                  Dubourg, V. and Vanderplas, J. and Passos, A. and
+                  Cournapeau, D. and Brucher, M. and Perrot, M. and
+                  Duchesnay, E.},
+  journal =	 {Journal of Machine Learning Research},
+  volume =	 12,
+  pages =	 {2825--2830},
+  year =	 2011,
+  doi =		 {10.5555/1953048.2078195}
+}
+
+@inproceedings{SeaPer2010,
+  author =	 { {S}kipper {S}eabold and {J}osef {P}erktold },
+  title =	 { {S}tatsmodels: {E}conometric and {S}tatistical
+                  {M}odeling with {P}ython },
+  booktitle =	 { {P}roceedings of the 9th {P}ython in {S}cience
+                  {C}onference },
+  pages =	 { 92 - 96 },
+  year =	 { 2010 },
+  editor =	 { {S}t\'efan van der {W}alt and {J}arrod {M}illman },
+  doi =		 { 10.25080/Majora-92bf1922-011 },
+  url =          {https://conference.scipy.org/proceedings/scipy2010/pdfs/seabold.pdf}
+}
+
+@software{sphinx-gallery,
+  title = {Sphinx-Gallery},
+  author = {Nájera, Ó. and Larson, Eric and Estève, L. and Liu, L. and Sphinx-Gallery developers},
+  year = {2014-2021},
+  type = {Computer Software},
+  url = {https://sphinx-gallery.github.io}
+}
 
 @misc{sphinx,
   author =	 {Brandl, G. and others},
   title =	 {{Sphinx - Python documentation generator}},
   year =	 {2007-2021},
-  type =         {Computer Software},
+  type =	 {Computer Software},
   url =		 {https://www.sphinx-doc.org/}
 }
 
