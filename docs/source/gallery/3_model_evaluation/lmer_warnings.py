@@ -26,8 +26,8 @@ lmer_grid = fitgrid.lmer(
 )
 
 # %%
-# :py:func:`.get_lmer_warnings`
-# =============================
+# :py:func:`fitgrid.utils.lmer.get_lmer_warnings`
+# ===============================================
 #
 # The ``get_lmer_warnings()`` utility collects the warnings and
 # returns them as an ordinary Python dictionary.  Each warning message
@@ -38,8 +38,8 @@ for key, val in lmer_warnings.items():
     print(key, "\n", val)
 
 # %%
-# :py:func:`.plot_lmer_warnings`
-# ==============================
+# :py:func:`fitgrid.utils.lmer.get_lmer_warnings`
+# ===============================================
 #
 # The ``plot_lmer_warnings()`` utility visualizes the warning grids.
 #

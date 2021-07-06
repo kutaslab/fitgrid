@@ -5,11 +5,12 @@ False Discovery Rate (FDR) control for estimated predictor coefficents (betas)
 
 # %%
 # The fitgrid summary utilities include an FDR critical value
-# calculator (:py:func:`.summaries_fdr_control`) for the special case
-# of estimated predictor coefficients :math:`\hat{\beta}_i \neq
-# 0`. The FDR methods implemented are from [BenYek2001]_ and
-# [BenHoc1995]_ and computed for whatever *p*-values are returned by
-# statsmodels for fitgrid.lm() and the lmerTest for fitgrid.lmer().
+# calculator (:py:func:`fitgrid.utils.summary.summaries_fdr_control`)
+# for the special case of estimated predictor coefficients
+# :math:`\hat{\beta}_i \neq 0`. The FDR methods implemented are from
+# [BenYek2001]_ and [BenHoc1995]_ and computed for whatever *p*-values
+# are returned by statsmodels for fitgrid.lm() and the lmerTest for
+# fitgrid.lmer().
 #
 # .. note::
 #

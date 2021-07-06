@@ -3,13 +3,13 @@
 Workflow Outline
 ################
 
-**TL; DR** conda install `fitgrid` and `jupyter` into a fresh conda
+**TL; DR** conda install ``fitgrid`` and ``jupyter`` into a fresh conda
 virtual environment (shown :ref:`here
 <conda_install_fitgrid>`). Download this document as Jupyter notebook
 and run it. Read the notes, explore the output. Prerequisites: a
 working knowledge of conda and virtual environments, regression modeling
 with formulas like :math:`\mathsf{\sim ~ 1 + a + b + a:b}` in Python or R,
-and a bit of general purpose Python and `pandas`.
+and a bit of general purpose Python and ``pandas``.
 
 
 With multichannel digital recordings in hand, the basic `fitgrid`
@@ -21,18 +21,19 @@ modeling workflow is four steps:
    variables (numeric, string, boolean). See :ref:`epochs_data_format` for
    details.
 
-#. Load the data into a `fitgrid.Epochs` object for modeling.
+#. Load the data into a ``fitgrid`` :py:class:`Epochs <fitgrid.epochs.Epochs>` object for modeling.
 
 #. Specify and fit ordinary least squares or linear mixed-effects
-   model formula to populate the `FitGrid[times, channels]` object
-   with the fit results.  For OLS models use the `patsy` formula
-   syntax which works like `lm` formulas in R. For mixed-effects
-   models use the `lme4::lmer` R formula syntax.
+   model formula to populate the :py:class:`FitGrid[times, channels]
+   <fitgrid.fitgrid.FitGrid>` object with the fit results.  For OLS
+   models use the `patsy` formula syntax which works like `lm`
+   formulas in R. For mixed-effects models use the `lme4::lmer` R
+   formula syntax.
 
-#. Query and slice the `FitGrid[times, channels]` to fetch tidy time x
-   channel dataframes of model fit results: coefficient estimates,
-   residual error, model diagnostics, etc. for visualization and
-   analysis.
+#. Query and slice the :py:class:`FitGrid[times, channels]
+   <fitgrid.fitgrid.FitGrid>` to fetch tidy time x channel dataframes
+   of model fit results: coefficient estimates, residual error, model
+   diagnostics, etc. for visualization and analysis.
 
 """
 
@@ -40,9 +41,9 @@ modeling workflow is four steps:
 # 1. Prepare epochs data
 # ======================
 #
-# `fitgrid` assumes you are modeling epochs, i.e., fixed-length
+# ``fitgrid`` assumes you are modeling epochs, i.e., fixed-length
 # segments of typically multi-channel digital data, time stamped, and
-# collected in a tidy `pandas.DataFrame` (see
+# collected in a tidy :py:class:`pandas.DataFrame` (see
 # :ref:`epochs_data_format` for details).
 #
 # Here is a small complete simulated data set with four epochs and
@@ -70,7 +71,7 @@ epochs_df  # display
 
 # %%
 # A real epochs data set is typically much larger but the format is the same
-# as illustrated here with sample EEG data that `fitgrid` downloads from
+# as illustrated here with sample EEG data that ``fitgrid`` downloads from
 # `Zenodo <https://zenodo.org/record/4099632#.YAMXh5NKj6Mzenodo>`_.
 #
 # .. image:: ../_static/eeg_events.png
@@ -104,11 +105,11 @@ p3_epochs_df = pd.read_feather(DATA_DIR / "sub000p3.ms1500.epochs.feather")
 #
 # **Data wrangling.** As with any data analysis pipeline, the epochs
 # data must be quality controlled and groomed to final form before
-# modeling. `fitgrid` ingests tidy `pandas.DataFrames` directly which
-# allows for convenient data preparation with other `pandas`-aware
-# toolboxes and easy data interchange with other EEG data processing
-# platforms.  A smattering of `pandas` data transforms are illustrated
-# here.
+# modeling. ``fitgrid`` can ingest a tidy :py:class:`pandas.DataFrame`
+# directly which allows for convenient data preparation with other
+# ``pandas``-aware toolboxes and easy data interchange with other EEG
+# data processing platforms.  A smattering of ``pandas`` data
+# transforms are illustrated here.
 #
 
 # select the experimental stimulus trials for modeling
@@ -131,10 +132,10 @@ p3_epochs_df = p3_epochs_df[indices + predictors + channels]
 # .. note::
 #
 #    The `epoch_id` and `time` indices must be present in the
-#    dataframe index (`pandas.MultiIndex`) when loading the
+#    dataframe index (:py:class:`pandas.MultiIndex`) when loading the
 #    `fitgrid.Epochs` in the next step. They are also handy
 #    for general purpose epoch and time series data wrangling
-#    e.g., with `pandas.DataFrame.groupby` as shown here.
+#    e.g., with :py:meth:`pandas.DataFrame.groupby` as shown here.
 
 # set the epoch and time column index for fg.Epochs
 p3_epochs_df.set_index(["epoch_id", "time_ms"], inplace=True)
@@ -152,14 +153,13 @@ p3_epochs_df
 
 
 # %%
-# 2. Load into `fitgrid.Epochs`
-# =============================
+# 2. Load into :py:class:`Epochs <fitgrid.epochs.Epochs>`
+# =======================================================
 #
-# The `fitgrid.Epochs` object is a lightweight wrapper around the
-# epochs data that streamlines data validation and model fitting under
-# the hood. The original epochs data are readily available in the
-# `fitgrid.Epochs.table` if needed.
-#
+# The ``fitgrid`` :py:class:`Epochs <fitgrid.epochs.Epochs>` object is
+# a lightweight wrapper around the data that streamlines data
+# validation and model fitting under the hood. The epochs
+# data are available in the ``Epochs.table`` attribute if needed.
 
 p3_epochs_fg = fg.epochs_from_dataframe(
     p3_epochs_df,
@@ -173,18 +173,20 @@ p3_epochs_fg
 # 3. Fit a model
 # ==============
 #
-# Once the `fg.Epochs` are in place, `fitgrid.lm` and `fitgrid.lmer`
-# methods sweep a model formula across the epoch data at each time and
-# channel and capture the model fits.  The model formulas are those
-# already in wide use Python and R. For ordinary least squares (OLS)
-# fitgrid uses `patsy <https://patsy.readthedocs.io/en/latest>`_
-# formulas which work like `lm` formulas in R when fit with the
-# `statsmodels.formula.api`. For linear mixed-effects regression
-# models (LME), fitgrid uses `lme4::lmer <https://cran.r-project.org/web/packages/lme4/index.html>`_
-# formulas. Under
-# the hood, the LME formulas are passed from Python to R and the
-# `lme4::lmer` fits returned back to Python and `fitgrid` via `pymer4
-# <http://eshinjolly.com/pymer4>`_ ([Jolly2018]_).
+# Once the ``Epochs`` are in place, the :py:meth:`fitgrid.lm
+# <fitgrid.models.lm>` and :py:meth:`fitgrid.lmer
+# <fitgrid.models.lmer>` methods sweep a model formula across the
+# epoch data at each time and channel and capture the model fits.  The
+# model formulas are those already in wide use Python and R. For
+# ordinary least squares (OLS) fitgrid uses :std:doc:`patsy
+# <patsy.index>` formulas which work like ``lm`` formulas in R when
+# fit with the :py:mod:`statsmodels.formula.api`. For linear
+# mixed-effects regression models (LME), fitgrid uses `lme4::lmer
+# <https://cran.r-project.org/web/packages/lme4/index.html>`_
+# formulas. Under the hood, the LME formulas are passed from Python to
+# R and the `lme4::lmer` fits returned back to Python and ``fitgrid``
+# via ``pymer4`` [Jolly2018]_ and
+# ``rpy2`` [Gautier2021]_.
 #
 # Here the `patsy` formula :math:`\sim \mathsf{1 + stim}` is used for
 # OLS model fitting with `statsmodels`.
@@ -192,8 +194,10 @@ p3_epochs_fg
 lmg_1_stim = fg.lm(p3_epochs_fg, RHS="1 + stim", quiet=True)
 
 # %%
-# The times and channels of the `fitgrid.Epochs` define the `fitgrid.FitGrid` dimensions. Each cell contains
-# the OLS fit object. In this example, there are 375 :math:`\times` 4 = 1,500 fits in all.
+# The times and channels of the :py:class:`fitgrid.Epochs <fitgrid.epochs.Epochs>`
+# define the :py:class:`FitGrid[times, channels] <fitgrid.fitgrid.FitGrid>` dimensions.
+# Each cell contains the OLS fit object. In this example, there are
+# 375 :math:`\times` 4 = 1,500 fits in all.
 #
 # .. image:: ../_static/FitGrid_375x4.png
 
@@ -204,7 +208,8 @@ lmg_1_stim
 # you can easily do or not do whatever you like to specify models with
 # the `patsy` and `lme4::lmer` formula syntax. The formulas are passed
 # through to the fitting algorithms and the results returned are
-# captured in the `FitGrid`. For instance `patsy` follows
+# captured in the :py:class:`FitGrid[times, channels] <fitgrid.fitgrid.FitGrid>`.
+# For instance `patsy` follows
 # long-standing R formula behavior and includes a
 # constant (intercept) in the model and treatment codes categorical predictors like
 # :math:`\mathsf{stim}` by default. The alphabetically sorted first condition,
@@ -212,7 +217,7 @@ lmg_1_stim
 # "treatment. In this instance, the more compact formula :math:`\sim
 # \mathsf{stim}` is exactly equivalent :math:`\mathsf{\sim 1 + stim}`
 # in the sense that they both generate the same design matrix ("right hand
-# side"). `fitgrid` doesn't care either way and will return the fits for
+# side"). ``fitgrid`` doesn't care either way and will return the fits for
 # whatever model formula you pass in. The bad news is that you need to
 # know something about this kind of thing, i.e., how the user-friendly `patsy` and
 # `lme4::lmer` model formulas map onto the model design matrices that
@@ -230,19 +235,22 @@ lmg_1_stim
 
 
 # %%
-# 4. Using the `FitGrid[times, channels]`
-# =======================================
+# 4. Using the :py:class:`FitGrid[times, channels] <fitgrid.fitgrid.FitGrid>`
+# ========================================================================
 #
 # When `statsmodels` fits an OLS model it returns a Python object
 # loaded with much useful information (see
-# `statsmodels Regression Results <https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.RegressionResults.html>`_).
-# The same is true of model fit objects returned by `pymer4` after
-# running `lme4::lmer` in R, albeit with some differences in the
-# terminology and available information. The key point is that
-# whatever `statsmodels` knows about OLS fits, the `FitGrid` also
+# :py:class:`linear_model.RegressionResults
+# <statsmodels.regression.linear_model.RegressionResults>`).  The same
+# is true of the :py:class:`Lmer <pymer4.models.Lmer>` linear
+# mixed-effects model fit objects returned by ``pymer4`` after running
+# ``lme4::lmer`` in R, albeit with some differences in the terminology
+# and available information. The key point is that whatever
+# `statsmodels` knows about an OLS fit, the
+# :py:class:`FitGrid[times, channels] <fitgrid.fitgrid.FitGrid>` object
 # knows at each time and channel.
 #
-# And `statsmodels` knows a lot:
+# And ``statsmodels`` knows a lot:
 
 import pprint as pp
 
@@ -252,23 +260,27 @@ pp.pprint(dir(lmg_1_stim))
 # Query fit results
 # -----------------
 #
-# In Python, the information in a single `statsmodels` fit object is accessed with the usual Python ``<object>.<name>`` syntax.
-# The corresponding information in the FitGrid is accessed the same way. The results are returned in a tidy
-# time x channel dataframe or another `FitGrid` object that
-# makes it easy to visualize and analyze how the model fit attributes vary over
-# time and among the different data channels.
+# In Python, the information in a single ``statsmodels`` fit object is
+# accessed with the usual Python ``<object>.<name>`` syntax.  The
+# corresponding information in the FitGrid is accessed the same
+# way. The results are returned in a tidy time x channel dataframe or
+# another :py:class:`FitGrid[times, channels] <fitgrid.fitgrid.FitGrid>`
+# object that makes it easy to visualize and analyze how the model fit
+# attributes vary over time and among the different data channels.
 #
 #
 # .. warning::
 #
 #    Look before you leap when querying the grid. If your data set is
-#    large and you query the entire grid for results or model attributes that involve the
-#    number of observations, e.g., residuals or
-#    the design matrix, you will get back dataframes or `FitGrid` objects at
-#    least as large as your epochs data (time x channel) and for more
-#    complex models with categorical variables and interaction
-#    effects, perhaps many times larger. If you ask `fitgrid` to do
-#    something that will swamp your computer memory, it will.
+#    large and you query the entire grid for results or model
+#    attributes that involve the number of observations, e.g.,
+#    residuals or the design matrix, you will get back dataframes or
+#    :py:class:`FitGrid[times, channels] <fitgrid.fitgrid.FitGrid>`
+#    objects at least as large as your epochs data (time x channel)
+#    and for more complex models with categorical variables and
+#    interaction effects, perhaps many times larger. If you ask
+#    ``fitgrid`` to do something that will swamp your computer memory,
+#    it will.
 
 # %%
 # **Parameter estimates** i.e., Smith & Kutas (2015) regression ERPs
@@ -306,8 +318,8 @@ lmg_1_stim.nobs.astype(int)
 # -------------------------
 #
 # The fitted grid can be sliced down to a smaller grid of times and channels using
-# familiar `pandas.DataFrame` index slicing with labels and the ``:`` range
-# operator. As in `pandas` (but not Python) the range includes the upper bound.
+# familiar :py:class:`pandas.DataFrame` index slicing with labels and the ``:`` range
+# operator. As in ``pandas`` (but not Python) the range includes the upper bound.
 
 # %%
 # **Parameter estimates, all times, two channels**
@@ -322,7 +334,7 @@ lmg_1_stim[-100:300, :].llf
 # ---------------------
 #
 # Besides the fit results, fit objects contain model information that can be queried.
-# This example reaches into one cell of the `FitGrid` at time=0 and channel=MiPa and pulls out
+# This example reaches into one cell of the ``fitgrid`` at time=0 and channel=MiPa and pulls out
 # the treatment coded design matrix (model right hand side) and column labels for inspection.
 
 # %%
@@ -624,7 +636,7 @@ for param, vals in params_0_stim[plot_chans].groupby("params"):
 #
 # Linear mixed-effects models can be fit to epochs data with
 # `fitgrid.lmer` and model formulas from the `lme4::lmer` R library.
-# The `FitGrid` is populated with the `lmer` fit results and sliced
+# The ``fitgrid`` is populated with the `lmer` fit results and sliced
 # and accessed the same way as the OLS grids. The mixed-effects fits
 # are much slower in general so parallel processing on multicore
 # hardware is likely a practical necessity.
@@ -669,7 +681,7 @@ for param, vals in params_0_stim[plot_chans].groupby("params"):
 # --------------------------
 #
 # To reduce memory demands when fitting and comparing sets of models,
-# `fitgrid` provides a convenience function `fitgrid.utils.summarize`
+# ``fitgrid`` provides a convenience function `fitgrid.utils.summarize`
 # that iteratively fits a series of models and scrapes selected results
 # into lightweight summary data frame with key fit results for model
 # interpretation and comparison and a few helper functions for
@@ -680,8 +692,8 @@ for param, vals in params_0_stim[plot_chans].groupby("params"):
 # --------------------------
 #
 # When the native Python and R fit results include diagnostic
-# information, this can be accessed in the `FitGrid` like any other
+# information, this can be accessed in the ``fitgrid`` like any other
 # attributes. In practice, however, doing so may be intractably slow
-# or memory intensive.  There are a few `fitgrid` convenience
+# or memory intensive.  There are a few ``fitgrid`` convenience
 # utilities for diagnostics (see :ref:`diagnostics`) though it is an area
 # that needs more work.
