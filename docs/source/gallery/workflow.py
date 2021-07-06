@@ -11,7 +11,6 @@ working knowledge of conda and virtual environments, regression modeling
 with formulas like :math:`\mathsf{\sim ~ 1 + a + b + a:b}` in Python or R,
 and a bit of general purpose Python and ``pandas``.
 
-
 With multichannel digital recordings in hand, the basic `fitgrid`
 modeling workflow is four steps:
 
@@ -100,8 +99,8 @@ p3_epochs_df = pd.read_feather(DATA_DIR / "sub000p3.ms1500.epochs.feather")
 # the average potentials recorded over central and posterior scalp
 # after about 300 ms post-stimulus are typically more positive going
 # for the rare targets than for the frequent standards, a P300 ERP
-# effect. More information about these and other sample data may be found at `mkpy data examples
-# <https://eeg-workshops.github.io/mkpy_data_examples>`_.
+# effect. More information about these and other sample data may be found
+# at `mkpy data examples <https://eeg-workshops.github.io/mkpy_data_examples>`_.
 #
 # **Data wrangling.** As with any data analysis pipeline, the epochs
 # data must be quality controlled and groomed to final form before
@@ -179,7 +178,7 @@ p3_epochs_fg
 # epoch data at each time and channel and capture the model fits.  The
 # model formulas are those already in wide use Python and R. For
 # ordinary least squares (OLS) fitgrid uses :std:doc:`patsy
-# <patsy.index>` formulas which work like ``lm`` formulas in R when
+# <patsy:index>` formulas which work like ``lm`` formulas in R when
 # fit with the :py:mod:`statsmodels.formula.api`. For linear
 # mixed-effects regression models (LME), fitgrid uses `lme4::lmer
 # <https://cran.r-project.org/web/packages/lme4/index.html>`_
@@ -349,10 +348,9 @@ lmg_1_stim[0, "MiPa"].model.exog.unstack(-1)
 # Visualize
 # ---------
 #
-# The grid query dataframes are readily visualized with `matplotlib` and `pandas` or similiar.
+# The grid query dataframes are readily visualized with `matplotlib` and `pandas` or similar.
 # Here are simple heatmap and line plotting functions for illustration.
 
-import numpy as np
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 
@@ -558,7 +556,7 @@ ax.set(ylabel="Likelihood Ratio")
 
 # %%
 # For this pair-wise model comparison, AIC tells the same story as the likelihood ratio. AIC
-# measures may also be used to compare and evaulate larger sets of models, not just pairs, e.g.,
+# measures may also be used to compare and evaluate larger sets of models, not just pairs, e.g.,
 # [BurAnd2004]_.
 
 title_str = (
@@ -646,7 +644,7 @@ for param, vals in params_0_stim[plot_chans].groupby("params"):
 #    lmeg = fg.lmer(
 #        epochs_fg,
 #        RHS="1 + a + (a | subid) + (a | itemid),
-#        paralell=True,
+#        parallel=True,
 #        n_cores=12
 #    )
 #

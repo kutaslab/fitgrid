@@ -301,3 +301,7 @@ def test_compare_different_fixed_effects_with_REML():
     grid2 = fitgrid.lmer(epochs, RHS='(1|categorical)', REML=True)
     with pytest.raises(FitGridError) as error:
         grid1 | grid2
+    assert (
+        "Cannot compare models with different fixed effects when REML is used."
+        in str(error.value)
+    )

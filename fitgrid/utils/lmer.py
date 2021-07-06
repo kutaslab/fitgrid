@@ -1,4 +1,7 @@
-"""utility functions for LMERFitGrid objects"""
+# -*- coding: utf-8 -*-
+"""User functions to streamline working with selected pymer4 LMER fit 
+attributes from lme4::lmer and lmerTest for ``fitgrid.lmer`` grids.
+"""
 
 import functools
 import re
@@ -199,7 +202,7 @@ def plot_lmer_warnings(lmer_grid, which="each", verbose=True):
     which :  {"each", "all", or list of str}
        select the types of warnings to plot. `each` (default) plots
        each type of warning separately. `all` plots one grid showing
-       where any type of warning occured. A list of strings searches
+       where any type of warning occurred. A list of strings searches
        the lmer warnings and plots those that match.
 
     verbose : bool, default=True

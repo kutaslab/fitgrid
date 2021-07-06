@@ -97,7 +97,6 @@ f, axs = lm_grid.plot_betas()
 
 # %%
 # Or make your own with ``pandas``, ``matplotlib``, ``seaborn``, etc..
-from matplotlib import pyplot as plt
 
 # Slice a time range and compute means with pandas
 p3_effect = lm_grid.params.loc[

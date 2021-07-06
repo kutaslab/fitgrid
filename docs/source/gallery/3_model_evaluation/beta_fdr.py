@@ -1,6 +1,6 @@
 """
-False Discovery Rate (FDR) control for estimated predictor coefficents (betas)
-==============================================================================
+False Discovery Rate (FDR) control for estimated predictor coefficients (betas)
+===============================================================================
 """
 
 # %%
@@ -120,7 +120,7 @@ lm_summary.query("key in ['T-stat', 'P-val']")
 fdr_info, fig, ax = fg.utils.summary.summaries_fdr_control(lm_summary)
 
 # %%
-# Out of curiousity, how many *p*-values are below the unadjusted *p* = 0.05?
+# Out of curiosity, how many *p*-values are below the unadjusted *p* = 0.05?
 pvals = lm_summary.query("key=='P-val'").to_numpy().flatten()  # fetch p values
 n_crit_05 = len(np.where(pvals < 0.05)[0])
 print(
@@ -129,7 +129,7 @@ print(
 )
 
 # %%
-# Out of curiousity, how many are below critical *p* for this FDR control?
+# Out of curiosity, how many are below critical *p* for this FDR control?
 assert fdr_info['n_pvals'] == len(pvals)  # these must agree
 
 n_crit_p = len(np.where(pvals < fdr_info["crit_p"])[0])

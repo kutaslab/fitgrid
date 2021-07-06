@@ -14,7 +14,6 @@
 #
 import os
 import sys
-import re
 
 sys.path.insert(0, os.path.abspath('../..'))
 sys.path.insert(0, os.path.abspath('.'))
@@ -76,7 +75,7 @@ intersphinx_mapping = {
     "statsmodels": ("https://www.statsmodels.org/stable", None),
     "pymer4": ("https://eshinjolly.com/pymer4", None),
     "rpy2": ("https://rpy2.github.io/doc/latest/html", None),
-    "sphinx": ("https://www.sphinx-doc.org", None),
+    "sphinx": ("https://www.sphinx-doc.org/en/master", None),
     "sphinx-gallery": ("https://sphinx-gallery.github.io/stable", None),
     "conda": ("https://docs.conda.io/projects/conda/en/latest/", None),
     "pip": ("https://pip.pypa.io/en/stable", None),

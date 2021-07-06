@@ -8,7 +8,6 @@ The examples here illustrate how to collect and visualize them with
 fitgrid utilities.
 
 """
-from matplotlib import pyplot as plt
 import fitgrid
 
 # %%
