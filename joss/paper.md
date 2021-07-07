@@ -14,7 +14,7 @@ authors:
     orcid: 0000-0001-7993-142X
     affiliation: 1
   - name: Andrey S. Portnoy
-	orcid: 0000-0001-9997-9025
+    orcid: 0000-0001-9997-9025
     affiliation: 1
 affiliations:
  - name: Department of Cognitive Science, University of California, San Diego
