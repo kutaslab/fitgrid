@@ -62,14 +62,14 @@ Versions
      than the development version ``M.N.P.devX``, for example,
      ``0.5.1.`` > ``0.5.1.dev1`` > ``0.5.1.dev0`` > ``0.5.0``
 
-GitHub reserved branch names and version strings: https:github.com/kutsalab/fitgrid
+GitHub reserved branch names and version strings: https://github.com/kutsalab/fitgrid
   * The branch `main` = the latest stable release, version ``M.N.P`` with tag ``vM.N.P``
   * The branch `dev` = the latest development version ``M.N.P.devX``.
   * Names and version strings for working branches other than `main`
     and `dev` are not strictly defined in this scheme. However, the
-    natural version sequence increments the dev segment to
+    natural version sequence increments the ``devX`` segment to
     ``M.N.P.devX+1`` following the pre-release package upload of
-    ``M.N.P.devX`` and increments the patch and resets the dev
+    ``M.N.P.devX`` and increments the patch and resets the ``devX``
     segment to ``M.N.P+1.dev0`` following the stable release of
     ``vM.N.P``.
 
@@ -101,34 +101,35 @@ Sphinx and sphinx-gallery documentation
   latest development version ``M.N.P.devX`` is deployed to
   `gh-pages-dev
   <https://github.com/kutaslab/fitgrid-dev/tree/gh-pages-dev>`_ and
-  available online at https:/kutaslab.github.io/fitgrid-dev-docs.
+  available online at https://kutaslab.github.io/fitgrid-dev-docs.
   
 
 ===========================================
 Continuous Integration and Deployment (CID)
 ===========================================
 
-The ``fitgrid`` CID is implemented in a single-pass GitHub
-Action workflow, `figrid-cid.yml
-<https://github.com/kutaslab/fitgrid/blob/main/.github/workflows/fitgrid-cid.yml>`_.
-The continuous integration workflow is triggered by push, pull request
-and manual release events on GitHub. The deploy phase selectively
-uploads the conda packages and documentation for development version
-pre-releases and stable releases. This scheme allows conda or mamba
-installation of development versions and automatically synchronizes
-the stable release version string and source code across the GitHub
-repository at `github.com/kutaslab/fitgrid
-<https://github.com/kutaslab/fitgrid>`_, the conda packages at
-`anaconda.org/kutaslab/fitgrid <https://anaconda.org>`_ , the online
-`sphinx documentation <https:kutaslab.github.io/fitgrid>`_, and the
-Zenodo source code archive at `DOI 10.5281/zenodo.3581496
-<https://doi.org/10.5281/zenodo.3581496>`_.
-
 .. _cid-figure:
 
 .. figure:: _static/fitgrid_cid_scheme.png
 
    Continuous Integration and Deployment Scheme
+
+
+The ``fitgrid`` CID is implemented in a single-pass GitHub Action
+workflow, `figrid-cid.yml
+<https://github.com/kutaslab/fitgrid/blob/main/.github/workflows/fitgrid-cid.yml>`_.
+The continuous integration workflow is triggered by push, pull request
+and manual release events on GitHub. The deploy phase selectively
+uploads the conda packages and documentation for development version
+pre-releases and stable releases. This scheme allows conda or mamba
+installation of both stable and development versions and automatically
+synchronizes the stable release version string and source code across
+the GitHub repository at `github.com/kutaslab/fitgrid
+<https://github.com/kutaslab/fitgrid>`_, the conda packages at
+`anaconda.org/kutaslab/fitgrid <https://anaconda.org>`_ , the online
+`sphinx documentation <https:kutaslab.github.io/fitgrid>`_, and the
+Zenodo source code archive at `DOI 10.5281/zenodo.3581496
+<https://doi.org/10.5281/zenodo.3581496>`_.
 
 	    
 Continuous Integration
@@ -181,7 +182,7 @@ How to contribute
 
 Contributors should begin by opening a new `fitgrid Issue
 <https://github.com/kutaslab/fitgrid/issues>`_ to discuss and plan the
-approach. This example illustrates how to set up and develop new work
+approach. The following illustrates how to set up and develop new work
 that begins with a working branch in the source repository called
 `kutaslab/fitgrid/new-feature`. It assumes the ``git``, ``conda``, and
 ``mamba`` executables are already installed on the local computer and
@@ -197,6 +198,10 @@ the commands are executed in a bash shell.
 
     git clone https://github.com/<your_github_username>/fitgrid
 
+  You may wish to clone just the working branch: ::
+
+    git clone https://github.com/<your_github_username>/fitgrid --single-branch --branch new-feature
+
 
 **Prepare for new work**
 
@@ -210,7 +215,7 @@ the commands are executed in a bash shell.
    in an active conda environment populated with the latest compatible
    ``fitgrid`` dependencies along with :std:doc:`pytest
    <pytest:index>`, the :std:doc:`black <black:index>` code formatter, and
-   sphinx documentation utility packages because that's what the
+   sphinx documentation generation packages because that's what the
    continuous integration workflow does. For example, a fresh conda
    environment for developing a new fitgrid feature or fix can be
    created and activated like so: ::
@@ -231,14 +236,16 @@ the commands are executed in a bash shell.
      git checkout new-feature
      pip install --no-deps -e .
 
-   This way the `fg-new-feature` conda environment provides the fitgrid
-   dependencies and the modified source files in the local repo are
-   loaded when ``fitgrid`` modules are imported.
+   This way the just-created `fg-new-feature` conda environment
+   provides the required fitgrid dependencies and the modified source
+   files in your local repo are loaded when ``fitgrid`` modules are
+   imported.
 
    .. note::
 
-      This is the **only** time ``pip install`` should be used while
-      developing ``fitgrid`` on pain of corrupting the conda environment.
+      Experience indicates this is the **only** time ``pip install``
+      should be used while developing ``fitgrid`` on pain of
+      corrupting the conda environment.
 
 
 **Develop-and-test**
@@ -256,15 +263,15 @@ the commands are executed in a bash shell.
      pytest
 
 #. When pytests pass, generate the documentation and verify that the
-   documentation sphinx-gallery Python examples in the subdirectories
+   sphinx-gallery ``*.py`` Python examples in the subdirectories
    of `fitgrid/docs/source/gallery` in the local source repository all
    run with the expected results and figures::
 
     make -C docs clean; make -C docs html
 
-#. When pytests pass and documenation builds locally, commit the
-   changes on branch `fg-feature` and push the branch to the forked
-   ``fitgrid`` repository.
+#. When pytests pass and documentation builds locally, commit the
+   changes on branch `fg-feature` and push the working branch to your
+   forked ``fitgrid`` repository on GitHub.
 
 #. Sign in to GitHub, navigate to the fork's Action tab and verify
    that the push on branch `fg-feature` triggered a github CI Action
@@ -283,8 +290,9 @@ the commands are executed in a bash shell.
 Tips
 ====
 
-* Run ``conda list fitgrid`` to confirm correctly installed from source in development
-  mode in the active environment. The result should look something like this:
+* Run ``conda list fitgrid`` to confirm it is correctly installed from
+  source in development mode in the active environment. The result
+  should look something like this:
   
   .. code-block:: bash
 
@@ -303,9 +311,11 @@ Tips
   :std:doc:`JupyterLab <jupyterlab:index>` to develop code or
   documentation examples things may go more smoothly if you conda or
   mamba install the package directly into the conda enviroment where
-  you are developing fitgrid. When working in a jupyter notebook, you
-  can use :py:func:`importlib.reload` to load modified source
-  code between kernel restarts.
+  you are developing fitgrid.
+
+* If working in a Jupyter notebook, you can use
+  :py:func:`importlib.reload` to load modified source code between
+  kernel restarts.
 
 * You can rebuild the .rst documentation quickly without running the sphinx-gallery 
   Python examples by running this command in the top-level repository directory: ::
