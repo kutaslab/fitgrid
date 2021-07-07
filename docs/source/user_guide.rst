@@ -13,56 +13,63 @@ TL;DR These are notes and highlights. For usage see
 the :ref:`workflow`, :ref:`gallery`, and :ref:`api`
 
 
-================
-`fitgrid.Epochs`
-================
+======================================================
+``fitgrid`` :py:class:`Epochs <fitgrid.epochs.Epochs>`
+======================================================n
 
 Fitting linear regression models in Python and R with formulas like
-``y ~ a + b + a:b`` in Python (`patsy`, `statsmodels.formula.api`) or R
-(`lm`, `lme4::lmer`) assumes the data are represented as a 2D array with
-the variables in named columns, ``y``, ``a``, ``b`` and values
+``y ~ a + b + a:b`` in Python (:std:doc:`patsy <patsy:index>`,
+:std:doc:`statsmodels.formula.api <statsmodels:api>`) or R (``lm``,
+``lme4::lmer``) assumes the data are represented as a 2D array with the
+variables in named columns, ``y``, ``a``, ``b`` and values
 ("observations", "scores") in rows.
 
-`fitgrid` follows this format with the additional assumption that the
-data are vertically stacked fixed-length time-series "epochs", so the
-user must specify two additional columns of values that together
-uniquely identify the epoch and time of the data row.
+``fitgrid`` follows this format with the additional assumption that
+the data are vertically stacked fixed-length time-series "epochs", so
+the user must specify two additional row indexes that together
+uniquely identify the epoch and timestamp of each data row.
 
 
 .. _epochs_data_format:
 
-------
-Format
-------
+------------------
+Epochs data format
+------------------
 
-**Specification:** Data for `fitgrid` modeling should be prepared as a single
-`pandas.Dataframe` with these columns and data types:
+Data for ``fitgrid`` modeling should be prepared as a
+single :py:class:`pandas.DataFrame` with a
+:py:class:`pandas.MultiIndex` as follows:
 
-- `epoch_id`: integer
-- `time`: integer
-- a set of channel data columns: numeric
-- a set of predictor variable columns: numeric, string, boolean
+MultiIndex names and data types
+  Each epoch must have a unique integer identifier in the ``epoch_id``
+  index. The index values need not be ordered and gaps are allowed but
+  duplicate epoch indices are not. The ``time`` index integer
+  timestamps must be the same for all epochs. Gaps and irregular
+  intervals between timestamps are allowed, duplicate timestamps within an
+  epoch are not.
+  
+  * ``epoch_id`` (default): integer
+  * ``time`` (default): integer
 
-Each epoch must have a unique integer identifier in the `epoch_id`
-column. Gaps are OK, duplicates are not.
+  The MultiIndex names default to ``epoch_id`` and ``time`` but any
+  index column may be designated as the epoch or time index, provided
+  the conditions are met. Event-relative epochs are often time-stamped
+  so the event is at time=0 but this is not a ``fitgrid`` requirement
+  and the temporal resolution of the timeseries is not specified.  For
+  data epochs with time index values -10, 0, 10, 20, the
+  :py:class:`FitGrid[-10:20, channels] <fitgrid.fitgrid.FitGrid>`
+  object will be the same whether the timestamps denote milliseconds
+  or months.
 
-The integer time-stamps must be the same for all epochs.
-Gaps are OK, duplicates are not.
+Data columns
+  * channel data columns: numeric
+  * predictor variable columns: numeric, string, boolean
 
-Column names may be chosen freely (epoch and time index column
-names default to `epoch_id`, `time`).
-
-**Notes:** The index column names default to `epoch_id` and `time` but
-any column may be designated as the epoch or time index, provided
-the conditions are met. Standard practice is to sequence the rows so
-time stamps are nested within epochs. Event-relative epochs are
-generally time-stamped so the event is at time=0 but this is not a
-`fitgrid` requirement.
-
-**Example:** A canonical source of data epochs for `fitgrid` are
-multichannel "strip charts" as in EEG and MEG recordings. In this
-case, "epochs" are fixed-length segments extracted from the strip
-chart and time-stamped relative to an experimental event.
+Example:
+  A canonical source of data epochs for ``fitgrid`` are multichannel
+  "strip charts" as in EEG and MEG recordings. In this case, the
+  epochs are regularly sampled fixed-length segments extracted from
+  the strip chart and time-stamped relative to an experimental event.
 
 .. image:: _static/eeg_epochs.png
 
@@ -71,24 +78,25 @@ chart and time-stamped relative to an experimental event.
 :ref:`Data Ingestion <data_ingestion>`
 --------------------------------------
 
-Rows and columns epochs data can be loaded into a `fitgrid.Epochs`
-object from a `pandas.DataFrame` in memory or read from files in
-feather or HDF5 format.
-
-For details on these data formats see `pandas.read_feather
-<https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_feather.html>`_
-and `pandas.read_hdf
-<https://pandas.pydata.org/pandas-docs/stable/reference/api/pandas.read_hdf.html>`_).
-
-
------------------------------------------
-:ref:`Data Simulation <data_simulation>`.
------------------------------------------
-
-``fitgrid`` has a built-in function that generates data and creates ``Epochs`` data for testing.
+Rows and columns epochs data can be loaded into a `fitgrid`
+:py:class:`Epochs <fitgrid:epochs.Epochs>` object from a
+:py:class:`pandas.DataFrame` in memory or read from files in `feather
+<https://arrow.apache.org/docs/python/feather.html>`_ or `HDF5
+<https://portal.hdfgroup.org/display/HDF5/HDF5>`_ format. For details
+on using these data formats see :py:func:`pandas.read_feather` and and
+:py:func:`pandas.read_hdf`.
 
 
----------------
+----------------------------------------
+:ref:`Data Simulation <data_simulation>`
+----------------------------------------
+
+``fitgrid`` has a built-in method :py:meth:`fitgrid.fake_data.generate` that
+returns a :py:class:`Epochs <fitgrid:epochs.Epochs>` data objects or
+:py:class:`pandas.DataFrame` for testing.
+
+
+    ---------------
 EEG Sample Data
 ---------------
 
@@ -98,7 +106,7 @@ are availble for download from the Zenodo archive at
 <https://zenodo.org/record/3968485>`_.
 
 The files can be installed into the fitgrid package with
-:py:meth:`fitgrid.sample_data.get file` and accessed thereafter as
+:py:meth:`fitgrid.sample_data.get_file` and accessed thereafter as
 ``fitgrid.DATA_DIR(<filename>)`` or downloaded manually to another
 location.
 
@@ -107,8 +115,8 @@ epochs and the `msNNNN` infix gives the length of the epoch in
 millesconds. Files with the shortest epochs (100 ms) are suitable for
 testing, those with longer epochs (1500, 3000 ms) are more
 representative of actual experimental EEG data. The feather format
-versions `.epochs.feather` are recommended for use with pandas and
-:py:meth:`pandas.read_feather`.
+versions `*.epochs.feather` are recommended for use with pandas
+:py:func:`pandas.read_feather`.
 
 Additional information about the experimental designs for these sample
 files is available online at https://eeg-workshops.github.io/mkpy_data_examples.
@@ -119,12 +127,11 @@ Fitting a model
 ===============
 
 
-The following methods populate the `FitGrid[time, channel]` object.
-with `statsmodels` results for OLS model fits and `lme4::lmer` for
-linear mixed-effects fits.
+The following methods populate the :py:class:`FitGrid[times,channel]
+<fitgrid.fitgrid.FitGrid>` object with `statsmodels` results for OLS
+model fits and `lme4::lmer` for linear mixed-effects fits.
 
-* Ordinary least squares: :py:meth:`fitgrid.lm`
-
+* Ordinary least squares: :py:meth:`fitgrid.lm <fitgrid.models.lm>`
 
   .. code-block:: python
 
@@ -135,7 +142,7 @@ linear mixed-effects fits.
 
 
 
-* Linear mixed-effects: :py:meth:`fitgrid.lmer`
+* Linear mixed-effects: :py:meth:`fitgrid.lmer <fitgrid.models.lmer>`
 
   .. code-block:: python
 
@@ -146,12 +153,12 @@ linear mixed-effects fits.
 
 
 
-* User-defined (experimental): :py:meth:`fitgrid.run_model`
+* User-defined (experimental): :py:meth:`fitgrid.run_model <fitgrid.models.run_model>`
 
 
-============================
-The `FitGrid[time, channel]`
-============================
+================================================================
+The :py:class:`FitGrid[times, channels] <fitgrid.fitgrid.FitGrid>`
+================================================================
 
 
 --------------------------
@@ -159,8 +166,9 @@ Slice by `time`, `channel`
 --------------------------
 
 
-Slice the `FitGrid` with `pandas.DataFrame` range ``:`` and label slicers.
-The range includes the upper bound.
+Slice the :py:class:`FitGrid[times, channels] <fitgrid.fitgrid.FitGrid>`
+with :py:class:`pandas.DataFrame` range ``:`` and label slicers.  The
+range includes the upper bound.
 
 .. code-block:: python
 
@@ -174,9 +182,10 @@ Access results
 --------------
 
 
-Query the `FitGrid` results like a single fit object. Result grids are
-returned as as `pandas.DataFrame` or another `FitGrid` which can be
-queried the same way.
+Query the :py:class:`FitGrid[times, channels] <fitgrid.fitgrid.FitGrid>`
+results like a single fit object. Result grids are returned as a
+`pandas.DataFrame` or another :py:class:`FitGrid[times, channels]
+<fitgrid.fitgrid.FitGrid>` which can be queried the same way.
 
 .. code-block:: python
 
@@ -193,9 +202,9 @@ Slice and access
    lm_grid[-100:300, ["MiCe", "MiPa"].params
 
 
----------------------
-``LMFitGrid`` methods
----------------------
+------------------------------------
+:py:meth:`fitgrid.LMFitGrid` methods
+------------------------------------
 
 The fitted OLS grid provides time-series plots of selected model
 results: estimated coefficients :py:meth:`fitgrid.lm.plot_betas` and
@@ -248,9 +257,10 @@ To reduce memory demands when comparing sets of models, `fitgrid`
 provides a convenience wrapper, `fitgrid.utils.summarize`, that
 iteratively fits a list of models and collects a lightweight summary
 dataframe with key results for model interpretation and
-comparison. Unlike the primary `FitGrid`, the summary dataframe format
-is the same for `fitgrid.lm` and `fitgrid.lmer`. Some helper functions
-are available for visualizing selected summary results.
+comparison. Unlike :py:class:`FitGrid[times, channels]
+<fitgrid.fitgrid.FitGrid>` objects, the summary dataframe format is the
+same for `fitgrid.lm` and `fitgrid.lmer`. Some helper functions are
+available for visualizing selected summary results.
 
 
 .. _diagnostics:
@@ -304,27 +314,30 @@ Multicore model fitting
 
 On a multicore machine, it may be possible to significantly speed
 fitting by computing the models in parallel especially for
-``fitgrid.lmer``. For least squares models, ``fitgrid.lm`` uses
-``statsmodels`` under the hood, which in turn employs ``numpy`` for
-calculations.  ``numpy`` itself depends on linear algebra libraries
-that might be configured to use multiple threads by default. This
-means that on a 48 core machine, common linear algebra calculations
-might use 24 cores automatically, without any explicit
-parallelization. So when you explicitly parallelize your calculations
-using Python processes (say 4 of them), each process might start 24
-threads. In this situation, 96 CPU bound threads are wrestling each
-other for time on the 48 core CPU. This is called oversubscription and
-results in *slower* computations.
+:py:meth:`fitgrid.lmer <fitgrid.models.lmer>`. For least squares
+models, :py:meth:`fitgrid.lm <fitgrid.models.lm>` uses :py:mod:`statsmodels`
+under the hood, which in turn employs :py:mod:`numpy` for calculations.
+:py:mod:`numpy` itself depends on linear algebra libraries that might be
+configured to use multiple threads by default. This means that on a 48
+core machine, common linear algebra calculations might use 24 cores
+automatically, without any explicit parallelization. So when you
+explicitly parallelize your calculations using Python processes (say 4
+of them), each process might start 24 threads. In this situation, 96
+CPU bound threads are wrestling each other for time on the 48 core
+CPU. This is called oversubscription and results in *slower*
+computations.
 
-To deal with this when running ``fitgrid.lm``, we try to instruct the
-linear algebra libraries your ``numpy`` distribution depends on to
-only use a single thread in every computation. This then lets you
-control the number of CPU cores being used by setting the ``n_cores``
-parameter in :py:meth:`fitgrid.lm` and :py:meth:`fitgrid.lmer`.
+To deal with this when running :py:meth:`fitgrid.lm
+<fitgrid.models.lm>`, we try to instruct the linear algebra libraries
+your :py:mod:`numpy` distribution depends on to only use a single
+thread in every computation. This then lets you control the number of
+CPU cores being used by setting the ``n_cores`` parameter in
+:py:meth:`fitgrid.lm <fitgrid.models.lm>` and :py:meth:`fitgrid.lmer
+<fitgrid.models.lmer>`.
 
-If you are using your own 8-core laptop, you might want to use all
-cores, so set something like ``n_cores=7``. On a shared machine, it's
-a good idea to run on half or 3/4 of the cores if no one else is
+If you are using your own 8-core laptop, you might want to use all but
+one core, so set something like ``n_cores=7``. On a shared machine,
+it's a good idea to run on half or 3/4 of the cores if no one else is
 running heavy computations.
 
 Note that fitgrid parallel processing counts the "logical" cores

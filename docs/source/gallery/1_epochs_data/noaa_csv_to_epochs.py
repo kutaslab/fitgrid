@@ -8,8 +8,8 @@ This example wrangles about 10 years of somewhat messy hourly NOAA
 <https://tidesandcurrents.noaa.gov/met.html?id=9410230&units=standard&timezone=GMT&action=data>`_
 and `water levels
 <https://tidesandcurrents.noaa.gov/waterlevels.html?id=9410230&units=standard&timezone=GMT&action=data>`_
-into tidy `pandas.DataFrame` of time-stamped epochs ready to
-load as `fitgrid.Epochs` for modeling.
+into tidy :py:class:`pandas.DataFrame` of time-stamped epochs ready to
+load as ``fitgrid`` :py:class:`Epochs <fitgrid.epochs.Epochs>` for modeling.
 
 1. Groom separate NOAA ocean water level and atmospheric observation
    data files and merge into a single time-stamped `pandas.DataFrame`.

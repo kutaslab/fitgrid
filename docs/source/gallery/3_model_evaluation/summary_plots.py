@@ -76,7 +76,7 @@ figs = fitgrid.utils.summary.plot_betas(
 # Degrees of freedom for mixed-effects models are somewhat
 # controversial. You can plot those returned by lmerTest. The degrees
 # of freedom must be scaled by a function of your choosing. When when
-# the df are much larger than the betas log tranform like
+# the df are much larger than the betas log transform like
 # ``numpy.log10()`` may be useful. The identity function ``dof()``
 # below shows schematically how to define your own and the example
 # uses the Python anonymous function (``lambda``) to do the same thing as ``dof``.

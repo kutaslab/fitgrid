@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""User functions to streamline working with selected statsmodels OLS
+fit attributes for ``fitgrid.lm`` grids.
+"""
+
 import copy
 import warnings
 import numpy as np
@@ -180,7 +185,7 @@ def list_diagnostics():
     ]
 
     print(
-        "Fast: These are caclulated quickly with get_diagnostic(),"
+        "Fast: These are calculated quickly with get_diagnostic(),"
         " usable for large data sets\n"
     )
     for usage in fast:
@@ -356,7 +361,7 @@ def filter_diagnostic(
 ):
     """Select a subset of a fitgrid `statsmodels` diagnostic dataframe by value.
 
-    Use this to identify time ponts, epochs, parameters, channels with
+    Use this to identify time points, epochs, parameters, channels with
     outlying or potentially influential data.
 
     Parameters

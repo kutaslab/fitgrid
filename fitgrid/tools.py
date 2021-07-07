@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""Developer utilities for data validation and managing parallel CPU
+processing. Not meant for general use.
+"""
+
 import numpy as np
 from collections import defaultdict, OrderedDict
 import subprocess
@@ -50,7 +55,7 @@ def deduplicate_list(lst):
 
 
 class BLAS:
-    """blas wrapper as determined by its thread getter/setter"""
+    """BLAS wrapper as determined by its thread getter/setter"""
 
     def __init__(self, cdll):
 

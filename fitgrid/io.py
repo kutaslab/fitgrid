@@ -1,6 +1,9 @@
+# -*- coding: utf-8 -*-
+"""User utilities for reading fitgrid ``Epochs`` data files and previously
+saved fitted grids."""
+
 import pandas as pd
 import pickle
-import statsmodels
 from statsmodels.regression.linear_model import (
     RegressionResults,
     RegressionResultsWrapper,
@@ -8,7 +11,6 @@ from statsmodels.regression.linear_model import (
 from .epochs import Epochs
 from .fitgrid import FitGrid, LMFitGrid, LMERFitGrid
 from .errors import FitGridError
-from . import defaults
 
 
 def epochs_from_hdf(filename, key, time, epoch_id, channels):

@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""User functions to streamline working with grids of OLS and LME
+model summaries and sets of models."""
+
+
 import itertools
 import copy
 import warnings
@@ -78,8 +83,8 @@ def summarize(
        the data columns to model
 
     RHS : model formula or list of model formulas to fit
-       see the Python package `patsy` docs for `lm` formula langauge
-       and the R library `lme4` docs for the `lmer` formula langauge.
+       see the Python package `patsy` docs for `lm` formula language
+       and the R library `lme4` docs for the `lmer` formula language.
 
     parallel : bool
        If True, model fitting is distributed to multiple cores
@@ -405,7 +410,7 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=0.05):
         pd.concat(pmvs).reset_index().set_index(_index_names)
     )  # INDEX_NAMES)
 
-    # lookup the param_name specifc info for this bundle
+    # lookup the param_name specific info for this bundle
     summaries = []
 
     # select model point estimates mapped like so (key, OLS_attribute)
@@ -444,7 +449,7 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=0.05):
     summaries.append(cis.reset_index().set_index(_index_names))
     summaries_df = pd.concat(summaries)
 
-    # add the parmeter model info
+    # add the parameter model info
     # summaries_df = pd.concat([summaries_df, pmvs]).sort_index().astype(float)
     summaries_df = pd.concat([summaries_df, pmvs]).sort_index()
 
@@ -1192,7 +1197,7 @@ def plot_AICmin_deltas(
     f, axs = plt.subplots(
         len(models),  # 1 axis row per model
         3,
-        squeeze=False,  # keep axes shape (1, 3), tho singleton model is pointless
+        squeeze=False,  # keep axes shape (1, 3), though singleton model is pointless
         figsize=figsize,
         gridspec_kw=gspec_kw,
         subplot_kw=subplot_kw,
