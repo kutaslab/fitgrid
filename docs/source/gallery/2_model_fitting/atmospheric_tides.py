@@ -23,25 +23,21 @@ Data are from NOAA Station La Jolla, CA 94102 (Scripps) August 1, 2010
 - July 1, 2020 sea level and meteorology data, downloaded January 29,
 2020 from
 `https://tidesandcurrents.noaa.gov <https://tidesandcurrents.noaa.gov/waterlevels.html?id=9410230>`_.
-Water levels are measured relative mean sea level (MSL). For more on 
+Water levels are measured relative mean sea level (MSL). For more on
 how the epochs data were prepared see :ref:`noaa_epochs`.
 
 """
 
-from pathlib import Path
-import numpy as np
 import pandas as pd
+
+# to suppress datetime FutureWarning
 from pandas.plotting import register_matplotlib_converters
 from matplotlib import pyplot as plt
-import fitgrid as fg
 from fitgrid import DATA_DIR
 
 # set up plotting
 plt.style.use("seaborn-bright")
 rc_colors = plt.rcParams['axes.prop_cycle'].by_key()['color']
-
-# supress datetime FutureWarning (ugh)
-# register_matplotlib_converters()
 
 # path to hourly water level and meteorology data
 WDIR = DATA_DIR / "CO-OPS_9410230"

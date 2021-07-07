@@ -2,9 +2,10 @@
 =========================================
 
 There are many approaches to comparing models and evaluating relative
-goodness-of-fit. The `FitGrid[time, channe]` query mechanism is
-designed to streamline the computations for whatever approach is
-deemed appropriate for the research question at hand..
+goodness-of-fit. The :py:class:`FitGrid[times, channels]
+<fitgrid.fitgrid.FitGrid>` query mechanism is designed to streamline
+the computations for whatever approach is deemed appropriate for the
+research question at hand..
 
 
 The AIC example demonstrates the `fitgrid.utils.summarize` function, a
@@ -169,7 +170,10 @@ for ax_row in range(len(axs)):
 # with a few lines of code.
 
 # %%
-# Fit the full model. The log likelihood dataframe is returned by querying the `FitGrid`.
+# Fit the full model. The log likelihood dataframe is returned by
+# querying the :py:class:`FitGrid[times, channels]
+# <fitgrid.fitgrid.FitGrid>`.
+
 lmg_full = fg.lm(p3_epochs_fg, RHS="1 + stim + tone + stim:tone", LHS=channels)
 lmg_full.llf
 

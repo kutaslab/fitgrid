@@ -62,6 +62,9 @@ References
        and Clinical Neurophysiology, 6(1),
        65-84. https://doi:10.1016/0013-4694(54)90007-3
 
+.. [Gautier2021] Laurent Gautier. rpy2 - R in
+       Python. https://rpy2.github.io
+
 .. [Jolly2018] Jolly, (2018). Pymer4: Connecting R and Python for
        Linear Mixed Modeling. Journal of Open Source Software, 3(31),
        862, https://doi.org/10.21105/joss.00862
@@ -107,3 +110,4 @@ References
 .. [Smith2020] Smith, N. J., patsy - Describing statistical models in
        Python. Documentation: <https://patsy.readthedocs.io>.
 
+       

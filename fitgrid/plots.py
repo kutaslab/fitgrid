@@ -1,3 +1,5 @@
+"""Legacy user plotting function for backwards compatibility."""
+
 import pandas as pd
 import matplotlib.pyplot as plt
 

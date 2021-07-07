@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+"""Developer classes for populating Time x Channel grids with fitted
+OLS and LMER models, not meant for general use. Instead, construct an
+``Epochs`` object and pass it to ``fitgrid.lm`` and ``fitgrid.lmer``.
+"""
+
 import numpy as np
 import pandas as pd
 import pickle
@@ -11,8 +17,9 @@ from . import tools
 class FitGrid:
     """Hold rERP fit objects.
 
-    FitGrid should not be created directly, the right way to build it is to
-    start with an Epochs object and pass it to a function like `fitgrid.lm`.
+    FitGrid should not be created directly, the right way to build it
+    is to start with an ``Epochs`` object and pass it to a function
+    like ``fitgrid.lm``.
 
     Parameters
     ----------
@@ -49,6 +56,7 @@ class FitGrid:
 
     where column 'blah' consists of NaN's. Since version 21.0 of Pandas this
     throws a warning and should in future be replaced with a KeyError.
+
     """
 
     def __init__(self, _grid, epoch_index, time):

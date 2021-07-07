@@ -1,4 +1,11 @@
-from os import environ
+# -*- coding: utf-8 -*-
+"""User modeling functions and developer utilities for populating Time
+x Channel grids with OLS and LMER model fits. The API exposes the
+primary user interface functions for general use with ``Epochs``
+objects as ``fitgrid.lm`` and ``fitgrid.lmer``.
+
+"""
+
 from math import ceil
 from functools import partial
 from multiprocessing import Pool
@@ -195,22 +202,22 @@ def lm(
 def lmer_single(
     data, channel, RHS, family, conf_int, factors, permute, ordered, REML
 ):
-    import re
 
     model = Lmer(channel + ' ~ ' + RHS, data=data, family=family)
 
-    with redirect_stdout(StringIO()) as captured_stdout:
-        model.fit(
-            summarize=False,
-            conf_int=conf_int,
-            factors=factors,
-            permute=permute,
-            ordered=ordered,
-            REML=REML,
-        )
+    # DEPRECATED redirect_stdout as of pymer 0.7+
+    # with redirect_stdout(StringIO()) as captured_stdout:
+    model.fit(
+        summarize=False,
+        conf_int=conf_int,
+        factors=factors,
+        permute=permute,
+        ordered=ordered,
+        REML=REML,
+    )
 
     # lmer prints warnings, capture them
-    warning = captured_stdout.getvalue()
+    # warning = captured_stdout.getvalue()
 
     # in pymer4 <= 0.6 lmer warnings were not attached to the model object
     # model.has_warning = True if warning else False

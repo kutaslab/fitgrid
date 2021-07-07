@@ -10,7 +10,7 @@ import pandas as pd
 import fitgrid as fg
 
 # %%
-# 1. Read or construct a 2-D :py:meth:`pandas.DataFrame` of
+# 1. Read or construct a 2-D :py:class:`pandas.DataFrame` of
 # time-stamped epochs with time series observations in rows and variables in columns.
 
 from fitgrid import sample_data, DATA_DIR
@@ -42,7 +42,7 @@ p3_df = p3_df[columns_of_interest].query("stim in ['standard', 'target']")
 p3_df
 
 # %%
-# 2. Load the epochs data into fitgrid for modeling
+# 2. Load the epochs data into an :py:class:`Epochs <fitgrid.epochs.Epochs>` object for modeling.
 p3_df.set_index(['epoch_id', 'time_ms'], inplace=True)
 p3_epochs_fg = fg.epochs_from_dataframe(
     p3_df,
@@ -61,7 +61,9 @@ lm_grid = fg.lm(
 )
 
 # %%
-# 4. The `FitGrid[time, channel]` object is a container for the model fits.
+# 4. The :py:class:`FitGrid[times, channels] <fitgrid.fitgrid.FitGrid>`
+# object is a container for the model fits.
+
 lm_grid
 
 # %%
@@ -71,7 +73,7 @@ lm_grid[-200:600, ["MiCe", "MiPa"]]
 # %%
 # Access attributes by name like a single fit.
 # The results come back as a :py:class:`pandas.DataFrame` or another
-# FitGrid[time, channel].
+# :py:class:`FitGrid[times, channels] <fitgrid.fitgrid.FitGrid>`.
 
 # %%
 
@@ -90,12 +92,11 @@ lm_grid.llf
 
 
 # %%
-# Plot results with a fitgrid built-in.
+# Plot results with a ``fitgrid`` built-in.
 f, axs = lm_grid.plot_betas()
 
 # %%
-# Or make your own with pandas, matplotlib, seaborn, etc..
-from matplotlib import pyplot as plt
+# Or make your own with ``pandas``, ``matplotlib``, ``seaborn``, etc..
 
 # Slice a time range and compute means with pandas
 p3_effect = lm_grid.params.loc[
