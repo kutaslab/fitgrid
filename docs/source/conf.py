@@ -14,7 +14,6 @@
 #
 import os
 import sys
-import re
 
 sys.path.insert(0, os.path.abspath('../..'))
 sys.path.insert(0, os.path.abspath('.'))
@@ -25,19 +24,15 @@ from fitgrid import __version__
 # -- Project information -----------------------------------------------------
 
 project = 'fitgrid'
-copyright = '2018-2021, Andrey Portnoy, Thomas P. Urbach'
-author = 'Andrey Portnoy, Thomas P. Urbach'
+copyright = '2018-2021, Andrey S. Portnoy, Thomas P. Urbach'
+author = 'Andrey S. Portnoy, Thomas P. Urbach'
 today = 'January 29, 2021'
 
-
-ver_tag = re.match(r"(?P<ver>^\d\.\d)(?P<tag>.*)", __version__)
-assert ver_tag is not None
-
-# The short X.Y version
-version = ver_tag['ver']
+# The short X.Y version. TPU: no, use full version for M.N.P(.devX) in sidebar
+version = __version__
 
 # The full version, including alpha/beta/rc tags
-release = ver_tag['ver'] + ver_tag['tag']
+# release = ""
 
 # -- General configuration ---------------------------------------------------
 
@@ -60,6 +55,7 @@ extensions = [
     'sphinx.ext.extlinks',
     # 'nbsphinx',
     "sphinx_gallery.gen_gallery",
+    "sphinx.ext.intersphinx",
 ]
 
 # nbsphinx_timeout = -1 # don't timeout
@@ -68,6 +64,33 @@ extensions = [
 napoleon_google_docstring = False
 napoleon_use_param = False
 napoleon_use_ivar = True
+
+# ------------------------------------------------------------
+# intersphinx config
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "numpy": ("https://numpy.org/doc/stable", None),
+    "pandas": ("https://pandas.pydata.org/docs", None),
+    "matplotlib": ("https://matplotlib.org", None),
+    "statsmodels": ("https://www.statsmodels.org/stable", None),
+    "pymer4": ("https://eshinjolly.com/pymer4", None),
+    "rpy2": ("https://rpy2.github.io/doc/latest/html", None),
+    "sphinx": ("https://www.sphinx-doc.org/en/master", None),
+    "sphinx-gallery": ("https://sphinx-gallery.github.io/stable", None),
+    "conda": ("https://docs.conda.io/projects/conda/en/latest/", None),
+    "pip": ("https://pip.pypa.io/en/stable", None),
+    "mamba": ("https://mamba.readthedocs.io/en/latest", None),
+    "black": ("https://black.readthedocs.io/en/stable", None),
+    "pytest": ("https://docs.pytest.org/en/stable", None),
+    "patsy": ("https://patsy.readthedocs.io/en/latest", None),
+    "jupyter": ("https://jupyter.readthedocs.io/en/latest/", None),
+    "jupyterlab": ("https://jupyterlab.readthedocs.io/en/stable/", None),
+    "fitgrid": ("https://kutaslab.github.io/fitgrid", None),
+    "fitgrid-pre-release": (
+        "https://kutaslab.github.io/fitgrid-dev-docs",
+        None,
+    ),
+}
 
 # ------------------------------------------------------------
 # sphinx gallery config TPU
@@ -103,7 +126,7 @@ sphinx_gallery_conf = {
     # execute all *.py (not default plot_*.py)
     "filename_pattern": "[a-zA-Z]+.py",
     # or ... select files individally
-    # "filename_pattern": ".*/quickstart.py",
+    # "filename_pattern": ".*/workflow.py",
     "image_scrapers": (fg_matplotlib_scraper(),),
     # or set to https://kutaslab.github.io/fitgrid/ to reduce notebook size
     "notebook_images": True,

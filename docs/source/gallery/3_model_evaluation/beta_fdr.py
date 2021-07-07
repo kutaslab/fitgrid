@@ -1,15 +1,16 @@
 """
-False Discovery Rate (FDR) control for estimated predictor coefficents (betas)
-==============================================================================
+False Discovery Rate (FDR) control for estimated predictor coefficients (betas)
+===============================================================================
 """
 
 # %%
 # The fitgrid summary utilities include an FDR critical value
-# calculator (:py:func:`.summaries_fdr_control`) for the special case
-# of estimated predictor coefficients :math:`\hat{\beta}_i \neq
-# 0`. The FDR methods implemented are from [BenYek2001]_ and
-# [BenHoc1995]_ and computed for whatever *p*-values are returned by
-# statsmodels for fitgrid.lm() and the lmerTest for fitgrid.lmer().
+# calculator (:py:func:`fitgrid.utils.summary.summaries_fdr_control`)
+# for the special case of estimated predictor coefficients
+# :math:`\hat{\beta}_i \neq 0`. The FDR methods implemented are from
+# [BenYek2001]_ and [BenHoc1995]_ and computed for whatever *p*-values
+# are returned by statsmodels for fitgrid.lm() and the lmerTest for
+# fitgrid.lmer().
 #
 # .. note::
 #
@@ -88,7 +89,13 @@ p3_epochs_fg = fg.epochs_from_dataframe(
 #
 # This example summarizes a simple model with one categorical predictor: stim (2 levels: standard, target).
 lm_summary = fg.utils.summary.summarize(
-    p3_epochs_fg, modeler="lm", LHS=channels, RHS=["1 + stim",], quiet=True,
+    p3_epochs_fg,
+    modeler="lm",
+    LHS=channels,
+    RHS=[
+        "1 + stim",
+    ],
+    quiet=True,
 )
 lm_summary
 
@@ -113,7 +120,7 @@ lm_summary.query("key in ['T-stat', 'P-val']")
 fdr_info, fig, ax = fg.utils.summary.summaries_fdr_control(lm_summary)
 
 # %%
-# Out of curiousity, how many *p*-values are below the unadjusted *p* = 0.05?
+# Out of curiosity, how many *p*-values are below the unadjusted *p* = 0.05?
 pvals = lm_summary.query("key=='P-val'").to_numpy().flatten()  # fetch p values
 n_crit_05 = len(np.where(pvals < 0.05)[0])
 print(
@@ -122,7 +129,7 @@ print(
 )
 
 # %%
-# Out of curiousity, how many are below critical *p* for this FDR control?
+# Out of curiosity, how many are below critical *p* for this FDR control?
 assert fdr_info['n_pvals'] == len(pvals)  # these must agree
 
 n_crit_p = len(np.where(pvals < fdr_info["crit_p"])[0])

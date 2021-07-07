@@ -76,7 +76,7 @@ figs = fitgrid.utils.summary.plot_betas(
 # Degrees of freedom for mixed-effects models are somewhat
 # controversial. You can plot those returned by lmerTest. The degrees
 # of freedom must be scaled by a function of your choosing. When when
-# the df are much larger than the betas log tranform like
+# the df are much larger than the betas log transform like
 # ``numpy.log10()`` may be useful. The identity function ``dof()``
 # below shows schematically how to define your own and the example
 # uses the Python anonymous function (``lambda``) to do the same thing as ``dof``.
@@ -124,7 +124,8 @@ figs = fitgrid.utils.summary.plot_betas(
 # For AIC :math:`\Delta_\mathsf{min}` plots the default
 # is to highlight all grid cells with warnings.
 fig, axs = fitgrid.utils.summary.plot_AICmin_deltas(
-    lmer_summaries, figsize=(12, 5),
+    lmer_summaries,
+    figsize=(12, 5),
 )
 fig.tight_layout()
 
@@ -155,7 +156,12 @@ fig.tight_layout()
 # Compute OLS fit summaries for two models
 lm_rhs = ["1 + categorical", "1 + continuous"]
 lm_summaries = fitgrid.utils.summary.summarize(
-    epochs_fg, "lm", LHS=channels, RHS=lm_rhs, parallel=False, quiet=True,
+    epochs_fg,
+    "lm",
+    LHS=channels,
+    RHS=lm_rhs,
+    parallel=False,
+    quiet=True,
 )
 lm_summaries
 

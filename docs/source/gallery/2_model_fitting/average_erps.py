@@ -63,7 +63,7 @@ p3_epochs_fg = fg.epochs_from_dataframe(
 # average ERPs by condition: :math:`\sim \mathsf{0 + stim}`
 # ---------------------------------------------------------
 #
-# Supressing the intercept term in the `patsy` model formula triggers
+# Suppressing the intercept term in the `patsy` model formula triggers
 # full-rank dummy (indicator) coding of the two-level categorical variable.
 # The estimated coefficients are identical to the average ERPs in
 # each condition. The minimal design matrix illustrates dummy

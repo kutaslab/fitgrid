@@ -1,6 +1,3 @@
-import pytest
-import os
-from pathlib import Path
 from .context import fitgrid
 from fitgrid import defaults, DATA_DIR
 

@@ -1,19 +1,20 @@
 """Simulated epochs data
 ========================
 
-Use `fitgrid.generate()` to quickly generate small or large random
-data sets with categorical and random continuous predictor
-variables. The random values can be seeded for replicability.
+Use :py:func:`fitgrid.generate <fitgrid.fake_data.generate>` to quickly
+generate small or large random data sets with categorical and random
+continuous predictor variables. The random values can be seeded for
+replicability.
 
-The data can be returned in native fitgrid.Epochs format for immediate
-modeling or as a pandas.DataFrame. The latter is useful for mocking up
-the conversion from a dataframe to fitgrid.Epochs when developing an
+The data can be returned in ``fitgrid`` :py:class:`Epochs
+<fitgrid.epochs.Epochs>` format for immediate modeling or as a
+:py:class:`pandas.DataFrame`. The latter is useful for mocking up the
+conversion from a dataframe to fitgrid.Epochs when developing an
 analysis pipeline.
 
 Small data sets are useful for trying out features and
 functions. Larger sets are useful for testing system performance and
 limitations.
-
 
 """
 

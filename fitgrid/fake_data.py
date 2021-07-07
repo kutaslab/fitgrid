@@ -1,4 +1,6 @@
-import warnings
+# -*- coding: utf-8 -*-
+"""User utilities for generating test data structured for fitgrid modeling."""
+
 import numpy as np
 import pandas as pd
 from .epochs import Epochs

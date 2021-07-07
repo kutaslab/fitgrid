@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+"""Default values for epochs.Epoch.index names and data channel columns"""
+
 #: default epoch identifier
 EPOCH_ID = 'epoch_id'
 

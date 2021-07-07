@@ -2,7 +2,6 @@ import pytest
 import re
 import warnings
 import hashlib
-from numpy import log10
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
@@ -13,7 +12,7 @@ from pymer4 import Lmer
 
 import fitgrid
 from fitgrid import DATA_DIR
-from fitgrid.utils.summary import INDEX_NAMES, KEY_LABELS, PER_MODEL_KEY_LABELS
+from fitgrid.utils.summary import INDEX_NAMES, KEY_LABELS
 from .context import FIT_ATOL, FIT_RTOL, FIT_ATOL_FAIL, FIT_RTOL_FAIL
 
 _EPOCH_ID = fitgrid.defaults.EPOCH_ID
@@ -175,7 +174,7 @@ bad_epochs_mark = pytest.mark.xfail(reason=TypeError, strict=True)
     ],
 )
 def test_summarize_args(epoch_arg):
-    """ test summary.summarize argument guards"""
+    """test summary.summarize argument guards"""
     fitgrid.utils.summary.summarize(epoch_arg, None, None, None, None, None)
 
 

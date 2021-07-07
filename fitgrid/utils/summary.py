@@ -1,3 +1,8 @@
+# -*- coding: utf-8 -*-
+"""User functions to streamline working with grids of OLS and LME
+model summaries and sets of models."""
+
+
 import itertools
 import copy
 import warnings
@@ -78,8 +83,8 @@ def summarize(
        the data columns to model
 
     RHS : model formula or list of model formulas to fit
-       see the Python package `patsy` docs for `lm` formula langauge
-       and the R library `lme4` docs for the `lmer` formula langauge.
+       see the Python package `patsy` docs for `lm` formula language
+       and the R library `lme4` docs for the `lmer` formula language.
 
     parallel : bool
        If True, model fitting is distributed to multiple cores
@@ -405,7 +410,7 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=0.05):
         pd.concat(pmvs).reset_index().set_index(_index_names)
     )  # INDEX_NAMES)
 
-    # lookup the param_name specifc info for this bundle
+    # lookup the param_name specific info for this bundle
     summaries = []
 
     # select model point estimates mapped like so (key, OLS_attribute)
@@ -444,7 +449,7 @@ def _lm_get_summaries_df(fg_ols, ci_alpha=0.05):
     summaries.append(cis.reset_index().set_index(_index_names))
     summaries_df = pd.concat(summaries)
 
-    # add the parmeter model info
+    # add the parameter model info
     # summaries_df = pd.concat([summaries_df, pmvs]).sort_index().astype(float)
     summaries_df = pd.concat([summaries_df, pmvs]).sort_index()
 
@@ -619,9 +624,12 @@ def _get_AICs(summary_df):
 
 
 def summaries_fdr_control(
-    model_summary_df, method="BY", rate=0.05, plot_pvalues=True,
+    model_summary_df,
+    method="BY",
+    rate=0.05,
+    plot_pvalues=True,
 ):
-    """False discovery rate control for non-zero betas in model summary dataframes
+    r"""False discovery rate control for non-zero betas in model summary dataframes
 
     The family of tests for FDR control is assumed to be **all and
     only** the channels, models, and :math:`\hat{\beta}_i` in the
@@ -638,7 +646,7 @@ def summaries_fdr_control(
         Hochberg [2]_.
     rate : float {0.05}
         The target rate for controlling false discoveries.
-    plot_pvalues : bool {True, False} 
+    plot_pvalues : bool {True, False}
         Display a plot of the family of $p$-values and critical value for FDR control.
 
 
@@ -883,7 +891,12 @@ def plot_betas(
         model_summary_df.sort_index(inplace=True)
         model_summary_df = model_summary_df.loc[
             # Index = time, model, beta, key
-            pd.IndexSlice[interval[0] : interval[1], :, :, :,],
+            pd.IndexSlice[
+                interval[0] : interval[1],
+                :,
+                :,
+                :,
+            ],
             :,
         ]
 
@@ -1063,7 +1076,7 @@ def plot_AICmin_deltas(
     show_warnings : {"no_labels", "labels", str, list of str}
        "no_labels" (default) highlights everywhere there is any warning in
        red, the default behavior in fitgrid < v0.5.0. "labels" display
-       all warning strings the axes titles.  A `str` or list of `str` selects 
+       all warning strings the axes titles.  A `str` or list of `str` selects
        and display only warnings that (partial) match a model warning string.
 
     figsize : 2-ple
@@ -1104,7 +1117,7 @@ def plot_AICmin_deltas(
     """
 
     def _get_warnings_grid(model_warnings, show_warnings):
-        """look up warnings according to aic and user kwarg value """
+        """look up warnings according to aic and user kwarg value"""
 
         # split the "_" separated multiple warning strings into unique types
         warning_kinds = np.unique(
@@ -1184,7 +1197,7 @@ def plot_AICmin_deltas(
     f, axs = plt.subplots(
         len(models),  # 1 axis row per model
         3,
-        squeeze=False,  # keep axes shape (1, 3), tho singleton model is pointless
+        squeeze=False,  # keep axes shape (1, 3), though singleton model is pointless
         figsize=figsize,
         gridspec_kw=gspec_kw,
         subplot_kw=subplot_kw,
@@ -1238,7 +1251,10 @@ def plot_AICmin_deltas(
                 _min_deltas[chan].where(warnings_grid[chan] == 1).dropna()
             )
             traces.scatter(
-                chan_mask.index, chan_mask, c="crimson", label=None,
+                chan_mask.index,
+                chan_mask,
+                c="crimson",
+                label=None,
             )
 
         if i == 0:

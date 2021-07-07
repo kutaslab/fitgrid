@@ -1,3 +1,10 @@
+"""User and developer utility for downloading public EEG data from the
+Zenodo archive DOI 10.5281/zenodo.3968485 into the installed
+path/to/site-packages/fitgrid/data for pytests, documentation, and
+general use.
+
+"""
+
 from pathlib import Path
 import re
 
@@ -18,7 +25,7 @@ PM_1500_FEATHER = "sub000pm.ms1500.epochs.feather"
 
 
 def _download(filename, url=DATA_URL):
-    """download filename from repo url to fitgrid/data/ 
+    """download filename from repo url to fitgrid/data/
 
 
     Parameters
@@ -51,9 +58,10 @@ def _download(filename, url=DATA_URL):
 
 
 def get_file(filename, url=DATA_URL):
-    """checks file is present in fitgrid/data, downloads if not
+    """Checks if file is present in fitgrid/data, downloads if not
 
-    Defaults to `Zenodo eeg-workshops/mkpy_data_examples/data v.0.0.3 <https://zenodo.org/record/3968485>`_
+    Defaults to `Zenodo eeg-workshops/mkpy_data_examples/data v.0.0.3
+    <https://zenodo.org/record/3968485>`_
 
     Parameters
     ----------
