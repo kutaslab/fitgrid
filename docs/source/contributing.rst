@@ -149,12 +149,12 @@ Deployment
 
   * Pre-release: ``M.N.P.devX``
 
-    * Conda packages: `--channel kutaslab/label/pre-release <https://anaconda.org/kutaslab/fitgrid/files)>`_
+    * Conda packages: `--channel kutaslab/label/pre-release <https://anaconda.org/kutaslab/fitgrid/files>`_
     * Sphinx documentation: `kutaslab.github.io/fitgrid-dev-docs <https://kutaslab.github.io/fitgrid-dev-docs>`_
       
   * Stable release: ``vM.N.P``
 
-    * Conda packages: `--channel kutaslab <https://anaconda.org/kutaslab/fitgrid/files)>`_
+    * Conda packages: `--channel kutaslab <https://anaconda.org/kutaslab/fitgrid/files>`_
     * Sphinx documentation: `kutaslab.github.io/fitgrid <https://kutaslab.github.io/fitgrid>`_
     * Zenodo archive DOI: `10.5281/zenodo.3581496 <https://doi.org/10.5281/zenodo.3581496>`_
 

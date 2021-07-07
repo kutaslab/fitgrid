@@ -94,8 +94,8 @@ How to install ``fitgrid``
 ==========================
 
 These examples show how to install ``fitgrid`` from a shell command line
-prompt in a linux or Mac terminal window.  They assume the `conda` and
-`mamba` executables are already installed and the users's .condarc file
+prompt in a linux or Mac terminal window.  They assume the ``conda`` and
+``mamba`` executables are already installed and the users's .condarc file
 has not been modified.
 
 
@@ -124,7 +124,7 @@ Mac OSX.
        -c kutaslab -c ejolly -c conda-forge \
        --strict-channel-priority
 
-.. warning::
+.. note::
 
    This installation currently defaults to OpenBLAS builds of matrix
    math and linear algebra libraries so execution time on some Intel
@@ -279,13 +279,14 @@ GitHub Actions `hosted runners
 <https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources>`_.
 Previous versions of ``fitgrid`` were developed and used in CentOS 7
 with Intel CPUs (24 cores/48 threads, 256-512 GB RAM). We are unable
-to test the Windows 64-bit conda package, field reports are welcome.
+to test the Windows 64-bit conda package, field reports are welcome,
+see :ref:`Contributing <how_to_contribute>` for more information.
 
 ====
 Tips
 ====
 
-* Use `conda list` to inspect package versions and the channels they come
+* Use ``conda list`` to inspect package versions and the channels they come
   from when constructing conda enviroments.
 
 * To help avoid package version conflicts and speed up the dependency
