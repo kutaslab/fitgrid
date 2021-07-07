@@ -2,17 +2,21 @@
 ====================================================================
 
 OLS and mixed-effect models are specified by model formulas. The
-results returned by `statstmodels` for OLS and `lme4::lmer` for
-mixed-effcts models populate the `FitGrid[time, channels]` object. The
-`FitGrid` can be sliced by times or channels with `pandas` index
-slicing. The results are accessed via the fit object attributes and
-returned as a `pandas.DataFrame` or another `FitGrid`
+results returned by ``statstmodels`` for OLS and ``lme4::lmer`` for
+mixed-effcts models populate the :py:class:`FitGrid
+<fitgrid.fitgrid.FitGrid>` object. The :py:class:`FitGrid[times, channels]
+<fitgrid.fitgrid.FitGrid>` can be sliced by
+times or channels with ``pandas`` index slicing. The results are
+accessed via the fit object attributes and returned as a
+``pandas.DataFrame`` or another :py:class:`FitGrid[times, channels]
+<fitgrid.fitgrid.FitGrid>`.
+
 """
 
 
 # %%
-# Generate simulated data and load `fitgrid.Epochs`
-# -------------------------------------------------
+# Generate simulated data and load :py:class:`Epochs <fitgrid.epochs.Epochs>`
+# ---------------------------------------------------------------------------
 
 import fitgrid
 
@@ -31,8 +35,11 @@ epochs_fg = fitgrid.epochs_from_dataframe(
 # Ordinary least squares (OLS)
 # ----------------------------
 #
-# These models are specified with `patsy` Python formulas like `lm` in R. The
-# results come back from `statsmodels`
+# These models are specified with :std:doc:`patsy <patsy:index>` Python formulas like ``lm`` in ``R``. The
+# results come back via ``statsmodels`` as :py:class:`FitGrid[times, channels]
+# <fitgrid.fitgrid.FitGrid>` objects populated with :py:class:`linear_model.RegressionResults
+# <statsmodels.regression.linear_model.RegressionResults>`.
+
 lm_grid = fitgrid.lm(epochs_fg, RHS='1 + categorical + continuous', quiet=True)
 
 # %%
@@ -55,8 +62,11 @@ for param, vals in params.groupby("params"):
 # Linear mixed effects (LMER)
 # ---------------------------
 #
-# These models are specified with `lme4::lmer` R formulas and the results come back
-# as `pymer4` objects from the `lmer` and `lmerTest` results.
+# These models are specified with ``lme4::lmer`` R formulas and the
+# results come back via ``pymer4`` as :py:class:`FitGrid[times,
+# channels] <fitgrid.fitgrid.FitGrid>` objects populated with
+# :py:class:`Lmer <pymer4.models.Lmer>` objects from the
+# ``lme4::lmer`` and ``lmerTest`` results.
 
 # %%
 # Fit a mixed-effects model with `lme4::lmer` via `pymer4`

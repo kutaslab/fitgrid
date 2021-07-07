@@ -4,29 +4,29 @@ NOAA tides and weather epochs
 =============================
 
 This example wrangles about 10 years of somewhat messy hourly NOAA
-`meteorological observations 
+`meteorological observations
 <https://tidesandcurrents.noaa.gov/met.html?id=9410230&units=standard&timezone=GMT&action=data>`_
 and `water levels
 <https://tidesandcurrents.noaa.gov/waterlevels.html?id=9410230&units=standard&timezone=GMT&action=data>`_
-into tidy `pandas.DataFrame` of time-stamped epochs ready to
-load as `fitgrid.Epochs` for modeling.
- 
+into tidy :py:class:`pandas.DataFrame` of time-stamped epochs ready to
+load as ``fitgrid`` :py:class:`Epochs <fitgrid.epochs.Epochs>` for modeling.
+
 1. Groom separate NOAA ocean water level and atmospheric observation
-data files and merge into a single time-stamped `pandas.DataFrame`.
+   data files and merge into a single time-stamped `pandas.DataFrame`.
 
 2. Add a column of event tags that mark the `high_tide` time-locking events of interest.
 
 3. Snip the time-series apart into fixed length epochs and construct a
-new column of time-stamps in each epoch with the `high_tide` event of
-interest at time=0.
+   new column of time-stamps in each epoch with the `high_tide` event of
+   interest at time=0.
 
 4. Export the epochs data frame to save for later use in `fitgrid`
 
-Data Source: 
+Data Source:
 
-| NOAA CO-OPS-9419230  
-| Station: La Jolla, CA 94102 (Scripps Pier)   
-| August 1, 2010 - July 1, 2020  
+| NOAA CO-OPS-9419230
+| Station: La Jolla, CA 94102 (Scripps Pier)
+| August 1, 2010 - July 1, 2020
 
 The water levels are measured relative to mean sea level (MSL). For
 further information about these data see `tide data options

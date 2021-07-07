@@ -1,3 +1,9 @@
+# -*- coding: utf-8 -*-
+"""Data structure for validating and efficiently slicing
+fixed-length segments of typically multichannel time-series data.
+
+"""
+
 import numpy as np
 import pandas as pd
 

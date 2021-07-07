@@ -10,7 +10,7 @@ gathers a useful subset into a tidy indexed pandas.Dataframe.
 The summary dataframe row and column indexing is standardized, so
 summaries for different models and model sets can be conveniently
 split and stacked with ordinary pandas index slicing and dataframe
-concatentation.
+concatenation.
 
 A list of model formulas can be summarized, in
 which case their summaries are stacked and returned in a single
