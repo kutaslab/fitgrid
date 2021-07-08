@@ -1,3 +1,6 @@
+# built files
+docs/source/auto_gallery/*
+
 # TODOs files
 *.todo
 
