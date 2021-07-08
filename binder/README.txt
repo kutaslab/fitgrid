@@ -19,9 +19,9 @@ Python 3.7 conda environment, activate the environment and dump it like so
   activate fg_binder
   conda env export -f environment.yml 
 
-Alternatively, in a Python 3.8 environment with mambma and conda-forge priority 
+Alternatively, in a Python 3.7 environment with mambma and conda-forge priority 
 
-  conda create -n fg_binder python=3.8 fitgrid -c kutaslab/label/pre-release -c ejolly -c conda-forge -y
+  conda create -n fg_binder python=3.7 "r-base<4.0" fitgrid -c kutaslab/label/pre-release -c ejolly -c conda-forge -y
   activate fg_binder
   conda env export -f environment.yml
 
