@@ -161,7 +161,7 @@ up and compute regression models for single-trial data epochs with fitgrid. The 
 # Documentation
 
 The `fitgrid` documentation is available online:
-[https://kutaslab.github.io/fitgrid]([https://kutaslab.github.io/fitgrid]).
+[https://kutaslab.github.io/fitgrid](https://kutaslab.github.io/fitgrid).
 
 * [Installation](https://kutaslab.github.io/fitgrid/installation.html) gives
   instructions, options, and examples for installing and `fitgrid` in [conda virtual
@@ -191,7 +191,7 @@ The `fitgrid` documentation is available online:
       -c kutaslab -c ejolly -c defaults -c conda-forge
   ```
 
-* [Quick Start](https://kutaslab.github.io/fitgrid/quickstart.html)
+* [Quick Start](https://kutaslab.github.io/fitgrid/auto_gallery/quickstart.html)
   gives an overview of the `fitgrid` workflow with
   notes, [matplotlib](https://matplotlib.org) figures [@Hunter2007],
   and downloadable and executable code.
@@ -221,7 +221,7 @@ The `fitgrid` documentation is available online:
 Jupyter notebooks and run on the user's local machine after installing
 `fitgrid`.](examples_gallery.png)
 
-* The [Bibliography](https://kutaslab.github.io/fitgrid/biblography.html)
+* The [Bibliography](https://kutaslab.github.io/fitgrid/bibliography.html)
   includes references to relevant experimental and technical literature.
 
 * The [Contributing](https://kutaslab.github.io/fitgrid/contributing.html)
@@ -246,9 +246,9 @@ The source code is hosted in the public GitHub repository
 The latest stable release of `fitgrid` and the bleeding edge
 pre-release development version are packaged for Python 3.7, and 3.8
 on x86_64 linux and Intel OSX platforms and distributed on
-[anaconda.org/kutaslab](https://anaconda.org/kutaslab/fitgrid/file).
+[anaconda.org/kutaslab](https://anaconda.org/kutaslab/fitgrid).
 
-The continuous integration and deployment is implemented in a
+The continuous integration and deployment ([CID](https://kutaslab.github.io/fitgrid/contributing.html)) is implemented in a
 single-pass GitHub Action workflow,
 [figrid-cid.yml](https://github.com/kutaslab/fitgrid/blob/main/.github/workflows/fitgrid-cid.yml).
 The continuous integration builds and installs the conda package in a
@@ -256,18 +256,16 @@ conda virtual environment, and runs pytests and generates the sphinx
 documentation with the conda package as installed. The deploy phase
 automatically uploads the conda packages and documentation for
 development version pre-releases and stable releases and synchronizes
-the stable release source code across the GitHub repository at
-[github.com/kutaslab/fitgrid](https://github.com/kutaslab/fitgrid),
-the conda packages at
+the stable release source code across the [GitHub repository](https://github.com/kutaslab/fitgrid/releases), the conda packages at
 [anaconda.org/kutaslab/fitgrid](https://anaconda.org/kutaslab/fitgrid/files),
 the online sphinx documentation
 [kutaslab/github.io/fitgrid](https://kutaslab.github.io/fitgrid), and
 the Zenodo source code archive at
 [DOI 10.5281/zenodo.3581496](https://doi.org/10.5281/zenodo.3581496).
 
-The continuous intetgration workflow for the latest stable release on
+The continuous integration workflow for the latest stable release on
 the main code branch runs nightly on
-[GitHub Action hosted runners](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources).
+[GitHub Action hosted runners](https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners).
 Pre-release packages also pass the CI conda build, install, pytest, and
 document generation phases before deployment to
 [anaconda.org/kutaslab/fitgrid/label/pre-release](https://anaconda.org/kutaslab/fitgrid/files).
