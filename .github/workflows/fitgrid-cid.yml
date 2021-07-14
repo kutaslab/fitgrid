@@ -119,8 +119,8 @@ jobs:
 
           # switch to mamba/boa and conda-forge
           conda config --add channels conda-forge
-          conda config --set channel_priority strict
-          conda install -n base -q conda-build conda-verify anaconda-client twine mamba boa
+          # conda config --set channel_priority strict  # new mamba channel priority semantics in 0.15.0
+          conda install -n base -q conda-build conda-verify anaconda-client twine "mamba<0.15" "boa<0.6"
           echo "# ------------------------------------------------------------"
           conda info -a
           echo "# ------------------------------------------------------------"
