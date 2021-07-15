@@ -10,7 +10,12 @@ are welcome. Please post what you have in mind on GitHub in
 ``fitgrid`` `Issues <https://github.com/kutaslab/fitgrid/issues>`_ in
 accordance with the ``fitgrid`` `Code of Conduct
 <https://github.com/kutaslab/fitgrid/blob/main/CODE_OF_CONDUCT.md>`_
-to start a discussion of next steps.
+to start a discussion of next steps and plan the approach.
+
+
+================
+Package overview
+================
 
 The ``fitgrid`` code is written in Python, and requires many
 open-source scientific computing packages including :std:doc:`numpy
@@ -24,8 +29,9 @@ packages including `lme4
 <https://cran.r-project.org/web/packages/lme4/index.html>`_, and
 `lmerTest
 <https://cran.r-project.org/web/packages/lmerTest/index.html>`_. Version
-control is managed with git and the primary source repository is
-hosted on GitHub in https://github.com/kutaslab.
+control is managed with `git <https://git-scm.com/doc>`_ and the
+primary source repository is hosted on GitHub in
+https://github.com/kutaslab.
 
 The stable and pre-release :std:doc:`fitgrid <fitgrid:index>` packages
 are available on https://anaconda.org/kutaslab/fitgrid for easy
@@ -38,9 +44,6 @@ The documentation is generated with :std:doc:`sphinx
 <sphinx:contents>` and :std:doc:`sphinx-gallery
 <sphinx-gallery:index>`. 
 
-=======================
-Overview for developers
-=======================
 
 Versions
   ``fitgrid`` is semantically versioned following a simplified 
@@ -104,17 +107,6 @@ Sphinx and sphinx-gallery documentation
   available online at https://kutaslab.github.io/fitgrid-dev-docs.
   
 
-===========================================
-Continuous Integration and Deployment (CID)
-===========================================
-
-.. _cid-figure:
-
-.. figure:: _static/fitgrid_cid_scheme.png
-
-   Continuous Integration and Deployment Scheme
-
-
 The ``fitgrid`` CID is implemented in a single-pass GitHub Action
 workflow, `figrid-cid.yml
 <https://github.com/kutaslab/fitgrid/blob/main/.github/workflows/fitgrid-cid.yml>`_.
@@ -130,6 +122,13 @@ the GitHub repository at `github.com/kutaslab/fitgrid
 `sphinx documentation <https:kutaslab.github.io/fitgrid>`_, and the
 Zenodo source code archive at `DOI 10.5281/zenodo.3581496
 <https://doi.org/10.5281/zenodo.3581496>`_.
+
+
+.. _cid-figure:
+
+.. figure:: _static/fitgrid_cid_scheme.png
+
+   Continuous Integration and Deployment Scheme
 
 	    
 Continuous Integration
@@ -159,37 +158,34 @@ Deployment
     * Zenodo archive DOI: `10.5281/zenodo.3581496 <https://doi.org/10.5281/zenodo.3581496>`_
 
 
-====================
-Development workflow
-====================
-
-New work on ``fitgrid`` is committed to working branches derived
-from the `kutaslab/fitgrid/dev` branch and not directly to the `main`
-or `dev` branches which are reserved for deploying conda packages and
-documentation. As development on the working branches progesses
-(magenta in the :ref:`cid-figure`), maintainers periodically pull the
-changes to the `dev` branch in order to deploy a pre-release package
-for installation into conda environments. When development is ready
-for a stable release, maintainers pull `dev` to the `main` branch and
-manually issue a stable release on GitHub tagged ``vM.N.P``. The
-tagged release uploads the ``M.N.P`` conda packages and sphinx
-documentation and archives the ``M.N.P`` source on Zenodo.
+New work
+  Updates to ``fitgrid`` source and docs are committed to working
+  branches derived from the `kutaslab/fitgrid/dev` branch and not
+  directly to the `main` or `dev` branches which are reserved for
+  deploying conda packages and documentation. As development on the
+  working branches progesses (magenta in the :ref:`cid-figure`),
+  maintainers periodically pull the changes to the `dev` branch in
+  order to deploy a pre-release package for installation into conda
+  environments. When development is ready for a stable release,
+  maintainers pull `dev` to the `main` branch and manually issue a
+  stable release on GitHub tagged ``vM.N.P``. The tagged release
+  uploads the ``M.N.P`` conda packages and sphinx documentation and
+  archives the ``M.N.P`` source on Zenodo.
 
 
-=================
-How to contribute
-=================
+=======================
+Development environment
+=======================
 
-Contributors should begin by opening a new `fitgrid Issue
-<https://github.com/kutaslab/fitgrid/issues>`_ to discuss and plan the
-approach. The following illustrates how to set up and develop new work
+The following illustrates how to set up and develop new work
 that begins with a working branch in the source repository called
 `kutaslab/fitgrid/new-feature`. It assumes the ``git``, ``conda``, and
 ``mamba`` executables are already installed on the local computer and
 the commands are executed in a bash shell.
 
-
-**One time setup**
+--------
+One time
+--------
 
 * Sign in to GitHub and create a fork of `github.com/kutaslab/fitgrid
   <https://github.com/kutaslab/fitgrid>`_ in your GitHub account.
@@ -203,7 +199,9 @@ the commands are executed in a bash shell.
     git clone https://github.com/<your_github_username>/fitgrid --single-branch --branch new-feature
 
 
-**Prepare for new work**
+----------------------
+Each time for new work
+----------------------
 
 #. Ensure the commit history of the `new-feature` branch in your
    GitHub fork and local ``fitgrid`` repositories are both up to date with

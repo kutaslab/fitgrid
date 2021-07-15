@@ -15,7 +15,7 @@ the :ref:`workflow`, :ref:`gallery`, and :ref:`api`
 
 ======================================================
 ``fitgrid`` :py:class:`Epochs <fitgrid.epochs.Epochs>`
-======================================================n
+======================================================
 
 Fitting linear regression models in Python and R with formulas like
 ``y ~ a + b + a:b`` in Python (:std:doc:`patsy <patsy:index>`,
@@ -96,7 +96,7 @@ returns a :py:class:`Epochs <fitgrid:epochs.Epochs>` data objects or
 :py:class:`pandas.DataFrame` for testing.
 
 
-    ---------------
+---------------
 EEG Sample Data
 ---------------
 
@@ -156,9 +156,9 @@ model fits and `lme4::lmer` for linear mixed-effects fits.
 * User-defined (experimental): :py:meth:`fitgrid.run_model <fitgrid.models.run_model>`
 
 
-================================================================
+==================================================================
 The :py:class:`FitGrid[times, channels] <fitgrid.fitgrid.FitGrid>`
-================================================================
+==================================================================
 
 
 --------------------------

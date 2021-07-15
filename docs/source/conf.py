@@ -63,6 +63,7 @@ extensions = [
 
 napoleon_google_docstring = False
 napoleon_use_param = False
+napoleon_use_keyword = False
 napoleon_use_ivar = True
 
 # ------------------------------------------------------------
@@ -164,6 +165,10 @@ exclude_patterns = ['build', '**.ipynb_checkpoints']
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
 
+# -- autodoc --------------------------------------------------
+autodoc_default_options = {
+   'show_inheritance': True
+}
 
 # -- Options for HTML output -------------------------------------------------
 
@@ -171,6 +176,7 @@ pygments_style = 'sphinx'
 # a list of builtin themes.
 #
 html_theme = 'sphinx_rtd_theme'
+# html_theme = 'bootstrap'
 html_copy_source = False
 html_show_sourcelink = False
 html_show_sphinx = False
