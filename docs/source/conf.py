@@ -166,9 +166,7 @@ exclude_patterns = ['build', '**.ipynb_checkpoints']
 pygments_style = 'sphinx'
 
 # -- autodoc --------------------------------------------------
-autodoc_default_options = {
-   'show_inheritance': True
-}
+autodoc_default_options = {'show_inheritance': True}
 
 # -- Options for HTML output -------------------------------------------------
 
