@@ -119,7 +119,7 @@ jobs:
 
           # switch to mamba/boa and conda-forge
           conda config --add channels conda-forge
-          # conda config --set channel_priority strict  # new mamba channel priority semantics in 0.15.0
+          conda config --set channel_priority flexible  # new mamba channel priority semantics in 0.15.0
           conda install -n base -q conda-build conda-verify anaconda-client twine mamba boa
           echo "# ------------------------------------------------------------"
           conda info -a
@@ -128,7 +128,7 @@ jobs:
 
       # ------------------------------------------------------------
       # 2. CI
-      - name: conda build --python=${{ env.PY_VER }} conda
+      - name: conda mambabuild --python=${{ env.PY_VER }} conda
         id: conda-bld
         env:
           OS: ${{ runner.os }}   # Linux, macOS
