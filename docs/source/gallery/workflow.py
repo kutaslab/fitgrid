@@ -235,7 +235,7 @@ lmg_1_stim
 
 # %%
 # 4. Using the :py:class:`FitGrid[times, channels] <fitgrid.fitgrid.FitGrid>`
-# ========================================================================
+# ===========================================================================
 #
 # When `statsmodels` fits an OLS model it returns a Python object
 # loaded with much useful information (see
@@ -280,6 +280,7 @@ pp.pprint(dir(lmg_1_stim))
 #    interaction effects, perhaps many times larger. If you ask
 #    ``fitgrid`` to do something that will swamp your computer memory,
 #    it will.
+#
 
 # %%
 # **Parameter estimates** i.e., Smith & Kutas (2015) regression ERPs

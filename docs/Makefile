@@ -20,8 +20,10 @@ help:
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 
 api-rst: 
-	ls source/api_docs
 	sphinx-apidoc -e -f -o source/api_docs ../fitgrid
+	awk 'BEGIN{printf(":orphan:\n\n")}{print}' source/api_docs/modules.rst > source/api_docs/modules.tmp
+	mv source/api_docs/modules.tmp source/api_docs/modules.rst
+	ls source/api_docs
 
 # just format .rst, don't run sphinx-gallery scripts
 html-noexec: api-rst
