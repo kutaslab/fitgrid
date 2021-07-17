@@ -31,8 +31,8 @@ including :std:doc:`numpy <numpy:index>`, :std:doc:`pandas
 <https://cran.r-project.org/web/packages/lme4/index.html>`_, and
 `lmerTest
 <https://cran.r-project.org/web/packages/lmerTest/index.html>`_ to
-name a few. The virtual environment may be populated with additional
-conda packages as needed for the task at hand. 
+name a few. You can also install other conda packages in addition to
+``fitgrid`` as needed for the task at hand.
 
 The steps for creating conda environments and installing ``fitgrid``
 are straightforward but it is prudent to have a general understanding
@@ -93,15 +93,29 @@ carefully.
 How to install ``fitgrid``
 ==========================
 
-These examples show how to install ``fitgrid`` from a shell command line
-prompt in a linux or Mac terminal window.  They assume the ``conda`` and
-``mamba`` executables are already installed and the users's .condarc file
-has not been modified.
+These examples show how to install ``fitgrid`` into a new conda
+working environment from the conda base environment with a shell
+command in a linux or Mac terminal window.  They assume the ``conda``
+and ``mamba`` executables are already installed in the base
+environment and the users's channel configuration is the minconda3
+default shown here:
 
+.. code-block:: bash
+
+   (base) $ which conda mamba
+   /home/your_userid/miniconda3/bin/conda
+   /home/your_userid/miniconda3/bin/mamba
+   (base) $ conda config --show channels default_channels channel_priority
+   channels:
+     - defaults
+   default_channels:
+     - https://repo.anaconda.com/pkgs/main
+     - https://repo.anaconda.com/pkgs/r
+   channel_priority: flexible
 
 .. note::
 
-   The installation example commands shown here are broken into separate lines for
+   The example installation commands are broken into separate lines for
    readability. If you do this, make sure the \\ is the last character on each line.
    Alternatively you can enter the command as a single line without any \\.
 
@@ -113,16 +127,15 @@ with ``mamba``
 --------------------------
 
 This is a typical installation of the latest stable release of
-``fitgrid`` into a fresh conda environment. This pattern is likely to be
-compatible with recent versions of other conda packages on linux and
-Mac OSX. 
+``fitgrid`` into a fresh conda environment named ``fg_012021``. This
+pattern is likely to be compatible with recent versions of other conda
+packages for x86_64 linux platforms and recent Intel Mac OSX.
 
 .. code-block:: bash
 
-   $ mamba create --name fg_012021 \
-       fitgrid \
+   (base) $ mamba create --name fg_012021 \
        -c kutaslab -c ejolly -c conda-forge \
-       --strict-channel-priority
+       fitgrid
 
 .. note::
 
@@ -143,10 +156,9 @@ latest development version may be installed by overriding the default
 
 .. code-block:: bash
 
-   $ mamba create --name fg_012021 \
-       fitgrid \
+   (base) $ mamba create --name fg_012021 \
        -c kutaslab/label/pre-release -c ejolly -c conda-forge \
-       --strict-channel-priority
+       fitgrid
 
 
 
@@ -159,12 +171,11 @@ installs ``fitgrid`` with the most recent version of Python 3.8.
 
 .. code-block:: bash
 
-   $ mamba create --name fg_012021 \
-       fitgrid python=3.8 \
+   (base) $ mamba create --name fg_012021 \
        -c kutaslab -c ejolly -c conda-forge \
-       --strict-channel-priority
+       fitgrid python=3.8
 
-       
+
 
 .. _mkl_v_openblas:
 
@@ -185,12 +196,11 @@ command.
 
 .. code-block:: bash
 
-   $ mamba create --name fg_012021 \
-       fitgrid "blas=*=mkl*" \
+   (base) $ mamba create --name fg_012021 \
        -c kutaslab -c ejolly -c conda-forge \
-       --strict-channel-priority
-   $ activate fg_012021
-   $ conda list | egrep "(mkl|blas|liblapack)"
+       fitgrid "blas=*=mkl*"
+   (base) $ activate fg_012021
+   (fg_012021) $ conda list | egrep "(mkl|blas|liblapack)"
    # packages in environment at /home/userid/miniconda3/envs/fg_012021:
    blas                      2.109                       mkl    conda-forge
    blas-devel                3.9.0                     9_mkl    conda-forge
@@ -213,12 +223,11 @@ Jupyter <https://jupyter.org/>`_ in the same conda environment as
 
 .. code-block:: bash
 
-   $ mamba create --name fg_012021 \
-       fitgrid jupyterlab \
+   (base) $ mamba create --name fg_012021 \
        -c kutaslab -c ejolly -c conda-forge \
-       --strict-channel-priority
-   $ conda activate fg_012021
-   $ jupyter lab
+       fitgrid jupyterlab
+   (base) $ conda activate fg_012021
+   (fg_012021) $ jupyter lab
 
 
 Prioritize anaconda.org default channels over conda-forge
@@ -233,27 +242,27 @@ is omitted by design.
 
 .. code-block:: bash
 
-   $ mamba create --name fg_012021 \
-       fitgrid \
-       -c kutaslab -c ejolly -c defaults -c conda-forge
+   (base) $ mamba create --name fg_012021 \
+       -c kutaslab -c ejolly -c defaults -c conda-forge \
+       fitgrid
 
-       
+
 ~~~~~~~~~~~~~~
 with ``conda``
 ~~~~~~~~~~~~~~
 
-If mamba is not available, replace ``mamba`` in the examples above with
-``conda``. The ``conda`` dependency solver is slower than
-mamba and may take anywhere from a few to tens of minutes to create
-the environment. In rare cases the ``conda`` installer fails where the
-``mamba`` installer succeeds.
+If mamba is not available, replace ``mamba`` in the examples above
+with ``conda``. The ``conda`` dependency solver tends to be slower
+than mamba and may take anywhere from a few to tens of minutes to
+create the environment. The `conda` and `mamba` dependency resolution
+algorithms are not identical and may arrive at different solutions.
 
 .. code-block:: bash
 
-   $ conda create --name fg_012021 \
-       fitgrid "blas=*=mkl*" \
+   (base) $ conda create --name fg_012021 \
        -c kutaslab -c ejolly -c conda-forge \
-       --strict-channel-priority
+       --strict-channel-priority \
+       fitgrid "blas=*=mkl*"
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~

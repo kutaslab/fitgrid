@@ -119,8 +119,10 @@ jobs:
 
           # switch to mamba/boa and conda-forge
           conda config --add channels conda-forge
-          conda config --set channel_priority strict
-          conda install -n base -q conda-build conda-verify anaconda-client twine mamba boa
+
+          # revised mamba channel priority semantics, strict in 0.14 is flexible in 0.15
+          conda config --set channel_priority flexible  # should be default but enforce
+          conda install -n base -q conda-build conda-verify anaconda-client mamba boa
           echo "# ------------------------------------------------------------"
           conda info -a
           echo "# ------------------------------------------------------------"
@@ -128,12 +130,12 @@ jobs:
 
       # ------------------------------------------------------------
       # 2. CI
-      - name: conda build --python=${{ env.PY_VER }} conda
+      - name: conda mambabuild --python=${{ env.PY_VER }} conda
         id: conda-bld
         env:
           OS: ${{ runner.os }}   # Linux, macOS
         run: |
-          # conda-forge added in setup w/ strict priority
+          # conda-forge added in setup
           conda mambabuild --python=$PY_VER -c ejolly conda
           # filename is last line when conda build is chatty
           tarball=$(conda build --python=$PY_VER conda --output | tail -1)
@@ -144,11 +146,12 @@ jobs:
           fi
           echo "conda build tarball" $tarball
           echo "::set-output name=conda-tarball::$tarball"
+          mamba search fitgrid -c $CONDA_BLD_PATH
 
       # create an env w/ local package
-      - name: conda create env_${{ env.PY_VER }} python=${{ env.PY_VER }} ${{ env.PACKAGE_NAME}} and black
+      - name: conda create env_${{ env.PY_VER }} python=${{ env.PY_VER }} ${{ env.PACKAGE_NAME}}
         run: |
-          mamba create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME "blas=*=mkl*" -c local -c ejolly
+          mamba create -n env_$PY_VER python=$PY_VER $PACKAGE_NAME "blas=*=mkl*" -c $CONDA_BLD_PATH -c ejolly
 
       - name: black, pytest, codecov
         run: |
