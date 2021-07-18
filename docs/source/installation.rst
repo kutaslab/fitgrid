@@ -49,8 +49,8 @@ and `installing packages
 <https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-pkgs.html#installing-packages>`_.
 The :std:doc:`mamba <mamba:index>` package installer is an alternative
 to ``conda``. At present, the ``mamba create ...`` and ``mamba install
-...`` commands resolve the complex ``fitgrid`` package dependencies
-substantially faster than ``conda``.
+...`` commands tend to resolve the complex ``fitgrid`` package
+dependencies substantially faster than ``conda``.
 
 For working with ``fitgrid`` and mixed Python and R conda environments
 generally, it is important to attend to the difference between the
@@ -134,7 +134,7 @@ packages for x86_64 linux platforms and recent Intel Mac OSX.
 .. code-block:: bash
 
    (base) $ mamba create --name fg_012021 \
-       -c kutaslab -c ejolly -c conda-forge \
+       -c conda-forge -c ejolly -c kutaslab \
        fitgrid
 
 .. note::
@@ -157,7 +157,7 @@ latest development version may be installed by overriding the default
 .. code-block:: bash
 
    (base) $ mamba create --name fg_012021 \
-       -c kutaslab/label/pre-release -c ejolly -c conda-forge \
+       -c conda-forge -c ejolly -c kutaslab/label/pre-release \
        fitgrid
 
 
@@ -172,7 +172,7 @@ installs ``fitgrid`` with the most recent version of Python 3.8.
 .. code-block:: bash
 
    (base) $ mamba create --name fg_012021 \
-       -c kutaslab -c ejolly -c conda-forge \
+       -c conda-forge -c ejolly -c kutaslab \
        fitgrid python=3.8
 
 
@@ -197,7 +197,7 @@ command.
 .. code-block:: bash
 
    (base) $ mamba create --name fg_012021 \
-       -c kutaslab -c ejolly -c conda-forge \
+       -c conda-forge -c ejolly -c kutaslab \
        fitgrid "blas=*=mkl*"
    (base) $ activate fg_012021
    (fg_012021) $ conda list | egrep "(mkl|blas|liblapack)"
@@ -224,7 +224,7 @@ Jupyter <https://jupyter.org/>`_ in the same conda environment as
 .. code-block:: bash
 
    (base) $ mamba create --name fg_012021 \
-       -c kutaslab -c ejolly -c conda-forge \
+       -c conda-forge -c ejolly -c kutaslab \
        fitgrid jupyterlab
    (base) $ conda activate fg_012021
    (fg_012021) $ jupyter lab
@@ -237,13 +237,12 @@ This example shows how to install fitgrid into an environment
 populated primarily with the stale-but-stable packages from the
 Anaconda default channels. The explicit ``-c conda-forge`` channel is
 necessary here because not all dependencies are available on the
-default conda channels. Strict channel priority may cause problems and
-is omitted by design.
+default conda channels.
 
 .. code-block:: bash
 
    (base) $ mamba create --name fg_012021 \
-       -c kutaslab -c ejolly -c defaults -c conda-forge \
+       -c defaults -c conda-forge -c ejolly -c kutaslab \
        fitgrid
 
 
@@ -251,18 +250,21 @@ is omitted by design.
 with ``conda``
 ~~~~~~~~~~~~~~
 
-If mamba is not available, replace ``mamba`` in the examples above
-with ``conda``. The ``conda`` dependency solver tends to be slower
-than mamba and may take anywhere from a few to tens of minutes to
-create the environment. The `conda` and `mamba` dependency resolution
-algorithms are not identical and may arrive at different solutions.
+The ``conda`` installer may be used in place of ``mamba`` as shown in
+the next example, although dependency resolution may be substantially
+slower.
+
 
 .. code-block:: bash
 
    (base) $ conda create --name fg_012021 \
-       -c kutaslab -c ejolly -c conda-forge \
-       --strict-channel-priority \
-       fitgrid "blas=*=mkl*"
+       -c conda-forge -c ejolly -c kutaslab \
+       fitgrid
+
+.. note::
+
+   The ``conda`` and ``mamba`` dependency resolution algorithms are not
+   identical and may arrive at different solutions.
 
 
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -322,7 +324,3 @@ Tips
   performance difference between the Intel MKL and OpenBLAS builds of
   the Basic Linear Algebra Support (BLAS) and Linear Algebra Package
   (LAPACK) libraries, particularly for fitting mixed-effects models.
-
-
-
-  
