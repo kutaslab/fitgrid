@@ -232,7 +232,7 @@ Development environment setup
    .. code-block:: bash
 
       $ mamba create --name fg-new-feature \
-           -c kutaslab/label/pre-release -c ejolly -c conda-forge \
+           -c conda-forge -c ejolly -c kutaslab/label/pre-release \
            fitgrid
       $ mamba install --name fg-new-feature \
            black pytest sphinx sphinx-gallery sphinx_rtd_theme
