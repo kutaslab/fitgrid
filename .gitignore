@@ -1,3 +1,11 @@
+# built files
+docs/source/auto_gallery/*
+
+# Zenodo data downloads
+fitgrid/data/sub000*.feather
+fitgrid/data/sub000*.h5
+fitgrid/data/sub000*.pdh5
+
 # TODOs files
 *.todo
 

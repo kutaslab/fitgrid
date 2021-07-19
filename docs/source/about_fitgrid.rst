@@ -139,7 +139,8 @@ information criterion, model and error mean squares, and so forth. The
 results are returned as tidy Time x Channel dataframes for handy
 visualization and analysis in Python and data interchange across
 scientific computing platforms as illustrated in
-:ref:`workflow` and the :ref:`gallery`.
+:ref:`workflow` and the :ref:`gallery`. For examles of ``fitgrid``
+at work see [TroUrbKut2020]_ and [UrbachEtAl2020]_.
 
 ================================
 ``fitgrid`` design: How it works
