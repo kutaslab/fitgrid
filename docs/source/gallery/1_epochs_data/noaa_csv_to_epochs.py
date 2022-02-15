@@ -263,14 +263,14 @@ for day, (_, ht) in enumerate(
             alpha=0.1,
         )
         if day == 5:
-            ax.annotate(
-                xy=(ht.date_time_gmt + pd.Timedelta(hours=1), 2.0),
-                s=(
+            text=ax.annotate(
+                (
                     "Highlight indicates epoch bounds. Overlapping epochs\n"
                     "are legal but the observations are duplicated. This\n"
                     "will increase the epochs data size and may violate\n"
                     "modeling assumptions. This is not checked."
                 ),
+                xy=(ht.date_time_gmt + pd.Timedelta(hours=1), 2.0),
                 size=12,
             )
 

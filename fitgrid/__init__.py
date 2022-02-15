@@ -11,7 +11,7 @@ from .io import (
 from .models import run_model, lm, lmer
 from . import utils, defaults
 
-__version__ = "0.5.2"
+__version__ = "0.5.3"
 
 # for use by pytests and docs
 DATA_DIR = Path(__file__).parent / "data"
