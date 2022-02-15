@@ -59,8 +59,9 @@ on:
     types: [published]
 
   schedule:
-    # min hour day month year. digit = when, / = step by, * = all
-    - cron: '0 0 */1 * *'
+    # min, hour, day, month, day of week. digit = when, / = step by, * = all
+    # midnight Sunday
+    - cron: '0 0 * * 0'
 
 env:
   PACKAGE_NAME: fitgrid
