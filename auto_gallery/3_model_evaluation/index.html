@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Model evaluation &mdash; fitgrid  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-rendered-html.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="LMER warning grids" href="lmer_warnings.html" />
+    <link rel="prev" title="Average ERPs with fitgrid" href="../2_model_fitting/average_erps.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> fitgrid
+          </a>
+              <div class="version">
+                0.5.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../about_fitgrid.html">About <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../gallery.html">Examples Gallery</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../workflow.html">Workflow Outline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../1_epochs_data/index.html">Epochs data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../2_model_fitting/index.html">Model fitting</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Model evaluation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lmer_warnings.html">LMER warning grids</a></li>
+<li class="toctree-l3"><a class="reference internal" href="beta_fdr.html">False Discovery Rate (FDR) control for estimated predictor coefficients (betas)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="p3_model_comps.html">AIC and likelihood ratio model comparison</a></li>
+<li class="toctree-l3"><a class="reference internal" href="summary_plots.html">Model summary visualization</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">fitgrid</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../gallery.html">Examples Gallery</a> &raquo;</li>
+      <li>Model evaluation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <dl class="field-list simple" id="sphx-glr-auto-gallery-3-model-evaluation">
+<dt class="field-odd">orphan</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+<section id="model-evaluation">
+<h1>Model evaluation<a class="headerlink" href="#model-evaluation" title="Permalink to this headline"></a></h1>
+<div class="sphx-glr-thumbcontainer" tooltip="The modeling at each cell in a fitted LMERFitGrid may generate various numbers and types of lme..."><figure class="align-default" id="id1">
+<img alt="LMER warning grids" src="../../_images/sphx_glr_lmer_warnings_thumb.png" />
+<figcaption>
+<p><span class="caption-text"><a class="reference internal" href="lmer_warnings.html#sphx-glr-auto-gallery-3-model-evaluation-lmer-warnings-py"><span class="std std-ref">LMER warning grids</span></a></span><a class="headerlink" href="#id1" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+</div><div class="toctree-wrapper compound">
+</div>
+<div class="sphx-glr-thumbcontainer" tooltip="False Discovery Rate (FDR) control for estimated predictor coefficients (betas)"><figure class="align-default" id="id2">
+<img alt="False Discovery Rate (FDR) control for estimated predictor coefficients (betas)" src="../../_images/sphx_glr_beta_fdr_thumb.png" />
+<figcaption>
+<p><span class="caption-text"><a class="reference internal" href="beta_fdr.html#sphx-glr-auto-gallery-3-model-evaluation-beta-fdr-py"><span class="std std-ref">False Discovery Rate (FDR) control for estimated predictor coefficients (betas)</span></a></span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+</div><div class="toctree-wrapper compound">
+</div>
+<div class="sphx-glr-thumbcontainer" tooltip="There are many approaches to comparing models and evaluating relative goodness-of-fit. The :py:..."><figure class="align-default" id="id3">
+<img alt="AIC and likelihood ratio model comparison" src="../../_images/sphx_glr_p3_model_comps_thumb.png" />
+<figcaption>
+<p><span class="caption-text"><a class="reference internal" href="p3_model_comps.html#sphx-glr-auto-gallery-3-model-evaluation-p3-model-comps-py"><span class="std std-ref">AIC and likelihood ratio model comparison</span></a></span><a class="headerlink" href="#id3" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+</div><div class="toctree-wrapper compound">
+</div>
+<div class="sphx-glr-thumbcontainer" tooltip="Model summary visualization"><figure class="align-default" id="id4">
+<img alt="Model summary visualization" src="../../_images/sphx_glr_summary_plots_thumb.png" />
+<figcaption>
+<p><span class="caption-text"><a class="reference internal" href="summary_plots.html#sphx-glr-auto-gallery-3-model-evaluation-summary-plots-py"><span class="std std-ref">Model summary visualization</span></a></span><a class="headerlink" href="#id4" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+</div><div class="toctree-wrapper compound">
+</div>
+<div class="sphx-glr-clear"></div><div class="sphx-glr-footer class sphx-glr-footer-gallery docutils container">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/9dc39f973b4a1c90e221da0ba590d3d9/3_model_evaluation_python.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">all</span> <span class="pre">examples</span> <span class="pre">in</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">3_model_evaluation_python.zip</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/5512a9162992ef0a60d70b66ed3734f8/3_model_evaluation_jupyter.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">all</span> <span class="pre">examples</span> <span class="pre">in</span> <span class="pre">Jupyter</span> <span class="pre">notebooks:</span> <span class="pre">3_model_evaluation_jupyter.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../2_model_fitting/average_erps.html" class="btn btn-neutral float-left" title="Average ERPs with fitgrid" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="lmer_warnings.html" class="btn btn-neutral float-right" title="LMER warning grids" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

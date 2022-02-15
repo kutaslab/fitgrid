@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fitgrid.utils.summary module &mdash; fitgrid  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sg_gallery.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sg_gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sg_gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sg_gallery-rendered-html.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> fitgrid
+          </a>
+              <div class="version">
+                0.5.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../about_fitgrid.html">About <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_gallery/quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gallery.html">Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">fitgrid</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>fitgrid.utils.summary module</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-fitgrid.utils.summary">
+<span id="fitgrid-utils-summary-module"></span><h1>fitgrid.utils.summary module<a class="headerlink" href="#module-fitgrid.utils.summary" title="Permalink to this headline"></a></h1>
+<p>User functions to streamline working with grids of OLS and LME
+model summaries and sets of models.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="fitgrid.utils.summary.plot_AICmin_deltas">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.utils.summary.</span></span><span class="sig-name descname"><span class="pre">plot_AICmin_deltas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summary_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_warnings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no_labels'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gridspec_kw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplot_kw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/utils/summary.html#plot_AICmin_deltas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.utils.summary.plot_AICmin_deltas" title="Permalink to this definition"></a></dt>
+<dd><p>plot FitGrid min delta AICs and fitter warnings</p>
+<p>Thresholds of AIC_min delta at 2, 4, 7, 10 are from Burnham &amp;
+Anderson 2004, see Notes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>summary_df</strong> (<em>pd.DataFrame</em>) – as returned by fitgrid.utils.summary.summarize</p></li>
+<li><p><strong>show_warnings</strong> (<em>{“no_labels”, “labels”, str, list of str}</em>) – “no_labels” (default) highlights everywhere there is any warning in
+red, the default behavior in fitgrid &lt; v0.5.0. “labels” display
+all warning strings the axes titles.  A <cite>str</cite> or list of <cite>str</cite> selects
+and display only warnings that (partial) match a model warning string.</p></li>
+<li><p><strong>figsize</strong> (<em>2-ple</em>) – pyplot.figure figure size parameter</p></li>
+<li><p><strong>gridspec_kw</strong> (<em>dict</em>) – matplotlib.gridspec keyword args passed to <code class="docutils literal notranslate"><span class="pre">pyplot.subplots(...,</span>
+<span class="pre">gridspec_kw=gridspec_kw})</span></code></p></li>
+<li><p><strong>subplot_kw</strong> (<em>dict</em>) – keyword args passed to <code class="docutils literal notranslate"><span class="pre">pyplot.subplots(...,</span> <span class="pre">subplot_kw=subplot_kw))</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>f, axs</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>matplotlib.pyplot.Figure</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p><a class="reference internal" href="../bibliography.html#burand2004" id="id1"><span>[BurAnd2004]</span></a> p. 270-271. Where <span class="math notranslate nohighlight">\(AIC_{min}\)</span> is the
+lowest AIC value for “a set of a priori candidate models
+well-supported by the underlying science <span class="math notranslate nohighlight">\(g_{i}, i = 1,
+2, ..., R)\)</span>”,</p>
+<div class="math notranslate nohighlight">
+\[\Delta_{i} = AIC_{i} - AIC_{min}\]</div>
+<p>“is the information loss experienced if we are using fitted
+model <span class="math notranslate nohighlight">\(g_{i}\)</span> rather than the best model, <span class="math notranslate nohighlight">\(g_{min}\)</span>
+for inference.” …</p>
+<p>“Some simple rules of thumb are often useful in assessing the
+relative merits of models in the set: Models having
+<span class="math notranslate nohighlight">\(\Delta_{i} &lt;= 2\)</span> have substantial support (evidence), those
+in which <span class="math notranslate nohighlight">\(\Delta_{i} 4 &lt;= 7\)</span> have considerably less support,
+and models having <span class="math notranslate nohighlight">\(\Delta_{i} &gt; 10\)</span> have essentially no
+support.”</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fitgrid.utils.summary.plot_betas">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.utils.summary.</span></span><span class="sig-name descname"><span class="pre">plot_betas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summary_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LHS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">models</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">betas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_plot_kw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_se</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_warnings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fdr_kw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_kw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'figsize':</span> <span class="pre">(8,</span> <span class="pre">3)}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scatter_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">75</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/utils/summary.html#plot_betas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.utils.summary.plot_betas" title="Permalink to this definition"></a></dt>
+<dd><p>Plot  model parameter estimates for model, beta, and channel LHS</p>
+<p>The time course of estimated betas and standard errors is plotted
+by channel for the models, betas, and channels in the data
+frame. Channels, models, betas and time intervals may be selected
+from the summary dataframe. Plots are marked with model fit
+warnings by default and may be tagged to indicate differences from
+0 controlled for false discovery rate (FDR).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>summary_df</strong> (<em>pd.DataFrame</em>) – as returned by fitgrid.utils.summary.summarize</p></li>
+<li><p><strong>LHS</strong> (<em>list of str or []</em>) – column names of the data, [] default = all channels</p></li>
+<li><p><strong>models</strong> (<em>list of str or []</em>) – select model or model betas to display, [] default = all models</p></li>
+<li><p><strong>betas</strong> (<em>list of str [] or []</em>) – select beta or betas to plot,  [] default = all betas</p></li>
+<li><p><strong>interval</strong> (<em>[start, stop] list of two ints</em>) – time interval to plot</p></li>
+<li><p><strong>beta_plot_kw</strong> (<em>dict</em>) – keyword arguments passed to matplotlib.axes.plot()</p></li>
+<li><p><strong>show_se</strong> (<em>bool</em>) – toggle display of standard error shading (default = True)</p></li>
+<li><p><strong>show_warnings</strong> (<em>bool</em>) – toggle display of model warnings (default = True)</p></li>
+<li><p><strong>fdr_kw</strong> (<em>dict (default empty)</em>) – One or more keyword arguments passed to <code class="docutils literal notranslate"><span class="pre">summaries_fdr_control()</span></code> to trigger
+to tag plots for FDR controlled differences from 0.</p></li>
+<li><p><strong>fig_kw</strong> (<em>dict</em>) – keyword args passed to pyplot.subplots()</p></li>
+<li><p><strong>df_func</strong> (<em>{None, function}</em>) – toggle degrees of freedom line plot via function, e.g.,
+<code class="docutils literal notranslate"><span class="pre">np.log10</span></code>, <code class="docutils literal notranslate"><span class="pre">lambda</span> <span class="pre">x:</span> <span class="pre">x</span></code></p></li>
+<li><p><strong>scatter_size</strong> (<em>float</em>) – scatterplot marker size for FDR (default = 75) and warnings (= 1.5 scatter_size)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>figs</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of matplotlib.Figure</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The FDR family of tests is given by all channels, models, betas,
+and times in the summary data frame regardless of which of these
+are selected for plotting. To specify a different family of tests,
+construct a summary dataframe with all and only the tests for that
+family before plotting the betas.</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fitgrid.utils.summary.summaries_fdr_control">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.utils.summary.</span></span><span class="sig-name descname"><span class="pre">summaries_fdr_control</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_summary_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'BY'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_pvalues</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/utils/summary.html#summaries_fdr_control"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.utils.summary.summaries_fdr_control" title="Permalink to this definition"></a></dt>
+<dd><p>False discovery rate control for non-zero betas in model summary dataframes</p>
+<p>The family of tests for FDR control is assumed to be <strong>all and
+only</strong> the channels, models, and <span class="math notranslate nohighlight">\(\hat{\beta}_i\)</span> in the
+summary dataframe.  The user must select the appropriate family of
+tests by slicing or stacking summary dataframes before running the
+FDR calculator.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model_summary_df</strong> (<em>pandas.DataFrame</em>) – As returned by <cite>fitgrid.utils.summary.summarize</cite>.</p></li>
+<li><p><strong>method</strong> (<em>str {“BY”, “BH”}</em>) – BY (default) is from Benjamini and Yekatuli <a class="footnote-reference brackets" href="#id4" id="id2">1</a>, BH is Benjamini and
+Hochberg <a class="footnote-reference brackets" href="#id5" id="id3">2</a>.</p></li>
+<li><p><strong>rate</strong> (<em>float {0.05}</em>) – The target rate for controlling false discoveries.</p></li>
+<li><p><strong>plot_pvalues</strong> (<em>bool {True, False}</em>) – Display a plot of the family of $p$-values and critical value for FDR control.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">References</p>
+<dl class="footnote brackets">
+<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id2">1</a></span></dt>
+<dd><p>Benjamini, Y., &amp; Yekutieli, D. (2001). The control of
+the false discovery rate in multiple testing under
+dependency.The Annals of Statistics, 29, 1165-1188.</p>
+</dd>
+<dt class="label" id="id5"><span class="brackets"><a class="fn-backref" href="#id3">2</a></span></dt>
+<dd><p>Benjamini, Y., &amp; Hochberg, Y. (1995). Controlling the
+false discovery rate: A practical and powerful approach to
+multiple testing. Journal of the Royal Statistical
+Society. Series B (Methodological), 57, 289-300.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fitgrid.utils.summary.summarize">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.utils.summary.</span></span><span class="sig-name descname"><span class="pre">summarize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epochs_fg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modeler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LHS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">RHS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quiet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/utils/summary.html#summarize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.utils.summary.summarize" title="Permalink to this definition"></a></dt>
+<dd><p>Fit the data with one or more model formulas and return summary information.</p>
+<p>Convenience wrapper, useful for keeping memory use manageable when
+gathering betas and fit measures for a stack of models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>epochs_fg</strong> (<em>fitgrid.epochs.Epochs</em>) – as returned by <cite>fitgrid.epochs_from_dataframe()</cite> or
+<cite>fitgrid.from_hdf()</cite>, <em>NOT</em> a <cite>pandas.DataFrame</cite>.</p></li>
+<li><p><strong>modeler</strong> (<em>{‘lm’, ‘lmer’}</em>) – class of model to fit, <cite>lm</cite> for OLS, <cite>lmer</cite> for linear mixed-effects.
+Note: the RHS formula language must match the modeler.</p></li>
+<li><p><strong>LHS</strong> (<em>list of str</em>) – the data columns to model</p></li>
+<li><p><strong>RHS</strong> (<em>model formula or list of model formulas to fit</em>) – see the Python package <cite>patsy</cite> docs for <cite>lm</cite> formula language
+and the R library <cite>lme4</cite> docs for the <cite>lmer</cite> formula language.</p></li>
+<li><p><strong>parallel</strong> (<em>bool</em>) – If True, model fitting is distributed to multiple cores</p></li>
+<li><p><strong>n_cores</strong> (<em>int</em>) – number of cores to use. See what works, but golden rule if running
+on a shared machine.</p></li>
+<li><p><strong>quiet</strong> (<em>bool</em>) – Show progress bar default=True</p></li>
+<li><p><strong>**kwargs</strong> (<em>key=value arguments passed to the modeler, optional</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>summary_df</strong> – indexed by <cite>timestamp</cite>, <cite>model_formula</cite>, <cite>beta</cite>, and <cite>key</cite>,
+where the keys are <cite>ll.l_ci</cite>, <cite>uu.u_ci</cite>, <cite>AIC</cite>, <cite>DF</cite>, <cite>Estimate</cite>,
+<cite>P-val</cite>, <cite>SE</cite>, <cite>T-stat</cite>, <cite>has_warning</cite>, <cite>logLike</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><cite>pandas.DataFrame</cite></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lm_formulas</span> <span class="o">=</span> <span class="p">[</span>
+<span class="go">    &#39;1 + fixed_a + fixed_b + fixed_a:fixed_b&#39;,</span>
+<span class="go">    &#39;1 + fixed_a + fixed_b&#39;,</span>
+<span class="go">    &#39;1 + fixed_a,</span>
+<span class="go">    &#39;1 + fixed_b,</span>
+<span class="go">    &#39;1&#39;,</span>
+<span class="go">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lm_summary_df</span> <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">summarize</span><span class="p">(</span>
+<span class="go">    epochs_fg,</span>
+<span class="go">    &#39;lm&#39;,</span>
+<span class="go">    LHS=[&#39;MiPf&#39;, &#39;MiCe&#39;, &#39;MiPa&#39;, &#39;MiOc&#39;],</span>
+<span class="go">    RHS=lmer_formulas,</span>
+<span class="go">    parallel=True,</span>
+<span class="go">    n_cores=4</span>
+<span class="go">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lmer_formulas</span> <span class="o">=</span> <span class="p">[</span>
+<span class="go">    &#39;1 + fixed_a + (1 + fixed_a | random_a) + (1 | random_b)&#39;,</span>
+<span class="go">    &#39;1 + fixed_a + (1 | random_a) + (1 | random_b)&#39;,</span>
+<span class="go">    &#39;1 + fixed_a + (1 | random_a)&#39;,</span>
+<span class="go">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lmer_summary_df</span> <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">summarize</span><span class="p">(</span>
+<span class="go">    epochs_fg,</span>
+<span class="go">    &#39;lmer&#39;,</span>
+<span class="go">    LHS=[&#39;MiPf&#39;, &#39;MiCe&#39;, &#39;MiPa&#39;, &#39;MiOc&#39;],</span>
+<span class="go">    RHS=lmer_formulas,</span>
+<span class="go">    parallel=True,</span>
+<span class="go">    n_cores=12,</span>
+<span class="go">    REML=False</span>
+<span class="go">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

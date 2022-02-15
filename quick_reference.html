@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Ingestion &mdash; fitgrid  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/sg_gallery.css" type="text/css" />
+      <link rel="stylesheet" href="_static/sg_gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="_static/sg_gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="_static/sg_gallery-rendered-html.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Bibliography" href="bibliography.html" />
+    <link rel="prev" title="API" href="api.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> fitgrid
+          </a>
+              <div class="version">
+                0.5.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about_fitgrid.html">About <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auto_gallery/quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gallery.html">Examples Gallery</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="api.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="api.html#quick-reference">Quick reference</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Data Ingestion</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-simulation">Data Simulation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#epochs-methods"><code class="docutils literal notranslate"><span class="pre">Epochs</span></code> methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#model-running">Model running</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#fitgrid-methods"><code class="docutils literal notranslate"><span class="pre">FitGrid</span></code> methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#lmfitgrid-methods"><code class="docutils literal notranslate"><span class="pre">LMFitGrid</span></code> methods</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#utilities">Utilities</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#model-fit-summaries">model fit summaries</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lm-diagnostics">lm diagnostics</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#lmer-diagnostics">lmer diagnostics</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#indexes">Indexes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">fitgrid</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="api.html">API</a> &raquo;</li>
+      <li>Data Ingestion</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <p>This is a list of tools available in <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code>.</p>
+<section id="data-ingestion">
+<span id="id1"></span><h1>Data Ingestion<a class="headerlink" href="#data-ingestion" title="Permalink to this headline"></a></h1>
+<p>Functions that read epochs tables and create <code class="docutils literal notranslate"><span class="pre">Epochs</span></code> and load <code class="docutils literal notranslate"><span class="pre">FitGrid</span></code>
+objects.</p>
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.</span></span><span class="sig-name descname"><span class="pre">epochs_from_dataframe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataframe</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fitgrid/io.html#epochs_from_dataframe"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Construct Epochs object from a Pandas DataFrame epochs table.</p>
+<p>The DataFrame should contain columns with names defined by epoch_id and
+time as index columns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataframe</strong> (<em>pandas DataFrame</em>) – a pandas DataFrame object</p></li>
+<li><p><strong>time</strong> (<em>str</em>) – time column name</p></li>
+<li><p><strong>epoch_id</strong> (<em>str</em>) – epoch identifier column name</p></li>
+<li><p><strong>channels</strong> (<em>list of str</em>) – list of string channel names</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>epochs</strong> – an Epochs object with the data</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs">Epochs</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.</span></span><span class="sig-name descname"><span class="pre">epochs_from_hdf</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch_id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fitgrid/io.html#epochs_from_hdf"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Construct Epochs object from an HDF5 file containing an epochs table.</p>
+<p>The HDF5 file should contain columns with names defined by <cite>epoch_id</cite> and
+<cite>time</cite> either as index columns or as regular columns. This is added as a
+convenience, in general, input epochs tables should contain these columns
+in the index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>filename</strong> (<em>str</em>) – HDF5 file name</p></li>
+<li><p><strong>key</strong> (<em>str</em>) – group identifier for the dataset when HDF5 file contains more than one</p></li>
+<li><p><strong>time</strong> (<em>str</em>) – time column name</p></li>
+<li><p><strong>epoch_id</strong> (<em>str</em>) – epoch identifier column name</p></li>
+<li><p><strong>channels</strong> (<em>list of str</em>) – list of string channel names</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>epochs</strong> – an Epochs object with the data</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs">Epochs</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.</span></span><span class="sig-name descname"><span class="pre">load_grid</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fitgrid/io.html#load_grid"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Load a FitGrid object from file (created by running grid.save).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – indicates file to load from</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>grid</strong> – loaded FitGrid object</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.FitGrid" title="fitgrid.fitgrid.FitGrid">FitGrid</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="data-simulation">
+<span id="id2"></span><h1>Data Simulation<a class="headerlink" href="#data-simulation" title="Permalink to this headline"></a></h1>
+<p><code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> has a built-in function that generates data and creates <code class="docutils literal notranslate"><span class="pre">Epochs</span></code>:</p>
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.</span></span><span class="sig-name descname"><span class="pre">generate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">n_epochs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_samples</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_categories</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">32</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'time'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epoch_id</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'epoch_id'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'epochs'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fitgrid/fake_data.html#generate"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Return Epochs object or pandas.DataFrame with fake EEG data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_epochs</strong> (<em>int</em>) – number of epochs per category to be generated</p></li>
+<li><p><strong>n_samples</strong> (<em>int</em>) – number of samples in a single epochs</p></li>
+<li><p><strong>n_categories</strong> (<em>int</em>) – number of levels of the categorical variable</p></li>
+<li><p><strong>n_channels</strong> (<em>int</em>) – number of time series representing EEG channels</p></li>
+<li><p><strong>time</strong> (<em>str, defaults to defaults.TIME</em>) – time column name</p></li>
+<li><p><strong>epoch_id</strong> (<em>str, defaults to defaults.EPOCH_ID</em>) – epoch identifier column name</p></li>
+<li><p><strong>seed=None</strong> (<em>{None, int, array_like}, optional</em>) – Random number generation seed. Default=None lets data
+vary from run to run. Set <cite>seed</cite> to a 32-bit unsigned
+integer to generate the same fake data run to run.
+See numpy.random.RandomState for details.</p></li>
+<li><p><strong>return_type</strong> (<em>str {epochs, dataframe}</em>) – return fitgrid.Epochs or the fitgrid.Epochs.table dataframe</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>epochs</strong> – Epochs object or just the data</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>fitgrid.Epochs or <a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.4.1)">pandas.DataFrame</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p><code class="docutils literal notranslate"><span class="pre">n_epochs</span></code> and <code class="docutils literal notranslate"><span class="pre">n_categories</span></code> interact in the sense that <code class="docutils literal notranslate"><span class="pre">n_epochs</span></code>
+epochs are generated for each level of the categorical variable. In other
+words, the true number of epochs in the generated data is equal to
+<code class="docutils literal notranslate"><span class="pre">n_epochs</span></code> * <code class="docutils literal notranslate"><span class="pre">n_categories</span></code>.</p>
+<p>For example, the default <code class="docutils literal notranslate"><span class="pre">n_epochs</span> <span class="pre">=</span> <span class="pre">10</span></code> and <code class="docutils literal notranslate"><span class="pre">n_categories</span>
+<span class="pre">=</span> <span class="pre">2</span></code> produces 20 epochs, 10 per category.</p>
+</dd></dl>
+
+</section>
+<section id="epochs-methods">
+<h1><code class="docutils literal notranslate"><span class="pre">Epochs</span></code> methods<a class="headerlink" href="#epochs-methods" title="Permalink to this headline"></a></h1>
+<p>Models and plotting.</p>
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.epochs.Epochs.</span></span><span class="sig-name descname"><span class="pre">plot_averages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">negative_up</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Plot grand mean averages for each channel, negative up by default.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>channels</strong> (<em>list of str, optional, defaults to all channels</em>) – list of channel names to plot the averages</p></li>
+<li><p><strong>negative_up</strong> (<em>bool, optional, default True</em>) – by convention, ERPs are plotted negative voltage up</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>fig</strong> (<em>matplotlib.figure.Figure</em>) – figure containing plots</p></li>
+<li><p><strong>axes</strong> (<em>numpy.ndarray of matplotlib.axes.Axes</em>) – axes objects</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="model-running">
+<h1>Model running<a class="headerlink" href="#model-running" title="Permalink to this headline"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.</span></span><span class="sig-name descname"><span class="pre">lm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LHS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">RHS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quiet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_env</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fitgrid/models.html#lm"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Run ordinary least squares linear regression on the epochs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>epochs</strong> (<em>Epochs</em>) – epochs object on which regression is to be run</p></li>
+<li><p><strong>LHS</strong> (<em>list of str, optional, defaults to all channels</em>) – list of channels for the left hand side of the regression formula</p></li>
+<li><p><strong>RHS</strong> (<em>str</em>) – right hand side of the regression formula</p></li>
+<li><p><strong>parallel</strong> (<em>bool, defaults to False</em>) – change to True to run in parallel</p></li>
+<li><p><strong>n_cores</strong> (<em>int, defaults to 4</em>) – number of processes to use for computation</p></li>
+<li><p><strong>quiet</strong> (<em>bool, defaults to False</em>) – set to True to disable fitting progress bar</p></li>
+<li><p><strong>eval_env</strong> (<em>int or patsy.EvalEnvironment, defaults to 4</em>) – environment to use for evaluating patsy formulas, see patsy docs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>grid</strong> – LMFitGrid object containing the results of the regression</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.LMFitGrid" title="fitgrid.fitgrid.LMFitGrid">LMFitGrid</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.</span></span><span class="sig-name descname"><span class="pre">lmer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LHS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">RHS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">family</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gaussian'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf_int</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Wald'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ordered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">REML</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quiet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fitgrid/models.html#lmer"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Fit lme4 linear mixed model by interfacing with R.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>epochs</strong> (<em>Epochs</em>) – epochs object on which lmer is to be run</p></li>
+<li><p><strong>LHS</strong> (<em>list of str, optional, defaults to all channels</em>) – list of channels for the left hand side of the lmer formula</p></li>
+<li><p><strong>RHS</strong> (<em>str</em>) – right hand side of the lmer formula</p></li>
+<li><p><strong>family</strong> (<em>str, defaults to ‘gaussian’</em>) – distribution link function to use</p></li>
+<li><p><strong>conf_int</strong> (<em>str, defaults to ‘Wald’</em>)</p></li>
+<li><p><strong>factors</strong> (<em>dict, optional</em>) – Keys should be column names in data to treat as factors. Values
+should either be a list containing unique variable levels if
+dummy-coding or polynomial coding is desired. Otherwise values
+should themselves be dictionaries with unique variable levels as
+keys and desired contrast values (as specified in R!) as keys.</p></li>
+<li><p><strong>permute</strong> (<em>int, defaults to None</em>) – if non-zero, computes parameter significance tests by permuting
+test stastics rather than parametrically. Permutation is done by
+shuffling observations within clusters to respect random effects
+structure of data.</p></li>
+<li><p><strong>ordered</strong> (<em>bool, defaults to False</em>) – whether factors should be treated as ordered polynomial contrasts;
+this will parameterize a model with K-1 orthogonal polynomial
+regressors beginning with a linear contrast based on the factor
+order provided</p></li>
+<li><p><strong>REML</strong> (<em>bool, defaults to True</em>) – change to False to use ML estimation</p></li>
+<li><p><strong>parallel</strong> (<em>bool, defaults to False</em>) – change to True to run in parallel</p></li>
+<li><p><strong>n_cores</strong> (<em>int, defaults to 4</em>) – number of processes to use for computation</p></li>
+<li><p><strong>quiet</strong> (<em>bool, defaults to False</em>) – set to True to disable fitting progress bar</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>grid</strong> – LMERFitGrid object containing the results of lmer fitting</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.LMERFitGrid" title="fitgrid.fitgrid.LMERFitGrid">LMERFitGrid</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.</span></span><span class="sig-name descname"><span class="pre">run_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quiet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fitgrid/models.html#run_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Run an arbitrary model on the epochs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>epochs</strong> (<em>Epochs</em>) – the epochs object on which the model is to be run</p></li>
+<li><p><strong>function</strong> (<em>Python function</em>) – function that runs a model, see Notes below for details</p></li>
+<li><p><strong>channels</strong> (<em>list of str</em>) – list of channels to serve as dependent variables</p></li>
+<li><p><strong>parallel</strong> (<em>bool, defaults to False</em>) – set to True in order to run in parallel</p></li>
+<li><p><strong>n_cores</strong> (<em>int, defaults to 4</em>) – number of processes to run in parallel</p></li>
+<li><p><strong>quiet</strong> (<em>bool, defaults to False</em>) – set to True to disable progress bar display</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>grid</strong> – a FitGrid object containing the results</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.FitGrid" title="fitgrid.fitgrid.FitGrid">FitGrid</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The function should take two parameters, <code class="docutils literal notranslate"><span class="pre">data</span></code> and <code class="docutils literal notranslate"><span class="pre">channel</span></code>, run
+some model on the data, and return an object containing the results.
+<code class="docutils literal notranslate"><span class="pre">data</span></code> will be a snapshot across epochs at a single timepoint,
+containing all channels of interest. <code class="docutils literal notranslate"><span class="pre">channel</span></code> is the name of the
+target variable that the function runs the model against (uses it as
+the dependent variable).</p>
+<p class="rubric">Examples</p>
+<p>Here’s an example of a function that can be passed to <code class="docutils literal notranslate"><span class="pre">run_model</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">regression</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">channel</span><span class="p">):</span>
+    <span class="n">formula</span> <span class="o">=</span> <span class="n">channel</span> <span class="o">+</span> <span class="s1">&#39; ~ continuous + categorical&#39;</span>
+    <span class="k">return</span> <span class="n">ols</span><span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+<section id="fitgrid-methods">
+<h1><code class="docutils literal notranslate"><span class="pre">FitGrid</span></code> methods<a class="headerlink" href="#fitgrid-methods" title="Permalink to this headline"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.fitgrid.FitGrid.</span></span><span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">filename</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Save FitGrid object to file (reload with <code class="docutils literal notranslate"><span class="pre">fitgrid.load_grid</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>filename</strong> (<em>str</em>) – file name to use</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="lmfitgrid-methods">
+<h1><code class="docutils literal notranslate"><span class="pre">LMFitGrid</span></code> methods<a class="headerlink" href="#lmfitgrid-methods" title="Permalink to this headline"></a></h1>
+<p>Plotting and statistics.</p>
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.fitgrid.LMFitGrid.</span></span><span class="sig-name descname"><span class="pre">influential_epochs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">top</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Return dataframe with top influential epochs ranked by Cook’s-D.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>top</strong> (<em>int, optional, default None</em>) – how many top epochs to return, all epochs by default</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>top_epochs</strong> – dataframe with epoch_id as index and aggregated Cook’s-D as values</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Cook’s distance is aggregated by simple averaging across time and
+channels.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.fitgrid.LMFitGrid.</span></span><span class="sig-name descname"><span class="pre">plot_betas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_on_bottom</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Plot betas of the model, one plot per channel, overplotting betas.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>legend_on_bottom</strong> (<em>bool, defaults to False</em>) – set to True to plot single legend below all channel plots</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>fig</strong> (<em>matplotlib.figure.Figure</em>) – figure containing plots</p></li>
+<li><p><strong>axes</strong> (<em>numpy.ndarray of matplotlib.axes.Axes</em>) – axes objects</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.fitgrid.LMFitGrid.</span></span><span class="sig-name descname"><span class="pre">plot_adj_rsquared</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span></dt>
+<dd><p>Plot adjusted <span class="math notranslate nohighlight">\(R^2\)</span> as a heatmap with marginal bar and line.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p><ul class="simple">
+<li><p><strong>fig</strong> (<em>matplotlib.figure.Figure</em>) – figure containing plots</p></li>
+<li><p><strong>gs</strong> (<em>matplotlib.gridspec.GridSpec</em>) – grid specification that determines locations and sizes of subplots</p></li>
+<li><p><strong>bar, heatmap, colorbar, line</strong> (<em>matplotlib.axes._subplots.AxesSubplot</em>) – subplot objects</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="utilities">
+<span id="model-diagnostic-utilities"></span><h1>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline"></a></h1>
+<section id="model-fit-summaries">
+<h2>model fit summaries<a class="headerlink" href="#model-fit-summaries" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.utils.summary.</span></span><span class="sig-name descname"><span class="pre">summarize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epochs_fg</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modeler</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LHS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">RHS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quiet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fitgrid/utils/summary.html#summarize"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Fit the data with one or more model formulas and return summary information.</p>
+<p>Convenience wrapper, useful for keeping memory use manageable when
+gathering betas and fit measures for a stack of models.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>epochs_fg</strong> (<em>fitgrid.epochs.Epochs</em>) – as returned by <cite>fitgrid.epochs_from_dataframe()</cite> or
+<cite>fitgrid.from_hdf()</cite>, <em>NOT</em> a <cite>pandas.DataFrame</cite>.</p></li>
+<li><p><strong>modeler</strong> (<em>{‘lm’, ‘lmer’}</em>) – class of model to fit, <cite>lm</cite> for OLS, <cite>lmer</cite> for linear mixed-effects.
+Note: the RHS formula language must match the modeler.</p></li>
+<li><p><strong>LHS</strong> (<em>list of str</em>) – the data columns to model</p></li>
+<li><p><strong>RHS</strong> (<em>model formula or list of model formulas to fit</em>) – see the Python package <cite>patsy</cite> docs for <cite>lm</cite> formula language
+and the R library <cite>lme4</cite> docs for the <cite>lmer</cite> formula language.</p></li>
+<li><p><strong>parallel</strong> (<em>bool</em>) – If True, model fitting is distributed to multiple cores</p></li>
+<li><p><strong>n_cores</strong> (<em>int</em>) – number of cores to use. See what works, but golden rule if running
+on a shared machine.</p></li>
+<li><p><strong>quiet</strong> (<em>bool</em>) – Show progress bar default=True</p></li>
+<li><p><strong>**kwargs</strong> (<em>key=value arguments passed to the modeler, optional</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>summary_df</strong> – indexed by <cite>timestamp</cite>, <cite>model_formula</cite>, <cite>beta</cite>, and <cite>key</cite>,
+where the keys are <cite>ll.l_ci</cite>, <cite>uu.u_ci</cite>, <cite>AIC</cite>, <cite>DF</cite>, <cite>Estimate</cite>,
+<cite>P-val</cite>, <cite>SE</cite>, <cite>T-stat</cite>, <cite>has_warning</cite>, <cite>logLike</cite>.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><cite>pandas.DataFrame</cite></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lm_formulas</span> <span class="o">=</span> <span class="p">[</span>
+<span class="go">    &#39;1 + fixed_a + fixed_b + fixed_a:fixed_b&#39;,</span>
+<span class="go">    &#39;1 + fixed_a + fixed_b&#39;,</span>
+<span class="go">    &#39;1 + fixed_a,</span>
+<span class="go">    &#39;1 + fixed_b,</span>
+<span class="go">    &#39;1&#39;,</span>
+<span class="go">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lm_summary_df</span> <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">summarize</span><span class="p">(</span>
+<span class="go">    epochs_fg,</span>
+<span class="go">    &#39;lm&#39;,</span>
+<span class="go">    LHS=[&#39;MiPf&#39;, &#39;MiCe&#39;, &#39;MiPa&#39;, &#39;MiOc&#39;],</span>
+<span class="go">    RHS=lmer_formulas,</span>
+<span class="go">    parallel=True,</span>
+<span class="go">    n_cores=4</span>
+<span class="go">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">lmer_formulas</span> <span class="o">=</span> <span class="p">[</span>
+<span class="go">    &#39;1 + fixed_a + (1 + fixed_a | random_a) + (1 | random_b)&#39;,</span>
+<span class="go">    &#39;1 + fixed_a + (1 | random_a) + (1 | random_b)&#39;,</span>
+<span class="go">    &#39;1 + fixed_a + (1 | random_a)&#39;,</span>
+<span class="go">]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">lmer_summary_df</span> <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">summarize</span><span class="p">(</span>
+<span class="go">    epochs_fg,</span>
+<span class="go">    &#39;lmer&#39;,</span>
+<span class="go">    LHS=[&#39;MiPf&#39;, &#39;MiCe&#39;, &#39;MiPa&#39;, &#39;MiOc&#39;],</span>
+<span class="go">    RHS=lmer_formulas,</span>
+<span class="go">    parallel=True,</span>
+<span class="go">    n_cores=12,</span>
+<span class="go">    REML=False</span>
+<span class="go">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.utils.summary.</span></span><span class="sig-name descname"><span class="pre">plot_betas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summary_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LHS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">models</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">betas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interval</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta_plot_kw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_se</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_warnings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fdr_kw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_kw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'figsize':</span> <span class="pre">(8,</span> <span class="pre">3)}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scatter_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">75</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fitgrid/utils/summary.html#plot_betas"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Plot  model parameter estimates for model, beta, and channel LHS</p>
+<p>The time course of estimated betas and standard errors is plotted
+by channel for the models, betas, and channels in the data
+frame. Channels, models, betas and time intervals may be selected
+from the summary dataframe. Plots are marked with model fit
+warnings by default and may be tagged to indicate differences from
+0 controlled for false discovery rate (FDR).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>summary_df</strong> (<em>pd.DataFrame</em>) – as returned by fitgrid.utils.summary.summarize</p></li>
+<li><p><strong>LHS</strong> (<em>list of str or []</em>) – column names of the data, [] default = all channels</p></li>
+<li><p><strong>models</strong> (<em>list of str or []</em>) – select model or model betas to display, [] default = all models</p></li>
+<li><p><strong>betas</strong> (<em>list of str [] or []</em>) – select beta or betas to plot,  [] default = all betas</p></li>
+<li><p><strong>interval</strong> (<em>[start, stop] list of two ints</em>) – time interval to plot</p></li>
+<li><p><strong>beta_plot_kw</strong> (<em>dict</em>) – keyword arguments passed to matplotlib.axes.plot()</p></li>
+<li><p><strong>show_se</strong> (<em>bool</em>) – toggle display of standard error shading (default = True)</p></li>
+<li><p><strong>show_warnings</strong> (<em>bool</em>) – toggle display of model warnings (default = True)</p></li>
+<li><p><strong>fdr_kw</strong> (<em>dict (default empty)</em>) – One or more keyword arguments passed to <code class="docutils literal notranslate"><span class="pre">summaries_fdr_control()</span></code> to trigger
+to tag plots for FDR controlled differences from 0.</p></li>
+<li><p><strong>fig_kw</strong> (<em>dict</em>) – keyword args passed to pyplot.subplots()</p></li>
+<li><p><strong>df_func</strong> (<em>{None, function}</em>) – toggle degrees of freedom line plot via function, e.g.,
+<code class="docutils literal notranslate"><span class="pre">np.log10</span></code>, <code class="docutils literal notranslate"><span class="pre">lambda</span> <span class="pre">x:</span> <span class="pre">x</span></code></p></li>
+<li><p><strong>scatter_size</strong> (<em>float</em>) – scatterplot marker size for FDR (default = 75) and warnings (= 1.5 scatter_size)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>figs</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list of matplotlib.Figure</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The FDR family of tests is given by all channels, models, betas,
+and times in the summary data frame regardless of which of these
+are selected for plotting. To specify a different family of tests,
+construct a summary dataframe with all and only the tests for that
+family before plotting the betas.</p>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.utils.summary.</span></span><span class="sig-name descname"><span class="pre">plot_AICmin_deltas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">summary_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_warnings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'no_labels'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gridspec_kw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">subplot_kw</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fitgrid/utils/summary.html#plot_AICmin_deltas"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>plot FitGrid min delta AICs and fitter warnings</p>
+<p>Thresholds of AIC_min delta at 2, 4, 7, 10 are from Burnham &amp;
+Anderson 2004, see Notes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>summary_df</strong> (<em>pd.DataFrame</em>) – as returned by fitgrid.utils.summary.summarize</p></li>
+<li><p><strong>show_warnings</strong> (<em>{“no_labels”, “labels”, str, list of str}</em>) – “no_labels” (default) highlights everywhere there is any warning in
+red, the default behavior in fitgrid &lt; v0.5.0. “labels” display
+all warning strings the axes titles.  A <cite>str</cite> or list of <cite>str</cite> selects
+and display only warnings that (partial) match a model warning string.</p></li>
+<li><p><strong>figsize</strong> (<em>2-ple</em>) – pyplot.figure figure size parameter</p></li>
+<li><p><strong>gridspec_kw</strong> (<em>dict</em>) – matplotlib.gridspec keyword args passed to <code class="docutils literal notranslate"><span class="pre">pyplot.subplots(...,</span>
+<span class="pre">gridspec_kw=gridspec_kw})</span></code></p></li>
+<li><p><strong>subplot_kw</strong> (<em>dict</em>) – keyword args passed to <code class="docutils literal notranslate"><span class="pre">pyplot.subplots(...,</span> <span class="pre">subplot_kw=subplot_kw))</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>f, axs</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>matplotlib.pyplot.Figure</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p><a class="reference internal" href="bibliography.html#burand2004" id="id3"><span>[BurAnd2004]</span></a> p. 270-271. Where <span class="math notranslate nohighlight">\(AIC_{min}\)</span> is the
+lowest AIC value for “a set of a priori candidate models
+well-supported by the underlying science <span class="math notranslate nohighlight">\(g_{i}, i = 1,
+2, ..., R)\)</span>”,</p>
+<div class="math notranslate nohighlight">
+\[\Delta_{i} = AIC_{i} - AIC_{min}\]</div>
+<p>“is the information loss experienced if we are using fitted
+model <span class="math notranslate nohighlight">\(g_{i}\)</span> rather than the best model, <span class="math notranslate nohighlight">\(g_{min}\)</span>
+for inference.” …</p>
+<p>“Some simple rules of thumb are often useful in assessing the
+relative merits of models in the set: Models having
+<span class="math notranslate nohighlight">\(\Delta_{i} &lt;= 2\)</span> have substantial support (evidence), those
+in which <span class="math notranslate nohighlight">\(\Delta_{i} 4 &lt;= 7\)</span> have considerably less support,
+and models having <span class="math notranslate nohighlight">\(\Delta_{i} &gt; 10\)</span> have essentially no
+support.”</p>
+</dd></dl>
+
+</section>
+<section id="lm-diagnostics">
+<h2>lm diagnostics<a class="headerlink" href="#lm-diagnostics" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.utils.lm.</span></span><span class="sig-name descname"><span class="pre">get_vifs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">RHS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quiet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fitgrid/utils/lm.html#get_vifs"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.utils.lm.</span></span><span class="sig-name descname"><span class="pre">list_diagnostics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/fitgrid/utils/lm.html#list_diagnostics"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Display <cite>statsmodels</cite> diagnostics implemented in fitgrid.utils.lm</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.utils.lm.</span></span><span class="sig-name descname"><span class="pre">get_diagnostic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lm_grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagnostic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_nobs_loop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fitgrid/utils/lm.html#get_diagnostic"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Fetch <cite>statsmodels</cite> diagnostic as a Time  x Channel dataframe</p>
+<p><cite>statsmodels</cite> implements a variety of data and model diagnostic
+measures. For some, it also computes a version of a recommended
+critical value or <span class="math notranslate nohighlight">\(p\)</span>-value. Use these at your own risk
+after careful study of the <cite>statsmodels</cite> source code. For details
+visit <a class="reference external" href="https://www.statsmodels.org/stable/generated/statsmodels.stats.outliers_influence.OLSInfluence.html">statsmodels.stats.outliers_influence.OLSInfluence.html</a></p>
+<p>For a catalog of the measures available for <cite>fitgrid.lm()</cite> run
+this in Python</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="go">&gt;&gt;&gt;fitgrid.utils.lm.list_diagnostics()</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Data diagnostics can be very large and very slow, see
+Notes for details.</p>
+<ul class="simple">
+<li><p>By default <strong>all</strong> values of the diagnostics are computed,
+this dataframe can be pruned with
+<a class="reference internal" href="api_docs/fitgrid.utils.lm.html#fitgrid.utils.lm.filter_diagnostic" title="fitgrid.utils.lm.filter_diagnostic"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fitgrid.utils.lm.filter_diagnostic()</span></code></a> function.</p></li>
+<li><p>By default slow diagnostics are <strong>not</strong> computed, this can be
+forced by setting <cite>do_nobs_loop=True</cite>.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lm_grid</strong> (<em>fitgrid.LMFitGrid</em>) – As returned by <code class="xref py py-meth docutils literal notranslate"><span class="pre">fitgrid.lm()</span></code>.</p></li>
+<li><p><strong>diagnostic</strong> (<em>string</em>) – As implemented in <cite>statsmodels</cite>, e.g., “cooks_distance”,
+“dffits_internal”, “est_std”, “dfbetas”.</p></li>
+<li><p><strong>do_nobs_loop</strong> (<em>bool</em>) – <cite>True</cite> forces slow leave-one-observation-out model refitting.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>diagnostic_df</strong> (<em>pandas.DataFrame</em>) – Channels are in columns. Model measures are row indexed by
+time; data measures add an epoch row index; parameter measures add
+a parameter row index.</p></li>
+<li><p><strong>sm_1_df</strong> (<em>pandas.DataFrame</em>) – The supplemenatary values <cite>statsmodels</cite> returns, or <cite>None</cite>,
+same shape as diagnostic_df.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p><strong>Size:</strong> <cite>diagnostic_df</cite> values for data measures like
+<cite>cooks_distance</cite> and <cite>hat_matrix_diagonal</cite> are the size of the
+original data plus a row index and for some data measures like
+<cite>dfbetas</cite>, they are the size of the data multiplied by the
+number of regressors in the model.</p></li>
+<li><p><strong>Speed:</strong> Leave-one-observation-out (LOOO) model refitting takes
+as long as it takes to fit one model multiplied by the number of
+observations. This can be intractable for large
+datasets. Diagnostic measures calculated from the original fit
+like <cite>cooks_distance</cite> and <cite>dffits_internal</cite> are tractable even
+for large data sets.</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># fake data</span>
+<span class="n">epochs_fg</span> <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">generate</span><span class="p">()</span>
+<span class="n">lm_grid</span> <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">lm</span><span class="p">(</span>
+    <span class="n">epochs_fg</span><span class="p">,</span>
+    <span class="n">LHS</span><span class="o">=</span><span class="n">epochs_fg</span><span class="o">.</span><span class="n">channels</span><span class="p">,</span>
+    <span class="n">RHS</span><span class="o">=</span><span class="s1">&#39;continuous + categorical&#39;</span><span class="p">,</span>
+    <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">n_cores</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># data diagnostic, one dataframe with the values</span>
+<span class="n">ess_press</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">lm</span><span class="o">.</span><span class="n">get_diagnostic</span><span class="p">(</span>
+    <span class="n">lm_grid</span><span class="p">,</span>
+    <span class="s1">&#39;ess_press&#39;</span>
+<span class="p">)</span>
+
+<span class="c1"># Cook&#39;s D dataframe AND the p-values statsmodels computes</span>
+<span class="n">cooks_Ds</span><span class="p">,</span> <span class="n">sm_pvals</span> <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">lm</span><span class="o">.</span><span class="n">get_diagnostic</span><span class="p">(</span>
+    <span class="n">lm_grid</span><span class="p">,</span>
+    <span class="s1">&#39;cooks_distance&#39;</span>
+<span class="p">)</span>
+
+<span class="c1"># this fails because it requires LOOO loop</span>
+<span class="n">dfbetas_df</span><span class="p">,</span> <span class="n">_</span>  <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">lm</span><span class="o">.</span><span class="n">get_diagnostic</span><span class="p">(</span>
+    <span class="n">lm_grid</span><span class="p">,</span>
+    <span class="s1">&#39;dfbetas&#39;</span>
+<span class="p">)</span>
+
+<span class="c1"># this succeeds by forcing LOOO loop calculation</span>
+<span class="n">dfbetas_df</span><span class="p">,</span> <span class="n">_</span>  <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">lm</span><span class="o">.</span><span class="n">get_diagnostic</span><span class="p">(</span>
+    <span class="n">lm_grid</span><span class="p">,</span>
+    <span class="s1">&#39;dfbetas&#39;</span><span class="p">,</span>
+    <span class="n">do_nobs_loop</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.utils.lm.</span></span><span class="sig-name descname"><span class="pre">filter_diagnostic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">diagnostic_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">how</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bound_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bound_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'long'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fitgrid/utils/lm.html#filter_diagnostic"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Select a subset of a fitgrid <cite>statsmodels</cite> diagnostic dataframe by value.</p>
+<p>Use this to identify time points, epochs, parameters, channels with
+outlying or potentially influential data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>diagnostic_df</strong> (<em>pandas.DataFrame</em>) – As returned by <a class="reference internal" href="api_docs/fitgrid.utils.lm.html#fitgrid.utils.lm.get_diagnostic" title="fitgrid.utils.lm.get_diagnostic"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fitgrid.utils.lm.get_diagnostic()</span></code></a></p></li>
+<li><p><strong>how</strong> (<em>{‘above’, ‘below’, ‘inside’, ‘outside’}</em>) – slice <cite>diagnostic_df</cite> above or below <cite>bound_0</cite> or inside or
+outside the closed interval <cite>(bound_0, bound_1)</cite>.</p></li>
+<li><p><strong>bound_0</strong> (<em>scalar or array-like</em>) – <cite>bound_0</cite> is the mandatory boundary for all <cite>how</cite>.  See
+<cite>pandas.DataFrame.gt</cite> and <cite>pandas.DataFrame.lt</cite> documents
+for binary comparisons with dataframes.</p></li>
+<li><p><strong>bound_1</strong> (<em>scalar or array-like</em>) – <cite>bound_1 is the mandatory upper bound for `how=”inside”</cite> and
+<cite>how=”outside”</cite>.</p></li>
+<li><p><strong>format</strong> (<em>{‘long’, ‘wide’}</em>) – The <cite>long</cite> format pivots the channel columns into a row index
+and returns just those times, (epochs, parameters), channels
+that pass the filter. The <cite>wide</cite> format returns <cite>filtered_df</cite>
+with the same shape as <cite>diagnostic_df</cite>, those datapoints that
+pass the filter in their original row, column location, <cite>nans</cite>
+elsewhere.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>selected_df</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.4.1)">pandas.DataFrame</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="lmer-diagnostics">
+<h2>lmer diagnostics<a class="headerlink" href="#lmer-diagnostics" title="Permalink to this headline"></a></h2>
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.utils.lmer.</span></span><span class="sig-name descname"><span class="pre">get_lmer_dfbetas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/fitgrid/utils/lmer.html#get_lmer_dfbetas"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Fit lmers leaving out factor levels one by one, compute DBETAS.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>epochs</strong> (<em>Epochs</em>) – Epochs object</p></li>
+<li><p><strong>factor</strong> (<em>str</em>) – column name of the factor of interest</p></li>
+<li><p><strong>**kwargs</strong> – keyword arguments to pass on to <code class="docutils literal notranslate"><span class="pre">fitgrid.lmer</span></code>, like <code class="docutils literal notranslate"><span class="pre">RHS</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>dfbetas</strong> – dataframe containing DFBETAS values</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.4.1)">pandas.DataFrame</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Example calculation showing how to pass in model fitting parameters:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dfbetas</span> <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">lmer</span><span class="o">.</span><span class="n">get_lmer_dfbetas</span><span class="p">(</span>
+    <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
+    <span class="n">factor</span><span class="o">=</span><span class="s1">&#39;subject_id&#39;</span><span class="p">,</span>
+    <span class="n">RHS</span><span class="o">=</span><span class="s1">&#39;x + (x|a)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<p>DFBETAS is computed according to the following formula <a class="reference internal" href="bibliography.html#niegropel2012" id="id4"><span>[NieGroPel2012]</span></a>:</p>
+<div class="math notranslate nohighlight">
+\[DFBETAS_{ij} = \frac{\hat{\gamma}_i - \hat{\gamma}_{i(-j)}}{se\left(\hat{\gamma}_{i(-j)}\right)}\]</div>
+<p>for parameter <span class="math notranslate nohighlight">\(i\)</span> and level <span class="math notranslate nohighlight">\(j\)</span> of <code class="docutils literal notranslate"><span class="pre">factor</span></code>.</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="api.html" class="btn btn-neutral float-left" title="API" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="bibliography.html" class="btn btn-neutral float-right" title="Bibliography" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

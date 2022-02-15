@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fitgrid.utils.lm &mdash; fitgrid  documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sg_gallery.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sg_gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sg_gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/sg_gallery-rendered-html.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> fitgrid
+          </a>
+              <div class="version">
+                0.5.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../about_fitgrid.html">About <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../auto_gallery/quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../gallery.html">Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../contributing.html">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">fitgrid</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>fitgrid.utils.lm</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for fitgrid.utils.lm</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;User functions to streamline working with selected statsmodels OLS</span>
+<span class="sd">fit attributes for ``fitgrid.lm`` grids.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">copy</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">patsy</span>
+<span class="kn">from</span> <span class="nn">statsmodels.stats.outliers_influence</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">variance_inflation_factor</span> <span class="k">as</span> <span class="n">vif</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span> <span class="nn">statsmodels.regression.linear_model</span> <span class="kn">import</span> <span class="n">RegressionResultsWrapper</span>
+<span class="kn">from</span> <span class="nn">fitgrid.fitgrid</span> <span class="kn">import</span> <span class="n">FitGrid</span>
+
+<span class="c1"># ------------------------------------------------------------</span>
+<span class="c1"># fitgrid&#39;s database of statsmodels OLSInfluence diagnostics:</span>
+<span class="c1">#</span>
+<span class="c1">#  * what there is, how it runs, and data type, like so</span>
+<span class="c1">#</span>
+<span class="c1">#  *  attr : (calc_type, value_dtype, df.index.names)</span>
+<span class="c1">#</span>
+<span class="c1">#  df.index.names are as returned by LMFitGrid attribute getter</span>
+<span class="c1">#  nobs = number of observations</span>
+<span class="c1">#  nobs_k = number of observations x model regressors</span>
+<span class="c1">#  nobs_loop = nobs re-fitting ... slow</span>
+<span class="c1">#  TPU 03/19</span>
+<span class="c1"># ------------------------------------------------------------</span>
+
+<span class="c1"># &#39;_TIME&#39; and &#39;_EPOCH_ID&#39; are used to compare indexes returned</span>
+<span class="c1"># by the diagnostics with with those in the grid.</span>
+<span class="n">_FLOAT_TYPE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span>
+<span class="n">_INT_TYPE</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">int64</span>
+<span class="n">_OLS_INFLUENCE_ATTRS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;cooks_distance&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;nobs&#39;</span><span class="p">,</span> <span class="n">_FLOAT_TYPE</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;_TIME&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;_EPOCH_ID&#39;</span><span class="p">]),</span>
+    <span class="s1">&#39;cov_ratio&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;nobs_loop&#39;</span><span class="p">,</span> <span class="n">_FLOAT_TYPE</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;_TIME&#39;</span><span class="p">,</span> <span class="s1">&#39;_EPOCH_ID&#39;</span><span class="p">]),</span>
+    <span class="s1">&#39;dfbetas&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;nobs_loop&#39;</span><span class="p">,</span> <span class="n">_FLOAT_TYPE</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;_TIME&#39;</span><span class="p">,</span> <span class="s1">&#39;_EPOCH_ID&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">]),</span>
+    <span class="s1">&#39;dffits&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;nobs_loop&#39;</span><span class="p">,</span> <span class="n">_FLOAT_TYPE</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;_TIME&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;_EPOCH_ID&#39;</span><span class="p">]),</span>
+    <span class="s1">&#39;dffits_internal&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;nobs&#39;</span><span class="p">,</span> <span class="n">_FLOAT_TYPE</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;_TIME&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;_EPOCH_ID&#39;</span><span class="p">]),</span>
+    <span class="s1">&#39;ess_press&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;nobs&#39;</span><span class="p">,</span> <span class="n">_FLOAT_TYPE</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;_TIME&#39;</span><span class="p">]),</span>
+    <span class="s1">&#39;hat_matrix_diag&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;nobs&#39;</span><span class="p">,</span> <span class="n">_FLOAT_TYPE</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;_TIME&#39;</span><span class="p">,</span> <span class="s1">&#39;_EPOCH_ID&#39;</span><span class="p">]),</span>
+    <span class="s1">&#39;influence&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;nobs&#39;</span><span class="p">,</span> <span class="n">_FLOAT_TYPE</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;_TIME&#39;</span><span class="p">,</span> <span class="s1">&#39;_EPOCH_ID&#39;</span><span class="p">]),</span>
+    <span class="s1">&#39;k_vars&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;nobs&#39;</span><span class="p">,</span> <span class="n">_INT_TYPE</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;_TIME&#39;</span><span class="p">]),</span>
+    <span class="s1">&#39;nobs&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;nobs&#39;</span><span class="p">,</span> <span class="n">_INT_TYPE</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;_TIME&#39;</span><span class="p">]),</span>
+    <span class="s1">&#39;resid_press&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;nobs&#39;</span><span class="p">,</span> <span class="n">_FLOAT_TYPE</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;_TIME&#39;</span><span class="p">,</span> <span class="s1">&#39;_EPOCH_ID&#39;</span><span class="p">]),</span>
+    <span class="s1">&#39;resid_std&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;nobs&#39;</span><span class="p">,</span> <span class="n">_FLOAT_TYPE</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;_TIME&#39;</span><span class="p">,</span> <span class="s1">&#39;_EPOCH_ID&#39;</span><span class="p">]),</span>
+    <span class="s1">&#39;resid_studentized_external&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s1">&#39;nobs_loop&#39;</span><span class="p">,</span>
+        <span class="n">_FLOAT_TYPE</span><span class="p">,</span>
+        <span class="p">[</span><span class="s1">&#39;_TIME&#39;</span><span class="p">,</span> <span class="s1">&#39;_EPOCH_ID&#39;</span><span class="p">],</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;resid_studentized_internal&#39;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s1">&#39;nobs&#39;</span><span class="p">,</span>
+        <span class="n">_FLOAT_TYPE</span><span class="p">,</span>
+        <span class="p">[</span><span class="s1">&#39;_TIME&#39;</span><span class="p">,</span> <span class="s1">&#39;_EPOCH_ID&#39;</span><span class="p">],</span>
+    <span class="p">),</span>
+    <span class="s1">&#39;resid_var&#39;</span><span class="p">:</span> <span class="p">(</span><span class="s1">&#39;nobs&#39;</span><span class="p">,</span> <span class="n">_FLOAT_TYPE</span><span class="p">,</span> <span class="p">[</span><span class="s1">&#39;_TIME&#39;</span><span class="p">,</span> <span class="s1">&#39;_EPOCH_ID&#39;</span><span class="p">]),</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="get_vifs"><a class="viewcode-back" href="../../../quick_reference.html#fitgrid.utils.lm.get_vifs">[docs]</a><span class="k">def</span> <span class="nf">get_vifs</span><span class="p">(</span><span class="n">epochs</span><span class="p">,</span> <span class="n">RHS</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">get_single_vif</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">RHS</span><span class="p">):</span>
+        <span class="n">dmatrix</span> <span class="o">=</span> <span class="n">patsy</span><span class="o">.</span><span class="n">dmatrix</span><span class="p">(</span><span class="n">formula_like</span><span class="o">=</span><span class="n">RHS</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">group</span><span class="p">)</span>
+        <span class="n">vifs</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">name</span><span class="p">:</span> <span class="n">vif</span><span class="p">(</span><span class="n">dmatrix</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">index</span> <span class="ow">in</span> <span class="n">dmatrix</span><span class="o">.</span><span class="n">design_info</span><span class="o">.</span><span class="n">column_name_indexes</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">vifs</span><span class="p">)</span>
+
+    <span class="n">tqdm</span><span class="o">.</span><span class="n">pandas</span><span class="p">(</span><span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Time&quot;</span><span class="p">,</span> <span class="n">disable</span><span class="o">=</span><span class="n">quiet</span><span class="p">)</span>
+    <span class="c1"># return epochs._snapshots.progress_apply(get_single_vif, RHS=RHS)</span>
+    <span class="k">return</span> <span class="n">epochs</span><span class="o">.</span><span class="n">_snapshots</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">get_single_vif</span><span class="p">,</span> <span class="n">RHS</span><span class="o">=</span><span class="n">RHS</span><span class="p">)</span></div>
+
+
+<span class="c1"># ------------------------------------------------------------</span>
+<span class="c1"># OLSInfluence diagnostic helpers TPU 03/19</span>
+<span class="c1"># ------------------------------------------------------------</span>
+<span class="k">def</span> <span class="nf">_check_get_diagnostic_args</span><span class="p">(</span><span class="n">lm_grid</span><span class="p">,</span> <span class="n">diagnostic</span><span class="p">,</span> <span class="n">do_nobs_loop</span><span class="p">):</span>
+    <span class="c1"># type, value checking doesn&#39;t run anything, for args see get_diagnostic()</span>
+
+    <span class="c1"># types ------------------------------------------------------</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lm_grid</span><span class="p">,</span> <span class="n">FitGrid</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;lm_grid must be a FitGrid not </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">lm_grid</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lm_grid</span><span class="o">.</span><span class="n">tester</span><span class="p">,</span> <span class="n">RegressionResultsWrapper</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;lm_grid must be fit with fitgrid.lm()&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">diagnostic</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">diagnostic</span><span class="si">}</span><span class="s2"> must be a string&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">do_nobs_loop</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;do_nobs_loop must be True or False&quot;</span>
+
+    <span class="k">if</span> <span class="n">msg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="c1"># values ------------------------------------------------------</span>
+    <span class="n">infl_calc</span><span class="p">,</span> <span class="n">infl_dtype</span><span class="p">,</span> <span class="n">index_names</span> <span class="o">=</span> <span class="n">_OLS_INFLUENCE_ATTRS</span><span class="p">[</span><span class="n">diagnostic</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">diagnostic</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_OLS_INFLUENCE_ATTRS</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;unknown OLSInfluence attribute </span><span class="si">{</span><span class="n">diagnostic</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">if</span> <span class="n">infl_calc</span> <span class="o">==</span> <span class="s2">&quot;nobs_loop&quot;</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">do_nobs_loop</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">diagnostic</span><span class="si">}</span><span class="s2"> is slow, set do_nobs_loop=True to calculate&quot;</span>
+
+    <span class="k">if</span> <span class="n">msg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">infl_calc</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;get_diagnostic(</span><span class="si">{</span><span class="n">diagnostic</span><span class="si">}</span><span class="s2">), try&quot;</span>
+            <span class="s2">&quot; lm_grid.get_influence().</span><span class="si">{diagnostic}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_get_diagnostic</span><span class="p">(</span><span class="n">lm_grid</span><span class="p">,</span> <span class="n">diag</span><span class="p">,</span> <span class="n">do_nobs_loop</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;grid scraper with a modicum of validation&quot;&quot;&quot;</span>
+
+    <span class="c1"># modicum of guarding</span>
+    <span class="n">_check_get_diagnostic_args</span><span class="p">(</span>
+        <span class="n">lm_grid</span><span class="o">=</span><span class="n">lm_grid</span><span class="p">,</span> <span class="n">diagnostic</span><span class="o">=</span><span class="n">diag</span><span class="p">,</span> <span class="n">do_nobs_loop</span><span class="o">=</span><span class="n">do_nobs_loop</span>
+    <span class="p">)</span>
+
+    <span class="n">infl_calc</span><span class="p">,</span> <span class="n">infl_dtype</span><span class="p">,</span> <span class="n">index_names</span> <span class="o">=</span> <span class="n">_OLS_INFLUENCE_ATTRS</span><span class="p">[</span><span class="n">diag</span><span class="p">]</span>
+    <span class="n">attr_df</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">lm_grid</span><span class="o">.</span><span class="n">get_influence</span><span class="p">(),</span> <span class="n">diag</span><span class="p">)</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">attr_df</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">diag</span><span class="si">}</span><span class="s2"> grid is not a pandas DataFrame&quot;</span><span class="p">)</span>
+
+    <span class="n">actual_type</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">attr_df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">actual_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">infl_dtype</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;gridded </span><span class="si">{</span><span class="n">diag</span><span class="si">}</span><span class="s2"> dtype should be </span><span class="si">{</span><span class="n">infl_dtype</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># swap in grid values for diagnostic _TIME and _EPOCH_ID and check</span>
+
+    <span class="n">_index_names</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">index_names</span><span class="p">)</span>  <span class="c1"># else _OLS_INFLUENCE is modified</span>
+    <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">index_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">_index_names</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">index_name</span> <span class="o">==</span> <span class="s2">&quot;_TIME&quot;</span><span class="p">:</span>
+            <span class="n">_index_names</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">lm_grid</span><span class="o">.</span><span class="n">time</span>
+
+        <span class="k">if</span> <span class="n">index_name</span> <span class="o">==</span> <span class="s2">&quot;_EPOCH_ID&quot;</span><span class="p">:</span>
+            <span class="n">_index_names</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">lm_grid</span><span class="o">.</span><span class="n">epoch_index</span><span class="o">.</span><span class="n">name</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_index_names</span> <span class="o">==</span> <span class="n">attr_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">pdb</span>
+
+        <span class="n">pdb</span><span class="o">.</span><span class="n">set_trace</span><span class="p">()</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;_OLS_INFLUENCE_ATTRS thinks </span><span class="si">{</span><span class="n">diag</span><span class="si">}</span><span class="s2"> index names&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot; should be </span><span class="si">{</span><span class="n">index_names</span><span class="si">}</span><span class="s2"> not </span><span class="si">{</span><span class="n">attr_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">attr_df</span>
+
+
+<span class="c1"># ------------------------------------------------------------</span>
+<span class="c1"># UI wrappers</span>
+<span class="c1"># ------------------------------------------------------------</span>
+<div class="viewcode-block" id="list_diagnostics"><a class="viewcode-back" href="../../../quick_reference.html#fitgrid.utils.lm.list_diagnostics">[docs]</a><span class="k">def</span> <span class="nf">list_diagnostics</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Display `statsmodels` diagnostics implemented in fitgrid.utils.lm&quot;&quot;&quot;</span>
+
+    <span class="n">fast</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s2">&quot;  get_diagnostic(lm_grid, &#39;</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">&#39;)&quot;</span>
+        <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">_OLS_INFLUENCE_ATTRS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">spec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="s1">&#39;nobs_loop&#39;</span><span class="p">]</span>
+    <span class="p">]</span>
+
+    <span class="n">slow</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s2">&quot;  get_diagnostic(lm_grid, &#39;</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">&#39;, do_nobs_loop=True)&quot;</span>
+        <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">_OLS_INFLUENCE_ATTRS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">spec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;nobs_loop&#39;</span>
+    <span class="p">]</span>
+
+    <span class="n">not_implemented</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">: not implemented for get_diagnostic(), &quot;</span>
+            <span class="s2">&quot;try querying the grid directly&quot;</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">attr</span><span class="p">,</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">_OLS_INFLUENCE_ATTRS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">spec</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span>
+    <span class="p">]</span>
+
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="s2">&quot;Fast: These are calculated quickly with get_diagnostic(),&quot;</span>
+        <span class="s2">&quot; usable for large data sets</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">usage</span> <span class="ow">in</span> <span class="n">fast</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">usage</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Slow: These are available with get_diagnostic() but&quot;</span>
+        <span class="s2">&quot; refit a model without each data point. Disabled by&quot;</span>
+        <span class="s2">&quot; default but can be forced like so</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">usage</span> <span class="ow">in</span> <span class="n">slow</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">usage</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Not implemented:</span><span class="se">\n</span><span class="s2">These are not available for get_diagnostic() but&quot;</span>
+        <span class="s2">&quot;may be available in the fitted grid.</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">usage</span> <span class="ow">in</span> <span class="n">not_implemented</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">usage</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_diagnostic"><a class="viewcode-back" href="../../../quick_reference.html#fitgrid.utils.lm.get_diagnostic">[docs]</a><span class="k">def</span> <span class="nf">get_diagnostic</span><span class="p">(</span><span class="n">lm_grid</span><span class="p">,</span> <span class="n">diagnostic</span><span class="p">,</span> <span class="n">do_nobs_loop</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Fetch `statsmodels` diagnostic as a Time  x Channel dataframe</span>
+
+<span class="sd">    `statsmodels` implements a variety of data and model diagnostic</span>
+<span class="sd">    measures. For some, it also computes a version of a recommended</span>
+<span class="sd">    critical value or :math:`p`-value. Use these at your own risk</span>
+<span class="sd">    after careful study of the `statsmodels` source code. For details</span>
+<span class="sd">    visit :sm_docs:`statsmodels.stats.outliers_influence.OLSInfluence.html`</span>
+
+<span class="sd">    For a catalog of the measures available for `fitgrid.lm()` run</span>
+<span class="sd">    this in Python</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">       &gt;&gt;&gt;fitgrid.utils.lm.list_diagnostics()</span>
+
+<span class="sd">    .. Warning:: Data diagnostics can be very large and very slow, see</span>
+<span class="sd">       Notes for details.</span>
+
+<span class="sd">       * By default **all** values of the diagnostics are computed,</span>
+<span class="sd">         this dataframe can be pruned with</span>
+<span class="sd">         :meth:`fitgrid.utils.lm.filter_diagnostic` function.</span>
+
+<span class="sd">       * By default slow diagnostics are **not** computed, this can be</span>
+<span class="sd">         forced by setting `do_nobs_loop=True`.</span>
+
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lm_grid : fitgrid.LMFitGrid</span>
+<span class="sd">        As returned by :meth:`fitgrid.lm`.</span>
+
+<span class="sd">    diagnostic : string</span>
+<span class="sd">        As implemented in `statsmodels`, e.g., &quot;cooks_distance&quot;,</span>
+<span class="sd">        &quot;dffits_internal&quot;, &quot;est_std&quot;, &quot;dfbetas&quot;.</span>
+
+<span class="sd">    do_nobs_loop : bool</span>
+<span class="sd">        `True` forces slow leave-one-observation-out model refitting.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    diagnostic_df : pandas.DataFrame</span>
+<span class="sd">        Channels are in columns. Model measures are row indexed by</span>
+<span class="sd">        time; data measures add an epoch row index; parameter measures add</span>
+<span class="sd">        a parameter row index.</span>
+
+<span class="sd">    sm_1_df : pandas.DataFrame</span>
+<span class="sd">        The supplemenatary values `statsmodels` returns, or `None`,</span>
+<span class="sd">        same shape as diagnostic_df.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    * **Size:** `diagnostic_df` values for data measures like</span>
+<span class="sd">      `cooks_distance` and `hat_matrix_diagonal` are the size of the</span>
+<span class="sd">      original data plus a row index and for some data measures like</span>
+<span class="sd">      `dfbetas`, they are the size of the data multiplied by the</span>
+<span class="sd">      number of regressors in the model.</span>
+
+<span class="sd">    * **Speed:** Leave-one-observation-out (LOOO) model refitting takes</span>
+<span class="sd">      as long as it takes to fit one model multiplied by the number of</span>
+<span class="sd">      observations. This can be intractable for large</span>
+<span class="sd">      datasets. Diagnostic measures calculated from the original fit</span>
+<span class="sd">      like `cooks_distance` and `dffits_internal` are tractable even</span>
+<span class="sd">      for large data sets.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">       # fake data</span>
+<span class="sd">       epochs_fg = fitgrid.generate()</span>
+<span class="sd">       lm_grid = fitgrid.lm(</span>
+<span class="sd">           epochs_fg,</span>
+<span class="sd">           LHS=epochs_fg.channels,</span>
+<span class="sd">           RHS=&#39;continuous + categorical&#39;,</span>
+<span class="sd">           parallel=True,</span>
+<span class="sd">           n_cores=4,</span>
+<span class="sd">       )</span>
+
+<span class="sd">       # data diagnostic, one dataframe with the values</span>
+<span class="sd">       ess_press, _ = fitgrid.utils.lm.get_diagnostic(</span>
+<span class="sd">           lm_grid,</span>
+<span class="sd">           &#39;ess_press&#39;</span>
+<span class="sd">       )</span>
+
+<span class="sd">       # Cook&#39;s D dataframe AND the p-values statsmodels computes</span>
+<span class="sd">       cooks_Ds, sm_pvals = fitgrid.utils.lm.get_diagnostic(</span>
+<span class="sd">           lm_grid,</span>
+<span class="sd">           &#39;cooks_distance&#39;</span>
+<span class="sd">       )</span>
+
+<span class="sd">       # this fails because it requires LOOO loop</span>
+<span class="sd">       dfbetas_df, _  = fitgrid.utils.lm.get_diagnostic(</span>
+<span class="sd">           lm_grid,</span>
+<span class="sd">           &#39;dfbetas&#39;</span>
+<span class="sd">       )</span>
+
+<span class="sd">       # this succeeds by forcing LOOO loop calculation</span>
+<span class="sd">       dfbetas_df, _  = fitgrid.utils.lm.get_diagnostic(</span>
+<span class="sd">           lm_grid,</span>
+<span class="sd">           &#39;dfbetas&#39;,</span>
+<span class="sd">           do_nobs_loop=True</span>
+<span class="sd">       )</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">diag_df</span> <span class="o">=</span> <span class="n">_get_diagnostic</span><span class="p">(</span><span class="n">lm_grid</span><span class="p">,</span> <span class="n">diagnostic</span><span class="p">,</span> <span class="n">do_nobs_loop</span><span class="p">)</span>
+
+    <span class="c1"># special case diagnostic handling is unavoidable b.c. some</span>
+    <span class="c1"># OLSInflunce methods return 2-ples, most don&#39;t. Extract</span>
+    <span class="c1"># both parts for those that do.</span>
+    <span class="n">sm_1_df</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">diagnostic</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;cooks_distance&quot;</span><span class="p">,</span> <span class="s2">&quot;dffits_internal&quot;</span><span class="p">,</span> <span class="s2">&quot;dffits&quot;</span><span class="p">]:</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">diag_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span>
+        <span class="k">assert</span> <span class="n">diag_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span>  <span class="c1"># diagnostic index</span>
+
+        <span class="c1"># values returned as 2nd item in diagnostic 2-ple</span>
+        <span class="n">sm_1_df</span> <span class="o">=</span> <span class="n">diag_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">IndexSlice</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:],</span> <span class="p">:]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span>
+            <span class="mi">1</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+
+        <span class="c1"># label the columns</span>
+        <span class="n">sm_1_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">(</span>
+            <span class="p">[[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">diagnostic</span><span class="si">}</span><span class="s2">_sm_1&quot;</span><span class="p">],</span> <span class="n">diag_df</span><span class="o">.</span><span class="n">columns</span><span class="p">],</span>
+            <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;diagnostic&#39;</span><span class="p">,</span> <span class="s1">&#39;channel&#39;</span><span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="c1"># diagnostic measures</span>
+        <span class="n">diag_df</span> <span class="o">=</span> <span class="n">diag_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">IndexSlice</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="p">:]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span>
+            <span class="mi">1</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+
+    <span class="c1"># name unlabeled index from fitgrid</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">diag_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">diag_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">diag_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">name</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">diagnostic</span><span class="si">}</span><span class="s2">_id&quot;</span>
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">diag_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span>
+        <span class="p">]</span>
+
+    <span class="c1"># label the columns</span>
+    <span class="n">diag_df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="o">.</span><span class="n">from_product</span><span class="p">(</span>
+        <span class="p">[[</span><span class="n">diagnostic</span><span class="p">],</span> <span class="n">diag_df</span><span class="o">.</span><span class="n">columns</span><span class="p">],</span> <span class="n">names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;diagnostic&#39;</span><span class="p">,</span> <span class="s1">&#39;channel&#39;</span><span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="c1"># wide columns == channels diagnostic dataframe</span>
+    <span class="k">return</span> <span class="n">diag_df</span><span class="p">,</span> <span class="n">sm_1_df</span></div>
+
+
+<div class="viewcode-block" id="filter_diagnostic"><a class="viewcode-back" href="../../../quick_reference.html#fitgrid.utils.lm.filter_diagnostic">[docs]</a><span class="k">def</span> <span class="nf">filter_diagnostic</span><span class="p">(</span>
+    <span class="n">diagnostic_df</span><span class="p">,</span> <span class="n">how</span><span class="p">,</span> <span class="n">bound_0</span><span class="p">,</span> <span class="n">bound_1</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;long&#39;</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Select a subset of a fitgrid `statsmodels` diagnostic dataframe by value.</span>
+
+<span class="sd">    Use this to identify time points, epochs, parameters, channels with</span>
+<span class="sd">    outlying or potentially influential data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    diagnostic_df : pandas.DataFrame</span>
+<span class="sd">        As returned by :meth:`fitgrid.utils.lm.get_diagnostic`</span>
+
+<span class="sd">    how : {&#39;above&#39;, &#39;below&#39;, &#39;inside&#39;, &#39;outside&#39;}</span>
+<span class="sd">        slice `diagnostic_df` above or below `bound_0` or inside or</span>
+<span class="sd">        outside the closed interval `(bound_0, bound_1)`.</span>
+
+<span class="sd">    bound_0 : scalar or array-like</span>
+<span class="sd">        `bound_0` is the mandatory boundary for all `how`.  See</span>
+<span class="sd">        `pandas.DataFrame.gt` and `pandas.DataFrame.lt` documents</span>
+<span class="sd">        for binary comparisons with dataframes.</span>
+
+<span class="sd">    bound_1: scalar or array-like</span>
+<span class="sd">        `bound_1 is the mandatory upper bound for `how=&quot;inside&quot;` and</span>
+<span class="sd">        `how=&quot;outside&quot;`.</span>
+
+<span class="sd">    format : {&#39;long&#39;, &#39;wide&#39;}</span>
+<span class="sd">        The `long` format pivots the channel columns into a row index</span>
+<span class="sd">        and returns just those times, (epochs, parameters), channels</span>
+<span class="sd">        that pass the filter. The `wide` format returns `filtered_df`</span>
+<span class="sd">        with the same shape as `diagnostic_df`, those datapoints that</span>
+<span class="sd">        pass the filter in their original row, column location, `nans`</span>
+<span class="sd">        elsewhere.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">        selected_df : pandas.DataFrame</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">how</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;above&quot;</span><span class="p">,</span> <span class="s2">&quot;below&quot;</span><span class="p">]:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">bound_0</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">fail</span><span class="p">:</span>
+            <span class="n">fail</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;bound_0&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">fail</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">fail</span>
+
+        <span class="k">if</span> <span class="n">bound_1</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;bound_1 is ignored with how=above and how=below&quot;</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="n">bound_1</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">elif</span> <span class="n">how</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;inside&quot;</span><span class="p">,</span> <span class="s2">&quot;outside&quot;</span><span class="p">]:</span>
+        <span class="c1"># are bounds comparable, legal</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">bound_1</span> <span class="o">&lt;</span> <span class="n">bound_0</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">fail</span><span class="p">:</span>
+            <span class="n">fail</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;bound_1, bound_0&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">fail</span><span class="o">.</span><span class="n">args</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">fail</span>
+
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">bound_1</span><span class="p">)</span><span class="o">.</span><span class="fm">__lt__</span><span class="p">(</span><span class="n">bound_0</span><span class="p">):</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;upper bound_1 value(s) less than bound_0&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;how must be above, below, inside, outside&quot;</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="c1"># all and only four cases, pandas handles failures</span>
+    <span class="k">if</span> <span class="n">how</span> <span class="o">==</span> <span class="s2">&quot;above&quot;</span><span class="p">:</span>
+        <span class="n">diagnostic_df</span> <span class="o">=</span> <span class="n">diagnostic_df</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">diagnostic_df</span><span class="o">.</span><span class="n">gt</span><span class="p">(</span><span class="n">bound_0</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">how</span> <span class="o">==</span> <span class="s2">&quot;below&quot;</span><span class="p">:</span>
+        <span class="n">diagnostic_df</span> <span class="o">=</span> <span class="n">diagnostic_df</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">diagnostic_df</span><span class="o">.</span><span class="n">lt</span><span class="p">(</span><span class="n">bound_0</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">how</span> <span class="o">==</span> <span class="s2">&quot;inside&quot;</span><span class="p">:</span>
+        <span class="n">diagnostic_df</span> <span class="o">=</span> <span class="n">diagnostic_df</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">diagnostic_df</span><span class="o">.</span><span class="n">gt</span><span class="p">(</span><span class="n">bound_0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">diagnostic_df</span><span class="o">.</span><span class="n">lt</span><span class="p">(</span><span class="n">bound_1</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">how</span> <span class="o">==</span> <span class="s2">&quot;outside&quot;</span><span class="p">:</span>
+        <span class="n">diagnostic_df</span> <span class="o">=</span> <span class="n">diagnostic_df</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+            <span class="n">diagnostic_df</span><span class="o">.</span><span class="n">lt</span><span class="p">(</span><span class="n">bound_0</span><span class="p">)</span> <span class="o">|</span> <span class="n">diagnostic_df</span><span class="o">.</span><span class="n">gt</span><span class="p">(</span><span class="n">bound_1</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">format</span> <span class="o">==</span> <span class="s2">&quot;long&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">diagnostic_df</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">dropna</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">sort_index</span><span class="p">()</span>
+    <span class="k">elif</span> <span class="nb">format</span> <span class="o">==</span> <span class="s2">&quot;wide&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">diagnostic_df</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;format must be long or wide, not </span><span class="si">{</span><span class="nb">format</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

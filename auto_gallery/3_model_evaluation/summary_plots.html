@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Model summary visualization &mdash; fitgrid  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-rendered-html.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="API" href="../../api.html" />
+    <link rel="prev" title="AIC and likelihood ratio model comparison" href="p3_model_comps.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> fitgrid
+          </a>
+              <div class="version">
+                0.5.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about_fitgrid.html">About <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gallery.html">Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">fitgrid</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../gallery.html">Examples Gallery</a> &raquo;</li>
+          <li><a href="index.html">Model evaluation</a> &raquo;</li>
+      <li>Model summary visualization</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-auto-gallery-3-model-evaluation-summary-plots-py"><span class="std std-ref">here</span></a>
+to download the full example code</p>
+</div>
+<section class="sphx-glr-example-title" id="model-summary-visualization">
+<span id="sphx-glr-auto-gallery-3-model-evaluation-summary-plots-py"></span><h1>Model summary visualization<a class="headerlink" href="#model-summary-visualization" title="Permalink to this headline"></a></h1>
+<p>These examples illustrate LMER and OLS model summary visualizations.
+For LMER models, this includes the model fitting warnings that are often encountered and
+other interesting information like the estimated degrees of freedom.</p>
+<p>The fitgrid utilities for summary plotting all return matplot.Figure and matplotlib.Axes objects
+or a list of them so they can be fine tuned.</p>
+<p>The examples use a small simulated data set to speed up
+processing and silly models to generate interesting warnings.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>In practice, a model summary data frame may have large numbers of channels, models, and betas
+and the default plotting behavior is to plot the entire dataframe. To avoid
+overgenerating plots, select what you want to plot with the optional keyword
+arguments and/or prune the summary dataframe before plotting.</p>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">fitgrid</span>
+</pre></div>
+</div>
+<section id="generate-a-small-random-data-set">
+<h2>Generate a small random data set<a class="headerlink" href="#generate-a-small-random-data-set" title="Permalink to this headline"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">epochs_fg</span></a></a> <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">n_channels</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">channels</span></a></a> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">column</span> <span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="pandas.core.indexes.base.Index" class="sphx-glr-backref-module-pandas-core-indexes-base sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="pandas.core.indexes.base.Index" class="sphx-glr-backref-module-pandas-core-indexes-base sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">epochs_fg</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">columns</span></a></a> <span class="k">if</span> <span class="s2">&quot;channel&quot;</span> <span class="ow">in</span> <span class="n">column</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</section>
+<section id="summarize-a-stack-of-two-lmer-models">
+<h2>Summarize a stack of two LMER models<a class="headerlink" href="#summarize-a-stack-of-two-lmer-models" title="Permalink to this headline"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lmer_rhs</span></a></a> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;1 + categorical + (continuous | categorical)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;1 + continuous + (1 | categorical)&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lmer_summaries</span></a></a> <span class="o">=</span> <a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.summarize" title="fitgrid.utils.summary.summarize" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.summarize" title="fitgrid.utils.summary.summarize" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">summarize</span></a></a><span class="p">(</span>
+    <a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">epochs_fg</span></a></a><span class="p">,</span>
+    <span class="s2">&quot;lmer&quot;</span><span class="p">,</span>
+    <span class="n">LHS</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">channels</span></a></a><span class="p">,</span>
+    <span class="n">RHS</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lmer_rhs</span></a></a><span class="p">,</span>
+    <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">n_cores</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lmer_summaries</span></a></a>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/fitgrid/fitgrid/fitgrid/utils/summary.py:145: FutureWarning: fitgrid summaries are in early days, subject to change
+  warnings.warn(
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th>channel0</th>
+      <th>channel1</th>
+      <th>channel2</th>
+      <th>channel3</th>
+    </tr>
+    <tr>
+      <th>time</th>
+      <th>model</th>
+      <th>beta</th>
+      <th>key</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="5" valign="top">0</th>
+      <th rowspan="5" valign="top">1+categorical+(continuous|categorical)</th>
+      <th rowspan="5" valign="top">(Intercept)</th>
+      <th>2.5_ci</th>
+      <td>-45.4987</td>
+      <td>-73.282</td>
+      <td>-67.2839</td>
+      <td>-67.0309</td>
+    </tr>
+    <tr>
+      <th>97.5_ci</th>
+      <td>71.93</td>
+      <td>48.3137</td>
+      <td>66.708</td>
+      <td>60.3743</td>
+    </tr>
+    <tr>
+      <th>AIC</th>
+      <td>175.463</td>
+      <td>175.236</td>
+      <td>178.733</td>
+      <td>179.298</td>
+    </tr>
+    <tr>
+      <th>DF</th>
+      <td>17.4766</td>
+      <td>0.68599</td>
+      <td>15.1721</td>
+      <td>0.954404</td>
+    </tr>
+    <tr>
+      <th>Estimate</th>
+      <td>13.2157</td>
+      <td>-12.4842</td>
+      <td>-0.287962</td>
+      <td>-3.32834</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th rowspan="5" valign="top">7</th>
+      <th rowspan="5" valign="top">1+continuous+(1|categorical)</th>
+      <th rowspan="5" valign="top">continuous</th>
+      <th>T-stat</th>
+      <td>0.3572</td>
+      <td>2.33128</td>
+      <td>-0.623563</td>
+      <td>1.16732</td>
+    </tr>
+    <tr>
+      <th>has_warning</th>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>logLike</th>
+      <td>-89.4837</td>
+      <td>-86.1406</td>
+      <td>-85.397</td>
+      <td>-87.4905</td>
+    </tr>
+    <tr>
+      <th>sigma2</th>
+      <td>1006.29</td>
+      <td>694.077</td>
+      <td>639.033</td>
+      <td>798.97</td>
+    </tr>
+    <tr>
+      <th>warnings</th>
+      <td>boundary (singular) fit: see ?isSingular</td>
+      <td>boundary (singular) fit: see ?isSingular</td>
+      <td>boundary (singular) fit: see ?isSingular</td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+<p>416 rows × 4 columns</p>
+</div>
+</div>
+<br />
+<br /></section>
+<section id="estimated-coefficient-beta-plots">
+<h2>Estimated coefficient (“beta”) plots<a class="headerlink" href="#estimated-coefficient-beta-plots" title="Permalink to this headline"></a></h2>
+<p>Select and plot one model intercept at a channels. Model warnings,
+if any, are plotted by default.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">figs</span></a></a> <span class="o">=</span> <a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.plot_betas" title="fitgrid.utils.summary.plot_betas" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.plot_betas" title="fitgrid.utils.summary.plot_betas" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">plot_betas</span></a></a><span class="p">(</span>
+    <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lmer_summaries</span></a></a><span class="p">,</span>
+    <span class="n">LHS</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;channel2&quot;</span><span class="p">],</span>
+    <span class="n">models</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;1+categorical+(continuous|categorical)&quot;</span><span class="p">],</span>
+    <span class="n">betas</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;(Intercept)&quot;</span><span class="p">],</span>
+    <span class="n">beta_plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ylim&quot;</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mi">75</span><span class="p">,</span> <span class="mi">75</span><span class="p">)},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_summary_plots_001.png" srcset="../../_images/sphx_glr_summary_plots_001.png" alt="channel2 (Intercept): 1+categorical+(continuous|categorical)" class = "sphx-glr-single-img"/><p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Hessian is numerically singular: parameters are not uniquely determined
+Model failed to converge: degenerate  Hessian with 1 negative eigenvalues
+Model failed to converge: degenerate  Hessian with 2 negative eigenvalues
+boundary (singular) fit: see ?isSingular
+unable to evaluate scaled gradient
+</pre></div>
+</div>
+</section>
+<section id="display-degrees-of-freedom">
+<h2>Display degrees of freedom<a class="headerlink" href="#display-degrees-of-freedom" title="Permalink to this headline"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Degrees of freedom for mixed-effects models are somewhat</span>
+<span class="c1"># controversial. You can plot those returned by lmerTest. The degrees</span>
+<span class="c1"># of freedom must be scaled by a function of your choosing. When when</span>
+<span class="c1"># the df are much larger than the betas log transform like</span>
+<span class="c1"># ``numpy.log10()`` may be useful. The identity function ``dof()``</span>
+<span class="c1"># below shows schematically how to define your own and the example</span>
+<span class="c1"># uses the Python anonymous function (``lambda``) to do the same thing as ``dof``.</span>
+
+
+<span class="k">def</span> <span class="nf">dof</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">x</span>
+
+
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">figs</span></a></a> <span class="o">=</span> <a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.plot_betas" title="fitgrid.utils.summary.plot_betas" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.plot_betas" title="fitgrid.utils.summary.plot_betas" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">plot_betas</span></a></a><span class="p">(</span>
+    <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lmer_summaries</span></a></a><span class="p">,</span>
+    <span class="n">LHS</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;channel2&quot;</span><span class="p">],</span>
+    <span class="n">models</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;1+categorical+(continuous|categorical)&quot;</span><span class="p">],</span>
+    <span class="n">betas</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;(Intercept)&quot;</span><span class="p">],</span>
+    <span class="n">beta_plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ylim&quot;</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)},</span>
+    <span class="n">df_func</span><span class="o">=</span><span class="n">dof</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_summary_plots_002.png" srcset="../../_images/sphx_glr_summary_plots_002.png" alt="channel2 (Intercept): 1+categorical+(continuous|categorical)" class = "sphx-glr-single-img"/><p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>Hessian is numerically singular: parameters are not uniquely determined
+Model failed to converge: degenerate  Hessian with 1 negative eigenvalues
+Model failed to converge: degenerate  Hessian with 2 negative eigenvalues
+boundary (singular) fit: see ?isSingular
+unable to evaluate scaled gradient
+</pre></div>
+</div>
+</section>
+<section id="beta-plots-with-fdr-control">
+<span id="fdr-lmer-beta-plots"></span><h2>Beta plots with FDR control<a class="headerlink" href="#beta-plots-with-fdr-control" title="Permalink to this headline"></a></h2>
+<p>FDR controlled beta differences from zero can be plotted as well, though
+for LMER models, <em>p</em> values are somewhat controversial. For this toy
+data set with random data, none of the tests survive the FDR control
+procedure (see <a class="reference internal" href="beta_fdr.html#fdr-model-summaries"><span class="std std-ref">FDR control for model summaries</span></a> for an example with EEG data).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">figs</span></a></a> <span class="o">=</span> <a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.plot_betas" title="fitgrid.utils.summary.plot_betas" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.plot_betas" title="fitgrid.utils.summary.plot_betas" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">plot_betas</span></a></a><span class="p">(</span>
+    <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lmer_summaries</span></a></a><span class="p">,</span>
+    <span class="n">LHS</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;channel2&quot;</span><span class="p">],</span>
+    <span class="n">models</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;1+categorical+(continuous|categorical)&quot;</span><span class="p">],</span>
+    <span class="n">betas</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;(Intercept)&quot;</span><span class="p">],</span>
+    <span class="n">beta_plot_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ylim&quot;</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">)},</span>
+    <span class="n">fdr_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;BY&quot;</span><span class="p">},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_summary_plots_003.png" srcset="../../_images/sphx_glr_summary_plots_003.png" alt="Distribution of $p$-values" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_summary_plots_004.png" srcset="../../_images/sphx_glr_summary_plots_004.png" alt="channel2 (Intercept): 1+categorical+(continuous|categorical)" class = "sphx-glr-multi-img"/></li>
+</ul>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/fitgrid/fitgrid/fitgrid/utils/summary.py:919: UserWarning: FDR test family is for **ALL** models, betas, and channels in the summary dataframe not just those selected for plotting.
+  warnings.warn(fdr_msg)
+{&#39;betas&#39;: [&#39;(Intercept)&#39;, &#39;categoricalcat1&#39;, &#39;continuous&#39;],
+ &#39;channels&#39;: [&#39;channel0&#39;, &#39;channel1&#39;, &#39;channel2&#39;, &#39;channel3&#39;],
+ &#39;crit_p&#39;: 0.0,
+ &#39;method&#39;: &#39;BY&#39;,
+ &#39;models&#39;: [&#39;1+categorical+(continuous|categorical)&#39;,
+            &#39;1+continuous+(1|categorical)&#39;],
+ &#39;n_pvals&#39;: 128,
+ &#39;rate&#39;: 0.05}
+Hessian is numerically singular: parameters are not uniquely determined
+Model failed to converge: degenerate  Hessian with 1 negative eigenvalues
+Model failed to converge: degenerate  Hessian with 2 negative eigenvalues
+boundary (singular) fit: see ?isSingular
+unable to evaluate scaled gradient
+</pre></div>
+</div>
+</section>
+<section id="aic-delta-mathsf-min-with-model-warnings">
+<h2>AIC <span class="math notranslate nohighlight">\(\Delta_\mathsf{min}\)</span> with model warnings<a class="headerlink" href="#aic-delta-mathsf-min-with-model-warnings" title="Permalink to this headline"></a></h2>
+<p>For AIC <span class="math notranslate nohighlight">\(\Delta_\mathsf{min}\)</span> plots the default
+is to highlight all grid cells with warnings.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axs</span></a></a> <span class="o">=</span> <a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.plot_AICmin_deltas" title="fitgrid.utils.summary.plot_AICmin_deltas" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.plot_AICmin_deltas" title="fitgrid.utils.summary.plot_AICmin_deltas" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">plot_AICmin_deltas</span></a></a><span class="p">(</span>
+    <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lmer_summaries</span></a></a><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+<span class="p">)</span>
+<a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure.tight_layout" title="matplotlib.figure.Figure.tight_layout" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure.tight_layout" title="matplotlib.figure.Figure.tight_layout" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span></a></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_summary_plots_005.png" srcset="../../_images/sphx_glr_summary_plots_005.png" alt="1+categorical+(continuous|categorical), 1+continuous+(1|categorical)" class = "sphx-glr-single-img"/><p>Plot all warnings and display the warning types</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://matplotlib.org/api/_as_gen/matplotlib.pyplot.close.html#matplotlib.pyplot.close" title="matplotlib.pyplot.close" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><a href="https://matplotlib.org/api/_as_gen/matplotlib.pyplot.close.html#matplotlib.pyplot.close" title="matplotlib.pyplot.close" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">close</span></a></a><span class="p">(</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a></a> <span class="o">=</span> <a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.plot_AICmin_deltas" title="fitgrid.utils.summary.plot_AICmin_deltas" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.plot_AICmin_deltas" title="fitgrid.utils.summary.plot_AICmin_deltas" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">plot_AICmin_deltas</span></a></a><span class="p">(</span>
+    <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lmer_summaries</span></a></a><span class="p">,</span> <span class="n">show_warnings</span><span class="o">=</span><span class="s2">&quot;labels&quot;</span>
+<span class="p">)</span>
+<a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure.tight_layout" title="matplotlib.figure.Figure.tight_layout" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure.tight_layout" title="matplotlib.figure.Figure.tight_layout" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span></a></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_summary_plots_006.png" srcset="../../_images/sphx_glr_summary_plots_006.png" alt="1+categorical+(continuous|categorical) Hessian is numerically singular: parameters are not uniquely determined Model failed to converge: degenerate  Hessian with 1 negative eigenvalues Model failed to converge: degenerate  Hessian with 2 negative eigenvalues boundary (singular) fit: see ?isSingular unable to evaluate scaled gradient, 1+continuous+(1|categorical) boundary (singular) fit: see ?isSingular" class = "sphx-glr-single-img"/><p>Select specific warning types to plot</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://matplotlib.org/api/_as_gen/matplotlib.pyplot.close.html#matplotlib.pyplot.close" title="matplotlib.pyplot.close" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><a href="https://matplotlib.org/api/_as_gen/matplotlib.pyplot.close.html#matplotlib.pyplot.close" title="matplotlib.pyplot.close" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">close</span></a></a><span class="p">(</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a></a> <span class="o">=</span> <a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.plot_AICmin_deltas" title="fitgrid.utils.summary.plot_AICmin_deltas" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.plot_AICmin_deltas" title="fitgrid.utils.summary.plot_AICmin_deltas" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">plot_AICmin_deltas</span></a></a><span class="p">(</span>
+    <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lmer_summaries</span></a></a><span class="p">,</span> <span class="n">show_warnings</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;converge&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+<a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure.tight_layout" title="matplotlib.figure.Figure.tight_layout" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure.tight_layout" title="matplotlib.figure.Figure.tight_layout" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span></a></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_summary_plots_007.png" srcset="../../_images/sphx_glr_summary_plots_007.png" alt="1+categorical+(continuous|categorical) Model failed to converge: degenerate  Hessian with 1 negative eigenvalues Model failed to converge: degenerate  Hessian with 2 negative eigenvalues, 1+continuous+(1|categorical)" class = "sphx-glr-single-img"/><p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/fitgrid/fitgrid/fitgrid/utils/summary.py:1152: UserWarning: show_warnings &#39;converge&#39; not found in model 1+continuous+(1|categorical) warnings: [boundary (singular) fit: see ?isSingular]
+  warnings.warn(msg)
+</pre></div>
+</div>
+</section>
+<section id="ols-model-summaries-and-plots">
+<h2>OLS model summaries and plots<a class="headerlink" href="#ols-model-summaries-and-plots" title="Permalink to this headline"></a></h2>
+<p>Summaries of OLS models and models stacks are computed the same way as LMER models.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Compute OLS fit summaries for two models</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lm_rhs</span></a></a> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;1 + categorical&quot;</span><span class="p">,</span> <span class="s2">&quot;1 + continuous&quot;</span><span class="p">]</span>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lm_summaries</span></a></a> <span class="o">=</span> <a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.summarize" title="fitgrid.utils.summary.summarize" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.summarize" title="fitgrid.utils.summary.summarize" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">summarize</span></a></a><span class="p">(</span>
+    <a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">epochs_fg</span></a></a><span class="p">,</span>
+    <span class="s2">&quot;lm&quot;</span><span class="p">,</span>
+    <span class="n">LHS</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">channels</span></a></a><span class="p">,</span>
+    <span class="n">RHS</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lm_rhs</span></a></a><span class="p">,</span>
+    <span class="n">parallel</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lm_summaries</span></a></a>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/fitgrid/fitgrid/fitgrid/utils/summary.py:145: FutureWarning: fitgrid summaries are in early days, subject to change
+  warnings.warn(
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th>channel0</th>
+      <th>channel1</th>
+      <th>channel2</th>
+      <th>channel3</th>
+    </tr>
+    <tr>
+      <th>time</th>
+      <th>model</th>
+      <th>beta</th>
+      <th>key</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="5" valign="top">0</th>
+      <th rowspan="5" valign="top">1 + categorical</th>
+      <th rowspan="5" valign="top">Intercept</th>
+      <th>2.5_ci</th>
+      <td>3.52577</td>
+      <td>-30.8758</td>
+      <td>-24.2361</td>
+      <td>-23.9167</td>
+    </tr>
+    <tr>
+      <th>97.5_ci</th>
+      <td>43.3786</td>
+      <td>5.90747</td>
+      <td>17.0168</td>
+      <td>17.2601</td>
+    </tr>
+    <tr>
+      <th>AIC</th>
+      <td>194.689</td>
+      <td>191.483</td>
+      <td>196.07</td>
+      <td>195.996</td>
+    </tr>
+    <tr>
+      <th>DF</th>
+      <td>18</td>
+      <td>18</td>
+      <td>18</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <th>Estimate</th>
+      <td>23.4522</td>
+      <td>-12.4842</td>
+      <td>-3.60964</td>
+      <td>-3.32834</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th rowspan="5" valign="top">7</th>
+      <th rowspan="5" valign="top">1 + continuous</th>
+      <th rowspan="5" valign="top">continuous</th>
+      <th>T-stat</th>
+      <td>0.3572</td>
+      <td>2.33128</td>
+      <td>-0.623563</td>
+      <td>1.13765</td>
+    </tr>
+    <tr>
+      <th>has_warning</th>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>logLike</th>
+      <td>-96.4655</td>
+      <td>-92.751</td>
+      <td>-91.9247</td>
+      <td>-94.2584</td>
+    </tr>
+    <tr>
+      <th>sigma2</th>
+      <td>1006.29</td>
+      <td>694.077</td>
+      <td>639.033</td>
+      <td>807.003</td>
+    </tr>
+    <tr>
+      <th>warnings</th>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+<p>416 rows × 4 columns</p>
+</div>
+</div>
+<br />
+<br /><p>Since summary data frames are indexed alike for LMER and OLS, the same
+beta and AIC <span class="math notranslate nohighlight">\(\Delta_\mathsf{min}\)</span> plotting are used and work
+the same way.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://matplotlib.org/api/_as_gen/matplotlib.pyplot.close.html#matplotlib.pyplot.close" title="matplotlib.pyplot.close" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><a href="https://matplotlib.org/api/_as_gen/matplotlib.pyplot.close.html#matplotlib.pyplot.close" title="matplotlib.pyplot.close" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">close</span></a></a><span class="p">(</span><span class="s1">&#39;all&#39;</span><span class="p">)</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">figs</span></a></a> <span class="o">=</span> <a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.plot_betas" title="fitgrid.utils.summary.plot_betas" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.plot_betas" title="fitgrid.utils.summary.plot_betas" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">plot_betas</span></a></a><span class="p">(</span>
+    <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lm_summaries</span></a></a><span class="p">,</span>
+    <span class="n">LHS</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;channel0&quot;</span><span class="p">,</span> <span class="s2">&quot;channel1&quot;</span><span class="p">],</span>
+    <span class="n">models</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;1 + categorical&quot;</span><span class="p">],</span>
+    <span class="n">betas</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">],</span>
+    <span class="n">beta_plot_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ylim&quot;</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mi">25</span><span class="p">,</span> <span class="mi">25</span><span class="p">)},</span>
+    <span class="n">interval</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_summary_plots_008.png" srcset="../../_images/sphx_glr_summary_plots_008.png" alt="channel0 Intercept: 1 + categorical" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_summary_plots_009.png" srcset="../../_images/sphx_glr_summary_plots_009.png" alt="channel1 Intercept: 1 + categorical" class = "sphx-glr-multi-img"/></li>
+</ul>
+<p>AIC <span class="math notranslate nohighlight">\(\Delta_\mathsf{min}\)</span></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://matplotlib.org/api/_as_gen/matplotlib.pyplot.close.html#matplotlib.pyplot.close" title="matplotlib.pyplot.close" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><a href="https://matplotlib.org/api/_as_gen/matplotlib.pyplot.close.html#matplotlib.pyplot.close" title="matplotlib.pyplot.close" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">close</span></a></a><span class="p">(</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax</span></a></a> <span class="o">=</span> <a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.plot_AICmin_deltas" title="fitgrid.utils.summary.plot_AICmin_deltas" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.plot_AICmin_deltas" title="fitgrid.utils.summary.plot_AICmin_deltas" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">plot_AICmin_deltas</span></a></a><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lm_summaries</span></a></a><span class="p">)</span>
+<a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure.tight_layout" title="matplotlib.figure.Figure.tight_layout" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure.tight_layout" title="matplotlib.figure.Figure.tight_layout" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span></a></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_summary_plots_010.png" srcset="../../_images/sphx_glr_summary_plots_010.png" alt="1 + categorical, 1 + continuous" class = "sphx-glr-single-img"/></section>
+<section id="customizing-figrid-summary-plots">
+<h2>Customizing figrid summary plots<a class="headerlink" href="#customizing-figrid-summary-plots" title="Permalink to this headline"></a></h2>
+<p>Some matplotlib options can be passed through.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://matplotlib.org/api/_as_gen/matplotlib.pyplot.close.html#matplotlib.pyplot.close" title="matplotlib.pyplot.close" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><a href="https://matplotlib.org/api/_as_gen/matplotlib.pyplot.close.html#matplotlib.pyplot.close" title="matplotlib.pyplot.close" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">close</span></a></a><span class="p">(</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">figs</span></a></a> <span class="o">=</span> <a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.plot_betas" title="fitgrid.utils.summary.plot_betas" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.plot_betas" title="fitgrid.utils.summary.plot_betas" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">plot_betas</span></a></a><span class="p">(</span>
+    <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lm_summaries</span></a></a><span class="p">,</span>
+    <span class="n">LHS</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;channel0&quot;</span><span class="p">,</span> <span class="s2">&quot;channel1&quot;</span><span class="p">],</span>
+    <span class="n">models</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;1 + categorical&quot;</span><span class="p">],</span>
+    <span class="n">betas</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Intercept&quot;</span><span class="p">],</span>
+    <span class="n">beta_plot_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;ylabel&quot;</span><span class="p">:</span> <span class="s2">&quot;$\mu$V / unit change&quot;</span><span class="p">,</span> <span class="s2">&quot;ylim&quot;</span><span class="p">:</span> <span class="p">(</span><span class="o">-</span><span class="mi">25</span><span class="p">,</span> <span class="mi">25</span><span class="p">)},</span>
+    <span class="n">interval</span><span class="o">=</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">6</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_summary_plots_011.png" srcset="../../_images/sphx_glr_summary_plots_011.png" alt="channel0 Intercept: 1 + categorical" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_summary_plots_012.png" srcset="../../_images/sphx_glr_summary_plots_012.png" alt="channel1 Intercept: 1 + categorical" class = "sphx-glr-multi-img"/></li>
+</ul>
+<p>The matplotlib.Figure and matplotlib.Axes are returned so they can be customized.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://matplotlib.org/api/_as_gen/matplotlib.pyplot.close.html#matplotlib.pyplot.close" title="matplotlib.pyplot.close" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><a href="https://matplotlib.org/api/_as_gen/matplotlib.pyplot.close.html#matplotlib.pyplot.close" title="matplotlib.pyplot.close" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">close</span></a></a><span class="p">(</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axs</span></a></a> <span class="o">=</span> <a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.plot_AICmin_deltas" title="fitgrid.utils.summary.plot_AICmin_deltas" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.plot_AICmin_deltas" title="fitgrid.utils.summary.plot_AICmin_deltas" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">plot_AICmin_deltas</span></a></a><span class="p">(</span>
+    <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lm_summaries</span></a></a><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
+    <span class="n">gridspec_kw</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;width_ratios&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]},</span>  <span class="c1"># column widths</span>
+<span class="p">)</span>
+
+<span class="c1"># matplotlib.Axes tuning ... the axs are a numpy.array, 2 rows of 3 columns</span>
+<span class="k">for</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax_row</span></a></a> <span class="ow">in</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axs</span></a></a><span class="p">:</span>
+    <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax_row</span></a></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span>
+    <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax_row</span></a></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">10</span><span class="p">])</span>
+    <span class="k">for</span> <a href="https://matplotlib.org/api/_as_gen/matplotlib.lines.Line2D.html#matplotlib.lines.Line2D" title="matplotlib.lines.Line2D" class="sphx-glr-backref-module-matplotlib-lines sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://matplotlib.org/api/_as_gen/matplotlib.lines.Line2D.html#matplotlib.lines.Line2D" title="matplotlib.lines.Line2D" class="sphx-glr-backref-module-matplotlib-lines sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">line</span></a></a> <span class="ow">in</span> <span class="p">[</span><span class="n">hl</span> <span class="k">for</span> <span class="n">hl</span> <span class="ow">in</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax_row</span></a></a><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_lines</span><span class="p">()]:</span>
+        <span class="k">if</span> <span class="s2">&quot;channel&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <a href="https://matplotlib.org/api/_as_gen/matplotlib.artist.Artist.get_label.html#matplotlib.artist.Artist.get_label" title="matplotlib.artist.Artist.get_label" class="sphx-glr-backref-module-matplotlib-artist sphx-glr-backref-type-py-method"><a href="https://matplotlib.org/api/_as_gen/matplotlib.artist.Artist.get_label.html#matplotlib.artist.Artist.get_label" title="matplotlib.artist.Artist.get_label" class="sphx-glr-backref-module-matplotlib-artist sphx-glr-backref-type-py-method"><span class="n">line</span><span class="o">.</span><span class="n">get_label</span></a></a><span class="p">():</span>
+            <a href="https://matplotlib.org/api/_as_gen/matplotlib.lines.Line2D.html#matplotlib.lines.Line2D.set" title="matplotlib.lines.Line2D.set" class="sphx-glr-backref-module-matplotlib-lines sphx-glr-backref-type-py-method"><a href="https://matplotlib.org/api/_as_gen/matplotlib.lines.Line2D.html#matplotlib.lines.Line2D.set" title="matplotlib.lines.Line2D.set" class="sphx-glr-backref-module-matplotlib-lines sphx-glr-backref-type-py-method"><span class="n">line</span><span class="o">.</span><span class="n">set</span></a></a><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="n">zorder</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <a href="https://matplotlib.org/api/_as_gen/matplotlib.lines.Line2D.html#matplotlib.lines.Line2D.set" title="matplotlib.lines.Line2D.set" class="sphx-glr-backref-module-matplotlib-lines sphx-glr-backref-type-py-method"><a href="https://matplotlib.org/api/_as_gen/matplotlib.lines.Line2D.html#matplotlib.lines.Line2D.set" title="matplotlib.lines.Line2D.set" class="sphx-glr-backref-module-matplotlib-lines sphx-glr-backref-type-py-method"><span class="n">line</span><span class="o">.</span><span class="n">set</span></a></a><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+<span class="c1"># text annotation</span>
+<a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axs</span></a></a><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span>
+    <span class="n">text</span><span class="o">=</span><span class="p">(</span>
+        <span class="s2">&quot;For these $\mathcal</span><span class="si">{N}</span><span class="s2">(0, 1)$ random data,</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;$\Delta_{\mathsf</span><span class="si">{min}</span><span class="s2">}$ &gt; 4 like this is rare.&quot;</span>
+    <span class="p">),</span>
+    <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">),</span>
+    <span class="n">xytext</span><span class="o">=</span><span class="p">(</span><span class="mf">1.75</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">),</span>
+    <span class="n">arrowprops</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span>
+<span class="p">)</span>
+<a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure.tight_layout" title="matplotlib.figure.Figure.tight_layout" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure.tight_layout" title="matplotlib.figure.Figure.tight_layout" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span></a></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_summary_plots_013.png" srcset="../../_images/sphx_glr_summary_plots_013.png" alt="1 + categorical, 1 + continuous" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  18.951 seconds)</p>
+<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-gallery-3-model-evaluation-summary-plots-py">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/3bdaf713c751e9b2380c1b167089e1f9/summary_plots.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">summary_plots.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/c5124a3dfc34107e62b33ea5a6169577/summary_plots.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">summary_plots.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="p3_model_comps.html" class="btn btn-neutral float-left" title="AIC and likelihood ratio model comparison" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../api.html" class="btn btn-neutral float-right" title="API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Model summary dataframes &mdash; fitgrid  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-rendered-html.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Time domain averaging: Atmospheric tides" href="atmospheric_tides.html" />
+    <link rel="prev" title="Ordinary least squares and linear mixed-effects: minimal examples" href="lm_lmer_minimal.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> fitgrid
+          </a>
+              <div class="version">
+                0.5.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about_fitgrid.html">About <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gallery.html">Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">fitgrid</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../gallery.html">Examples Gallery</a> &raquo;</li>
+          <li><a href="index.html">Model fitting</a> &raquo;</li>
+      <li>Model summary dataframes</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-auto-gallery-2-model-fitting-model-summaries-py"><span class="std std-ref">here</span></a>
+to download the full example code</p>
+</div>
+<section class="sphx-glr-example-title" id="model-summary-dataframes">
+<span id="sphx-glr-auto-gallery-2-model-fitting-model-summaries-py"></span><h1>Model summary dataframes<a class="headerlink" href="#model-summary-dataframes" title="Permalink to this headline"></a></h1>
+<p>Whereas <code class="docutils literal notranslate"><span class="pre">fitgrid.lm()</span></code> and <code class="docutils literal notranslate"><span class="pre">fitgrid.lmer()</span></code> return all the
+available fit information as LMFitGrid or LMERFitGrid object,
+respectively, the <code class="docutils literal notranslate"><span class="pre">fitgrid.utils.summary.summarize()</span></code> function
+gathers a useful subset into a tidy indexed pandas.Dataframe.</p>
+<p>The summary dataframe row and column indexing is standardized, so
+summaries for different models and model sets can be conveniently
+split and stacked with ordinary pandas index slicing and dataframe
+concatenation.</p>
+<p>A list of model formulas can be summarized, in
+which case their summaries are stacked and returned in a single
+dataframe.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">fitgrid</span>
+
+<span class="c1"># a small random data set for illustration</span>
+<a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">epochs_fg</span></a></a> <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">n_channels</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Fit the OLS model … get an LMFitGrid object</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fitgrid</span><span class="o">.</span><span class="n">lm</span><span class="p">(</span><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">epochs_fg</span></a></a><span class="p">,</span> <span class="n">LHS</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">epochs_fg</span><span class="o">.</span><span class="n">channels</span></a></a><span class="p">,</span> <span class="n">RHS</span><span class="o">=</span><span class="s2">&quot;1 + continuous&quot;</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>8 by 4 LMFitGrid of type &lt;class &#39;statsmodels.regression.linear_model.RegressionResultsWrapper&#39;&gt;.
+</pre></div>
+</div>
+<p>Summarize the OLS model … get a pandas.DataFrame</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.summarize" title="fitgrid.utils.summary.summarize" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.summarize" title="fitgrid.utils.summary.summarize" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">summarize</span></a></a><span class="p">(</span>
+    <a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">epochs_fg</span></a></a><span class="p">,</span>
+    <span class="n">modeler</span><span class="o">=</span><span class="s2">&quot;lm&quot;</span><span class="p">,</span>
+    <span class="n">LHS</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">epochs_fg</span><span class="o">.</span><span class="n">channels</span></a></a><span class="p">,</span>
+    <span class="n">RHS</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;1 + continuous&quot;</span><span class="p">],</span>
+    <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/fitgrid/fitgrid/fitgrid/utils/summary.py:145: FutureWarning: fitgrid summaries are in early days, subject to change
+  warnings.warn(
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th>channel0</th>
+      <th>channel1</th>
+      <th>channel2</th>
+      <th>channel3</th>
+    </tr>
+    <tr>
+      <th>time</th>
+      <th>model</th>
+      <th>beta</th>
+      <th>key</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="5" valign="top">0</th>
+      <th rowspan="5" valign="top">1 + continuous</th>
+      <th rowspan="5" valign="top">Intercept</th>
+      <th>2.5_ci</th>
+      <td>0.554591</td>
+      <td>-52.1068</td>
+      <td>-57.3034</td>
+      <td>-28.1206</td>
+    </tr>
+    <tr>
+      <th>97.5_ci</th>
+      <td>64.6939</td>
+      <td>7.34688</td>
+      <td>8.86844</td>
+      <td>39.8572</td>
+    </tr>
+    <tr>
+      <th>AIC</th>
+      <td>194.34</td>
+      <td>191.305</td>
+      <td>195.588</td>
+      <td>196.665</td>
+    </tr>
+    <tr>
+      <th>DF</th>
+      <td>18</td>
+      <td>18</td>
+      <td>18</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <th>Estimate</th>
+      <td>32.6242</td>
+      <td>-22.3799</td>
+      <td>-24.2175</td>
+      <td>5.86833</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th rowspan="5" valign="top">7</th>
+      <th rowspan="5" valign="top">1 + continuous</th>
+      <th rowspan="5" valign="top">continuous</th>
+      <th>T-stat</th>
+      <td>0.3572</td>
+      <td>2.33128</td>
+      <td>-0.623563</td>
+      <td>1.13765</td>
+    </tr>
+    <tr>
+      <th>has_warning</th>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>logLike</th>
+      <td>-96.4655</td>
+      <td>-92.751</td>
+      <td>-91.9247</td>
+      <td>-94.2584</td>
+    </tr>
+    <tr>
+      <th>sigma2</th>
+      <td>1006.29</td>
+      <td>694.077</td>
+      <td>639.033</td>
+      <td>807.003</td>
+    </tr>
+    <tr>
+      <th>warnings</th>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+<p>208 rows × 4 columns</p>
+</div>
+</div>
+<br />
+<br /><p>Summarize a <strong>stack</strong> of OLS models … get a pandas.DataFrame with at <strong>stack</strong> of summaries</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.summarize" title="fitgrid.utils.summary.summarize" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.summarize" title="fitgrid.utils.summary.summarize" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">summarize</span></a></a><span class="p">(</span>
+    <a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">epochs_fg</span></a></a><span class="p">,</span>
+    <span class="n">modeler</span><span class="o">=</span><span class="s2">&quot;lm&quot;</span><span class="p">,</span>
+    <span class="n">LHS</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">epochs_fg</span><span class="o">.</span><span class="n">channels</span></a></a><span class="p">,</span>
+    <span class="n">RHS</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;1 + continuous&quot;</span><span class="p">,</span> <span class="s2">&quot;1 + categorical&quot;</span><span class="p">],</span>
+    <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/fitgrid/fitgrid/fitgrid/utils/summary.py:145: FutureWarning: fitgrid summaries are in early days, subject to change
+  warnings.warn(
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th>channel0</th>
+      <th>channel1</th>
+      <th>channel2</th>
+      <th>channel3</th>
+    </tr>
+    <tr>
+      <th>time</th>
+      <th>model</th>
+      <th>beta</th>
+      <th>key</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="5" valign="top">0</th>
+      <th rowspan="5" valign="top">1 + continuous</th>
+      <th rowspan="5" valign="top">Intercept</th>
+      <th>2.5_ci</th>
+      <td>0.554591</td>
+      <td>-52.1068</td>
+      <td>-57.3034</td>
+      <td>-28.1206</td>
+    </tr>
+    <tr>
+      <th>97.5_ci</th>
+      <td>64.6939</td>
+      <td>7.34688</td>
+      <td>8.86844</td>
+      <td>39.8572</td>
+    </tr>
+    <tr>
+      <th>AIC</th>
+      <td>194.34</td>
+      <td>191.305</td>
+      <td>195.588</td>
+      <td>196.665</td>
+    </tr>
+    <tr>
+      <th>DF</th>
+      <td>18</td>
+      <td>18</td>
+      <td>18</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <th>Estimate</th>
+      <td>32.6242</td>
+      <td>-22.3799</td>
+      <td>-24.2175</td>
+      <td>5.86833</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th rowspan="5" valign="top">7</th>
+      <th rowspan="5" valign="top">1 + categorical</th>
+      <th rowspan="5" valign="top">categorical[T.cat1]</th>
+      <th>T-stat</th>
+      <td>-0.582962</td>
+      <td>0.837649</td>
+      <td>0.793966</td>
+      <td>-0.879485</td>
+    </tr>
+    <tr>
+      <th>has_warning</th>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>logLike</th>
+      <td>-96.3491</td>
+      <td>-95.0071</td>
+      <td>-91.7942</td>
+      <td>-94.532</td>
+    </tr>
+    <tr>
+      <th>sigma2</th>
+      <td>994.648</td>
+      <td>869.742</td>
+      <td>630.748</td>
+      <td>829.388</td>
+    </tr>
+    <tr>
+      <th>warnings</th>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+<p>416 rows × 4 columns</p>
+</div>
+</div>
+<br />
+<br /><p>Same goes for LMER models and model stacks …</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.summarize" title="fitgrid.utils.summary.summarize" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.summarize" title="fitgrid.utils.summary.summarize" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">summarize</span></a></a><span class="p">(</span>
+    <a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">epochs_fg</span></a></a><span class="p">,</span>
+    <span class="n">modeler</span><span class="o">=</span><span class="s2">&quot;lmer&quot;</span><span class="p">,</span>
+    <span class="n">LHS</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">epochs_fg</span><span class="o">.</span><span class="n">channels</span></a></a><span class="p">,</span>
+    <span class="n">RHS</span><span class="o">=</span><span class="p">[</span>
+        <span class="s2">&quot;1 + categorical + (continuous | categorical)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;1 + continuous + (1 | categorical)&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">n_cores</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/fitgrid/fitgrid/fitgrid/utils/summary.py:145: FutureWarning: fitgrid summaries are in early days, subject to change
+  warnings.warn(
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th>channel0</th>
+      <th>channel1</th>
+      <th>channel2</th>
+      <th>channel3</th>
+    </tr>
+    <tr>
+      <th>time</th>
+      <th>model</th>
+      <th>beta</th>
+      <th>key</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="5" valign="top">0</th>
+      <th rowspan="5" valign="top">1+categorical+(continuous|categorical)</th>
+      <th rowspan="5" valign="top">(Intercept)</th>
+      <th>2.5_ci</th>
+      <td>-45.4987</td>
+      <td>-73.282</td>
+      <td>-67.2839</td>
+      <td>-67.0309</td>
+    </tr>
+    <tr>
+      <th>97.5_ci</th>
+      <td>71.93</td>
+      <td>48.3137</td>
+      <td>66.708</td>
+      <td>60.3743</td>
+    </tr>
+    <tr>
+      <th>AIC</th>
+      <td>175.463</td>
+      <td>175.236</td>
+      <td>178.733</td>
+      <td>179.298</td>
+    </tr>
+    <tr>
+      <th>DF</th>
+      <td>17.4766</td>
+      <td>0.68599</td>
+      <td>15.1721</td>
+      <td>0.954404</td>
+    </tr>
+    <tr>
+      <th>Estimate</th>
+      <td>13.2157</td>
+      <td>-12.4842</td>
+      <td>-0.287962</td>
+      <td>-3.32834</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th rowspan="5" valign="top">7</th>
+      <th rowspan="5" valign="top">1+continuous+(1|categorical)</th>
+      <th rowspan="5" valign="top">continuous</th>
+      <th>T-stat</th>
+      <td>0.3572</td>
+      <td>2.33128</td>
+      <td>-0.623563</td>
+      <td>1.16732</td>
+    </tr>
+    <tr>
+      <th>has_warning</th>
+      <td>True</td>
+      <td>True</td>
+      <td>True</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>logLike</th>
+      <td>-89.4837</td>
+      <td>-86.1406</td>
+      <td>-85.397</td>
+      <td>-87.4905</td>
+    </tr>
+    <tr>
+      <th>sigma2</th>
+      <td>1006.29</td>
+      <td>694.077</td>
+      <td>639.033</td>
+      <td>798.97</td>
+    </tr>
+    <tr>
+      <th>warnings</th>
+      <td>boundary (singular) fit: see ?isSingular</td>
+      <td>boundary (singular) fit: see ?isSingular</td>
+      <td>boundary (singular) fit: see ?isSingular</td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+<p>416 rows × 4 columns</p>
+</div>
+</div>
+<br />
+<br /><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  11.800 seconds)</p>
+<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-gallery-2-model-fitting-model-summaries-py">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/8152e8cb1b77185950919bb51dc49b86/model_summaries.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">model_summaries.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/8768d6fac4c12e3ad1ec1b2c00362067/model_summaries.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">model_summaries.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="lm_lmer_minimal.html" class="btn btn-neutral float-left" title="Ordinary least squares and linear mixed-effects: minimal examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="atmospheric_tides.html" class="btn btn-neutral float-right" title="Time domain averaging: Atmospheric tides" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

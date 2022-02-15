@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Simulated epochs data &mdash; fitgrid  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-rendered-html.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="EEG sample epochs" href="p3_sample_epochs.html" />
+    <link rel="prev" title="Epochs data" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> fitgrid
+          </a>
+              <div class="version">
+                0.5.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about_fitgrid.html">About <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gallery.html">Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">fitgrid</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../gallery.html">Examples Gallery</a> &raquo;</li>
+          <li><a href="index.html">Epochs data</a> &raquo;</li>
+      <li>Simulated epochs data</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-auto-gallery-1-epochs-data-fg-generated-epochs-py"><span class="std std-ref">here</span></a>
+to download the full example code</p>
+</div>
+<section class="sphx-glr-example-title" id="simulated-epochs-data">
+<span id="sphx-glr-auto-gallery-1-epochs-data-fg-generated-epochs-py"></span><h1>Simulated epochs data<a class="headerlink" href="#simulated-epochs-data" title="Permalink to this headline"></a></h1>
+<p>Use <a class="reference internal" href="../../api_docs/fitgrid.fake_data.html#fitgrid.fake_data.generate" title="fitgrid.fake_data.generate"><code class="xref py py-func docutils literal notranslate"><span class="pre">fitgrid.generate</span></code></a> to quickly
+generate small or large random data sets with categorical and random
+continuous predictor variables. The random values can be seeded for
+replicability.</p>
+<p>The data can be returned in <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> <a class="reference internal" href="../../api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs"><code class="xref py py-class docutils literal notranslate"><span class="pre">Epochs</span></code></a> format for immediate modeling or as a
+<a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.4.1)"><code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code></a>. The latter is useful for mocking up the
+conversion from a dataframe to fitgrid.Epochs when developing an
+analysis pipeline.</p>
+<p>Small data sets are useful for trying out features and
+functions. Larger sets are useful for testing system performance and
+limitations.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">fitgrid</span>
+</pre></div>
+</div>
+<p>Small random data set as fitgrid.Epochs</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fitgrid</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">n_channels</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">32</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>&lt;fitgrid.epochs.Epochs object at 0x7f4bf51a7eb0&gt;
+</pre></div>
+</div>
+<p>The same data as a pandas.DataFrame</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fitgrid</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span><span class="n">n_samples</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">n_channels</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s2">&quot;dataframe&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>epoch_id</th>
+      <th>time</th>
+      <th>categorical</th>
+      <th>continuous</th>
+      <th>channel0</th>
+      <th>channel1</th>
+      <th>channel2</th>
+      <th>channel3</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>0</td>
+      <td>cat0</td>
+      <td>0.858889</td>
+      <td>43.475142</td>
+      <td>-5.176046</td>
+      <td>-30.477447</td>
+      <td>6.407577</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0</td>
+      <td>1</td>
+      <td>cat0</td>
+      <td>0.372711</td>
+      <td>-30.204601</td>
+      <td>10.380524</td>
+      <td>-24.299167</td>
+      <td>-41.349312</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0</td>
+      <td>2</td>
+      <td>cat0</td>
+      <td>0.555129</td>
+      <td>37.757038</td>
+      <td>6.190869</td>
+      <td>3.025954</td>
+      <td>40.897177</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0</td>
+      <td>3</td>
+      <td>cat0</td>
+      <td>0.955657</td>
+      <td>15.874407</td>
+      <td>14.819547</td>
+      <td>36.902390</td>
+      <td>68.487095</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0</td>
+      <td>4</td>
+      <td>cat0</td>
+      <td>0.736670</td>
+      <td>-15.427042</td>
+      <td>32.314754</td>
+      <td>9.701035</td>
+      <td>-35.299150</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>155</th>
+      <td>19</td>
+      <td>3</td>
+      <td>cat1</td>
+      <td>0.213619</td>
+      <td>-27.412434</td>
+      <td>-26.668317</td>
+      <td>24.662472</td>
+      <td>16.017164</td>
+    </tr>
+    <tr>
+      <th>156</th>
+      <td>19</td>
+      <td>4</td>
+      <td>cat1</td>
+      <td>0.467320</td>
+      <td>22.395003</td>
+      <td>-0.198398</td>
+      <td>-35.641279</td>
+      <td>15.776159</td>
+    </tr>
+    <tr>
+      <th>157</th>
+      <td>19</td>
+      <td>5</td>
+      <td>cat1</td>
+      <td>0.808112</td>
+      <td>14.750858</td>
+      <td>30.162813</td>
+      <td>40.701753</td>
+      <td>7.671025</td>
+    </tr>
+    <tr>
+      <th>158</th>
+      <td>19</td>
+      <td>6</td>
+      <td>cat1</td>
+      <td>0.601196</td>
+      <td>-38.540116</td>
+      <td>63.694680</td>
+      <td>14.552887</td>
+      <td>8.973484</td>
+    </tr>
+    <tr>
+      <th>159</th>
+      <td>19</td>
+      <td>7</td>
+      <td>cat1</td>
+      <td>0.413561</td>
+      <td>-25.620330</td>
+      <td>38.373017</td>
+      <td>11.135731</td>
+      <td>-16.534360</td>
+    </tr>
+  </tbody>
+</table>
+<p>160 rows × 8 columns</p>
+</div>
+</div>
+<br />
+<br /><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  0.027 seconds)</p>
+<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-gallery-1-epochs-data-fg-generated-epochs-py">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/bd6fc4825c5fa7ba919e3935b5870fe8/fg_generated_epochs.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">fg_generated_epochs.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/906249283347e1b2d5285f484cc80bf3/fg_generated_epochs.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">fg_generated_epochs.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Epochs data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="p3_sample_epochs.html" class="btn btn-neutral float-right" title="EEG sample epochs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

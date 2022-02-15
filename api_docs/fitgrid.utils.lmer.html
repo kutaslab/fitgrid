@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fitgrid.utils.lmer module &mdash; fitgrid  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sg_gallery.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sg_gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sg_gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sg_gallery-rendered-html.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> fitgrid
+          </a>
+              <div class="version">
+                0.5.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../about_fitgrid.html">About <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_gallery/quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gallery.html">Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">fitgrid</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>fitgrid.utils.lmer module</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-fitgrid.utils.lmer">
+<span id="fitgrid-utils-lmer-module"></span><h1>fitgrid.utils.lmer module<a class="headerlink" href="#module-fitgrid.utils.lmer" title="Permalink to this headline"></a></h1>
+<p>User functions to streamline working with selected pymer4 LMER fit
+attributes from lme4::lmer and lmerTest for <code class="docutils literal notranslate"><span class="pre">fitgrid.lmer</span></code> grids.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="fitgrid.utils.lmer.get_lmer_dfbetas">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.utils.lmer.</span></span><span class="sig-name descname"><span class="pre">get_lmer_dfbetas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factor</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/utils/lmer.html#get_lmer_dfbetas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.utils.lmer.get_lmer_dfbetas" title="Permalink to this definition"></a></dt>
+<dd><p>Fit lmers leaving out factor levels one by one, compute DBETAS.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>epochs</strong> (<em>Epochs</em>) – Epochs object</p></li>
+<li><p><strong>factor</strong> (<em>str</em>) – column name of the factor of interest</p></li>
+<li><p><strong>**kwargs</strong> – keyword arguments to pass on to <code class="docutils literal notranslate"><span class="pre">fitgrid.lmer</span></code>, like <code class="docutils literal notranslate"><span class="pre">RHS</span></code></p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>dfbetas</strong> – dataframe containing DFBETAS values</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.4.1)">pandas.DataFrame</a></p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>Example calculation showing how to pass in model fitting parameters:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dfbetas</span> <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">lmer</span><span class="o">.</span><span class="n">get_lmer_dfbetas</span><span class="p">(</span>
+    <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
+    <span class="n">factor</span><span class="o">=</span><span class="s1">&#39;subject_id&#39;</span><span class="p">,</span>
+    <span class="n">RHS</span><span class="o">=</span><span class="s1">&#39;x + (x|a)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<p>DFBETAS is computed according to the following formula <a class="reference internal" href="../bibliography.html#niegropel2012" id="id1"><span>[NieGroPel2012]</span></a>:</p>
+<div class="math notranslate nohighlight">
+\[DFBETAS_{ij} = \frac{\hat{\gamma}_i - \hat{\gamma}_{i(-j)}}{se\left(\hat{\gamma}_{i(-j)}\right)}\]</div>
+<p>for parameter <span class="math notranslate nohighlight">\(i\)</span> and level <span class="math notranslate nohighlight">\(j\)</span> of <code class="docutils literal notranslate"><span class="pre">factor</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fitgrid.utils.lmer.get_lmer_warnings">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.utils.lmer.</span></span><span class="sig-name descname"><span class="pre">get_lmer_warnings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lmer_grid</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/utils/lmer.html#get_lmer_warnings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.utils.lmer.get_lmer_warnings" title="Permalink to this definition"></a></dt>
+<dd><p>grid the LMERFitGrid lme4::lmer4 warnings by type</p>
+<p>lmer warnings are a mishmash of characters, punctuation, and digits, some with
+numerical values specific to the message, for instance,</p>
+<blockquote>
+<div><div class="line-block">
+<div class="line">Model failed to converge with max|grad| = 0.00222262 (tol = 0.002, component 1)</div>
+<div class="line">unable to evaluate scaled gradient</div>
+<div class="line">boundary (singular) fit: see ?isSingular</div>
+<div class="line">np.nan</div>
+</div>
+</div></blockquote>
+<p>The warning strings are returned as-is except for stripping
+leading and trailing whitespace and the “= N.NNNNNNNN” portion of the
+max |grad| convergence failure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>lmer_grid</strong> (<em>fitgrid.LMERFitGrid</em>) – as returned by <code class="docutils literal notranslate"><span class="pre">fitgrid.lmer()</span></code>, shape = time x channel</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>warning_grids</strong> – A dictionary, the keys are lmer warning strings, each value
+is a <cite>pandas.DataFrame</cite> indicator grid where grid.loc[time, channel] == 1 if the
+lmer warning == key, otherwise 0.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fitgrid.utils.lmer.plot_lmer_warnings">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.utils.lmer.</span></span><span class="sig-name descname"><span class="pre">plot_lmer_warnings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lmer_grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">which</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'each'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/utils/lmer.html#plot_lmer_warnings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.utils.lmer.plot_lmer_warnings" title="Permalink to this definition"></a></dt>
+<dd><p>Raster plot lme4::lmer warning grids</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lmer_grid</strong> (<em>fitgrid.LMERFitGrid</em>) – as returned by <code class="docutils literal notranslate"><span class="pre">fitgrid.lmer()</span></code>, shape = time x channel</p></li>
+<li><p><strong>which</strong> (<em>{“each”, “all”, or list of str}</em>) – select the types of warnings to plot. <cite>each</cite> (default) plots
+each type of warning separately. <cite>all</cite> plots one grid showing
+where any type of warning occurred. A list of strings searches
+the lmer warnings and plots those that match.</p></li>
+<li><p><strong>verbose</strong> (<em>bool, default=True</em>) – If <cite>True</cite> warn of failed matches for warnings keywords.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>default, plot each warning grid separately</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">plot_lmer_warnings</span><span class="p">(</span><span class="n">lmer_grid</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>one plot shows everywhere there is a warning</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">plot_lmer_warnings</span><span class="p">(</span><span class="n">lmer_grid</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>plot just warnings that match these strings</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">plot_lmer_warnings</span><span class="p">(</span><span class="n">lmer_grid</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;converge&quot;</span><span class="p">,</span> <span class="s2">&quot;singular&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fitgrid.io &mdash; fitgrid  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-rendered-html.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> fitgrid
+          </a>
+              <div class="version">
+                0.5.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about_fitgrid.html">About <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../auto_gallery/quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gallery.html">Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">fitgrid</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>fitgrid.io</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for fitgrid.io</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;User utilities for reading fitgrid ``Epochs`` data files and previously</span>
+<span class="sd">saved fitted grids.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">from</span> <span class="nn">statsmodels.regression.linear_model</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">RegressionResults</span><span class="p">,</span>
+    <span class="n">RegressionResultsWrapper</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.epochs</span> <span class="kn">import</span> <span class="n">Epochs</span>
+<span class="kn">from</span> <span class="nn">.fitgrid</span> <span class="kn">import</span> <span class="n">FitGrid</span><span class="p">,</span> <span class="n">LMFitGrid</span><span class="p">,</span> <span class="n">LMERFitGrid</span>
+<span class="kn">from</span> <span class="nn">.errors</span> <span class="kn">import</span> <span class="n">FitGridError</span>
+
+
+<div class="viewcode-block" id="epochs_from_hdf"><a class="viewcode-back" href="../../quick_reference.html#fitgrid.io.epochs_from_hdf">[docs]</a><span class="k">def</span> <span class="nf">epochs_from_hdf</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">epoch_id</span><span class="p">,</span> <span class="n">channels</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Construct Epochs object from an HDF5 file containing an epochs table.</span>
+
+<span class="sd">    The HDF5 file should contain columns with names defined by `epoch_id` and</span>
+<span class="sd">    `time` either as index columns or as regular columns. This is added as a</span>
+<span class="sd">    convenience, in general, input epochs tables should contain these columns</span>
+<span class="sd">    in the index.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        HDF5 file name</span>
+<span class="sd">    key : str</span>
+<span class="sd">        group identifier for the dataset when HDF5 file contains more than one</span>
+<span class="sd">    time : str</span>
+<span class="sd">        time column name</span>
+<span class="sd">    epoch_id : str</span>
+<span class="sd">        epoch identifier column name</span>
+<span class="sd">    channels : list of str</span>
+<span class="sd">        list of string channel names</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    epochs : Epochs</span>
+<span class="sd">        an Epochs object with the data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_hdf</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">)</span>
+
+    <span class="c1"># time and epoch id already present in index</span>
+    <span class="k">if</span> <span class="n">epoch_id</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span> <span class="ow">and</span> <span class="n">time</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">Epochs</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">epoch_id</span><span class="o">=</span><span class="n">epoch_id</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="n">channels</span><span class="p">)</span>
+
+    <span class="c1"># time and epoch id present in columns, set index</span>
+    <span class="k">if</span> <span class="n">epoch_id</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="n">time</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="n">epoch_id</span><span class="p">,</span> <span class="n">time</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Epochs</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">epoch_id</span><span class="o">=</span><span class="n">epoch_id</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="n">channels</span><span class="p">)</span>
+
+    <span class="k">raise</span> <span class="n">FitGridError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;Dataset has to contain </span><span class="si">{</span><span class="n">epoch_id</span><span class="si">}</span><span class="s1"> and </span><span class="si">{</span><span class="n">time</span><span class="si">}</span><span class="s1"> as columns or indices.&#39;</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="epochs_from_dataframe"><a class="viewcode-back" href="../../quick_reference.html#fitgrid.io.epochs_from_dataframe">[docs]</a><span class="k">def</span> <span class="nf">epochs_from_dataframe</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">epoch_id</span><span class="p">,</span> <span class="n">channels</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Construct Epochs object from a Pandas DataFrame epochs table.</span>
+
+<span class="sd">    The DataFrame should contain columns with names defined by epoch_id and</span>
+<span class="sd">    time as index columns.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    dataframe : pandas DataFrame</span>
+<span class="sd">        a pandas DataFrame object</span>
+<span class="sd">    time : str</span>
+<span class="sd">        time column name</span>
+<span class="sd">    epoch_id : str</span>
+<span class="sd">        epoch identifier column name</span>
+<span class="sd">    channels : list of str</span>
+<span class="sd">        list of string channel names</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    epochs : Epochs</span>
+<span class="sd">        an Epochs object with the data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Epochs</span><span class="p">(</span><span class="n">dataframe</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">epoch_id</span><span class="o">=</span><span class="n">epoch_id</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="n">channels</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="epochs_from_feather"><a class="viewcode-back" href="../../api_docs/fitgrid.io.html#fitgrid.io.epochs_from_feather">[docs]</a><span class="k">def</span> <span class="nf">epochs_from_feather</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">time</span><span class="p">,</span> <span class="n">epoch_id</span><span class="p">,</span> <span class="n">channels</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Construct Epochs object from a Feather file containing an epochs table.</span>
+
+<span class="sd">    The file should contain columns with names defined by epoch_id and time.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        Feather file name</span>
+<span class="sd">    time : str</span>
+<span class="sd">        time column name</span>
+<span class="sd">    epoch_id : str</span>
+<span class="sd">        epoch identifier column name</span>
+<span class="sd">    channels : list of str</span>
+<span class="sd">        list of string channel names</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    epochs : Epochs</span>
+<span class="sd">        an Epochs object with the data</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_feather</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="c1"># time and epoch id present in columns, set index</span>
+    <span class="k">if</span> <span class="n">epoch_id</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="ow">and</span> <span class="n">time</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="n">epoch_id</span><span class="p">,</span> <span class="n">time</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Epochs</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="n">time</span><span class="p">,</span> <span class="n">epoch_id</span><span class="o">=</span><span class="n">epoch_id</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="n">channels</span><span class="p">)</span>
+
+    <span class="k">raise</span> <span class="n">FitGridError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;Dataset has to contain </span><span class="si">{</span><span class="n">epoch_id</span><span class="si">}</span><span class="s1"> and </span><span class="si">{</span><span class="n">time</span><span class="si">}</span><span class="s1"> as columns or indices.&#39;</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="load_grid"><a class="viewcode-back" href="../../quick_reference.html#fitgrid.io.load_grid">[docs]</a><span class="k">def</span> <span class="nf">load_grid</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Load a FitGrid object from file (created by running grid.save).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    filename : str</span>
+<span class="sd">        indicates file to load from</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    grid : FitGrid</span>
+<span class="sd">        loaded FitGrid object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="kn">from</span> <span class="nn">pymer4</span> <span class="kn">import</span> <span class="n">Lmer</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+        <span class="n">_grid</span><span class="p">,</span> <span class="n">epoch_index</span><span class="p">,</span> <span class="n">time</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
+    <span class="n">tester</span> <span class="o">=</span> <span class="n">_grid</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tester</span><span class="p">,</span> <span class="p">(</span><span class="n">RegressionResults</span><span class="p">,</span> <span class="n">RegressionResultsWrapper</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="n">LMFitGrid</span><span class="p">(</span><span class="n">_grid</span><span class="p">,</span> <span class="n">epoch_index</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">tester</span><span class="p">,</span> <span class="n">Lmer</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">LMERFitGrid</span><span class="p">(</span><span class="n">_grid</span><span class="p">,</span> <span class="n">epoch_index</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">FitGrid</span><span class="p">(</span><span class="n">_grid</span><span class="p">,</span> <span class="n">epoch_index</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

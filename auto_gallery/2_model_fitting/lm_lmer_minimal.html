@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ordinary least squares and linear mixed-effects: minimal examples &mdash; fitgrid  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-rendered-html.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Model summary dataframes" href="model_summaries.html" />
+    <link rel="prev" title="Model fitting" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> fitgrid
+          </a>
+              <div class="version">
+                0.5.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about_fitgrid.html">About <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gallery.html">Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">fitgrid</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../gallery.html">Examples Gallery</a> &raquo;</li>
+          <li><a href="index.html">Model fitting</a> &raquo;</li>
+      <li>Ordinary least squares and linear mixed-effects: minimal examples</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-auto-gallery-2-model-fitting-lm-lmer-minimal-py"><span class="std std-ref">here</span></a>
+to download the full example code</p>
+</div>
+<section class="sphx-glr-example-title" id="ordinary-least-squares-and-linear-mixed-effects-minimal-examples">
+<span id="sphx-glr-auto-gallery-2-model-fitting-lm-lmer-minimal-py"></span><h1>Ordinary least squares and linear mixed-effects: minimal examples<a class="headerlink" href="#ordinary-least-squares-and-linear-mixed-effects-minimal-examples" title="Permalink to this headline"></a></h1>
+<p>OLS and mixed-effect models are specified by model formulas. The
+results returned by <code class="docutils literal notranslate"><span class="pre">statstmodels</span></code> for OLS and <code class="docutils literal notranslate"><span class="pre">lme4::lmer</span></code> for
+mixed-effcts models populate the <a class="reference internal" href="../../api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.FitGrid" title="fitgrid.fitgrid.FitGrid"><code class="xref py py-class docutils literal notranslate"><span class="pre">FitGrid</span></code></a> object. The <a class="reference internal" href="../../api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.FitGrid" title="fitgrid.fitgrid.FitGrid"><code class="xref py py-class docutils literal notranslate"><span class="pre">FitGrid[times,</span> <span class="pre">channels]</span></code></a> can be sliced by
+times or channels with <code class="docutils literal notranslate"><span class="pre">pandas</span></code> index slicing. The results are
+accessed via the fit object attributes and returned as a
+<code class="docutils literal notranslate"><span class="pre">pandas.DataFrame</span></code> or another <a class="reference internal" href="../../api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.FitGrid" title="fitgrid.fitgrid.FitGrid"><code class="xref py py-class docutils literal notranslate"><span class="pre">FitGrid[times,</span> <span class="pre">channels]</span></code></a>.</p>
+<section id="generate-simulated-data-and-load-epochs">
+<h2>Generate simulated data and load <a class="reference internal" href="../../api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs"><code class="xref py py-class docutils literal notranslate"><span class="pre">Epochs</span></code></a><a class="headerlink" href="#generate-simulated-data-and-load-epochs" title="Permalink to this headline"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">fitgrid</span>
+
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">epochs_df</span></a></a> <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">generate</span><span class="p">(</span>
+    <span class="n">n_samples</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">n_channels</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">return_type</span><span class="o">=</span><span class="s2">&quot;dataframe&quot;</span>
+<span class="p">)</span>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.set_index.html#pandas.DataFrame.set_index" title="pandas.DataFrame.set_index" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.set_index.html#pandas.DataFrame.set_index" title="pandas.DataFrame.set_index" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">epochs_df</span><span class="o">.</span><span class="n">set_index</span></a></a><span class="p">([</span><span class="s2">&quot;epoch_id&quot;</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">epochs_fg</span></a></a> <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">epochs_from_dataframe</span><span class="p">(</span>
+    <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">epochs_df</span></a></a><span class="p">,</span>
+    <span class="n">epoch_id</span><span class="o">=</span><span class="s2">&quot;epoch_id&quot;</span><span class="p">,</span>
+    <span class="n">time</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">,</span>
+    <span class="n">channels</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;channel0&quot;</span><span class="p">,</span> <span class="s2">&quot;channel1&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="ordinary-least-squares-ols">
+<h2>Ordinary least squares (OLS)<a class="headerlink" href="#ordinary-least-squares-ols" title="Permalink to this headline"></a></h2>
+<p>These models are specified with <a class="reference external" href="https://patsy.readthedocs.io/en/latest/index.html" title="(in patsy v0.5.1+dev)"><span class="xref std std-doc">patsy</span></a> Python formulas like <code class="docutils literal notranslate"><span class="pre">lm</span></code> in <code class="docutils literal notranslate"><span class="pre">R</span></code>. The
+results come back via <code class="docutils literal notranslate"><span class="pre">statsmodels</span></code> as <a class="reference internal" href="../../api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.FitGrid" title="fitgrid.fitgrid.FitGrid"><code class="xref py py-class docutils literal notranslate"><span class="pre">FitGrid[times,</span> <span class="pre">channels]</span></code></a> objects populated with <a class="reference external" href="https://www.statsmodels.org/stable/generated/statsmodels.regression.linear_model.RegressionResults.html#statsmodels.regression.linear_model.RegressionResults" title="(in statsmodels vv0.13.2)"><code class="xref py py-class docutils literal notranslate"><span class="pre">linear_model.RegressionResults</span></code></a>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.LMFitGrid" title="fitgrid.fitgrid.LMFitGrid" class="sphx-glr-backref-module-fitgrid-fitgrid sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.LMFitGrid" title="fitgrid.fitgrid.LMFitGrid" class="sphx-glr-backref-module-fitgrid-fitgrid sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lm_grid</span></a></a> <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">lm</span><span class="p">(</span><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">epochs_fg</span></a></a><span class="p">,</span> <span class="n">RHS</span><span class="o">=</span><span class="s1">&#39;1 + categorical + continuous&#39;</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Query and display OLS parameters</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lm_grid</span><span class="o">.</span><span class="n">params</span></a></a>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>channel0</th>
+      <th>channel1</th>
+    </tr>
+    <tr>
+      <th>time</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="3" valign="top">0</th>
+      <th>Intercept</th>
+      <td>20.650048</td>
+      <td>5.585524</td>
+    </tr>
+    <tr>
+      <th>categorical[T.cat1]</th>
+      <td>-35.120682</td>
+      <td>6.599356</td>
+    </tr>
+    <tr>
+      <th>continuous</th>
+      <td>-14.775001</td>
+      <td>-9.338461</td>
+    </tr>
+    <tr>
+      <th rowspan="3" valign="top">1</th>
+      <th>Intercept</th>
+      <td>0.683811</td>
+      <td>-12.571311</td>
+    </tr>
+    <tr>
+      <th>categorical[T.cat1]</th>
+      <td>-5.206154</td>
+      <td>-21.539669</td>
+    </tr>
+    <tr>
+      <th>continuous</th>
+      <td>-35.775448</td>
+      <td>45.342606</td>
+    </tr>
+    <tr>
+      <th rowspan="3" valign="top">2</th>
+      <th>Intercept</th>
+      <td>-12.530338</td>
+      <td>11.251361</td>
+    </tr>
+    <tr>
+      <th>categorical[T.cat1]</th>
+      <td>14.008110</td>
+      <td>-13.685990</td>
+    </tr>
+    <tr>
+      <th>continuous</th>
+      <td>10.068809</td>
+      <td>12.267045</td>
+    </tr>
+    <tr>
+      <th rowspan="3" valign="top">3</th>
+      <th>Intercept</th>
+      <td>12.766953</td>
+      <td>21.057617</td>
+    </tr>
+    <tr>
+      <th>categorical[T.cat1]</th>
+      <td>-18.569296</td>
+      <td>8.686739</td>
+    </tr>
+    <tr>
+      <th>continuous</th>
+      <td>3.264109</td>
+      <td>-51.767878</td>
+    </tr>
+    <tr>
+      <th rowspan="3" valign="top">4</th>
+      <th>Intercept</th>
+      <td>-6.559106</td>
+      <td>-5.279575</td>
+    </tr>
+    <tr>
+      <th>categorical[T.cat1]</th>
+      <td>12.145254</td>
+      <td>3.802076</td>
+    </tr>
+    <tr>
+      <th>continuous</th>
+      <td>-25.433041</td>
+      <td>36.160998</td>
+    </tr>
+    <tr>
+      <th rowspan="3" valign="top">5</th>
+      <th>Intercept</th>
+      <td>17.456711</td>
+      <td>-14.128496</td>
+    </tr>
+    <tr>
+      <th>categorical[T.cat1]</th>
+      <td>6.525926</td>
+      <td>0.118656</td>
+    </tr>
+    <tr>
+      <th>continuous</th>
+      <td>-41.083032</td>
+      <td>26.952374</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+<br />
+<br /><p>Query and display parameter standard errors</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lm_grid</span><span class="o">.</span><span class="n">bse</span></a></a>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>channel0</th>
+      <th>channel1</th>
+    </tr>
+    <tr>
+      <th>time</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="3" valign="top">0</th>
+      <th>Intercept</th>
+      <td>12.552213</td>
+      <td>12.402446</td>
+    </tr>
+    <tr>
+      <th>categorical[T.cat1]</th>
+      <td>12.901155</td>
+      <td>12.747224</td>
+    </tr>
+    <tr>
+      <th>continuous</th>
+      <td>22.928736</td>
+      <td>22.655161</td>
+    </tr>
+    <tr>
+      <th rowspan="3" valign="top">1</th>
+      <th>Intercept</th>
+      <td>13.916252</td>
+      <td>15.612712</td>
+    </tr>
+    <tr>
+      <th>categorical[T.cat1]</th>
+      <td>15.399735</td>
+      <td>17.277039</td>
+    </tr>
+    <tr>
+      <th>continuous</th>
+      <td>30.691683</td>
+      <td>34.433151</td>
+    </tr>
+    <tr>
+      <th rowspan="3" valign="top">2</th>
+      <th>Intercept</th>
+      <td>13.398024</td>
+      <td>15.459433</td>
+    </tr>
+    <tr>
+      <th>categorical[T.cat1]</th>
+      <td>16.387789</td>
+      <td>18.909201</td>
+    </tr>
+    <tr>
+      <th>continuous</th>
+      <td>27.346612</td>
+      <td>31.554138</td>
+    </tr>
+    <tr>
+      <th rowspan="3" valign="top">3</th>
+      <th>Intercept</th>
+      <td>14.410638</td>
+      <td>13.244376</td>
+    </tr>
+    <tr>
+      <th>categorical[T.cat1]</th>
+      <td>13.168739</td>
+      <td>12.102985</td>
+    </tr>
+    <tr>
+      <th>continuous</th>
+      <td>21.257582</td>
+      <td>19.537192</td>
+    </tr>
+    <tr>
+      <th rowspan="3" valign="top">4</th>
+      <th>Intercept</th>
+      <td>13.998653</td>
+      <td>15.979570</td>
+    </tr>
+    <tr>
+      <th>categorical[T.cat1]</th>
+      <td>12.407299</td>
+      <td>14.163028</td>
+    </tr>
+    <tr>
+      <th>continuous</th>
+      <td>24.230742</td>
+      <td>27.659579</td>
+    </tr>
+    <tr>
+      <th rowspan="3" valign="top">5</th>
+      <th>Intercept</th>
+      <td>17.236837</td>
+      <td>18.165900</td>
+    </tr>
+    <tr>
+      <th>categorical[T.cat1]</th>
+      <td>14.679198</td>
+      <td>15.470405</td>
+    </tr>
+    <tr>
+      <th>continuous</th>
+      <td>25.211903</td>
+      <td>26.570821</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+<br />
+<br /><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">params</span></a></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lm_grid</span><span class="o">.</span><span class="n">params</span></a></a>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.MultiIndex.html#pandas.MultiIndex" title="pandas.core.indexes.multi.MultiIndex" class="sphx-glr-backref-module-pandas-core-indexes-multi sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.MultiIndex.html#pandas.MultiIndex" title="pandas.core.indexes.multi.MultiIndex" class="sphx-glr-backref-module-pandas-core-indexes-multi sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">params</span><span class="o">.</span><span class="n">index</span></a></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.Index.set_names.html#pandas.Index.set_names" title="pandas.Index.set_names" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><a href="https://pandas.pydata.org/docs/reference/api/pandas.Index.set_names.html#pandas.Index.set_names" title="pandas.Index.set_names" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">params</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">set_names</span></a></a><span class="p">([</span><span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;params&quot;</span><span class="p">])</span>
+<span class="k">for</span> <a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">param</span></a></a><span class="p">,</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">vals</span></a></a> <span class="ow">in</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html#pandas.DataFrame.groupby" title="pandas.DataFrame.groupby" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html#pandas.DataFrame.groupby" title="pandas.DataFrame.groupby" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">params</span><span class="o">.</span><span class="n">groupby</span></a></a><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">):</span>
+    <span class="n">ax</span> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.reset_index.html#pandas.DataFrame.reset_index" title="pandas.DataFrame.reset_index" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.reset_index.html#pandas.DataFrame.reset_index" title="pandas.DataFrame.reset_index" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">vals</span><span class="o">.</span><span class="n">reset_index</span></a></a><span class="p">(</span><span class="s2">&quot;params&quot;</span><span class="p">,</span> <span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+    <a href="https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.set_title.html#matplotlib.axes.Axes.set_title" title="matplotlib.axes.Axes.set_title" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><a href="https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.set_title.html#matplotlib.axes.Axes.set_title" title="matplotlib.axes.Axes.set_title" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span></a></a><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#str" title="builtins.str" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">param</span></a></a><span class="p">)</span>
+</pre></div>
+</div>
+<ul class="sphx-glr-horizontal">
+<li><img src="../../_images/sphx_glr_lm_lmer_minimal_001.png" srcset="../../_images/sphx_glr_lm_lmer_minimal_001.png" alt="Intercept" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_lm_lmer_minimal_002.png" srcset="../../_images/sphx_glr_lm_lmer_minimal_002.png" alt="categorical[T.cat1]" class = "sphx-glr-multi-img"/></li>
+<li><img src="../../_images/sphx_glr_lm_lmer_minimal_003.png" srcset="../../_images/sphx_glr_lm_lmer_minimal_003.png" alt="continuous" class = "sphx-glr-multi-img"/></li>
+</ul>
+</section>
+<section id="linear-mixed-effects-lmer">
+<h2>Linear mixed effects (LMER)<a class="headerlink" href="#linear-mixed-effects-lmer" title="Permalink to this headline"></a></h2>
+<p>These models are specified with <code class="docutils literal notranslate"><span class="pre">lme4::lmer</span></code> R formulas and the
+results come back via <code class="docutils literal notranslate"><span class="pre">pymer4</span></code> as <a class="reference internal" href="../../api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.FitGrid" title="fitgrid.fitgrid.FitGrid"><code class="xref py py-class docutils literal notranslate"><span class="pre">FitGrid[times,</span>
+<span class="pre">channels]</span></code></a> objects populated with
+<a class="reference external" href="https://eshinjolly.com/pymer4/api.html#pymer4.models.Lmer" title="(in pymer4 v0.7.8.dev0)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Lmer</span></code></a> objects from the
+<code class="docutils literal notranslate"><span class="pre">lme4::lmer</span></code> and <code class="docutils literal notranslate"><span class="pre">lmerTest</span></code> results.</p>
+<p>Fit a mixed-effects model with <cite>lme4::lmer</cite> via <cite>pymer4</cite></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.LMERFitGrid" title="fitgrid.fitgrid.LMERFitGrid" class="sphx-glr-backref-module-fitgrid-fitgrid sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.LMERFitGrid" title="fitgrid.fitgrid.LMERFitGrid" class="sphx-glr-backref-module-fitgrid-fitgrid sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lmer_grid</span></a></a> <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">lmer</span><span class="p">(</span>
+    <a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">epochs_fg</span></a></a><span class="p">,</span> <span class="n">RHS</span><span class="o">=</span><span class="s1">&#39;1 + continuous + (continuous | categorical)&#39;</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>boundary (singular) fit: see ?isSingular
+
+boundary (singular) fit: see ?isSingular
+
+boundary (singular) fit: see ?isSingular
+
+boundary (singular) fit: see ?isSingular
+
+boundary (singular) fit: see ?isSingular
+
+boundary (singular) fit: see ?isSingular
+
+boundary (singular) fit: see ?isSingular
+
+boundary (singular) fit: see ?isSingular
+
+boundary (singular) fit: see ?isSingular
+
+boundary (singular) fit: see ?isSingular
+</pre></div>
+</div>
+<p>Query and display some lme4::lmer fit results</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lmer_grid</span><span class="o">.</span><span class="n">coefs</span></a></a>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th></th>
+      <th>channel0</th>
+      <th>channel1</th>
+    </tr>
+    <tr>
+      <th>time</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="5" valign="top">0</th>
+      <th rowspan="5" valign="top">(Intercept)</th>
+      <th>Estimate</th>
+      <td>3.50231</td>
+      <td>9.06438</td>
+    </tr>
+    <tr>
+      <th>2.5_ci</th>
+      <td>-24.8492</td>
+      <td>-10.9472</td>
+    </tr>
+    <tr>
+      <th>97.5_ci</th>
+      <td>31.8539</td>
+      <td>29.0759</td>
+    </tr>
+    <tr>
+      <th>SE</th>
+      <td>14.4653</td>
+      <td>10.2102</td>
+    </tr>
+    <tr>
+      <th>DF</th>
+      <td>1.32568</td>
+      <td>18</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th rowspan="5" valign="top">5</th>
+      <th rowspan="5" valign="top">continuous</th>
+      <th>SE</th>
+      <td>24.4753</td>
+      <td>36.2556</td>
+    </tr>
+    <tr>
+      <th>DF</th>
+      <td>18</td>
+      <td>0.867252</td>
+    </tr>
+    <tr>
+      <th>T-stat</th>
+      <td>-1.62512</td>
+      <td>0.578611</td>
+    </tr>
+    <tr>
+      <th>P-val</th>
+      <td>0.121517</td>
+      <td>0.677492</td>
+    </tr>
+    <tr>
+      <th>Sig</th>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+<p>96 rows × 2 columns</p>
+</div>
+</div>
+<br />
+<br /><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  6.046 seconds)</p>
+<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-gallery-2-model-fitting-lm-lmer-minimal-py">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/847389323392a1adf1190074cd881e16/lm_lmer_minimal.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">lm_lmer_minimal.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/19955490c5ad232e3e219bfdd06ca235/lm_lmer_minimal.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">lm_lmer_minimal.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Model fitting" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="model_summaries.html" class="btn btn-neutral float-right" title="Model summary dataframes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

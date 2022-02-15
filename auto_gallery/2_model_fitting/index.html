@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Model fitting &mdash; fitgrid  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-rendered-html.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Ordinary least squares and linear mixed-effects: minimal examples" href="lm_lmer_minimal.html" />
+    <link rel="prev" title="NOAA tides and weather epochs" href="../1_epochs_data/noaa_csv_to_epochs.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> fitgrid
+          </a>
+              <div class="version">
+                0.5.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../about_fitgrid.html">About <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../gallery.html">Examples Gallery</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../workflow.html">Workflow Outline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../1_epochs_data/index.html">Epochs data</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Model fitting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="lm_lmer_minimal.html">Ordinary least squares and linear mixed-effects: minimal examples</a></li>
+<li class="toctree-l3"><a class="reference internal" href="model_summaries.html">Model summary dataframes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="atmospheric_tides.html">Time domain averaging: Atmospheric tides</a></li>
+<li class="toctree-l3"><a class="reference internal" href="average_erps.html">Average ERPs with <cite>fitgrid</cite></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../3_model_evaluation/index.html">Model evaluation</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">fitgrid</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../gallery.html">Examples Gallery</a> &raquo;</li>
+      <li>Model fitting</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <dl class="field-list simple" id="sphx-glr-auto-gallery-2-model-fitting">
+<dt class="field-odd">orphan</dt>
+<dd class="field-odd"><p></p></dd>
+</dl>
+<section id="model-fitting">
+<h1>Model fitting<a class="headerlink" href="#model-fitting" title="Permalink to this headline"></a></h1>
+<div class="sphx-glr-thumbcontainer" tooltip="OLS and mixed-effect models are specified by model formulas. The results returned by statstmode..."><figure class="align-default" id="id1">
+<img alt="Ordinary least squares and linear mixed-effects: minimal examples" src="../../_images/sphx_glr_lm_lmer_minimal_thumb.png" />
+<figcaption>
+<p><span class="caption-text"><a class="reference internal" href="lm_lmer_minimal.html#sphx-glr-auto-gallery-2-model-fitting-lm-lmer-minimal-py"><span class="std std-ref">Ordinary least squares and linear mixed-effects: minimal examples</span></a></span><a class="headerlink" href="#id1" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+</div><div class="toctree-wrapper compound">
+</div>
+<div class="sphx-glr-thumbcontainer" tooltip=" Whereas fitgrid.lm() and fitgrid.lmer() return all the available fit information as LMFitGrid ..."><figure class="align-default" id="id2">
+<img alt="Model summary dataframes" src="../../_images/sphx_glr_model_summaries_thumb.png" />
+<figcaption>
+<p><span class="caption-text"><a class="reference internal" href="model_summaries.html#sphx-glr-auto-gallery-2-model-fitting-model-summaries-py"><span class="std std-ref">Model summary dataframes</span></a></span><a class="headerlink" href="#id2" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+</div><div class="toctree-wrapper compound">
+</div>
+<div class="sphx-glr-thumbcontainer" tooltip="Dawson introduced the summation procedure for detecting tiny but regular time-varying brain res..."><figure class="align-default" id="id3">
+<img alt="Time domain averaging: Atmospheric tides" src="../../_images/sphx_glr_atmospheric_tides_thumb.png" />
+<figcaption>
+<p><span class="caption-text"><a class="reference internal" href="atmospheric_tides.html#sphx-glr-auto-gallery-2-model-fitting-atmospheric-tides-py"><span class="std std-ref">Time domain averaging: Atmospheric tides</span></a></span><a class="headerlink" href="#id3" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+</div><div class="toctree-wrapper compound">
+</div>
+<div class="sphx-glr-thumbcontainer" tooltip="Average ERPs with fitgrid"><figure class="align-default" id="id4">
+<img alt="Average ERPs with `fitgrid`" src="../../_images/sphx_glr_average_erps_thumb.png" />
+<figcaption>
+<p><span class="caption-text"><a class="reference internal" href="average_erps.html#sphx-glr-auto-gallery-2-model-fitting-average-erps-py"><span class="std std-ref">Average ERPs with fitgrid</span></a></span><a class="headerlink" href="#id4" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+</div><div class="toctree-wrapper compound">
+</div>
+<div class="sphx-glr-clear"></div><div class="sphx-glr-footer class sphx-glr-footer-gallery docutils container">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/79e58dbb55af38867eccfd8fe4a027ac/2_model_fitting_python.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">all</span> <span class="pre">examples</span> <span class="pre">in</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">2_model_fitting_python.zip</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/90546a09812a443f229359775d67abf7/2_model_fitting_jupyter.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">all</span> <span class="pre">examples</span> <span class="pre">in</span> <span class="pre">Jupyter</span> <span class="pre">notebooks:</span> <span class="pre">2_model_fitting_jupyter.zip</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../1_epochs_data/noaa_csv_to_epochs.html" class="btn btn-neutral float-left" title="NOAA tides and weather epochs" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="lm_lmer_minimal.html" class="btn btn-neutral float-right" title="Ordinary least squares and linear mixed-effects: minimal examples" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

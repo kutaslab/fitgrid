@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fitgrid.models module &mdash; fitgrid  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sg_gallery.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sg_gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sg_gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sg_gallery-rendered-html.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> fitgrid
+          </a>
+              <div class="version">
+                0.5.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../about_fitgrid.html">About <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_gallery/quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gallery.html">Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">fitgrid</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>fitgrid.models module</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-fitgrid.models">
+<span id="fitgrid-models-module"></span><h1>fitgrid.models module<a class="headerlink" href="#module-fitgrid.models" title="Permalink to this headline"></a></h1>
+<p>User modeling functions and developer utilities for populating Time
+x Channel grids with OLS and LMER model fits. The API exposes the
+primary user interface functions for general use with <code class="docutils literal notranslate"><span class="pre">Epochs</span></code>
+objects as <code class="docutils literal notranslate"><span class="pre">fitgrid.lm</span></code> and <code class="docutils literal notranslate"><span class="pre">fitgrid.lmer</span></code>.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="fitgrid.models.lm">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.models.</span></span><span class="sig-name descname"><span class="pre">lm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LHS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">RHS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quiet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_env</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/models.html#lm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.models.lm" title="Permalink to this definition"></a></dt>
+<dd><p>Run ordinary least squares linear regression on the epochs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>epochs</strong> (<em>Epochs</em>) – epochs object on which regression is to be run</p></li>
+<li><p><strong>LHS</strong> (<em>list of str, optional, defaults to all channels</em>) – list of channels for the left hand side of the regression formula</p></li>
+<li><p><strong>RHS</strong> (<em>str</em>) – right hand side of the regression formula</p></li>
+<li><p><strong>parallel</strong> (<em>bool, defaults to False</em>) – change to True to run in parallel</p></li>
+<li><p><strong>n_cores</strong> (<em>int, defaults to 4</em>) – number of processes to use for computation</p></li>
+<li><p><strong>quiet</strong> (<em>bool, defaults to False</em>) – set to True to disable fitting progress bar</p></li>
+<li><p><strong>eval_env</strong> (<em>int or patsy.EvalEnvironment, defaults to 4</em>) – environment to use for evaluating patsy formulas, see patsy docs</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>grid</strong> – LMFitGrid object containing the results of the regression</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="fitgrid.fitgrid.html#fitgrid.fitgrid.LMFitGrid" title="fitgrid.fitgrid.LMFitGrid">LMFitGrid</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fitgrid.models.lm_single">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.models.</span></span><span class="sig-name descname"><span class="pre">lm_single</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">RHS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eval_env</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/models.html#lm_single"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.models.lm_single" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fitgrid.models.lmer">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.models.</span></span><span class="sig-name descname"><span class="pre">lmer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LHS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">RHS</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">family</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'gaussian'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf_int</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Wald'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permute</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ordered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">REML</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quiet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/models.html#lmer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.models.lmer" title="Permalink to this definition"></a></dt>
+<dd><p>Fit lme4 linear mixed model by interfacing with R.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>epochs</strong> (<em>Epochs</em>) – epochs object on which lmer is to be run</p></li>
+<li><p><strong>LHS</strong> (<em>list of str, optional, defaults to all channels</em>) – list of channels for the left hand side of the lmer formula</p></li>
+<li><p><strong>RHS</strong> (<em>str</em>) – right hand side of the lmer formula</p></li>
+<li><p><strong>family</strong> (<em>str, defaults to ‘gaussian’</em>) – distribution link function to use</p></li>
+<li><p><strong>conf_int</strong> (<em>str, defaults to ‘Wald’</em>)</p></li>
+<li><p><strong>factors</strong> (<em>dict, optional</em>) – Keys should be column names in data to treat as factors. Values
+should either be a list containing unique variable levels if
+dummy-coding or polynomial coding is desired. Otherwise values
+should themselves be dictionaries with unique variable levels as
+keys and desired contrast values (as specified in R!) as keys.</p></li>
+<li><p><strong>permute</strong> (<em>int, defaults to None</em>) – if non-zero, computes parameter significance tests by permuting
+test stastics rather than parametrically. Permutation is done by
+shuffling observations within clusters to respect random effects
+structure of data.</p></li>
+<li><p><strong>ordered</strong> (<em>bool, defaults to False</em>) – whether factors should be treated as ordered polynomial contrasts;
+this will parameterize a model with K-1 orthogonal polynomial
+regressors beginning with a linear contrast based on the factor
+order provided</p></li>
+<li><p><strong>REML</strong> (<em>bool, defaults to True</em>) – change to False to use ML estimation</p></li>
+<li><p><strong>parallel</strong> (<em>bool, defaults to False</em>) – change to True to run in parallel</p></li>
+<li><p><strong>n_cores</strong> (<em>int, defaults to 4</em>) – number of processes to use for computation</p></li>
+<li><p><strong>quiet</strong> (<em>bool, defaults to False</em>) – set to True to disable fitting progress bar</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>grid</strong> – LMERFitGrid object containing the results of lmer fitting</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="fitgrid.fitgrid.html#fitgrid.fitgrid.LMERFitGrid" title="fitgrid.fitgrid.LMERFitGrid">LMERFitGrid</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fitgrid.models.lmer_single">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.models.</span></span><span class="sig-name descname"><span class="pre">lmer_single</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channel</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">RHS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">family</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conf_int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">factors</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">permute</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ordered</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">REML</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/models.html#lmer_single"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.models.lmer_single" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fitgrid.models.process_key_and_group">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.models.</span></span><span class="sig-name descname"><span class="pre">process_key_and_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key_and_group</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/models.html#process_key_and_group"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.models.process_key_and_group" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fitgrid.models.run_model">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.models.</span></span><span class="sig-name descname"><span class="pre">run_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">function</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parallel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_cores</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quiet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/models.html#run_model"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.models.run_model" title="Permalink to this definition"></a></dt>
+<dd><p>Run an arbitrary model on the epochs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>epochs</strong> (<em>Epochs</em>) – the epochs object on which the model is to be run</p></li>
+<li><p><strong>function</strong> (<em>Python function</em>) – function that runs a model, see Notes below for details</p></li>
+<li><p><strong>channels</strong> (<em>list of str</em>) – list of channels to serve as dependent variables</p></li>
+<li><p><strong>parallel</strong> (<em>bool, defaults to False</em>) – set to True in order to run in parallel</p></li>
+<li><p><strong>n_cores</strong> (<em>int, defaults to 4</em>) – number of processes to run in parallel</p></li>
+<li><p><strong>quiet</strong> (<em>bool, defaults to False</em>) – set to True to disable progress bar display</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>grid</strong> – a FitGrid object containing the results</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference internal" href="fitgrid.fitgrid.html#fitgrid.fitgrid.FitGrid" title="fitgrid.fitgrid.FitGrid">FitGrid</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The function should take two parameters, <code class="docutils literal notranslate"><span class="pre">data</span></code> and <code class="docutils literal notranslate"><span class="pre">channel</span></code>, run
+some model on the data, and return an object containing the results.
+<code class="docutils literal notranslate"><span class="pre">data</span></code> will be a snapshot across epochs at a single timepoint,
+containing all channels of interest. <code class="docutils literal notranslate"><span class="pre">channel</span></code> is the name of the
+target variable that the function runs the model against (uses it as
+the dependent variable).</p>
+<p class="rubric">Examples</p>
+<p>Here’s an example of a function that can be passed to <code class="docutils literal notranslate"><span class="pre">run_model</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">regression</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">channel</span><span class="p">):</span>
+    <span class="n">formula</span> <span class="o">=</span> <span class="n">channel</span> <span class="o">+</span> <span class="s1">&#39; ~ continuous + categorical&#39;</span>
+    <span class="k">return</span> <span class="n">ols</span><span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fitgrid.models.validate_LHS">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.models.</span></span><span class="sig-name descname"><span class="pre">validate_LHS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">LHS</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/models.html#validate_LHS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.models.validate_LHS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fitgrid.models.validate_RHS">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.models.</span></span><span class="sig-name descname"><span class="pre">validate_RHS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">RHS</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/models.html#validate_RHS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.models.validate_RHS" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

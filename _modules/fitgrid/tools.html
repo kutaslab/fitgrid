@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fitgrid.tools &mdash; fitgrid  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-rendered-html.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> fitgrid
+          </a>
+              <div class="version">
+                0.5.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about_fitgrid.html">About <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../auto_gallery/quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gallery.html">Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">fitgrid</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>fitgrid.tools</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for fitgrid.tools</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Developer utilities for data validation and managing parallel CPU</span>
+<span class="sd">processing. Not meant for general use.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span><span class="p">,</span> <span class="n">OrderedDict</span>
+<span class="kn">import</span> <span class="nn">subprocess</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">ctypes</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">glob</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+
+<span class="n">MKL</span> <span class="o">=</span> <span class="s1">&#39;mkl&#39;</span>
+<span class="n">OBLAS</span> <span class="o">=</span> <span class="s1">&#39;openblas&#39;</span>
+<span class="n">CBLAS</span> <span class="o">=</span> <span class="s1">&#39;cblas&#39;</span>  <span class="c1"># numpy.show_config doesn&#39;t know if this is mkl or openblas</span>
+
+
+<div class="viewcode-block" id="get_index_duplicates_table"><a class="viewcode-back" href="../../api_docs/fitgrid.tools.html#fitgrid.tools.get_index_duplicates_table">[docs]</a><span class="k">def</span> <span class="nf">get_index_duplicates_table</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">level</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return a string table of duplicate index values and their locations.&quot;&quot;&quot;</span>
+
+    <span class="k">assert</span> <span class="n">level</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span>
+
+    <span class="n">level_values</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_level_values</span><span class="p">(</span><span class="n">level</span><span class="p">)</span>
+    <span class="n">dupe_mask</span> <span class="o">=</span> <span class="n">level_values</span><span class="o">.</span><span class="n">duplicated</span><span class="p">(</span><span class="n">keep</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="n">dupes</span> <span class="o">=</span> <span class="n">level_values</span><span class="p">[</span><span class="n">dupe_mask</span><span class="p">]</span>
+    <span class="n">dupe_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">dupe_mask</span><span class="p">)</span>
+
+    <span class="n">dupe_dict</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">dupe_indices</span><span class="p">,</span> <span class="n">dupes</span><span class="p">):</span>
+        <span class="n">dupe_dict</span><span class="p">[</span><span class="n">value</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+
+    <span class="c1"># hardcoded padding</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;Duplicates in index level </span><span class="si">{</span><span class="n">level</span><span class="si">}</span><span class="s1">:</span><span class="se">\n\n</span><span class="s1">&#39;</span>
+    <span class="n">msg</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{0:&lt;20}</span><span class="s1"> </span><span class="si">{1}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">level</span><span class="p">,</span> <span class="s1">&#39;Locations&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">value</span><span class="p">,</span> <span class="n">locations</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">dupe_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="n">locations</span> <span class="o">=</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">locations</span><span class="p">)</span>
+        <span class="n">msg</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="si">{0:&lt;20}</span><span class="s1"> </span><span class="si">{1}</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">locations</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">msg</span></div>
+
+
+<div class="viewcode-block" id="get_first_group"><a class="viewcode-back" href="../../api_docs/fitgrid.tools.html#fitgrid.tools.get_first_group">[docs]</a><span class="k">def</span> <span class="nf">get_first_group</span><span class="p">(</span><span class="n">groupby</span><span class="p">):</span>
+
+    <span class="n">first_group_name</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">groupby</span><span class="o">.</span><span class="n">groups</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">first_group</span> <span class="o">=</span> <span class="n">groupby</span><span class="o">.</span><span class="n">get_group</span><span class="p">(</span><span class="n">first_group_name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">first_group</span></div>
+
+
+<div class="viewcode-block" id="deduplicate_list"><a class="viewcode-back" href="../../api_docs/fitgrid.tools.html#fitgrid.tools.deduplicate_list">[docs]</a><span class="k">def</span> <span class="nf">deduplicate_list</span><span class="p">(</span><span class="n">lst</span><span class="p">):</span>
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">OrderedDict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">lst</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="BLAS"><a class="viewcode-back" href="../../api_docs/fitgrid.tools.html#fitgrid.tools.BLAS">[docs]</a><span class="k">class</span> <span class="nc">BLAS</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;BLAS wrapper as determined by its thread getter/setter&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cdll</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cdll</span> <span class="o">=</span> <span class="n">cdll</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># quack like an mkl or openblas duck or fail</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_n_threads</span> <span class="o">=</span> <span class="n">cdll</span><span class="o">.</span><span class="n">MKL_Get_Max_Threads</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_n_threads</span> <span class="o">=</span> <span class="n">cdll</span><span class="o">.</span><span class="n">MKL_Set_Num_Threads</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">=</span> <span class="n">MKL</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_n_threads</span> <span class="o">=</span> <span class="n">cdll</span><span class="o">.</span><span class="n">openblas_get_num_threads</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_n_threads</span> <span class="o">=</span> <span class="n">cdll</span><span class="o">.</span><span class="n">openblas_set_num_threads</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">=</span> <span class="n">OBLAS</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="n">MKL</span><span class="p">,</span> <span class="n">OBLAS</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;BLAS must be </span><span class="si">{</span><span class="n">MKL</span><span class="si">}</span><span class="s2"> or </span><span class="si">{</span><span class="n">OBLAS</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">cdll</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">MKL</span><span class="p">:</span>
+            <span class="n">kind</span> <span class="o">=</span> <span class="s1">&#39;MKL&#39;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="n">OBLAS</span><span class="p">:</span>
+            <span class="n">kind</span> <span class="o">=</span> <span class="s1">&#39;OpenBLAS&#39;</span>
+        <span class="n">n_threads</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_n_threads</span><span class="p">()</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s1"> @ </span><span class="si">{</span><span class="n">n_threads</span><span class="si">}</span><span class="s1"> threads&#39;</span></div>
+
+
+<div class="viewcode-block" id="get_blas_osys"><a class="viewcode-back" href="../../api_docs/fitgrid.tools.html#fitgrid.tools.get_blas_osys">[docs]</a><span class="k">def</span> <span class="nf">get_blas_osys</span><span class="p">(</span><span class="n">numpy_module</span><span class="p">,</span> <span class="n">osys</span><span class="p">):</span>
+
+    <span class="n">NUMPY_PATH</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">numpy_module</span><span class="o">.</span><span class="n">__path__</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="s1">&#39;core&#39;</span><span class="p">)</span>
+    <span class="n">MULTIARRAY_PATH</span> <span class="o">=</span> <span class="n">glob</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">NUMPY_PATH</span><span class="p">,</span> <span class="s1">&#39;_multiarray_umath*.so&#39;</span><span class="p">)</span>
+    <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">osys</span> <span class="o">==</span> <span class="s1">&#39;linux&#39;</span><span class="p">:</span>
+        <span class="n">COMMAND</span> <span class="o">=</span> <span class="s1">&#39;ldd&#39;</span>
+        <span class="n">LDD_ARGS</span> <span class="o">=</span> <span class="p">[</span><span class="n">COMMAND</span><span class="p">,</span> <span class="n">MULTIARRAY_PATH</span><span class="p">]</span>
+        <span class="n">PATTERN</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;^\t.*</span><span class="si">{}</span><span class="s1">.* =&gt; (?P&lt;path&gt;.*) \(0x.*$&#39;</span>
+
+    <span class="k">elif</span> <span class="n">osys</span> <span class="o">==</span> <span class="s1">&#39;darwin&#39;</span><span class="p">:</span>
+        <span class="n">COMMAND</span> <span class="o">=</span> <span class="s1">&#39;otool&#39;</span>
+        <span class="n">FLAGS</span> <span class="o">=</span> <span class="s1">&#39;-L&#39;</span>
+        <span class="n">LDD_ARGS</span> <span class="o">=</span> <span class="p">[</span><span class="n">COMMAND</span><span class="p">,</span> <span class="n">FLAGS</span><span class="p">,</span> <span class="n">MULTIARRAY_PATH</span><span class="p">]</span>
+
+        <span class="c1"># PATTERN = r&#39;^\t@loader_path/(?P&lt;path&gt;.*{}.*) \(.*\)$&#39;</span>
+        <span class="c1"># MacOS 10.13.6 otools shows @rpath not @loader_path</span>
+        <span class="c1"># for the conda installed mkl.</span>
+        <span class="n">PATTERN</span> <span class="o">=</span> <span class="sa">r</span><span class="s1">&#39;^\t@.*path/(?P&lt;path&gt;.*</span><span class="si">{}</span><span class="s1">.*) \(.*\)$&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;get_blas_osys() does not support osys=</span><span class="si">{</span><span class="n">osys</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+    <span class="n">ldd_result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+        <span class="n">args</span><span class="o">=</span><span class="n">LDD_ARGS</span><span class="p">,</span>
+        <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">stdout</span><span class="o">=</span><span class="n">subprocess</span><span class="o">.</span><span class="n">PIPE</span><span class="p">,</span>
+        <span class="n">universal_newlines</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">output</span> <span class="o">=</span> <span class="n">ldd_result</span><span class="o">.</span><span class="n">stdout</span>
+    <span class="n">kinds</span> <span class="o">=</span> <span class="p">[</span><span class="n">MKL</span><span class="p">,</span> <span class="n">OBLAS</span><span class="p">,</span> <span class="n">CBLAS</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">kind</span> <span class="ow">in</span> <span class="n">kinds</span><span class="p">:</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">PATTERN</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">kind</span><span class="p">),</span> <span class="n">output</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">groupdict</span><span class="p">()[</span><span class="s1">&#39;path&#39;</span><span class="p">]</span>
+            <span class="n">cdll</span> <span class="o">=</span> <span class="n">ctypes</span><span class="o">.</span><span class="n">CDLL</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">BLAS</span><span class="p">(</span><span class="n">cdll</span><span class="p">)</span>
+
+    <span class="c1"># unknown kind</span>
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+<div class="viewcode-block" id="get_blas"><a class="viewcode-back" href="../../api_docs/fitgrid.tools.html#fitgrid.tools.get_blas">[docs]</a><span class="k">def</span> <span class="nf">get_blas</span><span class="p">(</span><span class="n">numpy_module</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Return BLAS object or None if neither MKL nor OpenBLAS is found.&quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;linux&#39;</span><span class="p">):</span>
+        <span class="c1"># return get_blas_linux(numpy_module)</span>
+        <span class="k">return</span> <span class="n">get_blas_osys</span><span class="p">(</span><span class="n">numpy_module</span><span class="p">,</span> <span class="s1">&#39;linux&#39;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">sys</span><span class="o">.</span><span class="n">platform</span> <span class="o">==</span> <span class="s1">&#39;darwin&#39;</span><span class="p">:</span>
+        <span class="c1"># return get_blas_mac(numpy_module)</span>
+        <span class="k">return</span> <span class="n">get_blas_osys</span><span class="p">(</span><span class="n">numpy_module</span><span class="p">,</span> <span class="s1">&#39;darwin&#39;</span><span class="p">)</span>
+
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s1">&#39;Searching for BLAS libraries on </span><span class="si">{</span><span class="n">sys</span><span class="o">.</span><span class="n">platform</span><span class="si">}</span><span class="s1"> is not supported.&#39;</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="single_threaded"><a class="viewcode-back" href="../../api_docs/fitgrid.tools.html#fitgrid.tools.single_threaded">[docs]</a><span class="k">class</span> <span class="nc">single_threaded</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">numpy_module</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">blas</span> <span class="o">=</span> <span class="n">get_blas</span><span class="p">(</span><span class="n">numpy_module</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">blas</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">old_n_threads</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">blas</span><span class="o">.</span><span class="n">get_n_threads</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">blas</span><span class="o">.</span><span class="n">set_n_threads</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s1">&#39;No MKL/OpenBLAS found, assuming NumPy is single-threaded.&#39;</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">blas</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">blas</span><span class="o">.</span><span class="n">set_n_threads</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">old_n_threads</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">blas</span><span class="o">.</span><span class="n">get_n_threads</span><span class="p">()</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">old_n_threads</span><span class="p">:</span>
+                <span class="n">message</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Failed to reset </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">blas</span><span class="o">.</span><span class="n">kind</span><span class="si">}</span><span class="s1"> &#39;</span>
+                    <span class="sa">f</span><span class="s1">&#39;to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">old_n_threads</span><span class="si">}</span><span class="s1"> threads (previous value).&#39;</span>
+                <span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="n">message</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="design_matrix_is_constant"><a class="viewcode-back" href="../../api_docs/fitgrid.tools.html#fitgrid.tools.design_matrix_is_constant">[docs]</a><span class="k">def</span> <span class="nf">design_matrix_is_constant</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">columns</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Check that values in columns of df do not change within any epoch.</span>
+
+<span class="sd">    See Notes for more details.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pandas.DataFrame</span>
+<span class="sd">        dataframe to check</span>
+<span class="sd">    columns : list of str</span>
+<span class="sd">        list of column names to be checked</span>
+<span class="sd">    time : str</span>
+<span class="sd">        name of the time column</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    result : bool</span>
+<span class="sd">        True if values in specified columns don&#39;t change, False otherwise</span>
+
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+
+<span class="sd">    We check that from timepoint to timepoint, each epoch has the same value in</span>
+<span class="sd">    a given column:</span>
+
+
+<span class="sd">    .. table:: epoch1</span>
+<span class="sd">       :widths: auto</span>
+
+<span class="sd">       === ===</span>
+<span class="sd">       A    B</span>
+<span class="sd">       === ===</span>
+<span class="sd">       1    x</span>
+<span class="sd">       1    x</span>
+<span class="sd">       1    x</span>
+<span class="sd">       1    x</span>
+<span class="sd">       1    x</span>
+<span class="sd">       === ===</span>
+
+
+<span class="sd">    .. table:: epoch2</span>
+<span class="sd">       :widths: auto</span>
+
+<span class="sd">       === ===</span>
+<span class="sd">       A    B</span>
+<span class="sd">       === ===</span>
+<span class="sd">       2    y</span>
+<span class="sd">       2    y</span>
+<span class="sd">       2    y</span>
+<span class="sd">       2    y</span>
+<span class="sd">       2    y</span>
+<span class="sd">       === ===</span>
+
+
+<span class="sd">    This is helpful when performing linear regression on an epochs table where</span>
+<span class="sd">    the predictors vary with epochs (as they are expected to) but stay constant</span>
+<span class="sd">    from sample to sample, because we can do our modeling much faster.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">gb</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">time</span><span class="p">)</span>
+    <span class="n">_</span><span class="p">,</span> <span class="n">group</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">gb</span><span class="p">))</span>  <span class="c1"># first group</span>
+
+    <span class="n">df_columns_values</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">group_columns_values</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+    <span class="n">expected_df_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">group_columns_values</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">gb</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">df_columns_values</span> <span class="o">==</span> <span class="n">expected_df_values</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">()</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contributing &mdash; fitgrid  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/sg_gallery.css" type="text/css" />
+      <link rel="stylesheet" href="_static/sg_gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="_static/sg_gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="_static/sg_gallery-rendered-html.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Bibliography" href="bibliography.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> fitgrid
+          </a>
+              <div class="version">
+                0.5.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about_fitgrid.html">About <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="auto_gallery/quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gallery.html">Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Contributing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#development-workflow">Development workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#git-setup">Git setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#development-environment-setup">Development environment setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#develop-test-document">Develop, test, document</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pull-requests-prs">Pull requests (PRs)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#tips">Tips</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">fitgrid</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Contributing</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="contributing">
+<span id="how-to-contribute"></span><h1>Contributing<a class="headerlink" href="#contributing" title="Permalink to this headline"></a></h1>
+<p>Field reports and ideas large and small for how to improve <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code>
+are welcome. Please post what you have in mind on GitHub in
+<code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> <a class="reference external" href="https://github.com/kutaslab/fitgrid/issues">Issues</a> in
+accord with the <a class="reference external" href="https://github.com/kutaslab/fitgrid/blob/main/CODE_OF_CONDUCT.md">Code of Conduct</a>
+to start a discussion of next steps and plan the approach. If you
+think you have encountered a bug, please follow the bug report
+guidlines when</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> code is written in Python, and requires many
+open-source scientific computing packages including <a class="reference external" href="https://numpy.org/doc/stable/index.html" title="(in NumPy v1.22)"><span class="xref std std-doc">numpy</span></a>, <a class="reference external" href="https://pandas.pydata.org/docs/index.html" title="(in pandas v1.4.1)"><span class="xref std std-doc">pandas</span></a>, <a class="reference external" href="https://matplotlib.org/index.html" title="(in Matplotlib v3.5.1)"><span class="xref std std-doc">matplotlib</span></a>, and <a class="reference external" href="https://www.statsmodels.org/stable/index.html" title="(in statsmodels vv0.13.2)"><span class="xref std std-doc">statsmodels</span></a>. The linear mixed-effects modeling further
+requires the <a class="reference external" href="https://eshinjolly.com/pymer4/index.html" title="(in pymer4 v0.7.8.dev0)"><span class="xref std std-doc">pymer4</span></a> and <a class="reference external" href="https://rpy2.github.io/doc/latest/html/index.html" title="(in rpy2 v3.5.0)"><span class="xref std std-doc">rpy2</span></a> Python packages as well as the <a class="reference external" href="https://www.r-project.org/other-docs.html">R</a> language, and many R
+packages including <a class="reference external" href="https://cran.r-project.org/web/packages/lme4/index.html">lme4</a>, and
+<a class="reference external" href="https://cran.r-project.org/web/packages/lmerTest/index.html">lmerTest</a>. Version
+control is managed with <a class="reference external" href="https://git-scm.com/doc">git</a> and the
+primary source repository is hosted on GitHub in
+<a class="reference external" href="https://github.com/kutaslab">https://github.com/kutaslab</a>.</p>
+<p>The stable and pre-release <a class="reference external" href="https://kutaslab.github.io/fitgrid/index.html" title="(in fitgrid v0.5.2)"><span class="xref std std-doc">fitgrid</span></a> packages
+are available on <a class="reference external" href="https://anaconda.org/kutaslab/fitgrid">https://anaconda.org/kutaslab/fitgrid</a> for easy
+installation into conda virtual environments with <a class="reference external" href="https://docs.conda.io/projects/conda/en/latest/index.html" title="(in conda v4.11.0.post39+8ba65ad38)"><span class="xref std std-doc">conda</span></a> or <a class="reference external" href="https://mamba.readthedocs.io/en/latest/index.html" title="(in mamba)"><span class="xref std std-doc">mamba</span></a>. The Python package
+installer <a class="reference external" href="https://pip.pypa.io/en/stable/" title="(in pip v22.0)"><span class="xref std std-doc">pip</span></a> is not supported because of the R
+dependencies.</p>
+<p>The documentation is generated with <a class="reference external" href="https://www.sphinx-doc.org/en/master/contents.html" title="(in Sphinx v5.0.0+)"><span class="xref std std-doc">sphinx</span></a> and <a class="reference external" href="https://sphinx-gallery.github.io/stable/index.html" title="(in Sphinx-Gallery v0.10.1)"><span class="xref std std-doc">sphinx-gallery</span></a>.</p>
+<dl>
+<dt>Versions</dt><dd><p><code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> is semantically versioned following a simplified
+Python <a class="reference external" href="https://www.python.org/dev/peps/pep-0440">PEP 440</a> scheme.</p>
+<ul class="simple">
+<li><p><strong>Syntax.</strong> Legal <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> version strings have three required
+numeric segments, <code class="docutils literal notranslate"><span class="pre">M.N.P</span></code> for major, minor, patch versions and
+an optional <code class="docutils literal notranslate"><span class="pre">.devX</span></code> suffix with numeric <code class="docutils literal notranslate"><span class="pre">X</span></code>. As
+usual, the numeric values increment monotonically except that subordinate
+segments reset to 0 when a superordinate segment
+increments. Version strings match the regular expression,
+<code class="docutils literal notranslate"><span class="pre">\d+\.\d+\.\d+(\.dev\d+){0,1}</span></code>.</p></li>
+<li><p><strong>Semantics.</strong> <code class="docutils literal notranslate"><span class="pre">M.N.P</span></code> designates a stable version and <code class="docutils literal notranslate"><span class="pre">M.N.P.devX</span></code>
+designates a development version.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In this scheme, the stable package version <code class="docutils literal notranslate"><span class="pre">M.N.P</span></code> sorts higher
+than the development version <code class="docutils literal notranslate"><span class="pre">M.N.P.devX</span></code>, for example,
+<code class="docutils literal notranslate"><span class="pre">0.5.1</span></code> &gt; <code class="docutils literal notranslate"><span class="pre">0.5.1.dev1</span></code> &gt; <code class="docutils literal notranslate"><span class="pre">0.5.1.dev0</span></code> &gt; <code class="docutils literal notranslate"><span class="pre">0.5.0</span></code></p>
+</div>
+</dd>
+<dt>GitHub reserved branches and version strings: <a class="reference external" href="https://github.com/kutsalab/fitgrid">https://github.com/kutsalab/fitgrid</a></dt><dd><ul class="simple">
+<li><p>The <cite>main</cite> and <cite>dev</cite> branches are reserved for deploying package
+releases, only maintainers make pull requests to these branches.</p></li>
+<li><p>The branch <cite>main</cite> = the latest stable release, version <code class="docutils literal notranslate"><span class="pre">M.N.P</span></code> with tag <code class="docutils literal notranslate"><span class="pre">vM.N.P</span></code></p></li>
+<li><p>The branch <cite>dev</cite> = the latest development version <code class="docutils literal notranslate"><span class="pre">M.N.P.devX</span></code>.</p></li>
+<li><p>Names and version strings for working branches other than <cite>main</cite>
+and <cite>dev</cite> are not strictly defined in this scheme. However, the
+natural version sequence increments the <code class="docutils literal notranslate"><span class="pre">devX</span></code> segment to
+<code class="docutils literal notranslate"><span class="pre">M.N.P.devX+1</span></code> following the pre-release package upload of
+<code class="docutils literal notranslate"><span class="pre">M.N.P.devX</span></code> and increments the patch and resets the <code class="docutils literal notranslate"><span class="pre">devX</span></code>
+segment to <code class="docutils literal notranslate"><span class="pre">M.N.P+1.dev0</span></code> following the stable release of
+<code class="docutils literal notranslate"><span class="pre">vM.N.P</span></code>.</p></li>
+</ul>
+</dd>
+<dt>Stable releases: <code class="docutils literal notranslate"><span class="pre">vM.N.P</span></code></dt><dd><p>Stable versions are tagged <code class="docutils literal notranslate"><span class="pre">vM.N.P</span></code> and released manually on GitHub
+(<code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> <a class="reference external" href="https://github.com/kutaslab/fitgrid/releases">Releases</a>). The stable
+version <code class="docutils literal notranslate"><span class="pre">vM.N.P</span></code> source code is frozen and subsequent
+modifications require the version to increment at least the patch
+segment. Development versions <code class="docutils literal notranslate"><span class="pre">M.N.P.devX</span></code> are not released on
+GitHub but they are deployed as conda packages (see next).</p>
+</dd>
+<dt>Conda packages and channels: stable <code class="docutils literal notranslate"><span class="pre">M.N.P</span></code> and pre-release <code class="docutils literal notranslate"><span class="pre">M.N.P.devX</span></code></dt><dd><p>Conda packages are deployed for stable releases (<code class="docutils literal notranslate"><span class="pre">vM.N.P</span></code> on branch
+<cite>main</cite>) and for development versions (<code class="docutils literal notranslate"><span class="pre">M.N.P.devX</span></code> on branch
+<cite>dev</cite>). The stable release deploys to conda channel <a class="reference external" href="https://anaconda.org/kutaslab/fitgrid/files">kutaslab/label/main</a> and is the
+default for <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> conda installation. The development
+package deploys to channel <a class="reference external" href="https://anaconda.org/kutaslab/fitgrid/files">kutaslab/label/pre-release</a>
+so the latest features and bug-fixes can be installed in conda
+environments with conda package dependency resolution.</p>
+</dd>
+<dt>Sphinx and sphinx-gallery documentation</dt><dd><p>Documentation for the latest stable conda package <code class="docutils literal notranslate"><span class="pre">vM.N.P</span></code> is
+deployed to <a class="reference external" href="https://github.com/kutaslab/fitgrid/tree/gh-pages">gh-pages</a> and available
+online at <a class="reference external" href="https://kutaslab.github.io/fitgrid">https://kutaslab.github.io/fitgrid</a>. Documentation for the
+latest development version <code class="docutils literal notranslate"><span class="pre">M.N.P.devX</span></code> is deployed to
+<a class="reference external" href="https://github.com/kutaslab/fitgrid-dev/tree/gh-pages-dev">gh-pages-dev</a> and
+available online at <a class="reference external" href="https://kutaslab.github.io/fitgrid-dev-docs">https://kutaslab.github.io/fitgrid-dev-docs</a>.</p>
+</dd>
+<dt>Continuous Integration and Deployment (CID)</dt><dd><p>The <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> CID is implemented in a single-pass GitHub Action
+workflow, <a class="reference external" href="https://github.com/kutaslab/fitgrid/blob/main/.github/workflows/fitgrid-cid.yml">figrid-cid.yml</a>.
+The continuous integration workflow is triggered by push, pull
+request and manual release events on GitHub. The deploy phase
+selectively uploads the conda packages and documentation for
+development version pre-releases and stable releases. This scheme
+allows conda or mamba installation of both stable and development
+versions and automatically synchronizes the stable release version
+string and source code across the GitHub repository at
+<a class="reference external" href="https://github.com/kutaslab/fitgrid">github.com/kutaslab/fitgrid</a>, the conda packages at
+<a class="reference external" href="https://anaconda.org">anaconda.org/kutaslab/fitgrid</a> , the online
+<a class="reference external" href="https:kutaslab.github.io/fitgrid">sphinx documentation</a>, and the
+Zenodo source code archive at <a class="reference external" href="https://doi.org/10.5281/zenodo.3581496">DOI 10.5281/zenodo.3581496</a>.</p>
+<figure class="align-default" id="id4">
+<span id="cid-figure"></span><img alt="_images/fitgrid_cid_scheme.png" src="_images/fitgrid_cid_scheme.png" />
+<figcaption>
+<p><span class="caption-text">Continuous Integration and Deployment Scheme</span><a class="headerlink" href="#id4" title="Permalink to this image"></a></p>
+</figcaption>
+</figure>
+<p><strong>Continuous Integration.</strong> The conda package is built from the source
+on the triggering branch and installed into a newly created conda
+test environment.  The pytests in <cite>fitgrid/tests/test_*.py</cite> are run
+and the Sphinx html documentation is generated, including the
+sphinx-gallery <cite>*.py</cite> examples, in the test environment with the
+just-built package as installed.</p>
+<p><strong>Deployment</strong>. If the CI passes, workflows triggered on branch <cite>dev</cite>
+with version string of the form <code class="docutils literal notranslate"><span class="pre">M.N.P.devX</span></code> or triggered by a
+GitHub manual releases tagged <code class="docutils literal notranslate"><span class="pre">vM.N.P</span></code> on branch main auto-upload
+the just-built conda package and Sphinx documentation to the
+appropriate destination repositories.</p>
+<ul class="simple">
+<li><p>Pre-release: <code class="docutils literal notranslate"><span class="pre">M.N.P.devX</span></code></p>
+<ul>
+<li><p>Conda packages: <a class="reference external" href="https://anaconda.org/kutaslab/fitgrid/files">–channel kutaslab/label/pre-release</a></p></li>
+<li><p>Sphinx documentation: <a class="reference external" href="https://kutaslab.github.io/fitgrid-dev-docs">kutaslab.github.io/fitgrid-dev-docs</a></p></li>
+</ul>
+</li>
+<li><p>Stable release: <code class="docutils literal notranslate"><span class="pre">vM.N.P</span></code></p>
+<ul>
+<li><p>Conda packages: <a class="reference external" href="https://anaconda.org/kutaslab/fitgrid/files">–channel kutaslab</a></p></li>
+<li><p>Sphinx documentation: <a class="reference external" href="https://kutaslab.github.io/fitgrid">kutaslab.github.io/fitgrid</a></p></li>
+<li><p>Zenodo archive DOI: <a class="reference external" href="https://doi.org/10.5281/zenodo.3581496">10.5281/zenodo.3581496</a></p></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt>Developing new features, bug fixes, and docs</dt><dd><p>Updates to <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> source and docs are committed to working
+branches typically derived from the <cite>kutaslab/fitgrid/dev</cite> branch and not
+directly to the <cite>main</cite> or <cite>dev</cite> branches which are reserved for
+deploying conda packages and documentation. As development on the
+working branches progesses (magenta in the <a class="reference internal" href="#cid-figure"><span class="std std-ref">Continuous Integration and Deployment Scheme</span></a>),
+maintainers periodically pull the changes to the <cite>dev</cite> branch in
+order to deploy a pre-release package for installation into conda
+environments. When development is ready for a stable release,
+maintainers pull <cite>dev</cite> to the <cite>main</cite> branch and manually issue a
+stable release on GitHub tagged <code class="docutils literal notranslate"><span class="pre">vM.N.P</span></code>. The tagged release
+uploads the <code class="docutils literal notranslate"><span class="pre">M.N.P</span></code> conda packages and sphinx documentation and
+archives the <code class="docutils literal notranslate"><span class="pre">M.N.P</span></code> source on Zenodo.</p>
+</dd>
+</dl>
+</section>
+<section id="development-workflow">
+<h2>Development workflow<a class="headerlink" href="#development-workflow" title="Permalink to this headline"></a></h2>
+<p>It is generally advisable to develop, test, and document new work
+on a local computer in an active conda environment populated with the
+latest compatible <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> dependencies along with <a class="reference external" href="https://docs.pytest.org/en/stable/index.html" title="(in pytest v7.0.1)"><span class="xref std std-doc">pytest</span></a>, the <a class="reference external" href="https://black.readthedocs.io/en/stable/index.html" title="(in Black v22.1.0)"><span class="xref std std-doc">black</span></a> code formatter,
+and sphinx documentation generation packages because that’s what the
+continuous integration workflow does.</p>
+<p>The following illustrates the steps for a hypothetical working branch
+called <cite>new-feature</cite> in the <a class="reference external" href="https://github.com/kutaslab/fitgrid">github.com/kutaslab/fitgrid</a> GitHub repo. It assumes the
+<code class="docutils literal notranslate"><span class="pre">git</span></code>, <code class="docutils literal notranslate"><span class="pre">conda</span></code>, and <code class="docutils literal notranslate"><span class="pre">mamba</span></code> executables are already installed on
+the local computer and the commands are executed in a bash(-like)
+shell.</p>
+<section id="git-setup">
+<h3>Git setup<a class="headerlink" href="#git-setup" title="Permalink to this headline"></a></h3>
+<ol class="arabic">
+<li><p>Sign in to GitHub and create a fork of <a class="reference external" href="https://github.com/kutaslab/fitgrid">github.com/kutaslab/fitgrid</a> in your GitHub account.</p></li>
+<li><p>On the local computer where you plan to work, <code class="docutils literal notranslate"><span class="pre">git</span> <span class="pre">clone</span></code> the
+fork.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/&lt;your_github_username&gt;/fitgrid
+</pre></div>
+</div>
+<p>By default, the local repo created this way will include the <cite>main</cite>
+branch only. Alternatively, the repo can be cloned with a specific
+working branch such as <cite>new-feature</cite> like so:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git clone https://github.com/&lt;your_github_username&gt;/fitgrid <span class="se">\</span>
+  --single-branch --branch new-feature
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="development-environment-setup">
+<h3>Development environment setup<a class="headerlink" href="#development-environment-setup" title="Permalink to this headline"></a></h3>
+<ol class="arabic">
+<li><p>Create a new named conda development environment for working on the
+feature, fix, or docs by installing the latest <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code>
+pre-release conda package, document generation, and development
+tools:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ mamba create --name fg-new-feature <span class="se">\</span>
+     -c conda-forge -c ejolly -c kutaslab/label/pre-release <span class="se">\</span>
+     fitgrid
+$ mamba install --name fg-new-feature <span class="se">\</span>
+     black pytest sphinx sphinx-gallery sphinx_rtd_theme
+</pre></div>
+</div>
+</li>
+<li><p>Navigate to the top-level directory of your local fitgrid git
+repository, activate the new development environment, and install
+<code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> from the local source in editable (a.k.a “develop”)
+mode:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ <span class="nb">cd</span> ~/path/to/fitgrid
+$ conda activate fg-new-feature
+<span class="o">(</span>fg-new-feature<span class="o">)</span> $ pip install --no-deps -e .
+</pre></div>
+</div>
+</li>
+</ol>
+<p>Why? Because installing the pre-release <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> conda package
+automatically populates the just-created environment with the latest
+compatible versions of the hundreds of Python, R, and matrix math
+dependencies that the latest version of <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> needs to run. Then
+<code class="docutils literal notranslate"><span class="pre">pip</span></code> replaces the just-downloaded-and-installed <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> conda
+package located in your
+<cite>~/path/to/conda/envs/fg-new-feature/path/to/site-packages/fitgrid</cite>
+with a link to your <cite>~/path/to/fitgrid</cite> local git repo. This way, the
+files you modify are loaded when <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> modules are imported by
+the pytests and sphinx document generators and your changes are
+version-controlled by git.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Experience indicates this is the <strong>only</strong> time <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span></code>
+should be used while developing <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> on pain of corrupting
+the conda environment. If you want to add other packages to the
+development environment use <code class="docutils literal notranslate"><span class="pre">mamba</span> <span class="pre">install</span></code> or <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span></code>.</p>
+</div>
+</section>
+<section id="develop-test-document">
+<span id="dev-doc-test"></span><h3>Develop, test, document<a class="headerlink" href="#develop-test-document" title="Permalink to this headline"></a></h3>
+<ol class="arabic">
+<li><p>Activate the <cite>fg-new-feature</cite> development environment.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ conda activate fg-new-feature
+<span class="o">(</span>fg-new-feature<span class="o">)</span> $
+</pre></div>
+</div>
+</li>
+<li><p>Checkout the git working branch. If it doesn’t exist locally,
+<code class="docutils literal notranslate"><span class="pre">git</span></code> should automagically set it to track the remote working
+branch in your GitHub fork, make sure it does.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$ git checkout new-feature
+</pre></div>
+</div>
+</li>
+<li><p>Ensure the commit history of the <cite>new-feature</cite> branch in your
+GitHub fork and local repo are both up to date with the branch in
+the upstream GitHub repo <a class="reference external" href="https://github.com/kutaslab/fitgrid">github.com/kutaslab/fitgrid</a> where you will make the
+pull request (PR), i.e., <cite>new-feature</cite> in this example.  This helps
+reduce risk of merge conflicts later when changes are pulled back
+into the upstream repository.</p></li>
+<li><p>Make the changes to the source code .py or docs .rst.</p></li>
+<li><p>Document the .py source files with <a class="reference external" href="https://numpydoc.readthedocs.io/en/latest/format.html">numpy-style docstrings</a>.</p></li>
+<li><p>For new functionality add or update pytests in
+<cite>fitgrid/tests/test_*.py</cite> to cover the changes.</p></li>
+<li><p>If it is useful, add or update a working <cite>.py</cite> example in the
+relevant <cite>fitgrid/docs/gallery</cite> subdirectories for display in the
+<a class="reference internal" href="gallery.html#gallery"><span class="std std-ref">Examples Gallery</span></a>.</p></li>
+<li><p>Run a code checker such as <cite>flake8</cite> or <cite>pylint</cite> on the .py files.</p></li>
+<li><p>Navigate to the top level of the <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> repository, run the
+code formatter and pytests the same way the GitHub Action CI does:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">(</span>fg-new-feature<span class="o">)</span> $ black -S --line-length <span class="m">79</span> .
+<span class="o">(</span>fg-new-feature<span class="o">)</span> $ pytest
+</pre></div>
+</div>
+</li>
+<li><p>When pytests pass, navigate to the top level of the <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code>
+repository and build the sphinx documentation the same way the
+GitHub Action CI does:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">(</span>fg-new-feature<span class="o">)</span> $ make -C docs clean<span class="p">;</span> make -C docs html
+</pre></div>
+</div>
+<p>Monitor the docs building for errors and warnings, then open the
+local file <cite>~/path/to/fitgrid/docs/build/html/index.html</cite> in your
+web browser and visually verify that the .rst docs and
+sphinx-gallery <code class="docutils literal notranslate"><span class="pre">*.py</span></code> Python examples in the subdirectories of
+<cite>~/path/to/fitgrid/docs/source/gallery</cite> produce the expected
+results and figures.</p>
+</li>
+</ol>
+</section>
+<section id="pull-requests-prs">
+<h3>Pull requests (PRs)<a class="headerlink" href="#pull-requests-prs" title="Permalink to this headline"></a></h3>
+<ol class="arabic simple">
+<li><p>When pytests pass and documentation builds locally, commit the
+changes on branch <cite>new-feature</cite> and push the working branch to your
+forked <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> repository on GitHub.</p></li>
+<li><p>Sign in to GitHub, navigate to your fork’s Action tab and verify
+that the push on branch <cite>new-feature</cite> triggered an Action
+workflow that runs without error.</p></li>
+<li><p>If the workflow fails, inspect the Action log, diagnose the
+problem, go back to <a class="reference internal" href="#dev-doc-test"><span class="std std-ref">Develop, test, document</span></a>, fix the problem in the
+local repo, commit the changes, and push them to the forked
+repository.</p></li>
+<li><p>When the CI workflow for branch <cite>new-feature</cite> passes in the forked
+repository, make a pull request back to the upstream working branch.</p></li>
+</ol>
+</section>
+</section>
+<section id="tips">
+<h2>Tips<a class="headerlink" href="#tips" title="Permalink to this headline"></a></h2>
+<ul>
+<li><p>Run <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">list</span> <span class="pre">fitgrid</span></code> to confirm it is installed in editable
+mode in the active development environment. It should look something
+like this:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">(</span>fg-new-feature<span class="o">)</span> userid@machine$ conda list fitgrid
+<span class="c1"># packages in environment at /home/userid/miniconda3/envs/fg-new-feature:</span>
+<span class="c1">#</span>
+<span class="c1"># Name                    Version                   Build  Channel</span>
+fitgrid                   <span class="m">0</span>.5.1.dev5                dev_0    &lt;develop&gt;
+</pre></div>
+</div>
+<p>Check that Version matches the version string in
+<cite>fitgrid/__init__.py</cite> in your local source git repo and the conda
+Channel is <cite>&lt;develop&gt;</cite>.</p>
+</li>
+<li><p>If you plan to use <a class="reference external" href="https://docs.jupyter.org/en/latest/index.html" title="(in Jupyter Documentation v4.1)"><span class="xref std std-doc">Jupyter</span></a> or
+<a class="reference external" href="https://jupyterlab.readthedocs.io/en/stable/index.html" title="(in JupyterLab v3.3)"><span class="xref std std-doc">JupyterLab</span></a> to develop code or
+documentation examples things may go more smoothly if you <code class="docutils literal notranslate"><span class="pre">mamba</span>
+<span class="pre">install</span></code> or <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span></code> the package into the development
+enviroment where you are working on <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code>.</p></li>
+<li><p>If working in a Jupyter notebook, you can use
+<a class="reference external" href="https://docs.python.org/3/library/importlib.html#importlib.reload" title="(in Python v3.10)"><code class="xref py py-func docutils literal notranslate"><span class="pre">importlib.reload()</span></code></a> to load modified source code between
+kernel restarts.</p></li>
+<li><p>You can rebuild the .rst documentation quickly without running the sphinx-gallery
+Python examples by running this command in the top-level repository directory:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">make</span> <span class="o">-</span><span class="n">C</span> <span class="n">docs</span> <span class="n">html</span><span class="o">-</span><span class="n">noexec</span>
+</pre></div>
+</div>
+</li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="bibliography.html" class="btn btn-neutral float-left" title="Bibliography" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

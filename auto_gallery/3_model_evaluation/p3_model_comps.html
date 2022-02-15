@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AIC and likelihood ratio model comparison &mdash; fitgrid  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-rendered-html.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Model summary visualization" href="summary_plots.html" />
+    <link rel="prev" title="False Discovery Rate (FDR) control for estimated predictor coefficients (betas)" href="beta_fdr.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> fitgrid
+          </a>
+              <div class="version">
+                0.5.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about_fitgrid.html">About <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gallery.html">Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">fitgrid</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../gallery.html">Examples Gallery</a> &raquo;</li>
+          <li><a href="index.html">Model evaluation</a> &raquo;</li>
+      <li>AIC and likelihood ratio model comparison</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-auto-gallery-3-model-evaluation-p3-model-comps-py"><span class="std std-ref">here</span></a>
+to download the full example code</p>
+</div>
+<section class="sphx-glr-example-title" id="aic-and-likelihood-ratio-model-comparison">
+<span id="sphx-glr-auto-gallery-3-model-evaluation-p3-model-comps-py"></span><h1>AIC and likelihood ratio model comparison<a class="headerlink" href="#aic-and-likelihood-ratio-model-comparison" title="Permalink to this headline"></a></h1>
+<p>There are many approaches to comparing models and evaluating relative
+goodness-of-fit. The <a class="reference internal" href="../../api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.FitGrid" title="fitgrid.fitgrid.FitGrid"><code class="xref py py-class docutils literal notranslate"><span class="pre">FitGrid[times,</span> <span class="pre">channels]</span></code></a> query mechanism is designed to streamline
+the computations for whatever approach is deemed appropriate for the
+research question at hand..</p>
+<p>The AIC example demonstrates the <cite>fitgrid.utils.summarize</cite> function, a
+convenience wrapper that fits a list of models and returns key summary
+information for each as an indexed data frame. The summary may be
+passed to a function for visualizing the AIC
+<span class="math notranslate nohighlight">\(\mathsf{\Delta_{min}}\)</span> model comparison (<a class="reference internal" href="../../bibliography.html#burand2004" id="id1"><span>[BurAnd2004]</span></a>) as
+shown, or processed by custom user routines as needed.</p>
+<p>For cases where the summary information is insufficient, the
+likelihood ratio example illustrates how to compute and visualize a
+model comparison measure derived from the original fitted grids. Other
+measures may be computed in a similar manner.</p>
+<section id="prepare-sample-data">
+<h2>Prepare sample data<a class="headerlink" href="#prepare-sample-data" title="Permalink to this headline"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">import</span> <span class="nn">fitgrid</span> <span class="k">as</span> <span class="nn">fg</span>
+<span class="kn">from</span> <span class="nn">fitgrid</span> <span class="kn">import</span> <a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA_DIR</span></a></a><span class="p">,</span> <span class="n">sample_data</span>
+
+<a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.sample_data.html#fitgrid.sample_data.get_file" title="fitgrid.sample_data.get_file" class="sphx-glr-backref-module-fitgrid-sample_data sphx-glr-backref-type-py-function"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.sample_data.html#fitgrid.sample_data.get_file" title="fitgrid.sample_data.get_file" class="sphx-glr-backref-module-fitgrid-sample_data sphx-glr-backref-type-py-function"><span class="n">sample_data</span><span class="o">.</span><span class="n">get_file</span></a></a><span class="p">(</span><span class="s2">&quot;sub000p3.ms1500.epochs.feather&quot;</span><span class="p">)</span>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">p3_epochs_df</span></a></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.read_feather.html#pandas.read_feather" title="pandas.read_feather" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-function"><a href="https://pandas.pydata.org/docs/reference/api/pandas.read_feather.html#pandas.read_feather" title="pandas.read_feather" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-function"><span class="n">pd</span><span class="o">.</span><span class="n">read_feather</span></a></a><span class="p">(</span><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/pathlib.html#pathlib.PosixPath" title="pathlib.PosixPath" class="sphx-glr-backref-module-pathlib sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">DATA_DIR</span></a></a> <span class="o">/</span> <span class="s2">&quot;sub000p3.ms1500.epochs.feather&quot;</span><span class="p">)</span>
+
+<span class="c1"># drop calibration pulses for these examples</span>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">p3_epochs_df</span></a></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.query.html#pandas.DataFrame.query" title="pandas.DataFrame.query" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.query.html#pandas.DataFrame.query" title="pandas.DataFrame.query" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">p3_epochs_df</span><span class="o">.</span><span class="n">query</span></a></a><span class="p">(</span><span class="s2">&quot;stim != &#39;cal&#39;&quot;</span><span class="p">)</span>
+
+<span class="c1"># look up the data QC flags and select the good epochs</span>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="pandas.core.series.Series" class="sphx-glr-backref-module-pandas-core-series sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.Series.html#pandas.Series" title="pandas.core.series.Series" class="sphx-glr-backref-module-pandas-core-series sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">good_epochs</span></a></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.query.html#pandas.DataFrame.query" title="pandas.DataFrame.query" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.query.html#pandas.DataFrame.query" title="pandas.DataFrame.query" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">p3_epochs_df</span><span class="o">.</span><span class="n">query</span></a></a><span class="p">(</span><span class="s2">&quot;match_time == 0 and log_flags == 0&quot;</span><span class="p">)[</span>
+    <span class="s2">&quot;epoch_id&quot;</span>
+<span class="p">]</span>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">p3_epochs_df</span></a></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.query.html#pandas.DataFrame.query" title="pandas.DataFrame.query" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.query.html#pandas.DataFrame.query" title="pandas.DataFrame.query" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">p3_epochs_df</span><span class="o">.</span><span class="n">query</span></a></a><span class="p">(</span><span class="s2">&quot;epoch_id in @good_epochs&quot;</span><span class="p">)</span>
+
+<span class="c1"># rename the time stamp column</span>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.rename.html#pandas.DataFrame.rename" title="pandas.DataFrame.rename" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.rename.html#pandas.DataFrame.rename" title="pandas.DataFrame.rename" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">p3_epochs_df</span><span class="o">.</span><span class="n">rename</span></a></a><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;match_time&quot;</span><span class="p">:</span> <span class="s2">&quot;time_ms&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># select columns of interest for modeling</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">indices</span></a></a> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;epoch_id&quot;</span><span class="p">,</span> <span class="s2">&quot;time_ms&quot;</span><span class="p">]</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">predictors</span></a></a> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;stim&quot;</span><span class="p">,</span> <span class="s2">&quot;tone&quot;</span><span class="p">]</span>  <span class="c1"># categorical with 2 levels: standard, target</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">channels</span></a></a> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;MiPf&quot;</span><span class="p">,</span> <span class="s2">&quot;MiCe&quot;</span><span class="p">,</span> <span class="s2">&quot;MiPa&quot;</span><span class="p">,</span> <span class="s2">&quot;MiOc&quot;</span><span class="p">]</span>  <span class="c1"># midline electrodes</span>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">p3_epochs_df</span></a></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">p3_epochs_df</span></a></a><span class="p">[</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">indices</span></a></a> <span class="o">+</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">predictors</span></a></a> <span class="o">+</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">channels</span></a></a><span class="p">]</span>
+
+<span class="c1"># set the epoch and time column index for fg.Epochs</span>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.set_index.html#pandas.DataFrame.set_index" title="pandas.DataFrame.set_index" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.set_index.html#pandas.DataFrame.set_index" title="pandas.DataFrame.set_index" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">p3_epochs_df</span><span class="o">.</span><span class="n">set_index</span></a></a><span class="p">([</span><span class="s2">&quot;epoch_id&quot;</span><span class="p">,</span> <span class="s2">&quot;time_ms&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># &quot;baseline&quot;, i.e., center each epoch on the 200 ms pre-stimulus interval</span>
+<a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">centered</span></a></a> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">epoch_id</span></a></a><span class="p">,</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">vals</span></a></a> <span class="ow">in</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html#pandas.DataFrame.groupby" title="pandas.DataFrame.groupby" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.groupby.html#pandas.DataFrame.groupby" title="pandas.DataFrame.groupby" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">p3_epochs_df</span><span class="o">.</span><span class="n">groupby</span></a></a><span class="p">(</span><span class="s2">&quot;epoch_id&quot;</span><span class="p">):</span>
+    <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">centered</span></a></a><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">vals</span></a></a><span class="p">[</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">channels</span></a></a><span class="p">]</span>
+        <span class="o">-</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">vals</span></a></a><span class="p">[</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">channels</span></a></a><span class="p">]</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">&quot;time_ms &gt;= -200 and time_ms &lt; 0&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="p">)</span>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">p3_epochs_df</span></a></a><span class="p">[</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">channels</span></a></a><span class="p">]</span> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.concat.html#pandas.concat" title="pandas.concat" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-function"><a href="https://pandas.pydata.org/docs/reference/api/pandas.concat.html#pandas.concat" title="pandas.concat" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-function"><span class="n">pd</span><span class="o">.</span><span class="n">concat</span></a></a><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">centered</span></a></a><span class="p">)</span>
+
+<span class="c1"># slice epochs down to a shorter interval</span>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.query.html#pandas.DataFrame.query" title="pandas.DataFrame.query" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.query.html#pandas.DataFrame.query" title="pandas.DataFrame.query" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">p3_epochs_df</span><span class="o">.</span><span class="n">query</span></a></a><span class="p">(</span><span class="s2">&quot;time_ms &gt;= -200 and time_ms &lt;= 600&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">p3_epochs_df</span></a></a>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>stim</th>
+      <th>tone</th>
+      <th>MiPf</th>
+      <th>MiCe</th>
+      <th>MiPa</th>
+      <th>MiOc</th>
+    </tr>
+    <tr>
+      <th>epoch_id</th>
+      <th>time_ms</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="5" valign="top">0</th>
+      <th>-200</th>
+      <td>target</td>
+      <td>hi</td>
+      <td>-0.380001</td>
+      <td>20.450624</td>
+      <td>29.704453</td>
+      <td>21.073549</td>
+    </tr>
+    <tr>
+      <th>-196</th>
+      <td>target</td>
+      <td>hi</td>
+      <td>0.119999</td>
+      <td>19.700624</td>
+      <td>28.266953</td>
+      <td>17.432924</td>
+    </tr>
+    <tr>
+      <th>-192</th>
+      <td>target</td>
+      <td>hi</td>
+      <td>-3.880001</td>
+      <td>11.106874</td>
+      <td>18.485703</td>
+      <td>11.112612</td>
+    </tr>
+    <tr>
+      <th>-188</th>
+      <td>target</td>
+      <td>hi</td>
+      <td>-1.380001</td>
+      <td>11.106874</td>
+      <td>14.891953</td>
+      <td>6.261050</td>
+    </tr>
+    <tr>
+      <th>-184</th>
+      <td>target</td>
+      <td>hi</td>
+      <td>3.119999</td>
+      <td>9.075624</td>
+      <td>9.641953</td>
+      <td>3.343081</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th rowspan="5" valign="top">391</th>
+      <th>584</th>
+      <td>standard</td>
+      <td>hi</td>
+      <td>-27.759998</td>
+      <td>-19.758007</td>
+      <td>-14.340283</td>
+      <td>-3.182412</td>
+    </tr>
+    <tr>
+      <th>588</th>
+      <td>standard</td>
+      <td>hi</td>
+      <td>-27.759998</td>
+      <td>-24.312695</td>
+      <td>-23.644970</td>
+      <td>-8.283975</td>
+    </tr>
+    <tr>
+      <th>592</th>
+      <td>standard</td>
+      <td>hi</td>
+      <td>-19.259998</td>
+      <td>-13.181836</td>
+      <td>-14.102002</td>
+      <td>2.649619</td>
+    </tr>
+    <tr>
+      <th>596</th>
+      <td>standard</td>
+      <td>hi</td>
+      <td>-19.259998</td>
+      <td>-13.687696</td>
+      <td>-15.293408</td>
+      <td>-0.510537</td>
+    </tr>
+    <tr>
+      <th>600</th>
+      <td>standard</td>
+      <td>hi</td>
+      <td>-22.259998</td>
+      <td>-12.423047</td>
+      <td>-12.670362</td>
+      <td>-1.239053</td>
+    </tr>
+  </tbody>
+</table>
+<p>67134 rows × 6 columns</p>
+</div>
+</div>
+<br />
+<br /></section>
+<section id="ingest-as-fitgrid-epochs">
+<h2>Ingest as <cite>fitgrid.Epochs</cite><a class="headerlink" href="#ingest-as-fitgrid-epochs" title="Permalink to this headline"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">p3_epochs_fg</span></a></a> <span class="o">=</span> <span class="n">fg</span><span class="o">.</span><span class="n">epochs_from_dataframe</span><span class="p">(</span>
+    <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">p3_epochs_df</span></a></a><span class="p">,</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">epoch_id</span></a></a><span class="o">=</span><span class="s2">&quot;epoch_id&quot;</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="s2">&quot;time_ms&quot;</span><span class="p">,</span> <a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">channels</span></a></a><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">channels</span></a></a>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="model-summaries">
+<h2>Model summaries<a class="headerlink" href="#model-summaries" title="Permalink to this headline"></a></h2>
+<p>The <cite>fitgrid.utils.summarize</cite> function is a convenience wrapper that fits
+a list of models and collects a few key summary measures into
+a single dataframe indexed by model, beta estimate, and the measure.
+It supports OLS and LME model fitting and the summaries are
+returned are in the same format.</p>
+<p>This experimental design is a fully crossed 2 (stim: standard, target)
+<span class="math notranslate nohighlight">\(\times\)</span> 2 (tone: hi, lo). The predictors are treatment coded (<cite>patsy</cite> default).</p>
+<p>Here is a stack of 5 models to summarize and compare:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rhss_T</span></a></a> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;1 + stim + tone + stim:tone&quot;</span><span class="p">,</span>  <span class="c1"># long form of &quot;stim * tone&quot;</span>
+    <span class="s2">&quot;1 + stim + tone&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;1 + stim&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;1 + tone&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;1&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fitgrid.utils.summary</span> <span class="kn">import</span> <a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.summarize" title="fitgrid.utils.summary.summarize" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.summarize" title="fitgrid.utils.summary.summarize" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><span class="n">summarize</span></a></a>
+
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lm_summary_T</span></a></a> <span class="o">=</span> <a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.summarize" title="fitgrid.utils.summary.summarize" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.summarize" title="fitgrid.utils.summary.summarize" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><span class="n">summarize</span></a></a><span class="p">(</span>
+    <a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">p3_epochs_fg</span></a></a><span class="p">,</span>
+    <span class="n">modeler</span><span class="o">=</span><span class="s2">&quot;lm&quot;</span><span class="p">,</span>
+    <span class="n">RHS</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">rhss_T</span></a></a><span class="p">,</span>
+    <span class="n">LHS</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">channels</span></a></a><span class="p">,</span>
+    <span class="n">parallel</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">quiet</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lm_summary_T</span></a></a>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/fitgrid/fitgrid/fitgrid/utils/summary.py:145: FutureWarning: fitgrid summaries are in early days, subject to change
+  warnings.warn(
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th>MiPf</th>
+      <th>MiCe</th>
+      <th>MiPa</th>
+      <th>MiOc</th>
+    </tr>
+    <tr>
+      <th>time_ms</th>
+      <th>model</th>
+      <th>beta</th>
+      <th>key</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th rowspan="5" valign="top">-200</th>
+      <th rowspan="5" valign="top">1 + stim + tone + stim:tone</th>
+      <th rowspan="5" valign="top">Intercept</th>
+      <th>2.5_ci</th>
+      <td>-0.966986</td>
+      <td>-3.30788</td>
+      <td>-3.08549</td>
+      <td>-1.96038</td>
+    </tr>
+    <tr>
+      <th>97.5_ci</th>
+      <td>2.15727</td>
+      <td>0.814112</td>
+      <td>1.42294</td>
+      <td>2.0828</td>
+    </tr>
+    <tr>
+      <th>AIC</th>
+      <td>2453.06</td>
+      <td>2638.19</td>
+      <td>2698.06</td>
+      <td>2625.3</td>
+    </tr>
+    <tr>
+      <th>DF</th>
+      <td>330</td>
+      <td>330</td>
+      <td>330</td>
+      <td>330</td>
+    </tr>
+    <tr>
+      <th>Estimate</th>
+      <td>0.595141</td>
+      <td>-1.24688</td>
+      <td>-0.831273</td>
+      <td>0.0612079</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <th>...</th>
+      <th>...</th>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th rowspan="5" valign="top">600</th>
+      <th rowspan="5" valign="top">1</th>
+      <th rowspan="5" valign="top">Intercept</th>
+      <th>T-stat</th>
+      <td>-3.65018</td>
+      <td>-1.38863</td>
+      <td>1.23162</td>
+      <td>1.59486</td>
+    </tr>
+    <tr>
+      <th>has_warning</th>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>logLike</th>
+      <td>-1325.39</td>
+      <td>-1376.77</td>
+      <td>-1397.84</td>
+      <td>-1347.49</td>
+    </tr>
+    <tr>
+      <th>sigma2</th>
+      <td>164.281</td>
+      <td>223.469</td>
+      <td>253.519</td>
+      <td>187.524</td>
+    </tr>
+    <tr>
+      <th>warnings</th>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+<p>31356 rows × 4 columns</p>
+</div>
+</div>
+<br />
+<br /></section>
+<section id="aic-model-comparison-delta-i-mathsf-aic-i-mathsf-aic-min">
+<h2>AIC model comparison: <span class="math notranslate nohighlight">\(\Delta_{i} = \mathsf{AIC}_{i} - \mathsf{AIC_{min}}\)</span><a class="headerlink" href="#aic-model-comparison-delta-i-mathsf-aic-i-mathsf-aic-min" title="Permalink to this headline"></a></h2>
+<p>Akiakie’s information criterion (AIC) increases with residual error
+and the number of model parameters so comparison on AIC favors the
+better fitting, more parsimonious models with lower AIC values.</p>
+<p>This example visualizes the channel-wise time course of
+<span class="math notranslate nohighlight">\(\Delta_{i} = \mathsf{AIC}_{i} - \mathsf{AIC_{min}}\)</span>, a
+measure of the AIC of model <em>i</em> vs. the lowest AIC of any model in
+the set. Burnham and Anderson propose
+heuristics where models with <span class="math notranslate nohighlight">\(\Delta_{i}\)</span> around 4 are less well
+supported by the data than the alternative(s) and models with <span class="math notranslate nohighlight">\(\Delta_{i}\)</span>
+&gt; 7 substantially less so.</p>
+<p>In the next figure, the line plots (left column) and raster plots
+(right column) show the same data in different ways.  Higher
+amplitude line plots and corresponding darker shades of blue in the
+raster plot indicate that the model’s AIC is higher than the best
+candidate in the set.</p>
+<p><strong>Prestimulus.</strong> Prior to stimulus onset at time = 0, the more
+parsimonious models (bottom three rows) have systematically lower
+AIC values (broad regions of lighest blue) than the more complex
+models (top two rows). This indicates that during this interval, the
+predictor variables alone and in combination do not soak up enough
+variability to offset the penalty for increasing the model
+complexity. In terms of this AIC measure, none of the models appear
+systematically better supported by the data than the null model
+(bottom row) in the prestimulus interval.</p>
+<p><strong>Post-stimulus.</strong> In the interval between around 300 - 375 ms
+poststimulus, the full model that includes <cite>stim</cite> and <cite>tone</cite>
+predictors and their interaction has the minimum AIC among the
+models compared at all channels except the prefrontal MiPf.  The
+sharp transients in the magntiude of the AIC differences (&gt; 7) at
+these channels in this interval indicates substantially less support
+for the alternative models.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fitgrid.utils.summary</span> <span class="kn">import</span> <a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.plot_AICmin_deltas" title="fitgrid.utils.summary.plot_AICmin_deltas" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.plot_AICmin_deltas" title="fitgrid.utils.summary.plot_AICmin_deltas" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><span class="n">plot_AICmin_deltas</span></a></a>
+
+<a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a></a><span class="p">,</span> <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axs</span></a></a> <span class="o">=</span> <a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.plot_AICmin_deltas" title="fitgrid.utils.summary.plot_AICmin_deltas" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.utils.summary.html#fitgrid.utils.summary.plot_AICmin_deltas" title="fitgrid.utils.summary.plot_AICmin_deltas" class="sphx-glr-backref-module-fitgrid-utils-summary sphx-glr-backref-type-py-function"><span class="n">plot_AICmin_deltas</span></a></a><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lm_summary_T</span></a></a><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">12</span><span class="p">))</span>
+<a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure.tight_layout" title="matplotlib.figure.Figure.tight_layout" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure.tight_layout" title="matplotlib.figure.Figure.tight_layout" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span></a></a><span class="p">()</span>
+<span class="k">for</span> <a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax_row</span></a></a> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axs</span></a></a><span class="p">)):</span>
+    <a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="numpy.ndarray" class="sphx-glr-backref-module-numpy sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">axs</span></a></a><span class="p">[</span><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/functions.html#int" title="builtins.int" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">ax_row</span></a></a><span class="p">,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">ylim</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">50</span><span class="p">))</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_p3_model_comps_001.png" srcset="../../_images/sphx_glr_p3_model_comps_001.png" alt="1 + stim + tone + stim:tone, 1 + stim + tone, 1 + stim, 1 + tone, 1" class = "sphx-glr-single-img"/></section>
+<section id="likelihood-ratio">
+<h2>Likelihood Ratio<a class="headerlink" href="#likelihood-ratio" title="Permalink to this headline"></a></h2>
+<p>This example fits a full and reduced
+model, computes and then visualizes the time course of likelihood ratios
+with a few lines of code.</p>
+<p>Fit the full model. The log likelihood dataframe is returned by
+querying the <a class="reference internal" href="../../api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.FitGrid" title="fitgrid.fitgrid.FitGrid"><code class="xref py py-class docutils literal notranslate"><span class="pre">FitGrid[times,</span> <span class="pre">channels]</span></code></a>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.LMFitGrid" title="fitgrid.fitgrid.LMFitGrid" class="sphx-glr-backref-module-fitgrid-fitgrid sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.LMFitGrid" title="fitgrid.fitgrid.LMFitGrid" class="sphx-glr-backref-module-fitgrid-fitgrid sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lmg_full</span></a></a> <span class="o">=</span> <span class="n">fg</span><span class="o">.</span><span class="n">lm</span><span class="p">(</span><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">p3_epochs_fg</span></a></a><span class="p">,</span> <span class="n">RHS</span><span class="o">=</span><span class="s2">&quot;1 + stim + tone + stim:tone&quot;</span><span class="p">,</span> <span class="n">LHS</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">channels</span></a></a><span class="p">)</span>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lmg_full</span><span class="o">.</span><span class="n">llf</span></a></a>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>  0%|          | 0/201 [00:00&lt;?, ?it/s]
+  1%|1         | 3/201 [00:00&lt;00:07, 27.12it/s]
+  3%|2         | 6/201 [00:00&lt;00:06, 28.43it/s]
+  5%|4         | 10/201 [00:00&lt;00:06, 29.23it/s]
+  6%|6         | 13/201 [00:00&lt;00:06, 29.45it/s]
+  8%|7         | 16/201 [00:00&lt;00:06, 28.70it/s]
+  9%|9         | 19/201 [00:00&lt;00:06, 28.12it/s]
+ 11%|#         | 22/201 [00:00&lt;00:06, 28.35it/s]
+ 12%|#2        | 25/201 [00:00&lt;00:06, 28.46it/s]
+ 14%|#3        | 28/201 [00:00&lt;00:06, 28.29it/s]
+ 15%|#5        | 31/201 [00:01&lt;00:06, 28.27it/s]
+ 17%|#6        | 34/201 [00:01&lt;00:05, 28.08it/s]
+ 18%|#8        | 37/201 [00:01&lt;00:05, 28.23it/s]
+ 20%|#9        | 40/201 [00:01&lt;00:05, 28.51it/s]
+ 21%|##1       | 43/201 [00:01&lt;00:05, 28.70it/s]
+ 23%|##2       | 46/201 [00:01&lt;00:05, 28.30it/s]
+ 24%|##4       | 49/201 [00:01&lt;00:05, 28.61it/s]
+ 26%|##5       | 52/201 [00:01&lt;00:05, 28.75it/s]
+ 27%|##7       | 55/201 [00:01&lt;00:05, 28.72it/s]
+ 29%|##8       | 58/201 [00:02&lt;00:05, 28.50it/s]
+ 30%|###       | 61/201 [00:02&lt;00:04, 28.76it/s]
+ 32%|###1      | 64/201 [00:02&lt;00:04, 28.80it/s]
+ 33%|###3      | 67/201 [00:02&lt;00:04, 28.89it/s]
+ 35%|###4      | 70/201 [00:02&lt;00:04, 28.99it/s]
+ 36%|###6      | 73/201 [00:02&lt;00:04, 27.99it/s]
+ 38%|###7      | 76/201 [00:02&lt;00:04, 28.33it/s]
+ 40%|###9      | 80/201 [00:02&lt;00:04, 29.13it/s]
+ 42%|####1     | 84/201 [00:02&lt;00:03, 29.56it/s]
+ 43%|####3     | 87/201 [00:03&lt;00:03, 29.08it/s]
+ 45%|####4     | 90/201 [00:03&lt;00:03, 29.22it/s]
+ 46%|####6     | 93/201 [00:03&lt;00:03, 29.26it/s]
+ 48%|####7     | 96/201 [00:03&lt;00:03, 29.35it/s]
+ 49%|####9     | 99/201 [00:03&lt;00:03, 29.32it/s]
+ 51%|#####     | 102/201 [00:03&lt;00:03, 29.29it/s]
+ 52%|#####2    | 105/201 [00:03&lt;00:03, 29.15it/s]
+ 54%|#####3    | 108/201 [00:03&lt;00:03, 29.27it/s]
+ 55%|#####5    | 111/201 [00:03&lt;00:03, 29.30it/s]
+ 57%|#####6    | 114/201 [00:03&lt;00:02, 29.14it/s]
+ 58%|#####8    | 117/201 [00:04&lt;00:07, 11.58it/s]
+ 60%|#####9    | 120/201 [00:04&lt;00:05, 14.10it/s]
+ 61%|######1   | 123/201 [00:04&lt;00:04, 16.69it/s]
+ 63%|######2   | 126/201 [00:04&lt;00:03, 19.19it/s]
+ 64%|######4   | 129/201 [00:04&lt;00:03, 21.38it/s]
+ 66%|######5   | 132/201 [00:05&lt;00:02, 23.19it/s]
+ 67%|######7   | 135/201 [00:05&lt;00:02, 24.68it/s]
+ 69%|######8   | 138/201 [00:05&lt;00:02, 25.97it/s]
+ 70%|#######   | 141/201 [00:05&lt;00:02, 26.89it/s]
+ 72%|#######1  | 144/201 [00:05&lt;00:02, 27.56it/s]
+ 73%|#######3  | 147/201 [00:05&lt;00:01, 28.09it/s]
+ 75%|#######4  | 150/201 [00:05&lt;00:01, 28.32it/s]
+ 76%|#######6  | 153/201 [00:05&lt;00:01, 28.48it/s]
+ 78%|#######7  | 156/201 [00:05&lt;00:01, 28.87it/s]
+ 79%|#######9  | 159/201 [00:06&lt;00:01, 28.83it/s]
+ 81%|########  | 162/201 [00:06&lt;00:01, 28.80it/s]
+ 82%|########2 | 165/201 [00:06&lt;00:01, 28.87it/s]
+ 84%|########3 | 168/201 [00:06&lt;00:01, 28.35it/s]
+ 85%|########5 | 171/201 [00:06&lt;00:01, 28.76it/s]
+ 87%|########6 | 174/201 [00:06&lt;00:00, 28.91it/s]
+ 89%|########8 | 178/201 [00:06&lt;00:00, 29.26it/s]
+ 91%|######### | 182/201 [00:06&lt;00:00, 29.60it/s]
+ 93%|#########2| 186/201 [00:06&lt;00:00, 29.85it/s]
+ 94%|#########4| 189/201 [00:07&lt;00:00, 29.73it/s]
+ 96%|#########5| 192/201 [00:07&lt;00:00, 29.74it/s]
+ 97%|#########7| 195/201 [00:07&lt;00:00, 29.76it/s]
+ 99%|#########9| 199/201 [00:07&lt;00:00, 29.82it/s]
+100%|##########| 201/201 [00:07&lt;00:00, 27.00it/s]
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>MiPf</th>
+      <th>MiCe</th>
+      <th>MiPa</th>
+      <th>MiOc</th>
+    </tr>
+    <tr>
+      <th>time_ms</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>-200</th>
+      <td>-1222.532134</td>
+      <td>-1315.097134</td>
+      <td>-1345.027696</td>
+      <td>-1308.649342</td>
+    </tr>
+    <tr>
+      <th>-196</th>
+      <td>-1219.015289</td>
+      <td>-1309.332110</td>
+      <td>-1343.317795</td>
+      <td>-1307.756720</td>
+    </tr>
+    <tr>
+      <th>-192</th>
+      <td>-1217.569942</td>
+      <td>-1299.470975</td>
+      <td>-1337.332536</td>
+      <td>-1313.580720</td>
+    </tr>
+    <tr>
+      <th>-188</th>
+      <td>-1203.189206</td>
+      <td>-1284.976803</td>
+      <td>-1330.065186</td>
+      <td>-1304.068471</td>
+    </tr>
+    <tr>
+      <th>-184</th>
+      <td>-1176.462814</td>
+      <td>-1277.721413</td>
+      <td>-1331.545780</td>
+      <td>-1303.852666</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>584</th>
+      <td>-1311.148454</td>
+      <td>-1361.863041</td>
+      <td>-1387.438445</td>
+      <td>-1340.639807</td>
+    </tr>
+    <tr>
+      <th>588</th>
+      <td>-1307.528658</td>
+      <td>-1365.721171</td>
+      <td>-1386.531566</td>
+      <td>-1332.786442</td>
+    </tr>
+    <tr>
+      <th>592</th>
+      <td>-1313.377251</td>
+      <td>-1370.874212</td>
+      <td>-1389.435160</td>
+      <td>-1333.903770</td>
+    </tr>
+    <tr>
+      <th>596</th>
+      <td>-1318.216984</td>
+      <td>-1373.834763</td>
+      <td>-1393.517831</td>
+      <td>-1343.739941</td>
+    </tr>
+    <tr>
+      <th>600</th>
+      <td>-1323.657999</td>
+      <td>-1373.309777</td>
+      <td>-1388.665581</td>
+      <td>-1337.706494</td>
+    </tr>
+  </tbody>
+</table>
+<p>201 rows × 4 columns</p>
+</div>
+</div>
+<br />
+<br /><p>Fit the reduced model likewise.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.LMFitGrid" title="fitgrid.fitgrid.LMFitGrid" class="sphx-glr-backref-module-fitgrid-fitgrid sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.fitgrid.html#fitgrid.fitgrid.LMFitGrid" title="fitgrid.fitgrid.LMFitGrid" class="sphx-glr-backref-module-fitgrid-fitgrid sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lmg_reduced</span></a></a> <span class="o">=</span> <span class="n">fg</span><span class="o">.</span><span class="n">lm</span><span class="p">(</span><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://kutaslab.github.io/fitgrid/api_docs/fitgrid.epochs.html#fitgrid.epochs.Epochs" title="fitgrid.epochs.Epochs" class="sphx-glr-backref-module-fitgrid-epochs sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">p3_epochs_fg</span></a></a><span class="p">,</span> <span class="n">RHS</span><span class="o">=</span><span class="s2">&quot;1 + stim + tone&quot;</span><span class="p">,</span> <span class="n">LHS</span><span class="o">=</span><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#list" title="builtins.list" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">channels</span></a></a><span class="p">)</span>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lmg_reduced</span><span class="o">.</span><span class="n">llf</span></a></a>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>  0%|          | 0/201 [00:00&lt;?, ?it/s]
+  1%|1         | 3/201 [00:00&lt;00:06, 29.17it/s]
+  3%|3         | 7/201 [00:00&lt;00:06, 30.10it/s]
+  5%|5         | 11/201 [00:00&lt;00:06, 29.53it/s]
+  7%|7         | 15/201 [00:00&lt;00:06, 29.98it/s]
+  9%|9         | 19/201 [00:00&lt;00:05, 30.39it/s]
+ 11%|#1        | 23/201 [00:00&lt;00:05, 30.55it/s]
+ 13%|#3        | 27/201 [00:00&lt;00:05, 30.84it/s]
+ 15%|#5        | 31/201 [00:01&lt;00:05, 31.12it/s]
+ 17%|#7        | 35/201 [00:01&lt;00:05, 31.15it/s]
+ 19%|#9        | 39/201 [00:01&lt;00:05, 31.24it/s]
+ 21%|##1       | 43/201 [00:01&lt;00:04, 31.72it/s]
+ 23%|##3       | 47/201 [00:01&lt;00:04, 31.97it/s]
+ 25%|##5       | 51/201 [00:01&lt;00:04, 31.99it/s]
+ 27%|##7       | 55/201 [00:01&lt;00:04, 32.03it/s]
+ 29%|##9       | 59/201 [00:01&lt;00:04, 32.12it/s]
+ 31%|###1      | 63/201 [00:02&lt;00:04, 32.03it/s]
+ 33%|###3      | 67/201 [00:02&lt;00:04, 32.08it/s]
+ 35%|###5      | 71/201 [00:02&lt;00:04, 32.21it/s]
+ 37%|###7      | 75/201 [00:02&lt;00:04, 31.47it/s]
+ 39%|###9      | 79/201 [00:02&lt;00:03, 30.92it/s]
+ 41%|####1     | 83/201 [00:02&lt;00:03, 31.02it/s]
+ 43%|####3     | 87/201 [00:02&lt;00:03, 29.87it/s]
+ 45%|####5     | 91/201 [00:02&lt;00:03, 30.31it/s]
+ 47%|####7     | 95/201 [00:03&lt;00:03, 30.63it/s]
+ 49%|####9     | 99/201 [00:03&lt;00:03, 30.83it/s]
+ 51%|#####1    | 103/201 [00:03&lt;00:03, 31.17it/s]
+ 53%|#####3    | 107/201 [00:03&lt;00:03, 31.30it/s]
+ 55%|#####5    | 111/201 [00:03&lt;00:02, 31.40it/s]
+ 57%|#####7    | 115/201 [00:03&lt;00:02, 31.53it/s]
+ 59%|#####9    | 119/201 [00:03&lt;00:02, 31.74it/s]
+ 61%|######1   | 123/201 [00:03&lt;00:02, 31.19it/s]
+ 63%|######3   | 127/201 [00:04&lt;00:02, 31.27it/s]
+ 65%|######5   | 131/201 [00:04&lt;00:02, 31.26it/s]
+ 67%|######7   | 135/201 [00:04&lt;00:02, 31.30it/s]
+ 69%|######9   | 139/201 [00:04&lt;00:01, 31.42it/s]
+ 71%|#######1  | 143/201 [00:04&lt;00:01, 31.42it/s]
+ 73%|#######3  | 147/201 [00:04&lt;00:01, 30.99it/s]
+ 75%|#######5  | 151/201 [00:04&lt;00:01, 31.15it/s]
+ 77%|#######7  | 155/201 [00:04&lt;00:01, 31.21it/s]
+ 79%|#######9  | 159/201 [00:05&lt;00:01, 31.05it/s]
+ 81%|########1 | 163/201 [00:05&lt;00:01, 31.09it/s]
+ 83%|########3 | 167/201 [00:05&lt;00:01, 31.20it/s]
+ 85%|########5 | 171/201 [00:05&lt;00:00, 31.39it/s]
+ 87%|########7 | 175/201 [00:05&lt;00:00, 31.62it/s]
+ 89%|########9 | 179/201 [00:05&lt;00:00, 31.47it/s]
+ 91%|#########1| 183/201 [00:05&lt;00:00, 31.39it/s]
+ 93%|#########3| 187/201 [00:05&lt;00:00, 31.42it/s]
+ 95%|#########5| 191/201 [00:06&lt;00:00, 31.56it/s]
+ 97%|#########7| 195/201 [00:06&lt;00:00, 31.29it/s]
+ 99%|#########9| 199/201 [00:06&lt;00:00, 31.22it/s]
+100%|##########| 201/201 [00:06&lt;00:00, 31.22it/s]
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>MiPf</th>
+      <th>MiCe</th>
+      <th>MiPa</th>
+      <th>MiOc</th>
+    </tr>
+    <tr>
+      <th>time_ms</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>-200</th>
+      <td>-1222.598161</td>
+      <td>-1315.857038</td>
+      <td>-1345.655697</td>
+      <td>-1310.202354</td>
+    </tr>
+    <tr>
+      <th>-196</th>
+      <td>-1219.035644</td>
+      <td>-1309.862783</td>
+      <td>-1344.004489</td>
+      <td>-1309.552813</td>
+    </tr>
+    <tr>
+      <th>-192</th>
+      <td>-1217.708926</td>
+      <td>-1300.291720</td>
+      <td>-1338.389544</td>
+      <td>-1315.676625</td>
+    </tr>
+    <tr>
+      <th>-188</th>
+      <td>-1203.608227</td>
+      <td>-1286.117888</td>
+      <td>-1331.449561</td>
+      <td>-1305.668078</td>
+    </tr>
+    <tr>
+      <th>-184</th>
+      <td>-1176.544845</td>
+      <td>-1278.648741</td>
+      <td>-1332.709155</td>
+      <td>-1304.580230</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>584</th>
+      <td>-1311.224343</td>
+      <td>-1361.863881</td>
+      <td>-1387.594031</td>
+      <td>-1341.033271</td>
+    </tr>
+    <tr>
+      <th>588</th>
+      <td>-1307.935020</td>
+      <td>-1365.731574</td>
+      <td>-1386.761340</td>
+      <td>-1333.356553</td>
+    </tr>
+    <tr>
+      <th>592</th>
+      <td>-1313.604190</td>
+      <td>-1370.888442</td>
+      <td>-1389.681551</td>
+      <td>-1334.510610</td>
+    </tr>
+    <tr>
+      <th>596</th>
+      <td>-1318.389052</td>
+      <td>-1373.835473</td>
+      <td>-1393.602722</td>
+      <td>-1344.138936</td>
+    </tr>
+    <tr>
+      <th>600</th>
+      <td>-1324.154922</td>
+      <td>-1373.313601</td>
+      <td>-1388.716013</td>
+      <td>-1338.103694</td>
+    </tr>
+  </tbody>
+</table>
+<p>201 rows × 4 columns</p>
+</div>
+</div>
+<br />
+<br /><p><strong>Calculate.</strong> The likelihood ratio is the difference of the log likelihoods.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">likelihood_ratio</span></a></a> <span class="o">=</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lmg_full</span><span class="o">.</span><span class="n">llf</span></a></a> <span class="o">-</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lmg_reduced</span><span class="o">.</span><span class="n">llf</span></a></a>
+<a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">likelihood_ratio</span></a></a>
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>MiPf</th>
+      <th>MiCe</th>
+      <th>MiPa</th>
+      <th>MiOc</th>
+    </tr>
+    <tr>
+      <th>time_ms</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>-200</th>
+      <td>0.066027</td>
+      <td>0.759904</td>
+      <td>0.628001</td>
+      <td>1.553012</td>
+    </tr>
+    <tr>
+      <th>-196</th>
+      <td>0.020355</td>
+      <td>0.530672</td>
+      <td>0.686694</td>
+      <td>1.796092</td>
+    </tr>
+    <tr>
+      <th>-192</th>
+      <td>0.138984</td>
+      <td>0.820745</td>
+      <td>1.057008</td>
+      <td>2.095905</td>
+    </tr>
+    <tr>
+      <th>-188</th>
+      <td>0.419021</td>
+      <td>1.141085</td>
+      <td>1.384376</td>
+      <td>1.599607</td>
+    </tr>
+    <tr>
+      <th>-184</th>
+      <td>0.082031</td>
+      <td>0.927328</td>
+      <td>1.163375</td>
+      <td>0.727564</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>584</th>
+      <td>0.075889</td>
+      <td>0.000840</td>
+      <td>0.155586</td>
+      <td>0.393464</td>
+    </tr>
+    <tr>
+      <th>588</th>
+      <td>0.406362</td>
+      <td>0.010402</td>
+      <td>0.229774</td>
+      <td>0.570111</td>
+    </tr>
+    <tr>
+      <th>592</th>
+      <td>0.226939</td>
+      <td>0.014231</td>
+      <td>0.246391</td>
+      <td>0.606841</td>
+    </tr>
+    <tr>
+      <th>596</th>
+      <td>0.172068</td>
+      <td>0.000710</td>
+      <td>0.084891</td>
+      <td>0.398995</td>
+    </tr>
+    <tr>
+      <th>600</th>
+      <td>0.496923</td>
+      <td>0.003825</td>
+      <td>0.050432</td>
+      <td>0.397200</td>
+    </tr>
+  </tbody>
+</table>
+<p>201 rows × 4 columns</p>
+</div>
+</div>
+<br />
+<br /><p><strong>Visualize.</strong> This comparison shows that stimulus x tone interaction
+term in the model has little systematic impact on the
+goodness-of-fit as given by the likelihood except around 300 - 375 ms poststimulus,
+largest over central scalp (MiCe).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a></a><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <a href="https://matplotlib.org/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><a href="https://matplotlib.org/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a></a><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+
+<span class="c1"># render</span>
+<a href="https://matplotlib.org/api/image_api.html#matplotlib.image.AxesImage" title="matplotlib.image.AxesImage" class="sphx-glr-backref-module-matplotlib-image sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://matplotlib.org/api/image_api.html#matplotlib.image.AxesImage" title="matplotlib.image.AxesImage" class="sphx-glr-backref-module-matplotlib-image sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">im</span></a></a> <span class="o">=</span> <a href="https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.imshow.html#matplotlib.axes.Axes.imshow" title="matplotlib.axes.Axes.imshow" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><a href="https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.imshow.html#matplotlib.axes.Axes.imshow" title="matplotlib.axes.Axes.imshow" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">imshow</span></a></a><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.T.html#pandas.DataFrame.T" title="pandas.DataFrame.T" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-property"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.T.html#pandas.DataFrame.T" title="pandas.DataFrame.T" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-property"><span class="n">likelihood_ratio</span><span class="o">.</span><span class="n">T</span></a></a><span class="p">,</span> <span class="n">interpolation</span><span class="o">=</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="n">aspect</span><span class="o">=</span><span class="mi">16</span><span class="p">)</span>
+<a href="https://matplotlib.org/api/colorbar_api.html#matplotlib.colorbar.Colorbar" title="matplotlib.colorbar.Colorbar" class="sphx-glr-backref-module-matplotlib-colorbar sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://matplotlib.org/api/colorbar_api.html#matplotlib.colorbar.Colorbar" title="matplotlib.colorbar.Colorbar" class="sphx-glr-backref-module-matplotlib-colorbar sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">cb</span></a></a> <span class="o">=</span> <a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure.colorbar" title="matplotlib.figure.Figure.colorbar" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure.colorbar" title="matplotlib.figure.Figure.colorbar" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">colorbar</span></a></a><span class="p">(</span><a href="https://matplotlib.org/api/image_api.html#matplotlib.image.AxesImage" title="matplotlib.image.AxesImage" class="sphx-glr-backref-module-matplotlib-image sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://matplotlib.org/api/image_api.html#matplotlib.image.AxesImage" title="matplotlib.image.AxesImage" class="sphx-glr-backref-module-matplotlib-image sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">im</span></a></a><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+
+<span class="c1"># label</span>
+<a href="https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.set_title.html#matplotlib.axes.Axes.set_title" title="matplotlib.axes.Axes.set_title" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><a href="https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.set_title.html#matplotlib.axes.Axes.set_title" title="matplotlib.axes.Axes.set_title" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span></a></a><span class="p">(</span><span class="s2">&quot;Likelihood ratio&quot;</span><span class="p">)</span>
+<a href="https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.set.html#matplotlib.axes.Axes.set" title="matplotlib.axes.Axes.set" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><a href="https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.set.html#matplotlib.axes.Axes.set" title="matplotlib.axes.Axes.set" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set</span></a></a><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="s2">&quot;Time (ms)&quot;</span><span class="p">,</span> <span class="n">ylabel</span><span class="o">=</span><span class="s2">&quot;Channel&quot;</span><span class="p">)</span>
+
+<a href="https://docs.python.org/3/library/stdtypes.html#range" title="builtins.range" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#range" title="builtins.range" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">xtick_labels</span></a></a> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="o">-</span><span class="mi">200</span><span class="p">,</span> <span class="mi">600</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+<a href="https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.set_xticks.html#matplotlib.axes.Axes.set_xticks" title="matplotlib.axes.Axes.set_xticks" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><a href="https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.set_xticks.html#matplotlib.axes.Axes.set_xticks" title="matplotlib.axes.Axes.set_xticks" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span></a></a><span class="p">([</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.Index.get_loc.html#pandas.Index.get_loc" title="pandas.Index.get_loc" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><a href="https://pandas.pydata.org/docs/reference/api/pandas.Index.get_loc.html#pandas.Index.get_loc" title="pandas.Index.get_loc" class="sphx-glr-backref-module-pandas sphx-glr-backref-type-py-method"><span class="n">likelihood_ratio</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_loc</span></a></a><span class="p">(</span><span class="n">tick</span><span class="p">)</span> <span class="k">for</span> <span class="n">tick</span> <span class="ow">in</span> <a href="https://docs.python.org/3/library/stdtypes.html#range" title="builtins.range" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#range" title="builtins.range" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">xtick_labels</span></a></a><span class="p">])</span>
+<a href="https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.set_xticklabels.html#matplotlib.axes.Axes.set_xticklabels" title="matplotlib.axes.Axes.set_xticklabels" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><a href="https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.set_xticklabels.html#matplotlib.axes.Axes.set_xticklabels" title="matplotlib.axes.Axes.set_xticklabels" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_xticklabels</span></a></a><span class="p">(</span><a href="https://docs.python.org/3/library/stdtypes.html#range" title="builtins.range" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://docs.python.org/3/library/stdtypes.html#range" title="builtins.range" class="sphx-glr-backref-module-builtins sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">xtick_labels</span></a></a><span class="p">)</span>
+
+<a href="https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.set_yticks.html#matplotlib.axes.Axes.set_yticks" title="matplotlib.axes.Axes.set_yticks" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><a href="https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.set_yticks.html#matplotlib.axes.Axes.set_yticks" title="matplotlib.axes.Axes.set_yticks" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span></a></a><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="pandas.core.indexes.base.Index" class="sphx-glr-backref-module-pandas-core-indexes-base sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="pandas.core.indexes.base.Index" class="sphx-glr-backref-module-pandas-core-indexes-base sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">likelihood_ratio</span><span class="o">.</span><span class="n">columns</span></a></a><span class="p">)))</span>
+<a href="https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.set_yticklabels.html#matplotlib.axes.Axes.set_yticklabels" title="matplotlib.axes.Axes.set_yticklabels" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><a href="https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.set_yticklabels.html#matplotlib.axes.Axes.set_yticklabels" title="matplotlib.axes.Axes.set_yticklabels" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_yticklabels</span></a></a><span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="pandas.core.indexes.base.Index" class="sphx-glr-backref-module-pandas-core-indexes-base sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.Index.html#pandas.Index" title="pandas.core.indexes.base.Index" class="sphx-glr-backref-module-pandas-core-indexes-base sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">likelihood_ratio</span><span class="o">.</span><span class="n">columns</span></a></a><span class="p">)</span>
+<a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure.tight_layout" title="matplotlib.figure.Figure.tight_layout" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure.tight_layout" title="matplotlib.figure.Figure.tight_layout" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-method"><span class="n">fig</span><span class="o">.</span><span class="n">tight_layout</span></a></a><span class="p">()</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_p3_model_comps_002.png" srcset="../../_images/sphx_glr_p3_model_comps_002.png" alt="Likelihood ratio" class = "sphx-glr-single-img"/><div class="highlight-default notranslate"><div class="highlight"><pre><span></span><a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://matplotlib.org/api/figure_api.html#matplotlib.figure.Figure" title="matplotlib.figure.Figure" class="sphx-glr-backref-module-matplotlib-figure sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">fig</span></a></a><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <a href="https://matplotlib.org/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><a href="https://matplotlib.org/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="matplotlib.pyplot.subplots" class="sphx-glr-backref-module-matplotlib-pyplot sphx-glr-backref-type-py-function"><span class="n">plt</span><span class="o">.</span><span class="n">subplots</span></a></a><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<a href="https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.set_title.html#matplotlib.axes.Axes.set_title" title="matplotlib.axes.Axes.set_title" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><a href="https://matplotlib.org/api/_as_gen/matplotlib.axes.Axes.set_title.html#matplotlib.axes.Axes.set_title" title="matplotlib.axes.Axes.set_title" class="sphx-glr-backref-module-matplotlib-axes sphx-glr-backref-type-py-method"><span class="n">ax</span><span class="o">.</span><span class="n">set_title</span></a></a><span class="p">(</span><span class="s2">&quot;Likelihood Ratio&quot;</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="p">(</span><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lmg_full</span><span class="o">.</span><span class="n">llf</span></a></a> <span class="o">-</span> <a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><a href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="pandas.core.frame.DataFrame" class="sphx-glr-backref-module-pandas-core-frame sphx-glr-backref-type-py-class sphx-glr-backref-instance"><span class="n">lmg_reduced</span><span class="o">.</span><span class="n">llf</span></a></a><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+</pre></div>
+</div>
+<img src="../../_images/sphx_glr_p3_model_comps_003.png" srcset="../../_images/sphx_glr_p3_model_comps_003.png" alt="Likelihood Ratio" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  58.258 seconds)</p>
+<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-gallery-3-model-evaluation-p3-model-comps-py">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/6f8f6e7679741a73208c8da6bc7cdd04/p3_model_comps.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">p3_model_comps.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/d014a0e450ad2f07e5e10e436d3900c0/p3_model_comps.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">p3_model_comps.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="beta_fdr.html" class="btn btn-neutral float-left" title="False Discovery Rate (FDR) control for estimated predictor coefficients (betas)" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="summary_plots.html" class="btn btn-neutral float-right" title="Model summary visualization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fitgrid.utils.lm module &mdash; fitgrid  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sg_gallery.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sg_gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sg_gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sg_gallery-rendered-html.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> fitgrid
+          </a>
+              <div class="version">
+                0.5.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../about_fitgrid.html">About <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_gallery/quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gallery.html">Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">fitgrid</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>fitgrid.utils.lm module</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-fitgrid.utils.lm">
+<span id="fitgrid-utils-lm-module"></span><h1>fitgrid.utils.lm module<a class="headerlink" href="#module-fitgrid.utils.lm" title="Permalink to this headline"></a></h1>
+<p>User functions to streamline working with selected statsmodels OLS
+fit attributes for <code class="docutils literal notranslate"><span class="pre">fitgrid.lm</span></code> grids.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="fitgrid.utils.lm.filter_diagnostic">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.utils.lm.</span></span><span class="sig-name descname"><span class="pre">filter_diagnostic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">diagnostic_df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">how</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bound_0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bound_1</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'long'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/utils/lm.html#filter_diagnostic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.utils.lm.filter_diagnostic" title="Permalink to this definition"></a></dt>
+<dd><p>Select a subset of a fitgrid <cite>statsmodels</cite> diagnostic dataframe by value.</p>
+<p>Use this to identify time points, epochs, parameters, channels with
+outlying or potentially influential data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>diagnostic_df</strong> (<em>pandas.DataFrame</em>) – As returned by <a class="reference internal" href="#fitgrid.utils.lm.get_diagnostic" title="fitgrid.utils.lm.get_diagnostic"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fitgrid.utils.lm.get_diagnostic()</span></code></a></p></li>
+<li><p><strong>how</strong> (<em>{‘above’, ‘below’, ‘inside’, ‘outside’}</em>) – slice <cite>diagnostic_df</cite> above or below <cite>bound_0</cite> or inside or
+outside the closed interval <cite>(bound_0, bound_1)</cite>.</p></li>
+<li><p><strong>bound_0</strong> (<em>scalar or array-like</em>) – <cite>bound_0</cite> is the mandatory boundary for all <cite>how</cite>.  See
+<cite>pandas.DataFrame.gt</cite> and <cite>pandas.DataFrame.lt</cite> documents
+for binary comparisons with dataframes.</p></li>
+<li><p><strong>bound_1</strong> (<em>scalar or array-like</em>) – <cite>bound_1 is the mandatory upper bound for `how=”inside”</cite> and
+<cite>how=”outside”</cite>.</p></li>
+<li><p><strong>format</strong> (<em>{‘long’, ‘wide’}</em>) – The <cite>long</cite> format pivots the channel columns into a row index
+and returns just those times, (epochs, parameters), channels
+that pass the filter. The <cite>wide</cite> format returns <cite>filtered_df</cite>
+with the same shape as <cite>diagnostic_df</cite>, those datapoints that
+pass the filter in their original row, column location, <cite>nans</cite>
+elsewhere.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>selected_df</strong></p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html#pandas.DataFrame" title="(in pandas v1.4.1)">pandas.DataFrame</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fitgrid.utils.lm.get_diagnostic">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.utils.lm.</span></span><span class="sig-name descname"><span class="pre">get_diagnostic</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lm_grid</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">diagnostic</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">do_nobs_loop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/utils/lm.html#get_diagnostic"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.utils.lm.get_diagnostic" title="Permalink to this definition"></a></dt>
+<dd><p>Fetch <cite>statsmodels</cite> diagnostic as a Time  x Channel dataframe</p>
+<p><cite>statsmodels</cite> implements a variety of data and model diagnostic
+measures. For some, it also computes a version of a recommended
+critical value or <span class="math notranslate nohighlight">\(p\)</span>-value. Use these at your own risk
+after careful study of the <cite>statsmodels</cite> source code. For details
+visit <a class="reference external" href="https://www.statsmodels.org/stable/generated/statsmodels.stats.outliers_influence.OLSInfluence.html">statsmodels.stats.outliers_influence.OLSInfluence.html</a></p>
+<p>For a catalog of the measures available for <cite>fitgrid.lm()</cite> run
+this in Python</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="go">&gt;&gt;&gt;fitgrid.utils.lm.list_diagnostics()</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Data diagnostics can be very large and very slow, see
+Notes for details.</p>
+<ul class="simple">
+<li><p>By default <strong>all</strong> values of the diagnostics are computed,
+this dataframe can be pruned with
+<a class="reference internal" href="#fitgrid.utils.lm.filter_diagnostic" title="fitgrid.utils.lm.filter_diagnostic"><code class="xref py py-meth docutils literal notranslate"><span class="pre">fitgrid.utils.lm.filter_diagnostic()</span></code></a> function.</p></li>
+<li><p>By default slow diagnostics are <strong>not</strong> computed, this can be
+forced by setting <cite>do_nobs_loop=True</cite>.</p></li>
+</ul>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lm_grid</strong> (<em>fitgrid.LMFitGrid</em>) – As returned by <code class="xref py py-meth docutils literal notranslate"><span class="pre">fitgrid.lm()</span></code>.</p></li>
+<li><p><strong>diagnostic</strong> (<em>string</em>) – As implemented in <cite>statsmodels</cite>, e.g., “cooks_distance”,
+“dffits_internal”, “est_std”, “dfbetas”.</p></li>
+<li><p><strong>do_nobs_loop</strong> (<em>bool</em>) – <cite>True</cite> forces slow leave-one-observation-out model refitting.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>diagnostic_df</strong> (<em>pandas.DataFrame</em>) – Channels are in columns. Model measures are row indexed by
+time; data measures add an epoch row index; parameter measures add
+a parameter row index.</p></li>
+<li><p><strong>sm_1_df</strong> (<em>pandas.DataFrame</em>) – The supplemenatary values <cite>statsmodels</cite> returns, or <cite>None</cite>,
+same shape as diagnostic_df.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<ul class="simple">
+<li><p><strong>Size:</strong> <cite>diagnostic_df</cite> values for data measures like
+<cite>cooks_distance</cite> and <cite>hat_matrix_diagonal</cite> are the size of the
+original data plus a row index and for some data measures like
+<cite>dfbetas</cite>, they are the size of the data multiplied by the
+number of regressors in the model.</p></li>
+<li><p><strong>Speed:</strong> Leave-one-observation-out (LOOO) model refitting takes
+as long as it takes to fit one model multiplied by the number of
+observations. This can be intractable for large
+datasets. Diagnostic measures calculated from the original fit
+like <cite>cooks_distance</cite> and <cite>dffits_internal</cite> are tractable even
+for large data sets.</p></li>
+</ul>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># fake data</span>
+<span class="n">epochs_fg</span> <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">generate</span><span class="p">()</span>
+<span class="n">lm_grid</span> <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">lm</span><span class="p">(</span>
+    <span class="n">epochs_fg</span><span class="p">,</span>
+    <span class="n">LHS</span><span class="o">=</span><span class="n">epochs_fg</span><span class="o">.</span><span class="n">channels</span><span class="p">,</span>
+    <span class="n">RHS</span><span class="o">=</span><span class="s1">&#39;continuous + categorical&#39;</span><span class="p">,</span>
+    <span class="n">parallel</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">n_cores</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># data diagnostic, one dataframe with the values</span>
+<span class="n">ess_press</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">lm</span><span class="o">.</span><span class="n">get_diagnostic</span><span class="p">(</span>
+    <span class="n">lm_grid</span><span class="p">,</span>
+    <span class="s1">&#39;ess_press&#39;</span>
+<span class="p">)</span>
+
+<span class="c1"># Cook&#39;s D dataframe AND the p-values statsmodels computes</span>
+<span class="n">cooks_Ds</span><span class="p">,</span> <span class="n">sm_pvals</span> <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">lm</span><span class="o">.</span><span class="n">get_diagnostic</span><span class="p">(</span>
+    <span class="n">lm_grid</span><span class="p">,</span>
+    <span class="s1">&#39;cooks_distance&#39;</span>
+<span class="p">)</span>
+
+<span class="c1"># this fails because it requires LOOO loop</span>
+<span class="n">dfbetas_df</span><span class="p">,</span> <span class="n">_</span>  <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">lm</span><span class="o">.</span><span class="n">get_diagnostic</span><span class="p">(</span>
+    <span class="n">lm_grid</span><span class="p">,</span>
+    <span class="s1">&#39;dfbetas&#39;</span>
+<span class="p">)</span>
+
+<span class="c1"># this succeeds by forcing LOOO loop calculation</span>
+<span class="n">dfbetas_df</span><span class="p">,</span> <span class="n">_</span>  <span class="o">=</span> <span class="n">fitgrid</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">lm</span><span class="o">.</span><span class="n">get_diagnostic</span><span class="p">(</span>
+    <span class="n">lm_grid</span><span class="p">,</span>
+    <span class="s1">&#39;dfbetas&#39;</span><span class="p">,</span>
+    <span class="n">do_nobs_loop</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fitgrid.utils.lm.get_vifs">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.utils.lm.</span></span><span class="sig-name descname"><span class="pre">get_vifs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epochs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">RHS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quiet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/utils/lm.html#get_vifs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.utils.lm.get_vifs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fitgrid.utils.lm.list_diagnostics">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.utils.lm.</span></span><span class="sig-name descname"><span class="pre">list_diagnostics</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/utils/lm.html#list_diagnostics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.utils.lm.list_diagnostics" title="Permalink to this definition"></a></dt>
+<dd><p>Display <cite>statsmodels</cite> diagnostics implemented in fitgrid.utils.lm</p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

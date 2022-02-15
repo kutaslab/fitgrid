@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fitgrid.models &mdash; fitgrid  documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/sg_gallery-rendered-html.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../index.html" class="icon icon-home"> fitgrid
+          </a>
+              <div class="version">
+                0.5.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../about_fitgrid.html">About <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../auto_gallery/quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gallery.html">Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../contributing.html">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">fitgrid</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+      <li>fitgrid.models</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for fitgrid.models</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;User modeling functions and developer utilities for populating Time</span>
+<span class="sd">x Channel grids with OLS and LMER model fits. The API exposes the</span>
+<span class="sd">primary user interface functions for general use with ``Epochs``</span>
+<span class="sd">objects as ``fitgrid.lm`` and ``fitgrid.lmer``.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">multiprocessing</span> <span class="kn">import</span> <span class="n">Pool</span>
+<span class="kn">from</span> <span class="nn">contextlib</span> <span class="kn">import</span> <span class="n">redirect_stdout</span>
+<span class="kn">from</span> <span class="nn">io</span> <span class="kn">import</span> <span class="n">StringIO</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">statsmodels.formula.api</span> <span class="kn">import</span> <span class="n">ols</span>
+<span class="kn">from</span> <span class="nn">pymer4</span> <span class="kn">import</span> <span class="n">Lmer</span>  <span class="c1"># moved up from lmer_single() for Multiprocessing</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="kn">from</span> <span class="nn">.errors</span> <span class="kn">import</span> <span class="n">FitGridError</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">tools</span>
+<span class="kn">from</span> <span class="nn">.fitgrid</span> <span class="kn">import</span> <span class="n">FitGrid</span><span class="p">,</span> <span class="n">LMFitGrid</span><span class="p">,</span> <span class="n">LMERFitGrid</span>
+
+
+<div class="viewcode-block" id="validate_LHS"><a class="viewcode-back" href="../../api_docs/fitgrid.models.html#fitgrid.models.validate_LHS">[docs]</a><span class="k">def</span> <span class="nf">validate_LHS</span><span class="p">(</span><span class="n">epochs</span><span class="p">,</span> <span class="n">LHS</span><span class="p">):</span>
+
+    <span class="c1"># must be a list of strings</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span>
+        <span class="nb">isinstance</span><span class="p">(</span><span class="n">LHS</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">LHS</span><span class="p">)</span>
+    <span class="p">):</span>
+        <span class="k">raise</span> <span class="n">FitGridError</span><span class="p">(</span><span class="s1">&#39;LHS must be a list of strings.&#39;</span><span class="p">)</span>
+
+    <span class="c1"># all LHS items must be present in the epochs_table</span>
+    <span class="n">missing</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">LHS</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">epochs</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">FitGridError</span><span class="p">(</span>
+            <span class="s1">&#39;Items in LHS should all be present in the epochs table, &#39;</span>
+            <span class="sa">f</span><span class="s1">&#39;the following are missing: </span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s1">&#39;</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="validate_RHS"><a class="viewcode-back" href="../../api_docs/fitgrid.models.html#fitgrid.models.validate_RHS">[docs]</a><span class="k">def</span> <span class="nf">validate_RHS</span><span class="p">(</span><span class="n">RHS</span><span class="p">):</span>
+
+    <span class="c1"># validate RHS</span>
+    <span class="k">if</span> <span class="n">RHS</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">FitGridError</span><span class="p">(</span><span class="s1">&#39;Specify the RHS argument.&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">RHS</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">FitGridError</span><span class="p">(</span><span class="s1">&#39;RHS has to be a string.&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="process_key_and_group"><a class="viewcode-back" href="../../api_docs/fitgrid.models.html#fitgrid.models.process_key_and_group">[docs]</a><span class="k">def</span> <span class="nf">process_key_and_group</span><span class="p">(</span><span class="n">key_and_group</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">channels</span><span class="p">):</span>
+    <span class="n">key</span><span class="p">,</span> <span class="n">group</span> <span class="o">=</span> <span class="n">key_and_group</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">{</span><span class="n">channel</span><span class="p">:</span> <span class="n">function</span><span class="p">(</span><span class="n">group</span><span class="p">,</span> <span class="n">channel</span><span class="p">)</span> <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="n">channels</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">key</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="run_model"><a class="viewcode-back" href="../../quick_reference.html#fitgrid.models.run_model">[docs]</a><span class="k">def</span> <span class="nf">run_model</span><span class="p">(</span>
+    <span class="n">epochs</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">n_cores</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Run an arbitrary model on the epochs.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    epochs : Epochs</span>
+<span class="sd">        the epochs object on which the model is to be run</span>
+<span class="sd">    function : Python function</span>
+<span class="sd">        function that runs a model, see Notes below for details</span>
+<span class="sd">    channels : list of str</span>
+<span class="sd">        list of channels to serve as dependent variables</span>
+<span class="sd">    parallel : bool, defaults to False</span>
+<span class="sd">        set to True in order to run in parallel</span>
+<span class="sd">    n_cores : int, defaults to 4</span>
+<span class="sd">        number of processes to run in parallel</span>
+<span class="sd">    quiet : bool, defaults to False</span>
+<span class="sd">        set to True to disable progress bar display</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    grid : FitGrid</span>
+<span class="sd">        a FitGrid object containing the results</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The function should take two parameters, ``data`` and ``channel``, run</span>
+<span class="sd">    some model on the data, and return an object containing the results.</span>
+<span class="sd">    ``data`` will be a snapshot across epochs at a single timepoint,</span>
+<span class="sd">    containing all channels of interest. ``channel`` is the name of the</span>
+<span class="sd">    target variable that the function runs the model against (uses it as</span>
+<span class="sd">    the dependent variable).</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    Here&#39;s an example of a function that can be passed to ``run_model``::</span>
+
+<span class="sd">        def regression(data, channel):</span>
+<span class="sd">            formula = channel + &#39; ~ continuous + categorical&#39;</span>
+<span class="sd">            return ols(formula, data).fit()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_grid</span> <span class="o">=</span> <span class="n">_run_model</span><span class="p">(</span>
+        <span class="n">epochs</span><span class="p">,</span>
+        <span class="n">function</span><span class="p">,</span>
+        <span class="n">channels</span><span class="o">=</span><span class="n">channels</span><span class="p">,</span>
+        <span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span>
+        <span class="n">n_cores</span><span class="o">=</span><span class="n">n_cores</span><span class="p">,</span>
+        <span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">FitGrid</span><span class="p">(</span><span class="n">_grid</span><span class="p">,</span> <span class="n">epochs</span><span class="o">.</span><span class="n">epoch_index</span><span class="p">,</span> <span class="n">epochs</span><span class="o">.</span><span class="n">time</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_run_model</span><span class="p">(</span>
+    <span class="n">epochs</span><span class="p">,</span> <span class="n">function</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">parallel</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">n_cores</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">quiet</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">channels</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">channels</span> <span class="o">=</span> <span class="n">epochs</span><span class="o">.</span><span class="n">channels</span>
+
+    <span class="n">validate_LHS</span><span class="p">(</span><span class="n">epochs</span><span class="p">,</span> <span class="n">channels</span><span class="p">)</span>
+
+    <span class="n">groups</span> <span class="o">=</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">epochs</span><span class="o">.</span><span class="n">_snapshots</span><span class="p">,</span> <span class="n">disable</span><span class="o">=</span><span class="n">quiet</span><span class="p">)</span>
+    <span class="n">processor</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span>
+        <span class="n">process_key_and_group</span><span class="p">,</span> <span class="n">function</span><span class="o">=</span><span class="n">function</span><span class="p">,</span> <span class="n">channels</span><span class="o">=</span><span class="n">channels</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">parallel</span><span class="p">:</span>
+        <span class="n">chunksize</span> <span class="o">=</span> <span class="n">ceil</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_cores</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">tools</span><span class="o">.</span><span class="n">single_threaded</span><span class="p">(</span><span class="n">np</span><span class="p">):</span>
+            <span class="k">with</span> <span class="n">Pool</span><span class="p">(</span><span class="n">n_cores</span><span class="p">)</span> <span class="k">as</span> <span class="n">pool</span><span class="p">:</span>
+                <span class="n">results</span> <span class="o">=</span> <span class="n">pool</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">processor</span><span class="p">,</span> <span class="n">groups</span><span class="p">,</span> <span class="n">chunksize</span><span class="o">=</span><span class="n">chunksize</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">processor</span><span class="p">,</span> <span class="n">groups</span><span class="p">)</span>
+
+    <span class="n">grid</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">results</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">grid</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">epochs</span><span class="o">.</span><span class="n">time</span>
+
+    <span class="k">return</span> <span class="n">grid</span>  <span class="c1"># dataframe, not FitGrid</span>
+
+
+<div class="viewcode-block" id="lm_single"><a class="viewcode-back" href="../../api_docs/fitgrid.models.html#fitgrid.models.lm_single">[docs]</a><span class="k">def</span> <span class="nf">lm_single</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">RHS</span><span class="p">,</span> <span class="n">eval_env</span><span class="p">):</span>
+    <span class="n">formula</span> <span class="o">=</span> <span class="n">channel</span> <span class="o">+</span> <span class="s1">&#39; ~ &#39;</span> <span class="o">+</span> <span class="n">RHS</span>
+    <span class="k">return</span> <span class="n">ols</span><span class="p">(</span><span class="n">formula</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">eval_env</span><span class="o">=</span><span class="n">eval_env</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="lm"><a class="viewcode-back" href="../../quick_reference.html#fitgrid.models.lm">[docs]</a><span class="k">def</span> <span class="nf">lm</span><span class="p">(</span>
+    <span class="n">epochs</span><span class="p">,</span>
+    <span class="n">LHS</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">RHS</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">parallel</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">n_cores</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">quiet</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">eval_env</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Run ordinary least squares linear regression on the epochs.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    epochs : Epochs</span>
+<span class="sd">        epochs object on which regression is to be run</span>
+<span class="sd">    LHS : list of str, optional, defaults to all channels</span>
+<span class="sd">        list of channels for the left hand side of the regression formula</span>
+<span class="sd">    RHS : str</span>
+<span class="sd">        right hand side of the regression formula</span>
+<span class="sd">    parallel : bool, defaults to False</span>
+<span class="sd">        change to True to run in parallel</span>
+<span class="sd">    n_cores : int, defaults to 4</span>
+<span class="sd">        number of processes to use for computation</span>
+<span class="sd">    quiet : bool, defaults to False</span>
+<span class="sd">        set to True to disable fitting progress bar</span>
+<span class="sd">    eval_env : int or patsy.EvalEnvironment, defaults to 4</span>
+<span class="sd">        environment to use for evaluating patsy formulas, see patsy docs</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    grid : LMFitGrid</span>
+<span class="sd">        LMFitGrid object containing the results of the regression</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">LHS</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">LHS</span> <span class="o">=</span> <span class="n">epochs</span><span class="o">.</span><span class="n">channels</span>
+
+    <span class="n">validate_LHS</span><span class="p">(</span><span class="n">epochs</span><span class="p">,</span> <span class="n">LHS</span><span class="p">)</span>
+    <span class="n">validate_RHS</span><span class="p">(</span><span class="n">RHS</span><span class="p">)</span>
+
+    <span class="n">function</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">lm_single</span><span class="p">,</span> <span class="n">RHS</span><span class="o">=</span><span class="n">RHS</span><span class="p">,</span> <span class="n">eval_env</span><span class="o">=</span><span class="n">eval_env</span><span class="p">)</span>
+
+    <span class="n">_grid</span> <span class="o">=</span> <span class="n">_run_model</span><span class="p">(</span>
+        <span class="n">epochs</span><span class="p">,</span>
+        <span class="n">function</span><span class="o">=</span><span class="n">function</span><span class="p">,</span>
+        <span class="n">channels</span><span class="o">=</span><span class="n">LHS</span><span class="p">,</span>
+        <span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span>
+        <span class="n">n_cores</span><span class="o">=</span><span class="n">n_cores</span><span class="p">,</span>
+        <span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">LMFitGrid</span><span class="p">(</span><span class="n">_grid</span><span class="p">,</span> <span class="n">epochs</span><span class="o">.</span><span class="n">epoch_index</span><span class="p">,</span> <span class="n">epochs</span><span class="o">.</span><span class="n">time</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="lmer_single"><a class="viewcode-back" href="../../api_docs/fitgrid.models.html#fitgrid.models.lmer_single">[docs]</a><span class="k">def</span> <span class="nf">lmer_single</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">RHS</span><span class="p">,</span> <span class="n">family</span><span class="p">,</span> <span class="n">conf_int</span><span class="p">,</span> <span class="n">factors</span><span class="p">,</span> <span class="n">permute</span><span class="p">,</span> <span class="n">ordered</span><span class="p">,</span> <span class="n">REML</span>
+<span class="p">):</span>
+
+    <span class="n">model</span> <span class="o">=</span> <span class="n">Lmer</span><span class="p">(</span><span class="n">channel</span> <span class="o">+</span> <span class="s1">&#39; ~ &#39;</span> <span class="o">+</span> <span class="n">RHS</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="n">family</span><span class="o">=</span><span class="n">family</span><span class="p">)</span>
+
+    <span class="c1"># DEPRECATED redirect_stdout as of pymer 0.7+</span>
+    <span class="c1"># with redirect_stdout(StringIO()) as captured_stdout:</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
+        <span class="n">summarize</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">conf_int</span><span class="o">=</span><span class="n">conf_int</span><span class="p">,</span>
+        <span class="n">factors</span><span class="o">=</span><span class="n">factors</span><span class="p">,</span>
+        <span class="n">permute</span><span class="o">=</span><span class="n">permute</span><span class="p">,</span>
+        <span class="n">ordered</span><span class="o">=</span><span class="n">ordered</span><span class="p">,</span>
+        <span class="n">REML</span><span class="o">=</span><span class="n">REML</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># lmer prints warnings, capture them</span>
+    <span class="c1"># warning = captured_stdout.getvalue()</span>
+
+    <span class="c1"># in pymer4 &lt;= 0.6 lmer warnings were not attached to the model object</span>
+    <span class="c1"># model.has_warning = True if warning else False</span>
+    <span class="c1"># model.warning = warning</span>
+
+    <span class="c1"># as of pymer4 0.7+  model.warning -&gt; model.warnings</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">has_warning</span> <span class="o">=</span> <span class="kc">True</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">warnings</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">False</span>
+
+    <span class="c1"># captured_stdout.close()</span>
+
+    <span class="k">del</span> <span class="n">model</span><span class="o">.</span><span class="n">data</span>
+    <span class="k">del</span> <span class="n">model</span><span class="o">.</span><span class="n">design_matrix</span>
+    <span class="k">del</span> <span class="n">model</span><span class="o">.</span><span class="n">model_obj</span>
+
+    <span class="c1"># return model.AIC</span>
+    <span class="c1"># return model._REML</span>
+    <span class="c1"># return model.__class__</span>
+    <span class="k">return</span> <span class="n">model</span></div>
+
+
+<div class="viewcode-block" id="lmer"><a class="viewcode-back" href="../../quick_reference.html#fitgrid.models.lmer">[docs]</a><span class="k">def</span> <span class="nf">lmer</span><span class="p">(</span>
+    <span class="n">epochs</span><span class="p">,</span>
+    <span class="n">LHS</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">RHS</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">family</span><span class="o">=</span><span class="s1">&#39;gaussian&#39;</span><span class="p">,</span>
+    <span class="n">conf_int</span><span class="o">=</span><span class="s1">&#39;Wald&#39;</span><span class="p">,</span>
+    <span class="n">factors</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">permute</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">REML</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">parallel</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">n_cores</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">quiet</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Fit lme4 linear mixed model by interfacing with R.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    epochs : Epochs</span>
+<span class="sd">        epochs object on which lmer is to be run</span>
+<span class="sd">    LHS : list of str, optional, defaults to all channels</span>
+<span class="sd">        list of channels for the left hand side of the lmer formula</span>
+<span class="sd">    RHS : str</span>
+<span class="sd">        right hand side of the lmer formula</span>
+<span class="sd">    family : str, defaults to &#39;gaussian&#39;</span>
+<span class="sd">        distribution link function to use</span>
+<span class="sd">    conf_int : str, defaults to &#39;Wald&#39;</span>
+<span class="sd">    factors : dict, optional</span>
+<span class="sd">        Keys should be column names in data to treat as factors. Values</span>
+<span class="sd">        should either be a list containing unique variable levels if</span>
+<span class="sd">        dummy-coding or polynomial coding is desired. Otherwise values</span>
+<span class="sd">        should themselves be dictionaries with unique variable levels as</span>
+<span class="sd">        keys and desired contrast values (as specified in R!) as keys.</span>
+<span class="sd">    permute : int, defaults to None</span>
+<span class="sd">        if non-zero, computes parameter significance tests by permuting</span>
+<span class="sd">        test stastics rather than parametrically. Permutation is done by</span>
+<span class="sd">        shuffling observations within clusters to respect random effects</span>
+<span class="sd">        structure of data.</span>
+<span class="sd">    ordered : bool, defaults to False</span>
+<span class="sd">        whether factors should be treated as ordered polynomial contrasts;</span>
+<span class="sd">        this will parameterize a model with K-1 orthogonal polynomial</span>
+<span class="sd">        regressors beginning with a linear contrast based on the factor</span>
+<span class="sd">        order provided</span>
+<span class="sd">    REML : bool, defaults to True</span>
+<span class="sd">        change to False to use ML estimation</span>
+<span class="sd">    parallel : bool, defaults to False</span>
+<span class="sd">        change to True to run in parallel</span>
+<span class="sd">    n_cores : int, defaults to 4</span>
+<span class="sd">        number of processes to use for computation</span>
+<span class="sd">    quiet : bool, defaults to False</span>
+<span class="sd">        set to True to disable fitting progress bar</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    grid : LMERFitGrid</span>
+<span class="sd">        LMERFitGrid object containing the results of lmer fitting</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">LHS</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">LHS</span> <span class="o">=</span> <span class="n">epochs</span><span class="o">.</span><span class="n">channels</span>
+
+    <span class="n">validate_LHS</span><span class="p">(</span><span class="n">epochs</span><span class="p">,</span> <span class="n">LHS</span><span class="p">)</span>
+    <span class="n">validate_RHS</span><span class="p">(</span><span class="n">RHS</span><span class="p">)</span>
+
+    <span class="n">function</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span>
+        <span class="n">lmer_single</span><span class="p">,</span>
+        <span class="n">RHS</span><span class="o">=</span><span class="n">RHS</span><span class="p">,</span>
+        <span class="n">family</span><span class="o">=</span><span class="n">family</span><span class="p">,</span>
+        <span class="n">conf_int</span><span class="o">=</span><span class="n">conf_int</span><span class="p">,</span>
+        <span class="n">factors</span><span class="o">=</span><span class="n">factors</span><span class="p">,</span>
+        <span class="n">permute</span><span class="o">=</span><span class="n">permute</span><span class="p">,</span>
+        <span class="n">ordered</span><span class="o">=</span><span class="n">ordered</span><span class="p">,</span>
+        <span class="n">REML</span><span class="o">=</span><span class="n">REML</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">_grid</span> <span class="o">=</span> <span class="n">_run_model</span><span class="p">(</span>
+        <span class="n">epochs</span><span class="p">,</span>
+        <span class="n">function</span><span class="p">,</span>
+        <span class="n">channels</span><span class="o">=</span><span class="n">LHS</span><span class="p">,</span>
+        <span class="n">parallel</span><span class="o">=</span><span class="n">parallel</span><span class="p">,</span>
+        <span class="n">n_cores</span><span class="o">=</span><span class="n">n_cores</span><span class="p">,</span>
+        <span class="n">quiet</span><span class="o">=</span><span class="n">quiet</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">LMERFitGrid</span><span class="p">(</span><span class="n">_grid</span><span class="p">,</span> <span class="n">epochs</span><span class="o">.</span><span class="n">epoch_index</span><span class="p">,</span> <span class="n">epochs</span><span class="o">.</span><span class="n">time</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

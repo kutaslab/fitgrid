@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>fitgrid.tools module &mdash; fitgrid  documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sg_gallery.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sg_gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sg_gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/sg_gallery-rendered-html.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> fitgrid
+          </a>
+              <div class="version">
+                0.5.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../about_fitgrid.html">About <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../auto_gallery/quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gallery.html">Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../contributing.html">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">fitgrid</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>fitgrid.tools module</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-fitgrid.tools">
+<span id="fitgrid-tools-module"></span><h1>fitgrid.tools module<a class="headerlink" href="#module-fitgrid.tools" title="Permalink to this headline"></a></h1>
+<p>Developer utilities for data validation and managing parallel CPU
+processing. Not meant for general use.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="fitgrid.tools.BLAS">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fitgrid.tools.</span></span><span class="sig-name descname"><span class="pre">BLAS</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cdll</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/tools.html#BLAS"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.tools.BLAS" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>BLAS wrapper as determined by its thread getter/setter</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fitgrid.tools.deduplicate_list">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.tools.</span></span><span class="sig-name descname"><span class="pre">deduplicate_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lst</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/tools.html#deduplicate_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.tools.deduplicate_list" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fitgrid.tools.design_matrix_is_constant">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.tools.</span></span><span class="sig-name descname"><span class="pre">design_matrix_is_constant</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">columns</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/tools.html#design_matrix_is_constant"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.tools.design_matrix_is_constant" title="Permalink to this definition"></a></dt>
+<dd><p>Check that values in columns of df do not change within any epoch.</p>
+<p>See Notes for more details.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pandas.DataFrame</em>) – dataframe to check</p></li>
+<li><p><strong>columns</strong> (<em>list of str</em>) – list of column names to be checked</p></li>
+<li><p><strong>time</strong> (<em>str</em>) – name of the time column</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>result</strong> – True if values in specified columns don’t change, False otherwise</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)">bool</a></p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>We check that from timepoint to timepoint, each epoch has the same value in
+a given column:</p>
+<table class="colwidths-auto docutils align-default" id="id1">
+<caption><span class="caption-text">epoch1</span><a class="headerlink" href="#id1" title="Permalink to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>A</p></th>
+<th class="head"><p>B</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>x</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>x</p></td>
+</tr>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>x</p></td>
+</tr>
+<tr class="row-odd"><td><p>1</p></td>
+<td><p>x</p></td>
+</tr>
+<tr class="row-even"><td><p>1</p></td>
+<td><p>x</p></td>
+</tr>
+</tbody>
+</table>
+<table class="colwidths-auto docutils align-default" id="id2">
+<caption><span class="caption-text">epoch2</span><a class="headerlink" href="#id2" title="Permalink to this table"></a></caption>
+<thead>
+<tr class="row-odd"><th class="head"><p>A</p></th>
+<th class="head"><p>B</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>y</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>y</p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>y</p></td>
+</tr>
+<tr class="row-odd"><td><p>2</p></td>
+<td><p>y</p></td>
+</tr>
+<tr class="row-even"><td><p>2</p></td>
+<td><p>y</p></td>
+</tr>
+</tbody>
+</table>
+<p>This is helpful when performing linear regression on an epochs table where
+the predictors vary with epochs (as they are expected to) but stay constant
+from sample to sample, because we can do our modeling much faster.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fitgrid.tools.get_blas">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.tools.</span></span><span class="sig-name descname"><span class="pre">get_blas</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">numpy_module</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/tools.html#get_blas"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.tools.get_blas" title="Permalink to this definition"></a></dt>
+<dd><p>Return BLAS object or None if neither MKL nor OpenBLAS is found.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fitgrid.tools.get_blas_osys">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.tools.</span></span><span class="sig-name descname"><span class="pre">get_blas_osys</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">numpy_module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">osys</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/tools.html#get_blas_osys"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.tools.get_blas_osys" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fitgrid.tools.get_first_group">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.tools.</span></span><span class="sig-name descname"><span class="pre">get_first_group</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">groupby</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/tools.html#get_first_group"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.tools.get_first_group" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="fitgrid.tools.get_index_duplicates_table">
+<span class="sig-prename descclassname"><span class="pre">fitgrid.tools.</span></span><span class="sig-name descname"><span class="pre">get_index_duplicates_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">level</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/tools.html#get_index_duplicates_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.tools.get_index_duplicates_table" title="Permalink to this definition"></a></dt>
+<dd><p>Return a string table of duplicate index values and their locations.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="fitgrid.tools.single_threaded">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">fitgrid.tools.</span></span><span class="sig-name descname"><span class="pre">single_threaded</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">numpy_module</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/fitgrid/tools.html#single_threaded"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#fitgrid.tools.single_threaded" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

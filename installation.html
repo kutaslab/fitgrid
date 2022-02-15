@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Installation &mdash; fitgrid  documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="_static/sg_gallery.css" type="text/css" />
+      <link rel="stylesheet" href="_static/sg_gallery-binder.css" type="text/css" />
+      <link rel="stylesheet" href="_static/sg_gallery-dataframe.css" type="text/css" />
+      <link rel="stylesheet" href="_static/sg_gallery-rendered-html.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Quick start" href="auto_gallery/quickstart.html" />
+    <link rel="prev" title="About fitgrid" href="about_fitgrid.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> fitgrid
+          </a>
+              <div class="version">
+                0.5.3
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="about_fitgrid.html">About <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code></a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#about-conda-virtual-environments">About conda virtual environments</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-install-fitgrid">How to install <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code></a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#with-mamba">with <code class="docutils literal notranslate"><span class="pre">mamba</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#fitgrid-stable-release"><code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> stable release</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#fitgrid-development-version"><code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> development version</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#selecting-a-python-version">Selecting a Python version</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#selecting-mkl-or-openblas">Selecting MKL or OpenBLAS</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#install-fitgrid-and-run-examples-gallery-notebooks">Install fitgrid and run Examples Gallery notebooks</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#prioritize-anaconda-org-default-channels-over-conda-forge">Prioritize anaconda.org default channels over conda-forge</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#with-conda">with <code class="docutils literal notranslate"><span class="pre">conda</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pip-is-not-supported"><code class="docutils literal notranslate"><span class="pre">pip</span></code> is not supported</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#system-requirements">System requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#tips">Tips</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="auto_gallery/quickstart.html">Quick start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_guide.html">User Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gallery.html">Examples Gallery</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bibliography.html">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contributing.html">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">fitgrid</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+      <li>Installation</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="installation">
+<span id="id1"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline"></a></h1>
+<p><strong>TL;DR</strong> Use <a class="reference external" href="https://mamba.readthedocs.io/en/latest/index.html" title="(in mamba)"><span class="xref std std-doc">mamba</span></a> or <a class="reference external" href="https://docs.conda.io/projects/conda/en/latest/index.html" title="(in conda v4.11.0.post39+8ba65ad38)"><span class="xref std std-doc">conda</span></a> to install the <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> conda package along with your
+other packages into a fresh conda environment on a fast multicore
+x64_86 computer with gobs of RAM.</p>
+<section id="about-conda-virtual-environments">
+<h2>About conda virtual environments<a class="headerlink" href="#about-conda-virtual-environments" title="Permalink to this headline"></a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> is packaged on <a class="reference external" href="https://anaconda.org/kutaslab/fitgrid">anaconda.org/kutaslab/fitgrid</a> for installation into conda
+“virtual” environments using the <a class="reference external" href="https://conda.io">conda</a> or
+<a class="reference external" href="https://mamba.readthedocs.io/en/latest/index.html" title="(in mamba)"><span class="xref std std-doc">mamba</span></a> package manager. A virtual environment
+isolates the <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> installation to prevent clashes with what is
+already installed elsewhere in your system and other virtual
+environments. When the package manager installs <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> in a
+virtual environment it also automatically installs compatible versions
+of the hundreds of Python and R packages <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> requires to run
+including <a class="reference external" href="https://numpy.org/doc/stable/index.html" title="(in NumPy v1.22)"><span class="xref std std-doc">numpy</span></a>, <a class="reference external" href="https://pandas.pydata.org/docs/index.html" title="(in pandas v1.4.1)"><span class="xref std std-doc">pandas</span></a>, <a class="reference external" href="https://matplotlib.org/index.html" title="(in Matplotlib v3.5.1)"><span class="xref std std-doc">matplotlib</span></a>,
+<a class="reference external" href="https://www.statsmodels.org/stable/index.html" title="(in statsmodels vv0.13.2)"><span class="xref std std-doc">statsmodels</span></a>, and <a class="reference external" href="https://eshinjolly.com/pymer4/index.html" title="(in pymer4 v0.7.8.dev0)"><span class="xref std std-doc">pymer4</span></a>, <a class="reference external" href="https://rpy2.github.io/doc/latest/html/index.html" title="(in rpy2 v3.5.0)"><span class="xref std std-doc">rpy2</span></a>, <a class="reference external" href="https://www.r-project.org/other-docs.html">R</a>, <a class="reference external" href="https://cran.r-project.org/web/packages/lme4/index.html">lme4</a>, and
+<a class="reference external" href="https://cran.r-project.org/web/packages/lmerTest/index.html">lmerTest</a> to
+name a few. You can also install other conda packages in addition to
+<code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> as needed for the task at hand.</p>
+<p>The steps for creating conda environments and installing <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code>
+are straightforward but it is prudent to have a general understanding
+of conda virtual environments and at least these commands: <code class="docutils literal notranslate"><span class="pre">conda</span>
+<span class="pre">create</span> <span class="pre">...</span></code>, <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span> <span class="pre">-c</span> <span class="pre">...</span></code>, <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">...</span></code>, and
+<code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">deactivate</span></code>. See the <a class="reference external" href="https://docs.conda.io/projects/conda/en/latest/user-guide/cheatsheet.html">Conda Cheat Sheet</a>
+for a summary. For fine-tuning conda environments and working around
+incompatible package versions refer to the core <a class="reference external" href="https://conda.io/projects/conda/en/latest/user-guide/tasks/index.html">conda tasks</a>
+especially <a class="reference external" href="https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-channels.html">managing conda channels and channel priority</a>
+and <a class="reference external" href="https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-pkgs.html#installing-packages">installing packages</a>.
+The <a class="reference external" href="https://mamba.readthedocs.io/en/latest/index.html" title="(in mamba)"><span class="xref std std-doc">mamba</span></a> package installer is an alternative
+to <code class="docutils literal notranslate"><span class="pre">conda</span></code>. At present, the <code class="docutils literal notranslate"><span class="pre">mamba</span> <span class="pre">create</span> <span class="pre">...</span></code> and <code class="docutils literal notranslate"><span class="pre">mamba</span> <span class="pre">install</span>
+<span class="pre">...</span></code> commands tend to resolve the complex <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> package
+dependencies substantially faster than <code class="docutils literal notranslate"><span class="pre">conda</span></code>.</p>
+<p>For working with <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> and mixed Python and R conda environments
+generally, it is important to attend to the difference between the
+<code class="docutils literal notranslate"><span class="pre">conda</span></code> default channels <a class="reference external" href="https://anaconda.org.main">anaconda.org/main</a> and <a class="reference external" href="https://anaconda.org/r">anaconda.org/r</a> where packages are maintained by the
+Anaconda, Inc. team and the not-always-compatible parallel universe of
+the <a class="reference external" href="https://conda-forge.org/">conda-forge</a> channel where many of
+the same-named conda packages are maintained by the open-source
+community. Choosing suitable channels for installing conda packages
+can be tricky because the specific versions of packages required for
+compatibility and best performance depend on the computing hardware,
+operating systems, compilers, and the version requirements of packages
+that are already in the environment or will be. The conda-forge
+maintainers recommend setting the .condarc <a class="reference external" href="https://docs.conda.io/projects/conda/en/master/user-guide/configuration/use-condarc.html#using-the-condarc-conda-configuration-file">configuration file</a>
+to strict conda-forge channel priority.  However, revising the default
+channel priority may not be appropriate for all users, in which case
+the command-line options <code class="docutils literal notranslate"><span class="pre">--channel</span> <span class="pre">conda-forge</span>
+<span class="pre">--strict-channel-priority</span></code> may be used. The examples below illustrate
+command line options for a few common installation scenarios
+encountered in practice.</p>
+<p>Our current recommended best practice for working with conda
+environments is to install the lightweight <a class="reference external" href="https://docs.conda.io/en/latest/miniconda.html">miniconda3</a> and then avoid
+polluting the “base” conda environment with data analysis and
+application packages like <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code>.  Instead, create separate new
+working environments, each populated with the packages needed for a
+given project. The <a class="reference external" href="https://mamba.readthedocs.io/en/latest/index.html" title="(in mamba)"><span class="xref std std-doc">mamba</span></a> package is an
+exception to this rule. If you elect to use <code class="docutils literal notranslate"><span class="pre">mamba</span></code> follow the
+<a class="reference external" href="https://mamba.readthedocs.io/en/latest/installation.html">installation instructions</a>
+carefully.</p>
+</section>
+<section id="how-to-install-fitgrid">
+<span id="conda-install-fitgrid"></span><h2>How to install <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code><a class="headerlink" href="#how-to-install-fitgrid" title="Permalink to this headline"></a></h2>
+<p>These examples show how to install <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> into a new conda
+working environment from the conda base environment with a shell
+command in a linux or Mac terminal window.  They assume the <code class="docutils literal notranslate"><span class="pre">conda</span></code>
+and <code class="docutils literal notranslate"><span class="pre">mamba</span></code> executables are already installed in the base
+environment and the users’s channel configuration is the minconda3
+default shown here:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">(</span>base<span class="o">)</span> $ which conda mamba
+/home/your_userid/miniconda3/bin/conda
+/home/your_userid/miniconda3/bin/mamba
+<span class="o">(</span>base<span class="o">)</span> $ conda config --show channels default_channels channel_priority
+channels:
+  - defaults
+default_channels:
+  - https://repo.anaconda.com/pkgs/main
+  - https://repo.anaconda.com/pkgs/r
+channel_priority: flexible
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The example installation commands are broken into separate lines for
+readability. If you do this, make sure the \ is the last character on each line.
+Alternatively you can enter the command as a single line without any \.</p>
+</div>
+<section id="with-mamba">
+<h3>with <code class="docutils literal notranslate"><span class="pre">mamba</span></code><a class="headerlink" href="#with-mamba" title="Permalink to this headline"></a></h3>
+<section id="fitgrid-stable-release">
+<h4><code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> stable release<a class="headerlink" href="#fitgrid-stable-release" title="Permalink to this headline"></a></h4>
+<p>This is a typical installation of the latest stable release of
+<code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> into a fresh conda environment named <code class="docutils literal notranslate"><span class="pre">fg_012021</span></code>. This
+pattern is likely to be compatible with recent versions of other conda
+packages for x86_64 linux platforms and recent Intel Mac OSX.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">(</span>base<span class="o">)</span> $ mamba create --name fg_012021 <span class="se">\</span>
+    -c conda-forge -c ejolly -c kutaslab <span class="se">\</span>
+    fitgrid
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This installation currently defaults to OpenBLAS builds of matrix
+math and linear algebra libraries so execution time on some Intel
+CPUs may be substantially longer than for the Intel Math
+Kernel (MKL) builds of the libraries. For a workaround see
+<a class="reference internal" href="#mkl-v-openblas"><span class="std std-ref">Selecting MKL or OpenBLAS</span></a> below.</p>
+</div>
+</section>
+<section id="fitgrid-development-version">
+<h4><code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> development version<a class="headerlink" href="#fitgrid-development-version" title="Permalink to this headline"></a></h4>
+<p>At times, the development version of <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> runs ahead of the latest
+stable release and includes bug fixes and new features. The
+latest development version may be installed by overriding the default
+<cite>kutaslab</cite> conda channel with <cite>kutaslab/label/pre-release</cite> like so:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">(</span>base<span class="o">)</span> $ mamba create --name fg_012021 <span class="se">\</span>
+    -c conda-forge -c ejolly -c kutaslab/label/pre-release <span class="se">\</span>
+    fitgrid
+</pre></div>
+</div>
+</section>
+<section id="selecting-a-python-version">
+<h4>Selecting a Python version<a class="headerlink" href="#selecting-a-python-version" title="Permalink to this headline"></a></h4>
+<p>Specific versions of Python and other packages can be selected for
+installation with the conda package specification syntax. This example
+installs <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> with the most recent version of Python 3.8.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">(</span>base<span class="o">)</span> $ mamba create --name fg_012021 <span class="se">\</span>
+    -c conda-forge -c ejolly -c kutaslab <span class="se">\</span>
+    fitgrid <span class="nv">python</span><span class="o">=</span><span class="m">3</span>.8
+</pre></div>
+</div>
+</section>
+<section id="selecting-mkl-or-openblas">
+<span id="mkl-v-openblas"></span><h4>Selecting MKL or OpenBLAS<a class="headerlink" href="#selecting-mkl-or-openblas" title="Permalink to this headline"></a></h4>
+<p>On Intel CPUs, the <a class="reference external" href="https://en.wikipedia.org/wiki/Math_Kernel_Library">Intel Math Kernel Library (MKL)</a> builds of
+optimized math libraries like the Basic Linear Algebra Subprograms
+(BLAS) may offer a substantial performance advantage over <a class="reference external" href="https://en.wikipedia.org/wiki/OpenBLAS">OpenBLAS</a>. For AMD CPUs OpenBLAS may
+outperform MKL. This example shows how to enforce installation of the
+MKL build and use <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">list</span></code> to inspect the installed packages.  To
+select OpenBLAS builds, replace <code class="docutils literal notranslate"><span class="pre">mkl</span></code> with <code class="docutils literal notranslate"><span class="pre">openblas</span></code> in the first
+command.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">(</span>base<span class="o">)</span> $ mamba create --name fg_012021 <span class="se">\</span>
+    -c conda-forge -c ejolly -c kutaslab <span class="se">\</span>
+    fitgrid <span class="s2">&quot;blas=*=mkl*&quot;</span>
+<span class="o">(</span>base<span class="o">)</span> $ activate fg_012021
+<span class="o">(</span>fg_012021<span class="o">)</span> $ conda list <span class="p">|</span> egrep <span class="s2">&quot;(mkl|blas|liblapack)&quot;</span>
+<span class="c1"># packages in environment at /home/userid/miniconda3/envs/fg_012021:</span>
+blas                      <span class="m">2</span>.109                       mkl    conda-forge
+blas-devel                <span class="m">3</span>.9.0                     9_mkl    conda-forge
+libblas                   <span class="m">3</span>.9.0                     9_mkl    conda-forge
+libcblas                  <span class="m">3</span>.9.0                     9_mkl    conda-forge
+liblapack                 <span class="m">3</span>.9.0                     9_mkl    conda-forge
+liblapacke                <span class="m">3</span>.9.0                     9_mkl    conda-forge
+mkl                       <span class="m">2021</span>.2.0           h06a4308_296
+mkl-devel                 <span class="m">2021</span>.2.0           h66538d2_296
+mkl-include               <span class="m">2021</span>.2.0           h06a4308_296
+</pre></div>
+</div>
+</section>
+<section id="install-fitgrid-and-run-examples-gallery-notebooks">
+<h4>Install fitgrid and run Examples Gallery notebooks<a class="headerlink" href="#install-fitgrid-and-run-examples-gallery-notebooks" title="Permalink to this headline"></a></h4>
+<p>To run the notebooks in the <a class="reference internal" href="gallery.html#gallery"><span class="std std-ref">Examples Gallery</span></a> install <a class="reference external" href="https://jupyter.org/">JupyterLab or
+Jupyter</a> in the same conda environment as
+<code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> and it launch like so:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">(</span>base<span class="o">)</span> $ mamba create --name fg_012021 <span class="se">\</span>
+    -c conda-forge -c ejolly -c kutaslab <span class="se">\</span>
+    fitgrid jupyterlab
+<span class="o">(</span>base<span class="o">)</span> $ conda activate fg_012021
+<span class="o">(</span>fg_012021<span class="o">)</span> $ jupyter lab
+</pre></div>
+</div>
+</section>
+<section id="prioritize-anaconda-org-default-channels-over-conda-forge">
+<h4>Prioritize anaconda.org default channels over conda-forge<a class="headerlink" href="#prioritize-anaconda-org-default-channels-over-conda-forge" title="Permalink to this headline"></a></h4>
+<p>This example shows how to install fitgrid into an environment
+populated primarily with the stale-but-stable packages from the
+Anaconda default channels. The explicit <code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">conda-forge</span></code> channel is
+necessary here because not all dependencies are available on the
+default conda channels.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">(</span>base<span class="o">)</span> $ mamba create --name fg_012021 <span class="se">\</span>
+    -c defaults -c conda-forge -c ejolly -c kutaslab <span class="se">\</span>
+    fitgrid
+</pre></div>
+</div>
+</section>
+</section>
+<section id="with-conda">
+<h3>with <code class="docutils literal notranslate"><span class="pre">conda</span></code><a class="headerlink" href="#with-conda" title="Permalink to this headline"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">conda</span></code> installer may be used in place of <code class="docutils literal notranslate"><span class="pre">mamba</span></code> as shown in
+the next example, although dependency resolution may be substantially
+slower.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="o">(</span>base<span class="o">)</span> $ conda create --name fg_012021 <span class="se">\</span>
+    -c conda-forge -c ejolly -c kutaslab <span class="se">\</span>
+    fitgrid
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">conda</span></code> and <code class="docutils literal notranslate"><span class="pre">mamba</span></code> dependency resolution algorithms are not
+identical and may arrive at different solutions.</p>
+</div>
+</section>
+<section id="pip-is-not-supported">
+<h3><code class="docutils literal notranslate"><span class="pre">pip</span></code> is not supported<a class="headerlink" href="#pip-is-not-supported" title="Permalink to this headline"></a></h3>
+<p>Since <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> requires numerous R packages, installing with the
+Python package installer, <a class="reference external" href="https://pip.pypa.io/en/stable/" title="(in pip v22.0)"><span class="xref std std-doc">pip</span></a> is no longer
+supported and is not recommended for general use.</p>
+</section>
+</section>
+<section id="system-requirements">
+<h2>System requirements<a class="headerlink" href="#system-requirements" title="Permalink to this headline"></a></h2>
+<p>The platform of choice is linux. Minimum system requirements are not
+known but obviously large scale regression modeling with millions of
+data points is computationally demanding. Current versions of fitgrid
+are developed and used in Ubuntu 20.04 running on a high-performance
+multicore server with Intel CPUs (72 cores/144 threads, 1TB RAM);
+continuous integrations tests run on ubuntu-latest and macos-10.15 on
+GitHub Actions <a class="reference external" href="https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#supported-runners-and-hardware-resources">hosted runners</a>.
+Previous versions of <code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> were developed and used in CentOS 7
+with Intel CPUs (24 cores/48 threads, 256-512 GB RAM). We are unable
+to test the Windows 64-bit conda package, field reports are welcome,
+see <a class="reference internal" href="contributing.html#how-to-contribute"><span class="std std-ref">Contributing</span></a> for more information.</p>
+</section>
+<section id="tips">
+<h2>Tips<a class="headerlink" href="#tips" title="Permalink to this headline"></a></h2>
+<ul class="simple">
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">list</span></code> to inspect package versions and the channels they come
+from when constructing conda enviroments.</p></li>
+<li><p>To help avoid package version conflicts and speed up the dependency
+solver it can be useful to specify the Python version and install
+<code class="docutils literal notranslate"><span class="pre">fitgrid</span></code> along with the other conda packages you want into a
+fresh environment in one fell swoop. The package installers cannot
+see into the future. If packages are installed one by one, the next
+package version you want may not be compatible with what is already
+in the environment.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">mamba</span> <span class="pre">create</span></code> and <code class="docutils literal notranslate"><span class="pre">mamba</span> <span class="pre">install</span></code> are not exact drop in
+replacements for <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">create</span></code> and <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">install</span></code> because
+<code class="docutils literal notranslate"><span class="pre">conda</span></code> has an affinity for packages on default conda channels and
+<code class="docutils literal notranslate"><span class="pre">mamba</span></code> has an affinity for packages on conda-forge and they may
+resolve dependencies differently.</p></li>
+<li><p>What works and what doesn’t when creating conda environments and
+installing packages depends greatly on the <em>combinations</em> of
+packages you wish to install. Not all combinations of platforms,
+Python versions, installers, channel priority, and packages are
+compatible.</p></li>
+<li><p>Depending on your computer hardware, you may see a significant
+performance difference between the Intel MKL and OpenBLAS builds of
+the Basic Linear Algebra Support (BLAS) and Linear Algebra Package
+(LAPACK) libraries, particularly for fitting mixed-effects models.</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="about_fitgrid.html" class="btn btn-neutral float-left" title="About fitgrid" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="auto_gallery/quickstart.html" class="btn btn-neutral float-right" title="Quick start" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
